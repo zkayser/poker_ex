@@ -1,0 +1,12 @@
+<div class="row">
+  <div class="col s12 center signup">
+    <h3>Enter your name to join</h3>
+      <input id="chat-input" placeholder="Enter your name here">
+      <a class="btn btn-large join-btn">Join</a>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12 card-table">
+    <div id="me"></div>
+  </div>
+</div>

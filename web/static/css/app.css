@@ -1,0 +1,70 @@
+/* This file is for your main application css. */
+
+#messages {
+	overflow-y: scroll;
+}
+
+#message-container {
+	overflow-y: scroll;
+}
+
+#me {
+	position: relative;
+	height: 18.75%;
+	width: 18.75%;
+	left: 40.625%;
+	top: 81.25%;
+	border: 1px solid black;
+	background-color: black;
+}
+
+
+header {
+	padding-left: 300px;
+}
+
+main {
+	padding-left: 300px;
+}
+
+.top-nav {
+	height: 122px;
+}
+
+nav.top-nav a.page-title {
+	line-height: 122px;
+	font-size: 48px;
+}
+
+.side-nav {
+	overflow: hidden;
+}
+
+.search-wrapper.card {
+	margin: 0rem 0 1rem 0;
+}
+
+#player-element {
+	margin-left: 10px;
+}
+
+.card-table {
+	border: 1px solid black;
+	height: 400px;
+}
+
+::-webkit-input-placeholder {
+   color: darkslategray;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   color: darkslategray;  
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   color: darkslategray;  
+}
+
+:-ms-input-placeholder {  
+   color: darkslategray;  
+}
