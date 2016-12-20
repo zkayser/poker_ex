@@ -31,6 +31,14 @@ defmodule PokerEx.TableManager do
 		GenServer.call(@name, :advance)
 	end
 	
+	def call(player) do
+		GenServer.call(@name, {:call, player})
+	end
+	
+	def raise_pot(player) do
+		GenServer.call(@name, {:raise_pot, player})
+	end
+	
 	def fold(player) do
 		GenServer.call(@name, {:fold, player})
 	end
@@ -43,27 +51,15 @@ defmodule PokerEx.TableManager do
 		GenServer.call(@name, :fetch_data)
 	end
 	
-	###########################
-	# State machine callbacks #
-	###########################
+	#############
+	# Callbacks #
+	#############
 	
 	def init([players]) do
 		send(self(), {:setup, players})
 		{:ok, %State{}}
 	end
 	
-	#################
-	# Handle events #
-	##################
-	
-			#########
-			# Setup #
-			#########
-			
-	def handle_info({:setup, players}, _state) do
-		data = %State{seating: Enum.with_index(players)}
-		{:noreply, data}
-	end
 	
 			########################
 			# Seating and removing #
@@ -81,7 +77,7 @@ defmodule PokerEx.TableManager do
 		new_seating = Enum.map(seating, fn {pl, _} -> pl end) |> Enum.reject(fn pl -> pl == player end) |> Enum.with_index
 		now_active = Enum.reject(active, fn {pl, _} -> pl == player end)
 		{name, _num} = cp
-		{next_name, _num} = np
+		{_next_name, _num} = np
 		current = if player == name, do: np, else: cp
 		
 		next = 
@@ -128,7 +124,7 @@ defmodule PokerEx.TableManager do
 		
 		next_player = 
 			case current_player do
-				{_, 0} -> Enum.find(seating, fn {pl, seat} -> seat == 1 end)
+				{_, 0} -> Enum.find(seating, fn {_, seat} -> seat == 1 end)
 				_ -> 
 					if Enum.any?(seating, fn {_, seat} -> seat > num2 + 1 end) do
 						Enum.find(seating, fn {_, seat} -> seat == num2 + 2 end)
@@ -143,12 +139,16 @@ defmodule PokerEx.TableManager do
 		{:reply, update, update}
 	end
 	
-	def handle_call(:advance, _from, %State{current_player: {player, seat}, active: active} = data) do
+	def handle_call(:advance, _from, %State{current_player: {_player, _seat}} = data) do
 		update = %State{ data | current_player: data.next_player, next_player: next_player(data)}
 		{:reply, update, update}
 	end
 	
-	def handle_call({:fold, player}, _state, %State{active: active, current_player: {pl, _}} = data) when player == pl do
+			################
+			# Player calls #
+			################
+	
+	def handle_call({:fold, player}, _from, %State{active: active, current_player: {pl, _}} = data) when player == pl do
 		update = %State{ data | active: Enum.reject(active, fn {pl, _} -> pl == player end), 
 			current_player: data.next_player, next_player: next_player(data)
 		}
@@ -157,7 +157,13 @@ defmodule PokerEx.TableManager do
 	
 	def handle_call({:fold, _}, _, _), do: raise RuntimeError, "Illegal operation"
 	
-	def handle_call(:clear_round, _state, %State{seating: seating, big_blind: bb, small_blind: sb}) do
+	
+	
+			#########
+			# Clear #
+			#########
+	
+	def handle_call(:clear_round, _from, %State{seating: seating, big_blind: bb, small_blind: sb}) do
 		[head|tail] = seating
 		update = %State{seating: tail ++ [head], big_blind: bb, small_blind: sb}
 		{:reply, update, update}
@@ -167,7 +173,16 @@ defmodule PokerEx.TableManager do
 			# Data fetcher #
 			################
 			
-	def handle_call(:fetch_data, _state, data), do: {:reply, data, data}
+	def handle_call(:fetch_data, _from, data), do: {:reply, data, data}
+	
+			#########
+			# Setup #
+			#########
+			
+	def handle_info({:setup, players}, _state) do
+		data = %State{seating: Enum.with_index(players)}
+		{:noreply, data}
+	end
 	
 			#############
 			# Catch all #

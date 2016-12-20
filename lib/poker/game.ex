@@ -14,6 +14,7 @@ defmodule PokerEx.Game do
 	alias PokerEx.Deck
 	alias PokerEx.Evaluator
 	alias PokerEx.AppState
+	alias PokerEx.TableManager, as: Manager
 	alias PokerEx.TableState, as: State
 	
 	@type t :: %Game{players: [String.t] | [{String.T, [Card.t]}], table: [Card.t], ready: [Player.t] | [],
@@ -80,7 +81,7 @@ defmodule PokerEx.Game do
 			
 		max = Enum.map(contenders, fn {pl, hand} -> hand.score end) |> Enum.max
 
-		%Game{game| players: players, winner: Enum.filter(contenders, fn {contender, hand} -> hand.score == max end)}
+		%Game{ game| players: players, winner: Enum.filter(contenders, fn {contender, hand} -> hand.score == max end)}
 	end
 	def determine_winner(_), do: raise ArgumentError, "Cannot determine the winner unless five cards have been dealt"
 	
@@ -200,7 +201,6 @@ defmodule PokerEx.Game do
 			|> Player.reward(earnings)
 		end
 	end
-	
 	
 	defp _deal(players, deck, updated, number) when length(updated) < number do
 		player = List.first(players)

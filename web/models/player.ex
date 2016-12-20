@@ -22,7 +22,7 @@ defmodule PokerEx.Player do
 		end
 	end
 	
-	@spec reward(Player.t, non_neg_integer) :: Player.t
+	@spec reward(String.t, non_neg_integer) :: Player.t
 	def reward(name, amount) do
 		player = case AppState.get(name) do
 			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
