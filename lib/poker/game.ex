@@ -22,6 +22,13 @@ defmodule PokerEx.Game do
 									 to_call: integer, called: [Player.t] | [], sitting: [Player.t] | [], state: State.t
 									 }
 									 
+	# The Game type should be held in three different structs: %History{}, which keeps track of the bets and
+	# which players have paid what through the course of the game; %State{}, which keeps track of the players
+	# sitting at the table, active players in the game, and which players are all_in; and finally %CardMonitor 
+	# which keeps track of the deck, player hands, and the cards on the table. On top of these three structs,
+	# the Game type will also hold a winners attribute and a called attribute. The called attribute will be
+	# used in the Table.ex state machine module to judge whether or not to move on to the next stage.
+									 
 	defstruct players: [], table: [], deck: nil, ready: [],
 						winner: nil, pot: 0, sitting: [], all_in: [],
 						to_call: 0, called: [], current_paid: [], state: %State{}
@@ -129,6 +136,36 @@ defmodule PokerEx.Game do
 		end
 		
 	end
+	
+	##### Experimental #####
+	
+	def raise_pot(game, player, amount, to_call) when amount > to_call do
+		paid = BetServer.get_paid_in_round(player) || 0
+		call_amount = amount - paid
+		
+		# As a security measure, check that the player has enough chips
+		# to make the call. If not, put the player all in and commit
+		# a bet to the BetServer for the total remaining chips that
+		# the player has.
+		
+		real_amount = 
+		case Player.bet(player, call_amount) do
+			%Player{name: _, chips: _} -> call_amount
+			:insufficient_chips -> 
+				pl = AppState.get(player)
+				Player.bet(pl.chips)
+				TableManager.all_in(player)
+				pl.chips
+			_ -> raise "Something went wrong in Player.bet"
+		end
+		
+		
+		BetServer.bet(player, real_amount)
+		
+	end
+	
+	
+	########################
 	
 	# The front end client should not offer the ability to call raise_pot when the player
 	# has a chip count less than that of the current pot

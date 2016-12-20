@@ -31,20 +31,36 @@ defmodule PokerEx.TableManager do
 		GenServer.call(@name, :advance)
 	end
 	
-	def call(player) do
-		GenServer.call(@name, {:call, player})
+	def get_active do
+		GenServer.call(@name, :get_active)
 	end
 	
-	def raise_pot(player) do
-		GenServer.call(@name, {:raise_pot, player})
+	def get_big_blind do
+		GenServer.call(@name, :get_big_blind)
+	end
+	
+	def get_small_blind do
+		GenServer.call(@name, :get_small_blind)
+	end
+	
+	def players_only do
+		GenServer.call(@name, :players_only)
 	end
 	
 	def fold(player) do
 		GenServer.call(@name, {:fold, player})
 	end
 	
+	def all_in(player) do
+		GenServer.call(@name, {:all_in, player})
+	end
+	
 	def clear_round do
 		GenServer.call(@name, :clear_round)
+	end
+	
+	def reset_turns do
+		GenServer.call(@name, :reset_turns)
 	end
 	
 	def	fetch_data do
@@ -144,6 +160,13 @@ defmodule PokerEx.TableManager do
 		{:reply, update, update}
 	end
 	
+	def handle_call(:reset_turns, _from, data) do
+		update = first_turn(data)
+		next_player = next_player(update, update.current_player)
+		update = %State{ update | next_player: next_player}
+		{:reply, update, update}
+	end
+	
 			################
 			# Player calls #
 			################
@@ -155,9 +178,16 @@ defmodule PokerEx.TableManager do
 		{:reply, update, update}
 	end
 	
-	def handle_call({:fold, _}, _, _), do: raise RuntimeError, "Illegal operation"
+	def handle_call({:fold, _}, _, _), do: raise "Illegal operation"
 	
+	def handle_call({:all_in, player}, _from, %State{active: active, current_player: {pl, _}, all_in: ai} = data) when player == pl do
+		update = %State{ data | active: Enum.reject(active, fn {pl, _} -> pl == player end),
+			current_player: data.next_player, next_player: next_player(data), all_in: ai ++ player
+		}
+		{:reply, update, update}
+	end
 	
+	def handle_call({:all_in, _}, _, _), do: raise "Illegal operation"
 	
 			#########
 			# Clear #
@@ -169,11 +199,28 @@ defmodule PokerEx.TableManager do
 		{:reply, update, update}
 	end
 	
-			################
-			# Data fetcher #
-			################
+			#################
+			# Data fetchers #
+			#################
+			
+	def handle_call(:get_active, _from, %State{active: active} = data) do
+		{:reply, active, data}
+	end
 			
 	def handle_call(:fetch_data, _from, data), do: {:reply, data, data}
+	
+	def handle_call(:get_big_blind, _from, %State{big_blind: big_blind} = data) do
+		{:reply, big_blind, data}
+	end
+	
+	def handle_call(:get_small_blind, _from, %State{small_blind: small_blind} = data) do
+		{:reply, small_blind, data}
+	end
+	
+	def handle_call(:players_only, _from, %State{active: active} = data) do
+		players = for {player, _} <- active, do: player
+		{:reply, players, data}
+	end
 	
 			#########
 			# Setup #
@@ -217,5 +264,12 @@ defmodule PokerEx.TableManager do
 				[{pl, s}|_rest] -> {pl, s}
 				_ -> raise "Something went wrong"
 			end
+	end
+	
+	defp first_turn(%State{active: active, big_blind: big_blind} = state) do
+		case Enum.find(active, fn {pl, _num} -> big_blind == pl end) do
+			true -> %State{ state | current_player: {big_blind, state.current_big_blind}}
+			_ -> %State{ state | current_player: next_player(state, {big_blind, state.current_big_blind})}
+		end
 	end
 end
