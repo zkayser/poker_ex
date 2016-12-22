@@ -5,9 +5,14 @@ defmodule PokerEx.Player do
 	alias PokerEx.Card
 	alias PokerEx.AppState
 	
-	@type t :: %Player{name: String.t, chips: non_neg_integer, hand: [Card.t] | nil}
+	@type t :: %Player{name: String.t, chips: non_neg_integer}
 	
-	defstruct name: nil, chips: nil, hand: nil, position: nil
+	defstruct name: nil, chips: nil
+	
+	@spec new(String.t, pos_integer) :: Player.t
+	def new(name, chips \\ 1000) do
+		%Player{name: name, chips: chips}
+	end
 	
 	@spec bet(String.t, non_neg_integer) :: Player.t
 	def bet(name, amount) do

@@ -193,9 +193,9 @@ defmodule PokerEx.TableManager do
 			# Clear #
 			#########
 	
-	def handle_call(:clear_round, _from, %State{seating: seating, big_blind: bb, small_blind: sb}) do
+	def handle_call(:clear_round, _from, %State{seating: seating, big_blind: bb, small_blind: sb, current_small_blind: csb} = state) do
 		[head|tail] = seating
-		update = %State{seating: tail ++ [head], big_blind: bb, small_blind: sb}
+		update = %State{seating: tail ++ [head], big_blind: sb, small_blind: next_seated(state, {sb, csb})}
 		{:reply, update, update}
 	end
 	
@@ -261,6 +261,15 @@ defmodule PokerEx.TableManager do
 		next = 
 			case Enum.drop_while(active, fn {_, num} -> num <= seat end) do
 				[] -> List.first(active)
+				[{pl, s}|_rest] -> {pl, s}
+				_ -> raise "Something went wrong"
+			end
+	end
+	
+	defp next_seated(%State{seating: seating}, {player, seat}) do
+		next = 
+			case Enum.drop_while(seating, fn {_, num} -> num <= seat end) do
+				[] -> List.first(seating)
 				[{pl, s}|_rest] -> {pl, s}
 				_ -> raise "Something went wrong"
 			end

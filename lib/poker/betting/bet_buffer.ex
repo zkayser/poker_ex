@@ -1,4 +1,4 @@
-defmodule PokerEx.Game2 do
+defmodule PokerEx.BetBuffer do
 	alias PokerEx.BetServer
 	alias PokerEx.TableManager
 	alias PokerEx.HandServer
@@ -12,12 +12,12 @@ defmodule PokerEx.Game2 do
 		%{called: []}
 	end
 	
-	def check(%{called: called} = game, player, paid, to_call) when paid == to_call do
-		%{game | called: called ++ [called]}
+	def check(%{called: called} = buffer, player, paid, to_call) when paid == to_call do
+		%{buffer | called: called ++ [called]}
 		TableManager.advance
 	end
 	
-	def call(%{called: called} = game, player) do
+	def call(%{called: called} = buffer, player) do
 		paid = BetServer.get_paid_in_round(player) || 0
 		to_call = BetServer.get_to_call
 		
@@ -36,10 +36,10 @@ defmodule PokerEx.Game2 do
 			BetServer.bet(player, real_amount, call_amount)
 			TableManager.advance
 			
-			game = %{game | called: called ++ [player]}
+			buffer = %{buffer | called: called ++ [player]}
 	end
 	
-	def raise_pot(game, player, amount, to_call) when amount > to_call do
+	def raise_pot(buffer, player, amount, to_call) when amount > to_call do
 		paid = BetServer.get_paid_in_round(player) || 0
 		call_amount = amount - paid
 		
@@ -66,18 +66,18 @@ defmodule PokerEx.Game2 do
 		# passed in as the third argument will be used simply for 
 		# updating the to_call amount in the BetServer. This is 
 		# is the amount that will be displayed to users when playing
-		# the game, (i.e. if the amount is 70, but the player has already
-		# paid 20 during the round, the player will "raise to 70", but will
-		# not have to sacrifice the 20 chips put in earlier.)
+		# the game, (i.e. if the amount is 70 and the player has already
+		# paid 20 during the round, the player will "raise to 70" but
+		# only have 50 chips deducted from his/her account.)
 		
 		BetServer.bet(player, real_amount, amount)
 		TableManager.advance
 		
-		game = %{game | called: [player]}
+		buffer = %{buffer | called: [player]}
 	end
 	
-	def reset_called(game) do
-		%{game | called: []}
+	def reset_called(buffer) do
+		%{buffer | called: []}
 	end
 	
 end

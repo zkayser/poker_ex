@@ -16,7 +16,6 @@ defmodule PokerEx do
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
       worker(PokerEx.AppState, []),
       worker(PokerEx.RoomManager, []),
-      worker(PokerEx.GameFSM, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

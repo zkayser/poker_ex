@@ -35,6 +35,10 @@ defmodule PokerEx.BetServer do
 		GenServer.cast(@name, :reset_round)
 	end
 	
+	def clear do
+		GenServer.cast(@name, :clear)
+	end
+	
 	#############
 	# Callbacks #
 	#############
@@ -80,6 +84,10 @@ defmodule PokerEx.BetServer do
 	
 	def handle_cast(:reset_round, history) do
 		{:noreply, %History{ history | round: %{}, to_call: 0} }
+	end
+	
+	def handle_cast(:clear, history) do
+		{:noreply, %History{}, to_call: 0}
 	end
 	
 	#####################

@@ -32,6 +32,10 @@ defmodule PokerEx.HandServer do
 	def score do
 		GenServer.call(@name, :score)
 	end
+	
+	def fold(player) do
+		GenServer.cast(@name, {:fold, player})
+	end
 
 	def hand_rankings do
 		GenServer.call(@name, :hand_rankings)
@@ -72,6 +76,8 @@ defmodule PokerEx.HandServer do
 		{:reply, update, update}
 	end
 	
+	def handle_call(:deal_one, _, _), do: raise "Only 5 cards can be dealt on the table"
+	
 	def handle_call(:score, _from, %Server{player_hands: hands, table: table} = server) do
 		evaluated = Enum.map(hands, fn {player, hand} -> {player, Evaluator.evaluate_hand(hand, table)} end)
 		
@@ -87,6 +93,11 @@ defmodule PokerEx.HandServer do
 	
 	def handle_call(:fetch_data, _from, server) do
 		{:reply, server, server}
+	end
+	
+	def handle_cast({:fold, player}, %Server{player_hands: player_hands} = server) do
+		update = Enum.reject(player_hands, fn {name, hand} -> name == player end)
+		{:noreply, %Server{ server | player_hands: player_hands}}
 	end
 	
 	def handle_cast(:clear, _server) do
