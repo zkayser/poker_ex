@@ -172,6 +172,7 @@ defmodule PokerEx.Room do
 	
 	########## FLOP STATE #############
 	
+	
 	def flop({:call, from}, {:call_pot, player}, %Room{buffer: %{called: called} = buffer} = data) do
 		case length(Manager.get_active) - 1 > length(called) do
 			true ->
