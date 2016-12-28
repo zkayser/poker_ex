@@ -19,9 +19,9 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_info({:after_join, _message}, socket) do
 		player_id = socket.assigns.player_name
-		player = %Player{name: player_id, chips: 1000}
-		player = AppState.put(player)
+		player = Player.new(player_id) |> AppState.put
 		assign(socket, :player, player)
+		Room.join(player)
 		broadcast! socket, "player_joined", %{player: player}
 		{:noreply, socket}
 	end
