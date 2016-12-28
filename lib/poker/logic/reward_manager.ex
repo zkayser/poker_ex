@@ -19,7 +19,6 @@ defmodule PokerEx.RewardManager do
 	# Used to reward player when all others fold
 	@spec reward(Player.t, pos_integer) :: Player.t
 	def reward(player, amount) do
-		IO.puts "And player #{inspect(player)} rewarded with #{inspect(amount)}"
 		Player.reward(player, amount)
 	end
 	

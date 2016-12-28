@@ -2,6 +2,7 @@ defmodule PokerEx.PlayersChannel do
 	use Phoenix.Channel
 	alias PokerEx.AppState
 	alias PokerEx.Player
+	alias PokerEx.Room
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	intercept ["new_msg"]

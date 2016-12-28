@@ -200,7 +200,6 @@ defmodule PokerEx.Room do
 	
 	########## FLOP STATE #############
 	
-	
 	def flop({:call, from}, {:call_pot, player}, %Room{buffer: %{called: called} = buffer} = data) do
 		case length(Manager.get_active) - 1 > length(called) do
 			true ->
@@ -531,9 +530,9 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:info, {:reward_winner, stats, paid, active, all_in}, data) do
-		players = active ++ all_in |> Enum.map(fn {pl, seat} -> pl end)
+		players = active ++ all_in |> Enum.map(fn {pl, _seat} -> pl end)
 		new_stats = Enum.filter(stats, fn {pl, _score} -> pl in players end) |> Enum.sort(fn {_, score1}, {_, score2} -> score1 > score2 end)
-		{_, winning_score} = Enum.max_by(new_stats, fn {pl, score} -> score end)
+		{_, winning_score} = Enum.max_by(new_stats, fn {_pl, score} -> score end)
 		new_stats = Enum.filter(new_stats, fn {_pl, score} -> score == winning_score end)
 		RewardManager.manage_rewards(new_stats, Map.to_list(paid)) |> RewardManager.distribute_rewards
 		{:keep_state, data}
@@ -544,29 +543,8 @@ defmodule PokerEx.Room do
 		{:keep_state, data}
 	end
 	
-	def handle_event(event_type, event_content, data) do
+	def handle_event(_event_type, _event_content, data) do
 		{:keep_state, data}
 	end
 	
-	#####################
-	# Utility functions #
-	#####################
-	
-	defp update_room(data) do
-		%Room{ data | table_state: Manager.fetch_data, bet_history: BetServer.fetch_data, hands: Server.fetch_data}
-	end
-	
-	defp update_and_flop(data) do
-		Manager.reset_turns
-		Server.deal_flop
-		BetServer.reset_round
-		update_room(data)
-	end
-	
-	defp update_and_deal(data) do
-		Manager.reset_turns
-		Server.deal_one
-		BetServer.reset_round
-		update_room(data)
-	end
 end
