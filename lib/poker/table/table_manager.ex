@@ -1,7 +1,6 @@
 defmodule PokerEx.TableManager do
 	use GenServer
 	
-	alias PokerEx.Room
 	alias PokerEx.TableState, as: State
 	
 	@name :table_manager
@@ -91,7 +90,12 @@ defmodule PokerEx.TableManager do
 		{:noreply, update}
 	end
 	
-	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active, current_player: cp, next_player: np} = data) do
+	def handle_cast({:all_in, player}, %State{current_player: {_pl, seat}, all_in: ai} = data) do
+		update = %State{ data | all_in: ai ++ [{player, seat}]}
+		{:noreply, update}
+	end
+	
+	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active} = data) do
 		new_seating = Enum.map(seating, fn {pl, _} -> pl end) |> Enum.reject(fn pl -> pl == player end) |> Enum.with_index
 		case active do
 			[] ->
@@ -198,7 +202,7 @@ defmodule PokerEx.TableManager do
 			################
 	
 	def handle_call({:fold, player}, _from, %State{active: active, current_player: {pl, _}} = data) when player == pl do
-		[current|rest] = active
+		[_|rest] = active
 		[head|tail] = rest
 		case length(tail) do
 			x when x >= 1 ->
@@ -211,11 +215,6 @@ defmodule PokerEx.TableManager do
 	end
 	
 	def handle_call({:fold, _}, _, _), do: raise "Illegal operation"
-	
-	def handle_cast({:all_in, player}, %State{active: active, current_player: {pl, seat}, all_in: ai} = data) do
-		update = %State{ data | all_in: ai ++ [{player, seat}]}
-		{:noreply, update}
-	end
 	
 			#########
 			# Clear #
@@ -279,14 +278,6 @@ defmodule PokerEx.TableManager do
 	#####################
 	# Utility functions #
 	#####################
-	
-	defp next_player(%State{active: active, next_player: {_player, seat}}) do
-			case Enum.drop_while(active, fn {_, num} -> num <= seat end) do
-				[] -> List.first(active)
-				[{pl, s}|_rest] -> {pl, s}
-				_ -> raise ArgumentError
-			end
-	end
 	
 	defp next_player(%State{active: active}, {_player, seat}) do
 			case Enum.drop_while(active, fn {_, num} -> num <= seat end) do

@@ -1,6 +1,5 @@
 defmodule PokerEx.RewardManager do
 	alias PokerEx.Player
-	alias PokerEx.BetServer # for debugging -> remove later
 	
 	@type hand_rankings :: [{String.t, pos_integer}]
 	@type paid_in :: [{String.t, pos_integer}]

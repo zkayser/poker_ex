@@ -13,7 +13,7 @@ defmodule PokerEx.BetBuffer do
 	
 	def check(%{called: called} = buffer, _player, paid, to_call) when paid == to_call do
 		TableManager.advance
-		update = %{buffer | called: called ++ [called]}
+		%{buffer | called: called ++ [called]}
 	end
 	
 	def call(%{called: called} = buffer, player) do

@@ -67,7 +67,7 @@ defmodule PokerEx.RoomTest do
 	end
 	
 	test "a player should be able to join the room in the middle of an ongoing hand", context do
-		[p1, p2, p3, p4] = context[:players]
+		[p1, p2, p3, _] = context[:players]
 		Room.join(p1)
 		Room.join(p2)
 		Room.raise_pot(p2, 20)
@@ -107,7 +107,7 @@ defmodule PokerEx.RoomTest do
 			result = Room.fold(p1)
 			Process.sleep(100)
 			chips_end = AppState.get(p2.name).chips
-			assert result = "#{p2.name} wins the pot on fold"
+			assert result == "#{p2.name} wins the pot on fold"
 			assert chips_start < chips_end
 		end
 	
@@ -125,7 +125,7 @@ defmodule PokerEx.RoomTest do
 			result = Room.fold(p1)
 			Process.sleep(100)
 			chips_end = AppState.get(p2.name).chips
-			assert result = "#{p2.name} wins the pot on fold"
+			assert result == "#{p2.name} wins the pot on fold"
 			assert chips_start < chips_end
 		end
 	end
@@ -136,7 +136,7 @@ defmodule PokerEx.RoomTest do
 		Room.join(p2)
 		Room.raise_pot(p2, 1000)
 		Room.call_pot(p1)
-		assert_receive {ref, :game_finished}
+		assert_receive {_ref, :game_finished}
 	end
 	
 	describe "auto-complete in pre_flop state" do
@@ -148,7 +148,7 @@ defmodule PokerEx.RoomTest do
 			Room.call_pot(context[:next])
 			Room.call_pot(context[:on_deck])
 			Room.call_pot(context[:last])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 		
 		test "auto-complete works when one player goes all in, one calls, and the remaining fold", context do
@@ -156,7 +156,7 @@ defmodule PokerEx.RoomTest do
 			Room.fold(context[:next])
 			Room.fold(context[:on_deck])
 			Room.call_pot(context[:last])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 	end
 	
@@ -169,7 +169,7 @@ defmodule PokerEx.RoomTest do
 			Room.call_pot(context[:next])
 			Room.call_pot(context[:on_deck])
 			Room.call_pot(context[:last])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 		
 		test "auto-complete works when one player goes all in, one calls, and the remaining fold", context do
@@ -177,7 +177,7 @@ defmodule PokerEx.RoomTest do
 			Room.call_pot(context[:next])
 			Room.fold(context[:on_deck])
 			Room.fold(context[:last])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 		
 		test "auto-complete works when one player goes all in, the players in the middle fold, and the last player calls", context do
@@ -185,7 +185,7 @@ defmodule PokerEx.RoomTest do
 			Room.fold(context[:next])
 			Room.fold(context[:on_deck])
 			Room.call_pot(context[:last])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 		
 		test "auto-complete works when the first player raises, the next player goes all in, the remaining two fold, and the first player calls", context do
@@ -194,7 +194,7 @@ defmodule PokerEx.RoomTest do
 			Room.fold(context[:on_deck])
 			Room.fold(context[:last])
 			Room.call_pot(context[:current])
-			assert_receive {ref, :game_finished}
+			assert_receive {_ref, :game_finished}
 		end
 	end
 	
