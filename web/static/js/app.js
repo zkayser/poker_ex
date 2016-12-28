@@ -18,19 +18,19 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import Connection from "./socket"
+import Connection from "./socket";
 
-let joinButton = document.querySelector(".join-btn")
-let chatInput = document.querySelector("#chat-input")
+let joinButton = document.querySelector(".join-btn");
+let chatInput = document.querySelector("#chat-input");
 
 joinButton.addEventListener('click', function() {
-	let name = chatInput.value
-	chatInput.value = ""
+	let name = chatInput.value;
+	chatInput.value = "";
 	if (name.length > 0) {
-		Connection.init(name.trim(), document)
+		Connection.init(name.trim(), document);
 	} else {
-		alert("You must enter a name to join")
+		alert("You must enter a name to join");
 	}
-})
+});
 
 
