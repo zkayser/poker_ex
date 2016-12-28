@@ -9,6 +9,13 @@ defmodule PokerEx.RewardManagerTest do
 		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
 	end
 	
+	test "creates the proper rewards list when hand_rankings are out of order" do
+		hand_rankings = [{"2", 346}, {"3", 347}, {"1", 742}]
+		paid_in = [{"1", 400}, {"2", 400}, {"3", 400}]
+		expected = [{"1", 1200}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
 	test "creates the proper reward list with one winner, one side-pot, and the winner not all-in" do
 		hand_rankings = [{"a", 300}, {"b", 200}, {"c", 100}]
 		paid_in = [{"a", 100}, {"b", 50}, {"c", 100}, {"d", 20}]
@@ -29,5 +36,4 @@ defmodule PokerEx.RewardManagerTest do
 		expected = [{"a", 200}, {"b", 125},{"c", 200}]
 		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
 	end
-
 end

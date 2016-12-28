@@ -1,5 +1,6 @@
 defmodule PokerEx.RewardManager do
 	alias PokerEx.Player
+	alias PokerEx.BetServer # for debugging -> remove later
 	
 	@type hand_rankings :: [{String.t, pos_integer}]
 	@type paid_in :: [{String.t, pos_integer}]
@@ -7,6 +8,7 @@ defmodule PokerEx.RewardManager do
 	
 	@spec manage_rewards(hand_rankings, paid_in) :: rewards
 	def manage_rewards(hand_rankings, paid_in) do
+		hand_rankings = Enum.sort(hand_rankings, fn {_, score1}, {_, score2} -> score1 > score2 end)
 		_manage(hand_rankings, paid_in, [])
 	end
 	
@@ -18,13 +20,14 @@ defmodule PokerEx.RewardManager do
 	# Used to reward player when all others fold
 	@spec reward(Player.t, pos_integer) :: Player.t
 	def reward(player, amount) do
+		IO.puts "And player #{inspect(player)} rewarded with #{inspect(amount)}"
 		Player.reward(player, amount)
 	end
 	
 	defp _manage([], _, acc), do: acc |> Enum.reverse |> Enum.reject(fn {_, amount} -> amount == 0 end)
 	
 	defp _manage([{player, _score}|tail], paid_in, acc) do
-		{_, paid} = Enum.find(paid_in, fn {name, amount} -> name == player end)
+		{_, paid} = Enum.find(paid_in, fn {name, _amount} -> name == player end)
 		
 		reward = Enum.reduce(paid_in, 0, 
 			fn {_name, amount}, acc ->

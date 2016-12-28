@@ -1,7 +1,6 @@
 defmodule PokerEx.BetBuffer do
 	alias PokerEx.BetServer
 	alias PokerEx.TableManager
-	alias PokerEx.HandServer
 	alias PokerEx.Player
 	alias PokerEx.AppState
 	
@@ -12,9 +11,9 @@ defmodule PokerEx.BetBuffer do
 		%{called: []}
 	end
 	
-	def check(%{called: called} = buffer, player, paid, to_call) when paid == to_call do
-		%{buffer | called: called ++ [called]}
+	def check(%{called: called} = buffer, _player, paid, to_call) when paid == to_call do
 		TableManager.advance
+		update = %{buffer | called: called ++ [called]}
 	end
 	
 	def call(%{called: called} = buffer, player) do
@@ -30,13 +29,14 @@ defmodule PokerEx.BetBuffer do
 					pl = AppState.get(player)
 					Player.bet(player, pl.chips)
 					TableManager.all_in(player)
+					pl.chips
 				_ -> raise "Something went wrong in Player.bet"
 			end
 			
 			BetServer.bet(player, real_amount, call_amount)
 			TableManager.advance
 			
-			buffer = %{buffer | called: called ++ [player]}
+			%{buffer | called: called ++ [player]}
 	end
 	
 	def raise_pot(buffer, player, amount, to_call) when amount > to_call do
@@ -73,7 +73,7 @@ defmodule PokerEx.BetBuffer do
 		BetServer.bet(player, real_amount, amount)
 		TableManager.advance
 		
-		buffer = %{buffer | called: [player]}
+		%{buffer | called: [player]}
 	end
 	
 	def reset_called(buffer) do

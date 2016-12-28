@@ -1,8 +1,7 @@
 defmodule PokerEx.TableManager do
 	use GenServer
 	
-	alias PokerEx.GameFSM
-	alias PokerEx.Player
+	alias PokerEx.Room
 	alias PokerEx.TableState, as: State
 	
 	@name :table_manager
@@ -43,6 +42,10 @@ defmodule PokerEx.TableManager do
 		GenServer.call(@name, :get_small_blind)
 	end
 	
+	def get_all_in do
+		GenServer.call(@name, :get_all_in)
+	end
+	
 	def players_only do
 		GenServer.call(@name, :players_only)
 	end
@@ -52,7 +55,7 @@ defmodule PokerEx.TableManager do
 	end
 	
 	def all_in(player) do
-		GenServer.call(@name, {:all_in, player})
+		GenServer.cast(@name, {:all_in, player})
 	end
 	
 	def clear_round do
@@ -88,48 +91,55 @@ defmodule PokerEx.TableManager do
 		{:noreply, update}
 	end
 	
-	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active, current_player: cp, next_player: np} = data)
-		when not is_nil(cp) do
+	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active, current_player: cp, next_player: np} = data) do
 		new_seating = Enum.map(seating, fn {pl, _} -> pl end) |> Enum.reject(fn pl -> pl == player end) |> Enum.with_index
-		now_active = Enum.reject(active, fn {pl, _} -> pl == player end)
-		{name, _num} = cp
-		{_next_name, _num} = np
-		current = if player == name, do: np, else: cp
+		case active do
+			[] ->
+				update = %State{ data | seating: new_seating}
+				{:reply, update, update}
+			_ ->
+				[head|tail] = active
+				update = %State{ data | seating: new_seating, active: tail, current_player: hd(tail)}
+				{:reply, update, update}
+		end
+	end
 		
-		next = 
-			case current do 
-				x when x == np ->
-					next_player(%State{active: now_active}, np)
-				_ -> np
-			end
-		update = %State{ data | seating: new_seating, active: now_active, current_player: current, next_player: next}
-		{:reply, update, update}
-	end
-	
-	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active} = data) do
-		new_seating = Enum.map(seating, fn {pl, _} -> pl end) |> Enum.reject(fn pl -> pl == player end) |> Enum.with_index
-		now_active = Enum.reject(active, fn {pl, _} -> pl == player end)
-		update = %State{ data | seating: new_seating, active: now_active}
-		{:reply, update, update}
-	end
-	
 			#####################
 			# Position tracking #
 			#####################
 			
 	def handle_call(:start_round, _from, %State{seating: seating, big_blind: nil, small_blind: nil} = data) do
-		[{big_blind, 0}, {small_blind, 1}|_rest] = seating
+		# Remove any players who have run out of chips
+		[{big_blind, 0}, {small_blind, 1}|rest] = seating
 		
-		current_player = Enum.at(seating, 2) || {big_blind, 0}
-		next_player = if current_player == big_blind, do: {small_blind, 1}, else: Enum.at(seating, 3) || {big_blind, 0}
-		
-		update = %State{ data | active: seating, current_player: current_player, next_player: next_player,
-				big_blind: big_blind, small_blind: small_blind, current_big_blind: 0, current_small_blind: 1
-			}
-		{:reply, update, update}
+		case length(rest) do
+			x when x >= 2 ->
+				[current, next|_] = rest
+				update = %State{ data | active: rest ++ [{small_blind, 1}, {big_blind, 0}], current_player: current, next_player: next,
+					big_blind: big_blind, small_blind: small_blind, current_big_blind: 0, current_small_blind: 1
+				}
+				{:reply, update, update}
+			x when x == 1 ->
+				[current|_] = rest
+				update = %State{ data | active: rest ++ [{small_blind, 1}, {big_blind, 0}], current_player: current, next_player: {small_blind, 1},
+					big_blind: big_blind, small_blind: small_blind, current_big_blind: 0, current_small_blind: 1
+				}
+				{:reply, update, update}
+			x when x == 0 ->
+				update = %State{ data | active: [{small_blind, 1}, {big_blind, 0}], current_player: {small_blind, 1}, next_player: {big_blind, 0},
+					big_blind: big_blind, small_blind: small_blind, current_big_blind: 0, current_small_blind: 1
+				}
+				{:reply, update, update}
+		end
 	end
 	
 	def handle_call(:start_round, _from, %State{seating: seating} = data) do
+		out_of_chips = PokerEx.AppState.players |> Enum.map(
+			fn %PokerEx.Player{name: name, chips: chips} -> 
+				if chips == 0, do: name, else: nil
+			end
+			)
+		seating = Enum.reject(seating, fn {player, _} -> player in out_of_chips end)
 		[{big_blind, num}, {small_blind, num2}|_rest] = seating
 		
 		current_player = 
@@ -155,9 +165,25 @@ defmodule PokerEx.TableManager do
 		{:reply, update, update}
 	end
 	
-	def handle_call(:advance, _from, %State{current_player: {_player, _seat}} = data) do
-		update = %State{ data | current_player: data.next_player, next_player: next_player(data)}
-		{:reply, update, update}
+	def handle_call(:advance, _from, %State{active: active, all_in: all_in} = data) do
+		leader_all_in? = hd(active) in all_in
+		case length(active) do
+			x when x >= 3 ->
+				[current, next, on_deck|_rest] = active
+				[head|tail] = active
+				update = %State{ data | current_player: next, next_player: on_deck}
+				update = if leader_all_in?, do: %State{ update | active: tail}, else: %State{ update | active: tail ++ [head]}
+				{:reply, "#{inspect(next)} is up", update}
+			x when x == 2 ->
+				[current, next] = active
+				update = %State{ data | current_player: next, next_player: current}
+				update = if leader_all_in?, do: %State{ update | active: [next]}, else: %State{ update | active: [next, current]}
+				{:reply, "#{inspect(next)} is up", update}
+			x when x == 1 ->
+				{:reply, "Cannot advance. Only one player is active", data}
+			x when x == 0 ->
+				{:reply, data, data}
+		end
 	end
 	
 	def handle_call(:reset_turns, _from, data) do
@@ -172,30 +198,33 @@ defmodule PokerEx.TableManager do
 			################
 	
 	def handle_call({:fold, player}, _from, %State{active: active, current_player: {pl, _}} = data) when player == pl do
-		update = %State{ data | active: Enum.reject(active, fn {pl, _} -> pl == player end), 
-			current_player: data.next_player, next_player: next_player(data)
-		}
-		{:reply, update, update}
+		[current|rest] = active
+		[head|tail] = rest
+		case length(tail) do
+			x when x >= 1 ->
+				update = %State{ data | active: rest, current_player: head, next_player: hd(tail)}
+				{:reply, update, update}
+			_ ->
+				update = %State{ data | active: rest, current_player: head, next_player: nil}
+				{:reply, update, update}
+		end
 	end
 	
 	def handle_call({:fold, _}, _, _), do: raise "Illegal operation"
 	
-	def handle_call({:all_in, player}, _from, %State{active: active, current_player: {pl, _}, all_in: ai} = data) when player == pl do
-		update = %State{ data | active: Enum.reject(active, fn {pl, _} -> pl == player end),
-			current_player: data.next_player, next_player: next_player(data), all_in: ai ++ player
-		}
-		{:reply, update, update}
+	def handle_cast({:all_in, player}, %State{active: active, current_player: {pl, seat}, all_in: ai} = data) do
+		update = %State{ data | all_in: ai ++ [{player, seat}]}
+		{:noreply, update}
 	end
-	
-	def handle_call({:all_in, _}, _, _), do: raise "Illegal operation"
 	
 			#########
 			# Clear #
 			#########
 	
-	def handle_call(:clear_round, _from, %State{seating: seating, big_blind: bb, small_blind: sb, current_small_blind: csb} = state) do
+	def handle_call(:clear_round, _from, %State{seating: seating, small_blind: sb, current_small_blind: csb} = state) do
 		[head|tail] = seating
-		update = %State{seating: tail ++ [head], big_blind: sb, small_blind: next_seated(state, {sb, csb})}
+		{new_sb, new_csb} = next_seated(state, {sb, csb})
+		update = %State{seating: tail ++ [head], big_blind: sb, current_big_blind: csb, small_blind: new_sb, current_small_blind: new_csb}
 		{:reply, update, update}
 	end
 	
@@ -215,6 +244,10 @@ defmodule PokerEx.TableManager do
 	
 	def handle_call(:get_small_blind, _from, %State{small_blind: small_blind} = data) do
 		{:reply, small_blind, data}
+	end
+	
+	def handle_call(:get_all_in, _from, %State{all_in: all_in} = data) do
+		{:reply, all_in, data}
 	end
 	
 	def handle_call(:players_only, _from, %State{active: active} = data) do
@@ -247,18 +280,15 @@ defmodule PokerEx.TableManager do
 	# Utility functions #
 	#####################
 	
-	defp next_player(%State{active: active, next_player: {player, seat}}) do
-		next = 
+	defp next_player(%State{active: active, next_player: {_player, seat}}) do
 			case Enum.drop_while(active, fn {_, num} -> num <= seat end) do
 				[] -> List.first(active)
 				[{pl, s}|_rest] -> {pl, s}
 				_ -> raise ArgumentError
 			end
-		
 	end
 	
-	defp next_player(%State{active: active}, {player, seat}) do
-		next = 
+	defp next_player(%State{active: active}, {_player, seat}) do
 			case Enum.drop_while(active, fn {_, num} -> num <= seat end) do
 				[] -> List.first(active)
 				[{pl, s}|_rest] -> {pl, s}
@@ -266,8 +296,7 @@ defmodule PokerEx.TableManager do
 			end
 	end
 	
-	defp next_seated(%State{seating: seating}, {player, seat}) do
-		next = 
+	defp next_seated(%State{seating: seating}, {_player, seat}) do
 			case Enum.drop_while(seating, fn {_, num} -> num <= seat end) do
 				[] -> List.first(seating)
 				[{pl, s}|_rest] -> {pl, s}

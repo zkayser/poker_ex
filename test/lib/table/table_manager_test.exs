@@ -1,7 +1,6 @@
 defmodule PokerEx.TableManagerTest do
 	use ExUnit.Case
 	alias PokerEx.TableManager
-	alias PokerEx.TableState
 	
 	@players ["a", "b", "c"]
 	
@@ -64,7 +63,7 @@ defmodule PokerEx.TableManagerTest do
 	test "starting a round should properly set the next player with wraparound" do
 		TableManager.start_round
 		state = TableManager.fetch_data
-		assert state.next_player == {"a", 0}
+		assert state.next_player == {"b", 1}
 	end
 	
 	test "starting a round should properly set the next player without wraparound" do
@@ -95,21 +94,21 @@ defmodule PokerEx.TableManagerTest do
 		TableManager.start_round
 		TableManager.fold("c")
 		state = TableManager.fetch_data
-		assert state.current_player == {"a", 0}
-		assert state.next_player == {"b", 1}
+		assert state.current_player == {"b", 1}
+		assert state.next_player == {"a", 0}
 	end
 	
 	test "the advance cycle works properly when a player folds in the middle of the list" do
 		TableManager.start_round
 		TableManager.advance
 		TableManager.advance
-		TableManager.fold("b")
+		TableManager.fold("a")
 		TableManager.advance
 		TableManager.advance
 		state = TableManager.fetch_data
 		
 		assert state.current_player == {"c", 2}
-		assert state.next_player == {"a", 0}
+		assert state.next_player == {"b", 1}
 	end
 	
 	test "starting a round, then calling clear_round and start_round again should properly update the big_blind and small_blind" do
@@ -139,9 +138,19 @@ defmodule PokerEx.TableManagerTest do
 		TableManager.remove_player("c")
 		state = TableManager.fetch_data
 		
-		assert state.current_player == {"a", 0}
-		assert state.next_player == {"b", 1}
+		assert state.active == [{"b", 1}, {"a", 0}]
 		refute {"c", 2} in state.seating
 		refute {"c", 2} in state.active
+	end
+	
+	test "joining players half way through a round and then starting a new round does not ruin the turn order" do
+		TableManager.start_round
+		TableManager.fold("c")
+		TableManager.seat_player("d")
+		TableManager.fold("b")
+		TableManager.clear_round
+		TableManager.start_round
+		state = TableManager.fetch_data
+		assert {"d", 3} in state.active
 	end
 end

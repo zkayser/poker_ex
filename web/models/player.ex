@@ -2,7 +2,6 @@ defmodule PokerEx.Player do
 	# Opting out of the PokerEx.Web, :model for the time being
 	# Will add it in if it becomes necessary.
 	alias PokerEx.Player
-	alias PokerEx.Card
 	alias PokerEx.AppState
 	
 	@type t :: %Player{name: String.t, chips: non_neg_integer}
@@ -21,9 +20,11 @@ defmodule PokerEx.Player do
 			_ -> :player_not_found
 		end
 		
-		case player.chips >= amount do
+		case player.chips > amount do
 			true -> %Player{player | chips: player.chips - amount} |> update
-			_ -> :insufficient_chips
+			_ -> 
+				%Player{player | chips: 0} |> update
+				:insufficient_chips
 		end
 	end
 	

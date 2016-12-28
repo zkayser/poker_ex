@@ -1,5 +1,4 @@
 defmodule PokerEx.AppState do
-	alias PokerEx.Deck
 	alias PokerEx.Player
 	
 	# This module is turning out to be more of a player
@@ -53,11 +52,5 @@ defmodule PokerEx.AppState do
 	defp remove_player(list, name) do
 		list
 		|> Enum.reject(fn player -> player.name == name end)
-	end
-	
-	defp update_player(players, player) do
-		players 
-		|> Enum.reject(fn pl -> pl.name == player.name end)
-		|> Kernel.++([player])
 	end
 end

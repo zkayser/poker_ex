@@ -1,7 +1,6 @@
 defmodule PokerEx.HandServer do
 	use GenServer
 	alias PokerEx.Deck
-	alias PokerEx.Hand
 	alias PokerEx.Evaluator
 	alias PokerEx.HandServer, as: Server
 	
@@ -72,7 +71,7 @@ defmodule PokerEx.HandServer do
 	
 	def handle_call(:deal_one, _from, %Server{deck: deck, table: table} = server) when length(table) < 5 do
 		{card, remaining} = Deck.deal(deck, 1)
-		update = %Server{ server | table: table ++ card}
+		update = %Server{ server | table: table ++ card, deck: remaining}
 		{:reply, update, update}
 	end
 	
@@ -96,8 +95,8 @@ defmodule PokerEx.HandServer do
 	end
 	
 	def handle_cast({:fold, player}, %Server{player_hands: player_hands} = server) do
-		update = Enum.reject(player_hands, fn {name, hand} -> name == player end)
-		{:noreply, %Server{ server | player_hands: player_hands}}
+		update = Enum.reject(player_hands, fn {name, _hand} -> name == player end)
+		{:noreply, %Server{ server | player_hands: update}}
 	end
 	
 	def handle_cast(:clear, _server) do

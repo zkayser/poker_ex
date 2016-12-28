@@ -2,8 +2,6 @@ defmodule PokerEx.BetServer do
 	use GenServer
 	
 	alias PokerEx.BetHistory, as: History
-	alias PokerEx.Player
-	alias PokerEx.RewardManager
 	
 	@name :bet_server
 	
@@ -52,7 +50,6 @@ defmodule PokerEx.BetServer do
 		updated_round = update_paid_in_round(player, round, real_amount)	
 		
 		update = %History{ history | paid: updated_paid, pot: pot + real_amount, round: updated_round}
-		
 		{:reply, update, update}
 	end
 	
@@ -76,18 +73,12 @@ defmodule PokerEx.BetServer do
 		{:reply, to_call, history}
 	end
 	
-	## Move to higher level -> Game.ex
-	#def handle_call({:reward, hand_rankings}, _from, %History{paid: paid} = history) do
-	#	rewards = RewardManager.manage_rewards(hand_rankings, Map.to_list(paid))
-	#	{:reply, rewards, %History{ history | rewards: rewards }}
-	#end
-	
 	def handle_cast(:reset_round, history) do
 		{:noreply, %History{ history | round: %{}, to_call: 0} }
 	end
 	
-	def handle_cast(:clear, history) do
-		{:noreply, %History{}, to_call: 0}
+	def handle_cast(:clear, _history) do
+		{:noreply, %History{to_call: 0, pot: 0}}
 	end
 	
 	#####################
