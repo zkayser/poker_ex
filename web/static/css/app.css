@@ -15,9 +15,9 @@
 	left: 40.625%;
 	top: 81.25%;
 	border: 1px solid black;
+	border-radius: 50%;
 	background-color: black;
 }
-
 
 header {
 	padding-left: 300px;
@@ -49,8 +49,18 @@ nav.top-nav a.page-title {
 }
 
 .card-table {
-	border: 1px solid black;
+	border: 10px solid black;
+	border-radius: 50%;
+	background-color: darkgreen;
 	height: 400px;
+}
+
+#player-emblem {
+	color: white;
+	display: flex;
+	justify-content: center;
+	vertical-align: middle;
+	font-size: 1.5rem;
 }
 
 ::-webkit-input-placeholder {
