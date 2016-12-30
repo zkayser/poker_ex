@@ -23,8 +23,9 @@ defmodule PokerEx.Player do
 		case player.chips > amount do
 			true -> %Player{player | chips: player.chips - amount} |> update
 			_ -> 
+				total = player.chips
 				%Player{player | chips: 0} |> update
-				:insufficient_chips
+				{:insufficient_chips, total}
 		end
 	end
 	

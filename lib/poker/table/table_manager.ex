@@ -6,67 +6,75 @@ defmodule PokerEx.TableManager do
 	@name :table_manager
 	
 	def start_link(players) do
-		GenServer.start_link(__MODULE__, [players], name: @name)
+		GenServer.start_link(__MODULE__, [players])
 	end
 	
 	#######################
 	# Interface functions #
 	#######################
 	
-	def seat_player(player) do
-		GenServer.cast(@name, {:seat_player, player})
+	def seat_player(pid, player) do
+		GenServer.cast(pid, {:seat_player, player})
 	end
 	
-	def remove_player(player) do
-		GenServer.call(@name, {:remove_player, player})
+	def remove_player(pid, player) do
+		GenServer.call(pid, {:remove_player, player})
 	end
 	
-	def start_round do
-		GenServer.call(@name, :start_round)
+	def start_round(pid) do
+		GenServer.call(pid, :start_round)
 	end
 	
-	def advance do
-		GenServer.call(@name, :advance)
+	def advance(pid) do
+		GenServer.call(pid, :advance)
 	end
 	
-	def get_active do
-		GenServer.call(@name, :get_active)
+	def active(pid) do
+		GenServer.call(pid, :active)
 	end
 	
-	def get_big_blind do
-		GenServer.call(@name, :get_big_blind)
+	def seating(pid) do
+		GenServer.call(pid, :seating)
 	end
 	
-	def get_small_blind do
-		GenServer.call(@name, :get_small_blind)
+	def get_big_blind(pid) do
+		GenServer.call(pid, :get_big_blind)
 	end
 	
-	def get_all_in do
-		GenServer.call(@name, :get_all_in)
+	def get_small_blind(pid) do
+		GenServer.call(pid, :get_small_blind)
 	end
 	
-	def players_only do
-		GenServer.call(@name, :players_only)
+	def get_all_in(pid) do
+		GenServer.call(pid, :get_all_in)
 	end
 	
-	def fold(player) do
-		GenServer.call(@name, {:fold, player})
+	def all_in_round(pid) do
+		GenServer.call(pid, :all_in_round)
 	end
 	
-	def all_in(player) do
-		GenServer.cast(@name, {:all_in, player})
+	def players_only(pid) do
+		GenServer.call(pid, :players_only)
 	end
 	
-	def clear_round do
-		GenServer.call(@name, :clear_round)
+	def fold(pid, player) do
+		GenServer.call(pid, {:fold, player})
 	end
 	
-	def reset_turns do
-		GenServer.call(@name, :reset_turns)
+	def all_in(pid, player) do
+		GenServer.cast(pid, {:all_in, player})
 	end
 	
-	def	fetch_data do
-		GenServer.call(@name, :fetch_data)
+	def clear_round(pid) do
+		GenServer.call(pid, :clear_round)
+	end
+	
+	def reset_turns(pid) do
+		GenServer.call(pid, :reset_turns)
+	end
+	
+	def	fetch_data(pid) do
+		GenServer.call(pid, :fetch_data)
 	end
 	
 	#############
@@ -90,8 +98,8 @@ defmodule PokerEx.TableManager do
 		{:noreply, update}
 	end
 	
-	def handle_cast({:all_in, player}, %State{current_player: {_pl, seat}, all_in: ai} = data) do
-		update = %State{ data | all_in: ai ++ [{player, seat}]}
+	def handle_cast({:all_in, player}, %State{current_player: {_pl, seat}, all_in: ai, all_in_round: air} = data) do
+		update = %State{ data | all_in: ai ++ [{player, seat}], all_in_round: air ++ [{player, seat}]}
 		{:noreply, update}
 	end
 	
@@ -137,36 +145,47 @@ defmodule PokerEx.TableManager do
 		end
 	end
 	
-	def handle_call(:start_round, _from, %State{seating: seating} = data) do
+	def handle_call(:start_round, from, %State{seating: seating} = data) do
+		# Remove players who run out of chips
 		out_of_chips = PokerEx.AppState.players |> Enum.map(
 			fn %PokerEx.Player{name: name, chips: chips} -> 
 				if chips == 0, do: name, else: nil
 			end
 			)
+		
 		seating = Enum.reject(seating, fn {player, _} -> player in out_of_chips end)
-		[{big_blind, num}, {small_blind, num2}|_rest] = seating
 		
-		current_player = 
-			case Enum.any?(seating, fn {_, seat} -> seat > num2 end) do
-				true -> Enum.find(seating, fn {_, seat} ->  seat == num2 + 1 end)
-				_ -> Enum.find(seating, fn {_, seat} -> seat == 0 end)
-			end
+		try do
+			[{big_blind, num}, {small_blind, num2}|_rest] = seating
+			
+			current_player = 
+				case Enum.any?(seating, fn {_, seat} -> seat > num2 end) do
+					true -> Enum.find(seating, fn {_, seat} ->  seat == num2 + 1 end)
+					_ -> Enum.find(seating, fn {_, seat} -> seat == 0 end)
+				end
+			
+			next_player = 
+				case current_player do
+					{_, 0} -> Enum.find(seating, fn {_, seat} -> seat == 1 end)
+					_ -> 
+						if Enum.any?(seating, fn {_, seat} -> seat > num2 + 1 end) do
+							Enum.find(seating, fn {_, seat} -> seat == num2 + 2 end)
+						else
+							Enum.find(seating, fn {_, seat} -> seat == 0 end)
+						end
+				end
+			
+			update = %State{ data | active: seating, current_player: current_player, next_player: next_player,
+					big_blind: big_blind, small_blind: small_blind, current_big_blind: num, current_small_blind: num2,
+					seating: seating
+				}
+			{:reply, update, update}
 		
-		next_player = 
-			case current_player do
-				{_, 0} -> Enum.find(seating, fn {_, seat} -> seat == 1 end)
-				_ -> 
-					if Enum.any?(seating, fn {_, seat} -> seat > num2 + 1 end) do
-						Enum.find(seating, fn {_, seat} -> seat == num2 + 2 end)
-					else
-						Enum.find(seating, fn {_, seat} -> seat == 0 end)
-					end
-			end
-		
-		update = %State{ data | active: seating, current_player: current_player, next_player: next_player,
-				big_blind: big_blind, small_blind: small_blind, current_big_blind: num, current_small_blind: num2
-			}
-		{:reply, update, update}
+		rescue
+			_ -> GenServer.reply(from, :not_enough_players)
+			[{player, _num}] = seating
+			{:noreply, %State{ data | seating: [{player, 0}], big_blind: nil, small_blind: nil}}
+		end
 	end
 	
 	def handle_call(:advance, _from, %State{active: active, all_in: all_in} = data) do
@@ -193,7 +212,8 @@ defmodule PokerEx.TableManager do
 	def handle_call(:reset_turns, _from, data) do
 		update = first_turn(data)
 		next_player = next_player(update, update.current_player)
-		update = %State{ update | next_player: next_player}
+		# Update the next player and reset all_in_round back to an empty list
+		update = %State{ update | next_player: next_player, all_in_round: []}
 		{:reply, update, update}
 	end
 	
@@ -231,8 +251,12 @@ defmodule PokerEx.TableManager do
 			# Data fetchers #
 			#################
 			
-	def handle_call(:get_active, _from, %State{active: active} = data) do
+	def handle_call(:active, _from, %State{active: active} = data) do
 		{:reply, active, data}
+	end
+	
+	def handle_call(:seating, _from, %State{seating: seating} = data) do
+		{:reply, seating, data}
 	end
 			
 	def handle_call(:fetch_data, _from, data), do: {:reply, data, data}
@@ -247,6 +271,10 @@ defmodule PokerEx.TableManager do
 	
 	def handle_call(:get_all_in, _from, %State{all_in: all_in} = data) do
 		{:reply, all_in, data}
+	end
+	
+	def handle_call(:all_in_round, _from, %State{all_in_round: air} = data) do
+		{:reply, air, data}
 	end
 	
 	def handle_call(:players_only, _from, %State{active: active} = data) do

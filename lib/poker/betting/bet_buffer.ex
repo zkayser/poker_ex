@@ -11,36 +11,41 @@ defmodule PokerEx.BetBuffer do
 		%{called: []}
 	end
 	
-	def check(%{called: called} = buffer, _player, paid, to_call) when paid == to_call do
-		TableManager.advance
-		%{buffer | called: called ++ [called]}
+	def check(%{called: called} = buffer, player, nil, 0) do
+		TableManager.advance(buffer.table_manager)
+		%{ buffer | called: called ++ [player]}
+	end
+	
+	def check(%{called: called} = buffer, player, paid, to_call) when paid == to_call do
+		TableManager.advance(buffer.table_manager)
+		%{buffer | called: called ++ [player]}
 	end
 	
 	def call(%{called: called} = buffer, player) do
-		paid = BetServer.get_paid_in_round(player) || 0
-		to_call = BetServer.get_to_call
+		paid = BetServer.get_paid_in_round(buffer.bet_server, player) || 0
+		to_call = BetServer.get_to_call(buffer.bet_server)
 		
 		call_amount = to_call - paid
 		
 		real_amount = 
 			case Player.bet(player, call_amount) do
 				%Player{name: _, chips: _} -> call_amount
-				:insufficient_chips ->
+				{:insufficient_chips, total} ->
 					pl = AppState.get(player)
 					Player.bet(player, pl.chips)
-					TableManager.all_in(player)
-					pl.chips
+					TableManager.all_in(buffer.table_manager, player)
+					total
 				_ -> raise "Something went wrong in Player.bet"
 			end
 			
-			BetServer.bet(player, real_amount, call_amount)
-			TableManager.advance
+			BetServer.bet(buffer.bet_server, player, real_amount, call_amount)
+			TableManager.advance(buffer.table_manager)
 			
 			%{buffer | called: called ++ [player]}
 	end
 	
-	def raise_pot(buffer, player, amount, to_call) when amount > to_call do
-		paid = BetServer.get_paid_in_round(player) || 0
+	def raise(buffer, player, amount, to_call) when amount > to_call do
+		paid = BetServer.get_paid_in_round(buffer.bet_server, player) || 0
 		call_amount = amount - paid
 		
 		# As a security measure, check that the player has enough chips
@@ -51,11 +56,11 @@ defmodule PokerEx.BetBuffer do
 		real_amount = 
 		case Player.bet(player, call_amount) do
 			%Player{name: _, chips: _} -> call_amount
-			:insufficient_chips -> 
+			{:insufficient_chips, total} -> 
 				pl = AppState.get(player)
 				Player.bet(player, pl.chips)
-				TableManager.all_in(player)
-				pl.chips
+				TableManager.all_in(buffer.table_manager, player)
+				total
 			_ -> raise "Something went wrong in Player.bet"
 		end
 		
@@ -70,14 +75,17 @@ defmodule PokerEx.BetBuffer do
 		# paid 20 during the round, the player will "raise to 70" but
 		# only have 50 chips deducted from his/her account.)
 		
-		BetServer.bet(player, real_amount, amount)
-		TableManager.advance
+		BetServer.bet(buffer.bet_server, player, real_amount, amount)
+		TableManager.advance(buffer.table_manager)
 		
-		%{buffer | called: [player]}
+		{%{buffer | called: [player]}, real_amount}
 	end
 	
 	def reset_called(buffer) do
 		%{buffer | called: []}
 	end
 	
+	def clear(buffer) do
+		%{buffer | called: [], winner: nil}
+	end
 end

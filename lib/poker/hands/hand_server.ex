@@ -4,48 +4,58 @@ defmodule PokerEx.HandServer do
 	alias PokerEx.Evaluator
 	alias PokerEx.HandServer, as: Server
 	
-	@name :hand_server
-	
 	defstruct player_hands: [], table: [], deck: [], stats: []
 
 	def start_link do
-		GenServer.start_link(__MODULE__, [], name: @name)
+		GenServer.start_link(__MODULE__, [])
 	end
 	
 	#######################
 	# Interface functions #
 	#######################
 	
-	def deal_first_hand(players) do
-		GenServer.call(@name, {:deal_first_hand, players})
+	def deal_first_hand(pid, players) do
+		GenServer.call(pid, {:deal_first_hand, players})
 	end
 	
-	def deal_flop do
-		GenServer.call(@name, :deal_flop)
+	def deal_flop(pid) do
+		GenServer.call(pid, :deal_flop)
 	end
 	
-	def deal_one do
-		GenServer.call(@name, :deal_one)
+	def deal_one(pid) do
+		GenServer.call(pid, :deal_one)
 	end
 	
-	def score do
-		GenServer.call(@name, :score)
+	def player_hands(pid) do
+		GenServer.call(pid, :player_hands)
 	end
 	
-	def fold(player) do
-		GenServer.cast(@name, {:fold, player})
+	def score(pid) do
+		GenServer.call(pid, :score)
+	end
+	
+	def fold(pid, player) do
+		GenServer.cast(pid, {:fold, player})
 	end
 
-	def hand_rankings do
-		GenServer.call(@name, :hand_rankings)
+	def hand_rankings(pid) do
+		GenServer.call(pid, :hand_rankings)
 	end
 	
-	def clear do
-		GenServer.cast(@name, :clear)
+	def clear(pid) do
+		GenServer.cast(pid, :clear)
 	end
 	
-	def fetch_data do
-		GenServer.call(@name, :fetch_data)
+	def fetch_data(pid) do
+		GenServer.call(pid, :fetch_data)
+	end
+	
+	def table(pid) do
+		GenServer.call(pid, :table)
+	end
+	
+	def stats(pid) do
+		GenServer.call(pid, :stats)
 	end
 	
 	#############
@@ -92,6 +102,18 @@ defmodule PokerEx.HandServer do
 	
 	def handle_call(:fetch_data, _from, server) do
 		{:reply, server, server}
+	end
+	
+	def handle_call(:player_hands, _from, %Server{player_hands: player_hands} = server) do
+		{:reply, player_hands, server}
+	end
+	
+	def handle_call(:table, _from, %Server{table: table} = server) do
+		{:reply, table, server}
+	end
+	
+	def handle_call(:stats, _from, %Server{stats: stats} = server) do
+		{:reply, stats, server}
 	end
 	
 	def handle_cast({:fold, player}, %Server{player_hands: player_hands} = server) do

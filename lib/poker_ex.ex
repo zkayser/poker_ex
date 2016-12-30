@@ -18,7 +18,7 @@ defmodule PokerEx do
       # The Room worker will be moved out to a separate supervision tree
       # later so there can be multiple instances of it running at the same
       # time.
-      worker(PokerEx.Room, []),
+      # worker(PokerEx.Room, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
