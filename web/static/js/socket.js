@@ -6,6 +6,7 @@
 import {Socket} from "phoenix";
 import Player from "./player";
 import Table from "./table";
+import Card from "./card";
 
 // When you connect, you'll often need to authenticate the client.
 // For example, imagine you have an authentication plug, `MyAuth`,
@@ -58,6 +59,10 @@ let Connection = {
   me: null,
   players: [],
   messages: document.querySelector("#messages"),
+  cardTable: document.querySelector(".card-table"),
+  cardHolder: document.querySelector(".card-holder"),
+  playerCards: document.getElementById("player-cards"),
+  playerInfo: document.getElementById("player-info"),
   
   init(name, document){
     let socket = new Socket('/socket', {params: {name: name}});
@@ -72,27 +77,45 @@ let Connection = {
       if(!(initialPlayers.players === null)) {
         this.players = initialPlayers.players;
         this.players.forEach(player => {
-          let el = document.createElement('li');
-          el.innerText = `${player.name}`;
-          el.setAttribute('id', 'player-element');
-          this.appendAndScroll(el);
+          let pl = new Player(player.name, player.chips);
+          let msg = Player.addToList(pl);
+          this.appendAndScroll(msg);
         });
       }
+      let emblem = Table.place(this.me, true);
+      this.cardTable.append(emblem);
       channel.push("new_msg", {body: this.me});
     });
     
     channel.on("player_joined", payload => {
       console.log(this.players);
-      let player = new Player(payload.player.name, payload.player.chips, []);
-      let joinMsg = document.createElement('li');
-      joinMsg.innerText = `${payload.player.name}`;
-      joinMsg.setAttribute('id', 'player-element');
-      this.appendAndScroll(joinMsg);
+      let player = new Player(payload.player.name, payload.player.chips);
+      if (player.name == this.me) {
+        let info = Player.renderPlayerInfo(player);
+        this.playerInfo.appendChild(info);
+      }
+      let msg = Player.addToList(player);
+      this.appendAndScroll(msg);
       this.players.push(player);
     });
     
     channel.on("new_msg", payload => {
       Materialize.toast(`${payload.body} joined the lobby`, 3000, 'rounded')
+    });
+    
+    channel.on("game_began", payload => {
+      // payload.hands is an array of objects
+      // with a hand, which is an array of card
+      // objects, and a player string
+      this.cardHolder.style.visibility = "visible";
+      payload.hands.forEach((obj) => {
+        if (obj.player == this.me) {
+          let cards = Card.renderPlayerCards(obj.hand);
+          cards.forEach((card) => {
+            this.playerCards.appendChild(card);
+          });
+        }
+      });
     });
     
     channel.on("player_left", payload => {

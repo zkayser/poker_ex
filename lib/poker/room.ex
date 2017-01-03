@@ -107,8 +107,6 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, %Room{bet_server: bet_server, table_manager: table_manager, hand_server: hand_server, buffer: buffer}}
 	end
 	
-	# TODO: Add a bet_server pid reference to the Buffer functions
-	# On start up, add the bet_server and table_manager pid to the buffer state, too
 	def handle_event({:call, from}, {:join, player}, :idle, %Room{buffer: buffer} = data) do
 	  {bs, hs, tm} = {data.bet_server, data.hand_server, data.table_manager}
 	  TableManager.seat_player(tm, player)
@@ -120,7 +118,7 @@ defmodule PokerEx.Room do
 	     {updated_buffer, bet_amount} = Buffer.raise(buffer, TableManager.get_big_blind(tm), @big_blind, BetServer.get_to_call(bs))
 	     update = %Room{data | buffer: updated_buffer}
 	     HandServer.deal_first_hand(hs, TableManager.players_only(tm))
-	    {:next_state, :pre_flop, update, [{:reply, from, {"#{player} joined", TableManager.active(tm), HandServer.player_hands(hs)}}]}
+	    {:next_state, :pre_flop, update, [{:reply, from, {:game_begin, "#{player} joined", TableManager.active(tm), HandServer.player_hands(hs)}}]}
 	   _ -> 
 	    {:next_state, :idle, data, [{:reply, from, "#{player} joined"}]}
 	  end

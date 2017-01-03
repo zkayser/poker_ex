@@ -21,8 +21,23 @@ defmodule PokerEx.PlayersChannel do
 		player_id = socket.assigns.player_name
 		player = Player.new(player_id) |> AppState.put
 		assign(socket, :player, player)
-		Room.join(player)
 		broadcast! socket, "player_joined", %{player: player}
+		case Room.join(player) do
+			{:game_begin, _, active, hands} ->
+				send(self, {:game_begin, hd(active), hands})
+			_ ->
+				:ok
+		end
+		{:noreply, socket}
+	end
+	
+	def handle_info({:game_begin, {player, _seat}, hands}, socket) do
+		hands = Enum.map(hands, 
+			fn {name, hand} -> 
+				cards = Enum.map(hand, fn card -> Map.from_struct(card) end)
+				%{player: name, hand: cards}
+			end)
+		broadcast! socket, "game_began", %{active: player, hands: hands}
 		{:noreply, socket}
 	end
 	

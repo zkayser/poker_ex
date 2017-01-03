@@ -7,12 +7,26 @@
 </div>
 <div class="row">
   <div class="col s12 card-table">
-    <div id="me">
-      <div class="row">
-        <div class="col s12">
-          <p id="player-emblem">Z</p>
-        </div>
-      </div>
+    
+  </div>
+</div>
+<!-- card-holders -->
+<div class="row">
+  <div class="col s4">
+    
+  </div>
+  <div class="col s4 card-holder">
+    <div id="player-cards" class="col s12">
+      
     </div>
+    <br/>
+    <div class="divider"></div>
+    <br/>
+    <div id="player-info" class="col s12 center-align">
+      
+    </div>
+  </div>
+  <div class="col s4">
+    
   </div>
 </div>

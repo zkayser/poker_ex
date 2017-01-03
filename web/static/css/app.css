@@ -63,6 +63,31 @@ nav.top-nav a.page-title {
 	font-size: 1.5rem;
 }
 
+.card-holder {
+	visibility: hidden;
+	display: flex;
+	flex-wrap: wrap;
+	border-radius: 10%;
+	border: 5px solid teal;
+	background-color: snow;
+	justify-content: center;
+}
+
+.player-cards {
+	font-size: 3rem;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+#player-cards {
+	display: flex;
+	justify-content: center;
+}
+
+#red-suit {
+	color: red;
+}
+
 ::-webkit-input-placeholder {
    color: darkslategray;
 }
