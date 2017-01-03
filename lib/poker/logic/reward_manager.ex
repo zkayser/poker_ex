@@ -1,5 +1,6 @@
 defmodule PokerEx.RewardManager do
 	alias PokerEx.Player
+	alias PokerEx.Events
 	
 	@type hand_rankings :: [{String.t, pos_integer}]
 	@type paid_in :: [{String.t, pos_integer}]
@@ -13,7 +14,11 @@ defmodule PokerEx.RewardManager do
 	
 	@spec distribute_rewards(rewards) :: :ok
 	def distribute_rewards(rewards) do
-		Enum.each(rewards, fn {player, amount} -> Player.reward(player, amount) end)
+		Enum.each(rewards, 
+			fn {player, amount} -> 
+				Player.reward(player, amount)
+				Events.game_over(player, amount)
+			end)
 	end
 	
 	# Used to reward player when all others fold

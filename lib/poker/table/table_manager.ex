@@ -2,6 +2,7 @@ defmodule PokerEx.TableManager do
 	use GenServer
 	
 	alias PokerEx.TableState, as: State
+	alias PokerEx.Events
 	
 	@name :table_manager
 	
@@ -31,6 +32,10 @@ defmodule PokerEx.TableManager do
 	
 	def active(pid) do
 		GenServer.call(pid, :active)
+	end
+	
+	def current_player(pid) do
+		GenServer.call(pid, :current_player)
 	end
 	
 	def seating(pid) do
@@ -94,6 +99,7 @@ defmodule PokerEx.TableManager do
 	def handle_cast({:seat_player, player}, data) do
 		seat_number = length(data.seating)
 		seating = [{player, seat_number}|Enum.reverse(data.seating)] |> Enum.reverse
+		Events.player_joined(player, seat_number)
 		update = %State{ data | seating: seating, length: length(seating)}
 		{:noreply, update}
 	end
@@ -104,6 +110,7 @@ defmodule PokerEx.TableManager do
 	end
 	
 	def handle_call({:remove_player, player}, _from, %State{seating: seating, active: active} = data) do
+		Events.player_left(player)
 		new_seating = Enum.map(seating, fn {pl, _} -> pl end) |> Enum.reject(fn pl -> pl == player end) |> Enum.with_index
 		case active do
 			[] ->
@@ -195,11 +202,13 @@ defmodule PokerEx.TableManager do
 				[current, next, on_deck|_rest] = active
 				[head|tail] = active
 				update = %State{ data | current_player: next, next_player: on_deck}
+				Events.advance(next)
 				update = if leader_all_in?, do: %State{ update | active: tail}, else: %State{ update | active: tail ++ [head]}
 				{:reply, "#{inspect(next)} is up", update}
 			x when x == 2 ->
 				[current, next] = active
 				update = %State{ data | current_player: next, next_player: current}
+				Events.advance(next)
 				update = if leader_all_in?, do: %State{ update | active: [next]}, else: %State{ update | active: [next, current]}
 				{:reply, "#{inspect(next)} is up", update}
 			x when x == 1 ->
@@ -253,6 +262,10 @@ defmodule PokerEx.TableManager do
 			
 	def handle_call(:active, _from, %State{active: active} = data) do
 		{:reply, active, data}
+	end
+	
+	def handle_call(:current_player, _from, %State{active: active} = data) do
+		{:reply, hd(active), data}
 	end
 	
 	def handle_call(:seating, _from, %State{seating: seating} = data) do

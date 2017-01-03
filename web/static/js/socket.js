@@ -103,6 +103,10 @@ let Connection = {
       Materialize.toast(`${payload.body} joined the lobby`, 3000, 'rounded')
     });
     
+    channel.on("chip_update", payload => {
+      console.log(payload);
+    });
+    
     channel.on("game_began", payload => {
       // payload.hands is an array of objects
       // with a hand, which is an array of card

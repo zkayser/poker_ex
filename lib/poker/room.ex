@@ -2,6 +2,7 @@ defmodule PokerEx.Room do
 	alias PokerEx.BetBuffer, as: Buffer
 	alias PokerEx.BetServer
 	alias PokerEx.Player
+	alias PokerEx.Events
 	alias PokerEx.TableManager
 	alias PokerEx.HandServer
 	alias PokerEx.RewardManager
@@ -103,6 +104,7 @@ defmodule PokerEx.Room do
 	  {:ok, bet_server} = BetServer.start_link
 	  {:ok, table_manager} = TableManager.start_link([])
 		{:ok, hand_server} = HandServer.start_link()
+		Events.start_link
 		buffer = Buffer.new |> Map.put(:table_manager, table_manager) |> Map.put(:bet_server, bet_server) |> Map.put(:winner, nil)
 		{:next_state, :idle, %Room{bet_server: bet_server, table_manager: table_manager, hand_server: hand_server, buffer: buffer}}
 	end
@@ -118,6 +120,7 @@ defmodule PokerEx.Room do
 	     {updated_buffer, bet_amount} = Buffer.raise(buffer, TableManager.get_big_blind(tm), @big_blind, BetServer.get_to_call(bs))
 	     update = %Room{data | buffer: updated_buffer}
 	     HandServer.deal_first_hand(hs, TableManager.players_only(tm))
+	     Events.game_started(TableManager.current_player(tm), HandServer.player_hands(hs))
 	    {:next_state, :pre_flop, update, [{:reply, from, {:game_begin, "#{player} joined", TableManager.active(tm), HandServer.player_hands(hs)}}]}
 	   _ -> 
 	    {:next_state, :idle, data, [{:reply, from, "#{player} joined"}]}
@@ -292,6 +295,7 @@ defmodule PokerEx.Room do
 					{buffer, bet_amount} = Buffer.raise(buffer, TableManager.get_big_blind(tm), @big_blind, BetServer.get_to_call(bs))
 					update = %Room{ data | buffer: buffer}
 					HandServer.deal_first_hand(hs, TableManager.players_only(tm))
+					Events.game_started(TableManager.current_player(tm), HandServer.player_hands(hs))
 					{:next_state, :pre_flop, update}
 		    end
 			_ -> 
@@ -352,6 +356,7 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:info, {:reward_winner, [{winner, 100}], pot}, state, data) do
 	  Player.reward(winner, pot)
+	  Events.game_over(winner, pot)
 	  {:next_state, state, data}
 	end
 	

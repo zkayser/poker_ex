@@ -3,6 +3,7 @@ defmodule PokerEx.HandServer do
 	alias PokerEx.Deck
 	alias PokerEx.Evaluator
 	alias PokerEx.HandServer, as: Server
+	alias PokerEx.Events
 	
 	defstruct player_hands: [], table: [], deck: [], stats: []
 
@@ -76,13 +77,15 @@ defmodule PokerEx.HandServer do
 	def handle_call(:deal_flop, _from, %Server{deck: deck, table: []} = server) do
 		{flop, remaining} = Deck.deal(deck, 3)
 		update = %Server{ server | table: flop, deck: remaining}
+		Events.flop_dealt(flop)
 		{:reply, update, update}
 	end
 	
 	def handle_call(:deal_one, _from, %Server{deck: deck, table: table} = server) when length(table) < 5 do
 		{card, remaining} = Deck.deal(deck, 1)
 		update = %Server{ server | table: table ++ card, deck: remaining}
-		{:reply, update, update}
+		Events.card_dealt(card)
+		{:reply, card, update}
 	end
 	
 	def handle_call(:deal_one, _, _), do: raise "Only 5 cards can be dealt on the table"

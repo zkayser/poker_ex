@@ -3,6 +3,7 @@ defmodule PokerEx.Player do
 	# Will add it in if it becomes necessary.
 	alias PokerEx.Player
 	alias PokerEx.AppState
+	alias PokerEx.Events
 	
 	@type t :: %Player{name: String.t, chips: non_neg_integer}
 	
@@ -21,9 +22,12 @@ defmodule PokerEx.Player do
 		end
 		
 		case player.chips > amount do
-			true -> %Player{player | chips: player.chips - amount} |> update
+			true -> 
+				Events.chip_update(player, player.chips - amount)
+				%Player{player | chips: player.chips - amount} |> update
 			_ -> 
 				total = player.chips
+				Events.chip_update(player, 0)
 				%Player{player | chips: 0} |> update
 				{:insufficient_chips, total}
 		end
@@ -35,7 +39,8 @@ defmodule PokerEx.Player do
 			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
 			_ -> :player_not_found
 		end
-	
+		
+		Events.chip_update(player, player.chips + amount)
 		%Player{ player | chips: player.chips + amount} |> update
 	end
 	
