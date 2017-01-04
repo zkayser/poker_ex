@@ -24,10 +24,12 @@ defmodule PokerEx.Player do
 		case player.chips > amount do
 			true -> 
 				Events.chip_update(player, player.chips - amount)
+				Events.pot_update(amount)
 				%Player{player | chips: player.chips - amount} |> update
 			_ -> 
 				total = player.chips
 				Events.chip_update(player, 0)
+				Events.pot_update(total)
 				%Player{player | chips: 0} |> update
 				{:insufficient_chips, total}
 		end

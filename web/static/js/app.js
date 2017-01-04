@@ -23,14 +23,24 @@ import Connection from "./socket";
 let joinButton = document.querySelector(".join-btn");
 let chatInput = document.querySelector("#chat-input");
 
-joinButton.addEventListener('click', function() {
+
+joinButton.addEventListener('click', handleJoin);
+chatInput.addEventListener('keypress', (e) => {
+	if (e.charCode === 13) {
+		handleJoin();
+	}
+});
+
+function handleJoin() {
 	let name = chatInput.value;
 	chatInput.value = "";
 	if (name.length > 0) {
-		Connection.init(name.trim(), document);
-	} else {
-		alert("You must enter a name to join");
+		Connection.init(name.trim());
+	}	else {
+			alert("You must enter a name to join");
 	}
-});
+}
+
+
 
 

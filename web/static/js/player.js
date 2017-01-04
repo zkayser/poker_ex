@@ -1,7 +1,9 @@
 export default class Player {
+	
 	constructor(name, chips) {
 		this.name = name;
 		this.chips = chips;
+		this.playerInfo = document.getElementById("player-info");
 	}
 	
 	bet(amount, table) {
@@ -16,11 +18,53 @@ export default class Player {
 		return joinMsg;
 	}
 	
-	static renderPlayerInfo(player) {
+	renderPlayerInfo() {
+		console.log("renderPlayerInfo called");
+		let oldInfo = document.getElementById("info");
+		console.log(oldInfo);
+		if (oldInfo) {
+			this.playerInfo.removeChild(oldInfo);
+		}
 		let paragraph = document.createElement('p');
-		paragraph.innerText = `${player.name}: ${player.chips}`;
-		return paragraph;
+		paragraph.innerText = `${this.name}: ${this.chips}`;
+		paragraph.setAttribute("id", "info");
+		this.playerInfo.appendChild(paragraph);
 	}
 	
+	static renderPlayerControls() {
+		let playerControls = document.querySelector(".player-controls");
+		playerControls.style.visibility = "visible";
+	}
 	
+	static hidePlayerControls() {
+		let playerControls = document.querySelector(".player-controls");
+		if (playerControls.style.visibility == "visible") {
+			playerControls.style.visibility = "hidden";
+		}
+	}
+	
+	static raise(player, amount, channel) {
+		channel.push("player_raised", {
+			player: player,
+			amount: amount
+		});
+	}
+	
+	static fold(player, channel) {
+		channel.push("player_folded", {
+			player: player.name
+		});
+	}
+	
+	static call(player, channel) {
+		channel.push("player_called", {
+			player: player.name
+		});
+	}
+	
+	static check(player, channel) {
+		channel.push("player_checked", {
+			player: player.name
+		});
+	}
 }

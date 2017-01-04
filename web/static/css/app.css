@@ -63,6 +63,10 @@ nav.top-nav a.page-title {
 	font-size: 1.5rem;
 }
 
+.player-controls {
+	visibility: hidden;
+}
+
 .card-holder {
 	visibility: hidden;
 	display: flex;
@@ -82,6 +86,10 @@ nav.top-nav a.page-title {
 #player-cards {
 	display: flex;
 	justify-content: center;
+}
+
+.player-center {
+	margin-top: 3em;
 }
 
 #red-suit {

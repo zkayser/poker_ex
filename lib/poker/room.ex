@@ -8,6 +8,10 @@ defmodule PokerEx.Room do
 	alias PokerEx.RewardManager
 	alias PokerEx.Room, as: Room
 	
+	## Todo: A problem arises when there are only two players
+	## and one goes all in. The game does not advance and 
+	## everything is left hanging.
+	
 	defstruct buffer: %{called: []}, bet_server: nil, hand_server: nil, table_manager: nil
 	
 	@name :room
@@ -350,6 +354,7 @@ defmodule PokerEx.Room do
 	  RewardManager.manage_rewards(new_stats, Map.to_list(paid)) |> RewardManager.distribute_rewards
 	  {winner, _} = List.first(new_stats)
 	  {^winner, winner_hand} = Enum.find(hands, fn {pl, _hand} -> pl == winner end)
+	  Events.winner_message("#{winner} wins the round with #{winner_hand.type_string}")
 	  reply = {:game_finished, "#{winner} wins the round with #{inspect(winner_hand.type_string)}"}
 	  {:next_state, state, data, [{:reply, from, reply}, {:next_event, :internal, :set_round}]}
 	end

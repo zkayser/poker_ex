@@ -1,0 +1,61 @@
+.circle-container {
+	position: relative;
+	width: 28em;
+	height: 28em;
+	padding: 2.8em; /*= 2em * 1.4 (2em = half the width of an img, 1.4 = sqrt(2))*/
+	border: solid 5px black;
+	background-color: darkgreen;
+	border-radius: 50%;
+	margin: 1.75em auto 0;
+}
+.circle-container a {
+	/*display: block;*/
+	overflow: hidden;
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 4em; height: 4em;
+	margin: -2em; /* 2em = 4em/2 */ /* half the width */
+	display: flex;
+	border: 1px solid black;
+	border-radius: 50%;
+	background-color: black;
+	align-items: center;
+}
+.circle-container div { display: block; width: 100%; }
+.deg0 { transform: translate(11.25em); }
+.deg45 { transform: rotate(45deg) translate(11.25em) rotate(-45deg); }
+.deg90 { transform: rotate(90deg) translate(11.25em) rotate(-90deg); }
+.deg135 { transform: rotate(135deg) translate(11.25em) rotate(-135deg); }
+.deg180 { transform: translate(-11.25em); }
+.deg225 { transform: rotate(225deg) translate(11.25em) rotate(-225deg); }
+.deg270 { transform: rotate(270deg) translate(11.25em) rotate(-270deg); }
+.deg315 { transform: rotate(315deg) translate(11.25em) rotate(-315deg); }
+
+.circle-center {
+  position: absolute;
+  overflow: hidden;
+  /* top: 50%; */
+  /*height: 4em; */
+  height: 25%;
+  top: 43.75%;
+  margin: -2em;
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  left: 30%;
+}
+
+.circle-container div .deck {
+  display: flex;
+  justify-content: center;
+}
+
+div .table-cards {
+  display: flex;
+  justify-content: space-around;
+}
+
+.circle-container div {
+  width: 16em;
+}

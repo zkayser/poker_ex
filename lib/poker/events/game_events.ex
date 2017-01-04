@@ -17,8 +17,13 @@ defmodule PokerEx.GameEvents do
   end
   
   def handle_event({:game_over, winner, reward}, state) do
-    message = "#{inspect(winner)} wins #{reward} chips"
-    Endpoint.broadcast!("player:lobby", "game_finished", %{message: message})
+    message = "#{winner} wins #{reward} chips"
+    Endpoint.broadcast!("players:lobby", "game_finished", %{message: message})
+    {:ok, state}
+  end
+  
+  def handle_event({:winner_message, message}, state) do
+    Endpoint.broadcast!("players:lobby", "winner_message", %{message: message})
     {:ok, state}
   end
   

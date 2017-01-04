@@ -6,55 +6,9 @@
 import {Socket} from "phoenix";
 import Player from "./player";
 import Table from "./table";
+import TableChannel from "./table-channel";
 import Card from "./card";
 
-// When you connect, you'll often need to authenticate the client.
-// For example, imagine you have an authentication plug, `MyAuth`,
-// which authenticates the session and assigns a `:current_user`.
-// If the current user exists you can assign the user's token in
-// the connection for use in the layout.
-//
-// In your "web/router.ex":
-//
-//     pipeline :browser do
-//       ...
-//       plug MyAuth
-//       plug :put_user_token
-//     end
-//
-//     defp put_user_token(conn, _) do
-//       if current_user = conn.assigns[:current_user] do
-//         token = Phoenix.Token.sign(conn, "user socket", current_user.id)
-//         assign(conn, :user_token, token)
-//       else
-//         conn
-//       end
-//     end
-//
-// Now you need to pass this token to JavaScript. You can do so
-// inside a script tag in "web/templates/layout/app.html.eex":
-//
-//     <script>window.userToken = "<%= assigns[:user_token] %>";</script>
-//
-// You will need to verify the user token in the "connect/2" function
-// in "web/channels/user_socket.ex":
-//
-//     def connect(%{"token" => token}, socket) do
-//       # max_age: 1209600 is equivalent to two weeks in seconds
-//       case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
-//         {:ok, user_id} ->
-//           {:ok, assign(socket, :user, user_id)}
-//         {:error, reason} ->
-//           :error
-//       end
-//     end
-//
-// Finally, pass the token on connect as below. Or remove it
-// from connect if you don't care about authentication.
-
-
-
-// Now that you are connected, you can join channels with a topic:
 let Connection = {
   me: null,
   players: [],
@@ -63,12 +17,43 @@ let Connection = {
   cardHolder: document.querySelector(".card-holder"),
   playerCards: document.getElementById("player-cards"),
   playerInfo: document.getElementById("player-info"),
+  raiseButton: document.querySelector(".raise-btn"),
+  checkButton: document.querySelector(".check-btn"),
+  callButton: document.querySelector(".call-btn"),
+  foldButton: document.querySelector(".fold-btn"),
+  raiseAmount: document.getElementById("raise-amount"),
   
-  init(name, document){
+  init(name){
     let socket = new Socket('/socket', {params: {name: name}});
     socket.connect();
     let channel = socket.channel("players:lobby", {});
+    TableChannel.init(channel);
+    /* Just experimenting below
+    let roomChannel = socket.channel("players:1", {});
+    Table.init(roomChannel);
+    */
     this.me = name;
+    this.player = undefined;
+    
+    this.raiseButton.addEventListener('click', () => {
+      let amount = this.raiseAmount.value;
+      this.raiseAmount.value = "";
+      if (amount.length > 0) {
+        Player.raise(this.me, amount, channel);
+      }
+    }),
+    
+    this.callButton.addEventListener('click', () => {
+      Player.call(this.player, channel);
+    }),
+    
+    this.foldButton.addEventListener('click', () => {
+      Player.fold(this.player, channel);
+    }),
+    
+    this.checkButton.addEventListener('click', () => {
+      Player.check(this.player, channel);
+    }),
     
     channel.join()
     .receive("ok", initialPlayers => {
@@ -82,17 +67,14 @@ let Connection = {
           this.appendAndScroll(msg);
         });
       }
-      let emblem = Table.place(this.me, true);
-      this.cardTable.append(emblem);
       channel.push("new_msg", {body: this.me});
     });
     
     channel.on("player_joined", payload => {
-      console.log(this.players);
       let player = new Player(payload.player.name, payload.player.chips);
       if (player.name == this.me) {
-        let info = Player.renderPlayerInfo(player);
-        this.playerInfo.appendChild(info);
+        this.player = player;
+        player.renderPlayerInfo();
       }
       let msg = Player.addToList(player);
       this.appendAndScroll(msg);
@@ -103,23 +85,60 @@ let Connection = {
       Materialize.toast(`${payload.body} joined the lobby`, 3000, 'rounded')
     });
     
-    channel.on("chip_update", payload => {
-      console.log(payload);
+    channel.on("chip_update", (payload) => {
+      if (this.me == payload.player) {
+        this.player.chips = payload.chips;
+        this.player.renderPlayerInfo();
+      } 
     });
     
-    channel.on("game_began", payload => {
+    channel.on("advance", payload => {
+      if (payload.player == this.me) {
+        Player.renderPlayerControls();
+      } else {
+        Player.hidePlayerControls();
+      }
+    });
+    
+    channel.on("flop_dealt", payload => {
+      console.log("flop_dealt", payload);
+      let cards = [];
+      payload.cards.forEach((card) => {
+        let c = new Card(card.rank, card.suit);
+        cards.push(c);
+      });
+    });
+    
+    channel.on("card_dealt", payload => {
+      console.log("card_dealt", payload);
+    });
+    
+    channel.on("game_started", payload => {
       // payload.hands is an array of objects
-      // with a hand, which is an array of card
-      // objects, and a player string
+      // with a hand -- which is an array of card
+      // objects -- and a player string
       this.cardHolder.style.visibility = "visible";
       payload.hands.forEach((obj) => {
         if (obj.player == this.me) {
+          let children = this.playerCards.childNodes;
           let cards = Card.renderPlayerCards(obj.hand);
           cards.forEach((card) => {
-            this.playerCards.appendChild(card);
+            if (children.length > 2) {
+              this.playerCards.replaceChild(card, children[1]);
+            } else {
+              this.playerCards.appendChild(card);
+            }
           });
         }
       });
+    });
+    
+    channel.on("game_finished", payload => {
+      console.log("game_finished", payload);
+    });
+    
+    channel.on("winner_message", payload => {
+      console.log("winner_message", payload.message);
     });
     
     channel.on("player_left", payload => {

@@ -41,8 +41,16 @@ defmodule PokerEx.Events do
     GenEvent.notify(@name, {:flop_dealt, flop})
   end
   
+  def pot_update(amount) do
+    GenEvent.notify(@name, {:pot_update, amount})
+  end
+  
   def game_over(winner, reward) do
     GenEvent.notify(@name, {:game_over, winner, reward})
+  end
+  
+  def winner_message(message) do
+    GenEvent.notify(@name, {:winner_message, message})
   end
   
   def player_left(player) do

@@ -13,8 +13,9 @@ defmodule PokerEx.PlayersChannel do
 
 		{:ok, %{players: players},socket}
 	end
-	def join("players:" <> _private_room_id, _params, _socket) do
-		{:error, %{reason: "unauthorized"}}
+	def join("players:" <> room_id, params, socket) do
+		send(self, {:after_join_room, room_id, params})
+		{:ok, %{}, socket}
 	end
 	
 	def handle_info({:after_join, _message}, socket) do
@@ -31,6 +32,13 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	def handle_info({:after_join_room, room_id, params}, socket) do
+		assign(socket, :room, room_id)
+		IO.puts "after_join_room called with room_id: #{room_id}"
+		broadcast! socket, "room_joined", %{room: room_id}
+		{:noreply, socket}
+	end
+	
 	def handle_info({:game_begin, {player, _seat}, hands}, socket) do
 		hands = Enum.map(hands, 
 			fn {name, hand} -> 
@@ -41,8 +49,33 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	#####################
+	# INCOMING MESSAGES #
+	#####################
+	
 	def handle_in("new_msg", %{"body" => body}, socket) do
 		broadcast! socket, "new_msg", %{body: body}
+		{:noreply, socket}
+	end
+	
+	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
+		{amount, _} = Integer.parse(amount)
+		Room.raise(AppState.get(player), amount)
+		{:noreply, socket}
+	end
+	
+	def handle_in("player_called", %{"player" => player}, socket) do
+		Room.call(AppState.get(player))
+		{:noreply, socket}
+	end
+	
+	def handle_in("player_folded", %{"player" => player}, socket) do
+		Room.fold(AppState.get(player))
+		{:noreply, socket}
+	end
+	
+	def handle_in("player_checked", %{"player" => player}, socket) do
+		Room.check(AppState.get(player))
 		{:noreply, socket}
 	end
 	

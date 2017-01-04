@@ -7,7 +7,15 @@ export default class Card {
   }
   
   render() {
-    // implement later
+    let text = CARDS[this.suit.toUpperCase()][this.rank];
+    let paragraph = document.createElement('p');
+    paragraph.innerText = text;
+    if (this.suit == 'hearts' || this.suit == 'diamonds') {
+      paragraph.setAttribute('id', 'deck-red-suit');
+    } else {
+      paragraph.setAttribute('id', 'deck-black-suit');
+    }
+    return paragraph;
   }
   
   static renderPlayerCards(cards) {
