@@ -146,7 +146,6 @@ defmodule PokerEx.Room do
 				updated_buffer = Buffer.reset_called(buffer)
 				HandServer.score(hs)
 				update = %Room{ data | buffer: updated_buffer}
-				# Removing {:reply, from, {HandServer.stats(hs), HandServer.player_hands(hs)}} action
 				{:next_state, :game_over, update, 
 				  [{:next_event, :internal, {:reward_winner, from}}]
 				}
@@ -203,7 +202,6 @@ defmodule PokerEx.Room do
 				updated_buffer = Buffer.reset_called(buffer)
 				HandServer.score(hs)
 				update = %Room{ data | buffer: updated_buffer}
-				# Removing {:reply, from, {HandServer.stats(hs), HandServer.player_hands(hs)}} action
 				{:next_state, :game_over, update, [{:next_event, :internal, {:reward_winner, from}}]}
 		end
 	end
@@ -269,7 +267,6 @@ defmodule PokerEx.Room do
 		BetServer.clear(bs)
 		HandServer.clear(hs)
 		update = %Room{data | buffer: Buffer.clear(buffer)}
-		# See comment in handle_event(:event_timout, :set_round, ...) callback
 		{:next_state, :between_rounds, update, [{:timeout, 1000, :set_round}]}
 	end
 	

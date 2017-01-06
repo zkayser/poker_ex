@@ -19,7 +19,19 @@
 	background-color: black;
 }
 
+.login-spinner {
+	position: absolute;
+	top: 35%;
+	right: 35%;
+}
 
+.light-transparent {
+	opacity: 0.2;
+}
+
+.removed {
+	display: none;
+}
 
 @media (max-width: 989px) {
 	main {

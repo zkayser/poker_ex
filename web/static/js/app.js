@@ -19,6 +19,7 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 import Connection from "./socket";
+import $ from "jquery";
 
 let joinButton = document.querySelector(".join-btn");
 let chatInput = document.querySelector("#chat-input");
@@ -27,6 +28,8 @@ let chatInput = document.querySelector("#chat-input");
 joinButton.addEventListener('click', handleJoin);
 chatInput.addEventListener('keypress', (e) => {
 	if (e.charCode === 13) {
+		$(".login-spinner").addClass("active");
+		$(".signup").addClass("light-transparent");
 		handleJoin();
 	}
 });
@@ -37,6 +40,8 @@ function handleJoin() {
 	if (name.length > 0) {
 		Connection.init(name.trim());
 	}	else {
+			$(".login-spinner").removeClass("active");
+			$(".signup").removeClass("light-transparent");
 			alert("You must enter a name to join");
 	}
 }

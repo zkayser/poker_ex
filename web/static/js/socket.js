@@ -7,6 +7,7 @@ import {Socket} from "phoenix";
 import Player from "./player";
 import TableConcerns from "./table-concerns";
 import Card from "./card";
+import $ from "jquery";
 
 let Connection = {
   me: null,
@@ -52,7 +53,8 @@ let Connection = {
     
     channel.join()
     .receive("ok", initialPlayers => {
-      console.log(initialPlayers);
+      $(".signup").addClass("removed");
+      $(".login-spinner").removeClass("active");
       console.log("Joined channel");
       if(!(initialPlayers.players === null)) {
         this.players = initialPlayers.players;

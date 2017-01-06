@@ -42,7 +42,7 @@ export default class TableConcerns {
     
     channel.on("call_amount_update", ({amount}) => {
       table.callAmount = amount;
-      console.log("table object: ", table)
+      console.log("table object: ", table);
       console.log("call_amount_update", amount);
     });
   }
