@@ -7,31 +7,31 @@ export default class Card {
   }
   
   render() {
-    let text = CARDS[this.suit.toUpperCase()][this.rank];
-    let paragraph = document.createElement('p');
-    paragraph.innerText = text;
+    let path = CARDS[this.suit.toUpperCase()][this.rank];
+    let image = document.createElement('img');
+    image.src = path;
     if (this.suit == 'hearts' || this.suit == 'diamonds') {
-      paragraph.setAttribute('id', 'deck-red-suit');
+      image.setAttribute('id', 'deck-red-suit');
     } else {
-      paragraph.setAttribute('id', 'deck-black-suit');
+      image.setAttribute('id', 'deck-black-suit');
     }
-    return paragraph;
+    return image;
   }
   
   static renderPlayerCards(cards) {
     let cardArray = [];
     cards.forEach((card) => {
-      let text = CARDS[card.suit.toUpperCase()][card.rank];
-      let paragraph = document.createElement('p');
-      paragraph.innerText = text;
+      let path = CARDS[card.suit.toUpperCase()][card.rank];
+      let image = document.createElement('img');
+      image.src = path;
       // Set red font if suit is hearts or diamonds
       if (card.suit === 'hearts' || card.suit === 'diamonds') {
-        paragraph.setAttribute('id', 'red-suit'); 
+        image.setAttribute('id', 'red-suit'); 
       } else {
-        paragraph.setAttribute('id', 'black-suit');
+        image.setAttribute('id', 'black-suit');
       }
-      paragraph.setAttribute('class', 'player-cards');
-      cardArray.push(paragraph);
+      image.setAttribute('class', 'player-cards');
+      cardArray.push(image);
     });
     return cardArray;
   }

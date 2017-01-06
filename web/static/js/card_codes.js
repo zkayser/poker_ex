@@ -1,4 +1,73 @@
 export const CARDS = {
+  
+  BLANK:    "images/card-back.svg.png",
+  
+  SPADES: {
+    ace:    "images/cards/ace_of_spades.svg",
+    king:   "images/cards/king_of_spades.svg",
+    queen:  "images/cards/queen_of_spades.svg",
+    jack:   "images/cards/jack_of_spades.svg",
+    ten:    "images/cards/10_of_spades.svg",
+    nine:   "images/cards/9_of_spades.svg",
+    eight:  "images/cards/8_of_spades.svg",
+    seven:  "images/cards/7_of_spades.svg",
+    six:    "images/cards/6_of_spades.svg",
+    five:   "images/cards/5_of_spades.svg",
+    four:   "images/cards/4_of_spades.svg",
+    three:  "images/cards/3_of_spades.svg",
+    two:    "images/cards/2_of_spades.svg"
+  },
+  
+  CLUBS: {
+    ace:    "images/cards/ace_of_clubs.svg",
+    king:   "images/cards/king_of_clubs.svg",
+    queen:  "images/cards/queen_of_clubs.svg",
+    jack:   "images/cards/jack_of_clubs.svg",
+    ten:    "images/cards/10_of_clubs.svg",
+    nine:   "images/cards/9_of_clubs.svg",
+    eight:  "images/cards/8_of_clubs.svg",
+    seven:  "images/cards/7_of_clubs.svg",
+    six:    "images/cards/6_of_clubs.svg",
+    five:   "images/cards/5_of_clubs.svg",
+    four:   "images/cards/4_of_clubs.svg",
+    three:  "images/cards/3_of_clubs.svg",
+    two:    "images/cards/2_of_clubs.svg"
+  },
+  
+  HEARTS: {
+    ace:    "images/cards/ace_of_hearts.svg",
+    king:   "images/cards/king_of_hearts.svg",
+    queen:  "images/cards/queen_of_hearts.svg",
+    jack:   "images/cards/jack_of_hearts.svg",
+    ten:    "images/cards/10_of_hearts.svg",
+    nine:   "images/cards/9_of_hearts.svg",
+    eight:  "images/cards/8_of_hearts.svg",
+    seven:  "images/cards/7_of_hearts.svg",
+    six:    "images/cards/6_of_hearts.svg",
+    five:   "images/cards/5_of_hearts.svg",
+    four:   "images/cards/4_of_hearts.svg",
+    three:  "images/cards/3_of_hearts.svg",
+    two:    "images/cards/2_of_hearts.svg"
+  },
+  
+  DIAMONDS: {
+    ace:    "images/cards/ace_of_diamonds.svg",
+    king:   "images/cards/king_of_diamonds.svg",
+    queen:  "images/cards/queen_of_diamonds.svg",
+    jack:   "images/cards/jack_of_diamonds.svg",
+    ten:    "images/cards/10_of_diamonds.svg",
+    nine:   "images/cards/9_of_diamonds.svg",
+    eight:  "images/cards/8_of_diamonds.svg",
+    seven:  "images/cards/7_of_diamonds.svg",
+    six:    "images/cards/6_of_diamonds.svg",
+    five:   "images/cards/5_of_diamonds.svg",
+    four:   "images/cards/4_of_diamonds.svg",
+    three:  "images/cards/3_of_diamonds.svg",
+    two:    "images/cards/2_of_diamonds.svg"
+  }
+  
+  /* UTF-8 cards are not rendering on mobile browsers for some reason... 
+  
   BLANK: "\uD83C\uDCA0",
   
   SPADES: {
@@ -64,6 +133,7 @@ export const CARDS = {
     queen:  "\uD83C\uDCDD",
     king:   "\uD83C\uDCDE"
   }
+  */
 };
 
 export default CARDS;

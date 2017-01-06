@@ -56,6 +56,7 @@ div .table-cards {
   justify-content: space-around;
   position: initial;
   height: 3em;
+  margin-top: 0.5em;
 }
 
 .circle-container div {

@@ -19,7 +19,7 @@
           <div class="nav-wrapper"><a class="page-title">PokerEx</a></div>
         </div>
       </nav>
-      <div class="container"><a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only"><i class="material-icons">menu</i></a></div>
+      <div class="container hide-on-med-and-down"><a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only"><i class="material-icons">menu</i></a></div>
       <ul id="nav-mobile" class="side-nav fixed">
           <div class="search-wrapper card">
             <div class="card-image">

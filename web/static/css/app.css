@@ -19,13 +19,28 @@
 	background-color: black;
 }
 
-header {
-	padding-left: 300px;
+
+
+@media (max-width: 989px) {
+	main {
+		padding-left: 0px;
+	}
+	
+	header {
+		padding-left: 0px;
+	}
 }
 
-main {
+@media (min-width: 990px) {
+	main {
+		padding-left: 300px;
+	}
+	
+	header {
 	padding-left: 300px;
 }
+}
+
 
 .top-nav {
 	height: 122px;
@@ -87,9 +102,11 @@ nav.top-nav a.page-title {
 }
 
 .player-cards {
-	font-size: 3rem;
-	margin-top: 0;
+	font-size: 3em;
+	margin-top: 0.3em;
 	margin-bottom: 0;
+	width: 5rem;
+	height: 5rem;
 }
 
 #player-cards {

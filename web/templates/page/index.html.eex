@@ -10,7 +10,8 @@
 <div class='circle-container card-table'>
 	<div class="circle-center">
 	  <div class="deck">
-	    <p id="deck">🂠</p>
+	    <img id="deck" src="images/card-back.svg.png">
+	    <!-- <p id="deck">🂠</p> -->
 	  </div>
 	  <div class="table-cards">
 
