@@ -2,6 +2,7 @@ defmodule PokerEx.BetServer do
 	use GenServer
 	
 	alias PokerEx.BetHistory, as: History
+	alias PokerEx.Events
 
 	def start_link do
 		GenServer.start_link(__MODULE__, [])
@@ -64,6 +65,7 @@ defmodule PokerEx.BetServer do
 		updated_round = update_paid_in_round(player, round, real_amount)
 			
 		update = %History{ history | paid: updated_paid, to_call: amount, pot: pot + real_amount, round: updated_round}
+		Events.call_amount_update(update.to_call)
 		{:reply, update, update}
 	end
 	
@@ -88,10 +90,12 @@ defmodule PokerEx.BetServer do
 	end
 	
 	def handle_cast(:reset_round, history) do
+		Events.call_amount_update(0)
 		{:noreply, %History{ history | round: %{}, to_call: 0} }
 	end
 	
 	def handle_cast(:clear, _history) do
+		Events.call_amount_update(0)
 		{:noreply, %History{to_call: 0, pot: 0}}
 	end
 	

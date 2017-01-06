@@ -23,6 +23,11 @@ defmodule PokerEx.TableEvents do
     {:ok, state}
   end
   
+  def handle_event({:call_amount_update, new_amount}, state) do
+    Endpoint.broadcast("players:lobby", "call_amount_update", %{amount: new_amount})
+    {:ok, state}
+  end
+  
   def handle_event({:advance, {player, _seat}}, state) do
     Endpoint.broadcast("players:lobby", "advance", %{player: player})
     {:ok, state}

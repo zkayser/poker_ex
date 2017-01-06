@@ -64,8 +64,17 @@ nav.top-nav a.page-title {
 }
 
 .player-controls {
-	visibility: hidden;
+	opacity: 0;
 }
+
+.call-btn {
+	opacity: 0;
+}
+
+.fold-btn {
+	opacity: 0;
+}
+
 
 .card-holder {
 	visibility: hidden;

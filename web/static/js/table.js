@@ -1,6 +1,7 @@
 export default class Table {
 	constructor() {
 		this.pot = 0;
+		this.callAmount = 0;
 		this.cards = [];
 	}
 	

@@ -1,3 +1,5 @@
+import $ from "jquery";
+
 export default class Player {
 	
 	constructor(name, chips) {
@@ -31,15 +33,19 @@ export default class Player {
 	}
 	
 	static renderPlayerControls() {
-		let playerControls = document.querySelector(".player-controls");
-		playerControls.style.visibility = "visible";
+		console.log("renderPlayerControls");
+		let controls = [$(".player-controls"), $(".fold-btn"), $(".call-btn")];
+		controls.forEach((control) => {
+			control.fadeTo("slow", 1);
+		});
 	}
 	
 	static hidePlayerControls() {
-		let playerControls = document.querySelector(".player-controls");
-		if (playerControls.style.visibility == "visible") {
-			playerControls.style.visibility = "hidden";
-		}
+		console.log("hidePlayerControls");
+		let controls = [$(".player-controls"), $(".fold-btn"), $(".call-btn")];
+		controls.forEach((control) => {
+			control.fadeTo("slow", 0);
+		});
 	}
 	
 	static raise(player, amount, channel) {

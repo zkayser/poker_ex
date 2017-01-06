@@ -45,6 +45,10 @@ defmodule PokerEx.Events do
     GenEvent.notify(@name, {:pot_update, amount})
   end
   
+  def call_amount_update(new_amount) do
+    GenEvent.notify(@name, {:call_amount_update, new_amount})
+  end
+  
   def game_over(winner, reward) do
     GenEvent.notify(@name, {:game_over, winner, reward})
   end

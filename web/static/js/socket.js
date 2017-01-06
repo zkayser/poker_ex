@@ -5,8 +5,7 @@
 // and connect at the socket path in "lib/my_app/endpoint.ex":
 import {Socket} from "phoenix";
 import Player from "./player";
-import Table from "./table";
-import TableChannel from "./table-channel";
+import TableConcerns from "./table-concerns";
 import Card from "./card";
 
 let Connection = {
@@ -27,11 +26,7 @@ let Connection = {
     let socket = new Socket('/socket', {params: {name: name}});
     socket.connect();
     let channel = socket.channel("players:lobby", {});
-    TableChannel.init(channel);
-    /* Just experimenting below
-    let roomChannel = socket.channel("players:1", {});
-    Table.init(roomChannel);
-    */
+    TableConcerns.init(channel);
     this.me = name;
     this.player = undefined;
     

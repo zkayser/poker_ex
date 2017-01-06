@@ -1,21 +1,18 @@
 import Table from './table';
 import Card from './card';
 
-export default class TableChannel {
+export default class TableConcerns {
   constructor() {}
   
   static init(channel) {
-    let table = undefined;
-    let pot = 0;
+    let table = new Table();
     
     channel.on("game_started", (payload) => {
-      table = new Table();
-      table.pot = pot;
       console.log(table);
     });
     
     channel.on("pot_update", ({amount}) => {
-      pot += amount;
+      table.pot += amount;
     });
     
     channel.on("flop_dealt", ({cards}) => {
@@ -41,6 +38,12 @@ export default class TableChannel {
       table.pot = 0;
       table.cards = [];
       table.removeCards();
+    });
+    
+    channel.on("call_amount_update", ({amount}) => {
+      table.callAmount = amount;
+      console.log("table object: ", table)
+      console.log("call_amount_update", amount);
     });
   }
   

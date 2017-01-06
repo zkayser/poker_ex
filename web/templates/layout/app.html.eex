@@ -29,8 +29,11 @@
         <li class="bold"><a href="#" class="waves-effect waves-teal">Getting Started</a></li>  
         <li class="bold"><a href="#" class="waves-effect waves-teal">Online</a></li>
         <li><div class="divider"></div></li>
-        <div id="message-container"><ul id="messages"></ul></div>
-        
+        <div id="message-container">
+          <ul id="messages">
+            
+          </ul>
+        </div>
       </ul>
     </header>    
 
