@@ -8,7 +8,7 @@ defmodule PokerEx.Room do
 	alias PokerEx.RewardManager
 	alias PokerEx.Room, as: Room
 	
-	## Todo: A problem arises when there are only two players
+	## URGENT: A problem arises when there are only two players
 	## and one goes all in. The game does not advance and 
 	## everything is left hanging.
 	

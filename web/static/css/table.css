@@ -54,8 +54,15 @@
 div .table-cards {
   display: flex;
   justify-content: space-around;
+  position: absolute;
+  height: 3em;
 }
 
 .circle-container div {
   width: 16em;
+}
+
+.deck {
+	position: absolute;
+	height: 3em;
 }

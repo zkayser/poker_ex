@@ -21,7 +21,6 @@ export default class Player {
 	renderPlayerInfo() {
 		console.log("renderPlayerInfo called");
 		let oldInfo = document.getElementById("info");
-		console.log(oldInfo);
 		if (oldInfo) {
 			this.playerInfo.removeChild(oldInfo);
 		}

@@ -5,6 +5,8 @@
   color: darkred;
   border: 0;
   z-index: 0;
+  position: absolute;
+  left: 40%;
 }
 
 #deck-black-suit {
