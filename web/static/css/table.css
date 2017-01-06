@@ -54,7 +54,7 @@
 div .table-cards {
   display: flex;
   justify-content: space-around;
-  position: absolute;
+  position: initial;
   height: 3em;
 }
 
@@ -63,6 +63,15 @@ div .table-cards {
 }
 
 .deck {
-	position: absolute;
+	position: initial;
 	height: 3em;
+}
+
+.pot {
+	position: initial;
+	height: 3em;
+}
+
+#pot {
+	left: 40%;
 }
