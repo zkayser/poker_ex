@@ -53,7 +53,9 @@ let Connection = {
     
     channel.join()
     .receive("ok", initialPlayers => {
-      $(".signup").addClass("removed");
+      $(".signup").fadeOut("slow", () => {
+        $(".card-table").addClass("table-show");
+      });
       $(".login-spinner").removeClass("active");
       console.log("Joined channel");
       if(!(initialPlayers.players === null)) {

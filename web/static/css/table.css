@@ -1,3 +1,17 @@
+@keyframes slide-in {
+	from {left: 150em;}
+	to {left: 0;}
+}
+
+.table-show {
+	animation: slide-in 1s;
+	-webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
 .circle-container {
 	position: relative;
 	width: 28em;
@@ -7,7 +21,9 @@
 	background-color: darkgreen;
 	border-radius: 50%;
 	margin: 1.75em auto 0;
+	left: 150em;
 }
+
 .circle-container a {
 	/*display: block;*/
 	overflow: hidden;
