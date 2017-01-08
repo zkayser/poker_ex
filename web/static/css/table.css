@@ -3,13 +3,17 @@
 	to {left: 0;}
 }
 
-.table-show {
+.slide-onscreen-right {
 	animation: slide-in 1s;
 	-webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
   -o-animation-fill-mode: forwards;
   animation-fill-mode: forwards;
+}
+
+#offscreen-left {
+	left: 150em;
 }
 
 .circle-container {
@@ -50,8 +54,6 @@
 .circle-center {
   position: absolute;
   overflow: hidden;
-  /* top: 50%; */
-  /*height: 4em; */
   height: 25%;
   top: 43.75%;
   margin: -2em;
@@ -68,7 +70,7 @@
 }
 
 div .table-cards {
-  display: flex;
+  /* display: flex; */
   justify-content: space-around;
   position: initial;
   height: 3em;

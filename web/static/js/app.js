@@ -20,6 +20,8 @@ import "phoenix_html"
 
 import Connection from "./socket";
 import $ from "jquery";
+import Materialize from "materialize";
+
 
 let joinButton = document.querySelector(".join-btn");
 let chatInput = document.querySelector("#chat-input");

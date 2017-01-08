@@ -42,7 +42,7 @@
 </div>
 
 <!-- card-holders -->
-<div class="row player-center">
+<div class="row player-center" id="offscreen-left">
   <div class="col s4 center-align">
     <button class="waves-effect waves-light btn-floating btn btn-large fold-btn">Fold</button>
   </div>
@@ -63,7 +63,7 @@
 </div>
 
 <!-- controls -->
-<div class="row player-controls">
+<div class="row player-controls" id="offscreen-left">
   <div class="col s4 center-align">
     <button class="waves-effect waves-light btn-floating btn btn-large check-btn">Check</button>
   </div>

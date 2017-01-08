@@ -2,9 +2,10 @@ import $ from "jquery";
 
 export default class Player {
 	
-	constructor(name, chips) {
+	constructor(name, chips, seatingPosition) {
 		this.name = name;
 		this.chips = chips;
+		this.seatingPosition = seatingPosition || undefined;
 		this.playerInfo = document.getElementById("player-info");
 	}
 	
@@ -15,7 +16,7 @@ export default class Player {
 	
 	static addToList(player) {
 		let joinMsg = document.createElement('li');
-		joinMsg.innerText = player.name;
+		joinMsg.innerText = player.name || player;
 		joinMsg.setAttribute('id', 'player-element');
 		return joinMsg;
 	}
@@ -50,26 +51,26 @@ export default class Player {
 	
 	static raise(player, amount, channel) {
 		channel.push("player_raised", {
-			player: player,
+			player: player.name || player,
 			amount: amount
 		});
 	}
 	
 	static fold(player, channel) {
 		channel.push("player_folded", {
-			player: player.name
+			player: player.name || player
 		});
 	}
 	
 	static call(player, channel) {
 		channel.push("player_called", {
-			player: player.name
+			player: player.name || player
 		});
 	}
 	
 	static check(player, channel) {
 		channel.push("player_checked", {
-			player: player.name
+			player: player.name || player
 		});
 	}
 }

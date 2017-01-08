@@ -1,9 +1,10 @@
-import {CARDS} from './card_codes'
+import {CARDS} from './card_codes';
 
 export default class Card {
   constructor(rank, suit) {
     this.rank = rank;
     this.suit = suit;
+    this.rendered = false;
   }
   
   render() {

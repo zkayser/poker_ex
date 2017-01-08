@@ -22,7 +22,16 @@ defmodule PokerEx.PlayersChannel do
 		player_id = socket.assigns.player_name
 		player = Player.new(player_id) |> AppState.put
 		assign(socket, :player, player)
-		broadcast! socket, "player_joined", %{player: player}
+		# Seating sends back a list of tuples that need to be
+		# encoded to send with Poison. Break this out to a separate
+		# module later.
+		IO.inspect Room.seating
+		seating = case Room.seating do
+			s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
+			[] -> nil
+			{name, pos} -> %{name: name, position: pos} 
+		end
+		broadcast! socket, "player_joined", %{player: player, seating: seating}
 		case Room.join(player) do
 			{:game_begin, _, active, hands} ->
 				send(self, {:game_begin, hd(active), hands})
@@ -79,10 +88,18 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	#####################
+	# Outgoing Messages #
+	#####################
+	
 	def handle_out("new_msg", payload, socket) do
 		push socket, "new_msg", payload
 		{:noreply, socket}
 	end
+	
+	#############
+	# Terminate #
+	#############
 	
 	def terminate(_message, socket) do
 		player = socket.assigns.player_name

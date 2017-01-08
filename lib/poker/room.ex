@@ -66,6 +66,10 @@ defmodule PokerEx.Room do
 	  :gen_statem.call(@name, :data)
 	end
 	
+	def seating do
+		:gen_statem.call(@name, :seating)
+	end
+	
 	def active do
 		:gen_statem.call(@name, :active)
 	end
@@ -331,6 +335,10 @@ defmodule PokerEx.Room do
 	def handle_event({:call, from}, :active, state, data) do
 		active = TableManager.active(data.table_manager)
 		{:next_state, state, data, [{:reply, from, active}]}
+	end
+	
+	def handle_event({:call, from}, :seating, state, data) do
+		{:next_state, state, data, [{:reply, from, TableManager.seating(data.table_manager)}]}
 	end
 	
 	def handle_event({:call, from}, :get_state, state, data) do
