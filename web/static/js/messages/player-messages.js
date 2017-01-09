@@ -9,8 +9,6 @@ export default class PlayerMessages {
   }
   
   static init(channel, name) {
-    console.log("Player messages running");
-    
     $(".raise-btn").click(() => {
       let raiseAmount = document.getElementById("raise-amount");
       let amount = raiseAmount.value;

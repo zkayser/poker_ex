@@ -1,13 +1,10 @@
 import Table from './table';
 import Card from './card';
-import Player from './player';
-import MessageBox from './message-box';
 
 export default class TableConcerns {
   constructor() {}
   
   static init(channel, name) {
-    console.log("Table Messages running");
     
     let table = new Table();
     table.user = name;
@@ -71,7 +68,7 @@ export default class TableConcerns {
       });
       
       let index = names.indexOf(payload.body.name);
-      if (!index == -1) {
+      if (!index === -1) {
         let p = table.players.splice(index, 1);
         table.markedToFold.push(p[0]);
       }
