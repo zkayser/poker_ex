@@ -22,7 +22,6 @@ export default class Player {
 	}
 	
 	renderPlayerInfo() {
-		console.log("renderPlayerInfo called");
 		let oldInfo = document.getElementById("info");
 		if (oldInfo) {
 			this.playerInfo.removeChild(oldInfo);
@@ -72,5 +71,13 @@ export default class Player {
 		channel.push("player_checked", {
 			player: player.name || player
 		});
+	}
+	
+	static emblem(player) {
+		let div = document.createElement('div');
+		let span = document.createElement('span');
+		span.innerHTML = player.charAt(0);
+		div.appendChild(span);
+		return div;
 	}
 }

@@ -164,3 +164,7 @@ div .table-cards {
 #pot {
 	left: 40%;
 }
+
+.circle-container .active-player {
+	border-color: white;
+}

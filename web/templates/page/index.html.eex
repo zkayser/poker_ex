@@ -31,6 +31,7 @@
 	    
 	  </div>
 	</div>
+	<!--
 	<a href='#' class='deg0'><div><span>Text0</span></div></a>
 	<a href='#' class='deg45'><div><span>Text45</span></div></a>
 	<a href="#" class='deg90'><div><span>Text90</span></div></a>
@@ -38,7 +39,7 @@
 	<a href='#' class='deg180'><div><span>Text180</span></div></a>
 	<a href='#' class='deg225'><div><span>Text225</span></div></a>
 	<a href="#" class="deg270"><div><span>Text270</span></div></a>
-	<a href='#' class='deg315'><div><span>Text315</span></div></a>
+	<a href='#' class='deg315'><div><span>Text315</span></div></a> -->
 </div>
 
 <!-- card-holders -->

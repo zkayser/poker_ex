@@ -222,7 +222,7 @@ defmodule PokerEx.Room do
 			_ ->
 				buffer = Buffer.check(buffer, player, BetServer.get_paid_in_round(bs, player), BetServer.get_to_call(bs))
 				advance_round(state, tm, hs, bs)
-				update = %Room{ data | buffer: buffer}
+				update = %Room{ data | buffer: Buffer.reset_called(buffer)}
 				{:next_state, advance_state(state), update, [{:reply, from, {TableManager.active(tm), HandServer.table(hs)}}]}
 		end
 	end

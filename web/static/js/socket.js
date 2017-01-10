@@ -21,7 +21,7 @@ let Connection = {
     channel.join()
     .receive("ok", initialPlayers => {
       Signup.fadeOnSignin();
-      console.log("Joined channel");
+      console.log("joined lobby", name);
       if(!(initialPlayers.players === null)) {
         initialPlayers.players.forEach(player => {
           let msg = Player.addToList(player.name);

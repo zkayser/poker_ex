@@ -8,9 +8,11 @@ export default class TableConcerns {
     
     let table = new Table();
     table.user = name;
+    let earlierPlayersSeen = false;
     
     channel.on("player_seated", ({position, player}) => {
       table.seating[player] = position;
+      Table.renderNewPlayer(player, position);
     });
     
     channel.on("game_started", (payload) => {
@@ -18,6 +20,7 @@ export default class TableConcerns {
         table.players.push(key);
       });
       console.log(payload);
+      table.addActiveClass(payload.active);
     });
     
     channel.on("pot_update", ({amount}) => {
@@ -46,6 +49,12 @@ export default class TableConcerns {
       table.pot = 0;
       table.cards = [];
       table.removeCards();
+      table.players = [];
+    });
+    
+    channel.on("advance", ({player}) => {
+      table.removeActiveClass();
+      table.addActiveClass(player);
     });
     
     channel.on("call_amount_update", ({amount}) => {
@@ -54,11 +63,22 @@ export default class TableConcerns {
       console.log("call_amount_update", amount);
     });
     
+    
     channel.on("player_joined", payload => {
-      if (payload.seating.length > 0) {
-        payload.seating.forEach((seat) => {
-          table.seating[seat.name] = seat.position;
-        });
+      if (!earlierPlayersSeen) {
+        if (payload.seating.length > 0) {
+          payload.seating.forEach((seat) => {
+            table.seating[seat.name] = seat.position;
+          });
+        } 
+        /*
+        if (!Object.keys(table.seating).includes(name)) {
+          table.seating[name] = payload.seating.length; 
+        } */
+        Table.renderPlayers(table.seating);
+        earlierPlayersSeen = true; 
+      } else {
+        console.log("players have been seen");
       }
     });
     

@@ -39,6 +39,7 @@ export default class PlayerMessages {
       }
       let msg = Player.addToList(player);
       MessageBox.appendAndScroll(msg);
+      
     });
     
     channel.on("chip_update", (payload) => {
