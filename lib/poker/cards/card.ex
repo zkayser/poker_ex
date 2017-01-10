@@ -25,6 +25,7 @@ defmodule PokerEx.Card do
 	for comparison purposes.
 	"""
 	@spec value(Card.t) :: pos_integer
+	def value(rank) when is_atom(rank), do: @card_precedence[rank]
 	def value(%Card{rank: rank}), do: @card_precedence[rank] 
 	
 	@doc """

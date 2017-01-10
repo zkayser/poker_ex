@@ -65,6 +65,7 @@ defmodule PokerEx.Evaluator do
 	
 	@spec check_for_straight(hand) :: hand
 	def check_for_straight(%Hand{hand: hand_pool} = hand) do
+		{a_to_5?, a_to_5} = ace_to_five_straight?(hand_pool)
 		straight =
 			hand_pool
 			|> C.sort_by_rank
@@ -80,7 +81,7 @@ defmodule PokerEx.Evaluator do
 			list when length(list) >= 5 -> 
 				%Hand{hand | has_straight_with: Enum.filter(hand_pool, fn %C{rank: rank} -> rank in list end)}
 			_ -> 
-				hand
+				if a_to_5?, do: %Hand{hand | has_straight_with: a_to_5}, else: hand
 		end
 	end
 			
@@ -209,8 +210,15 @@ defmodule PokerEx.Evaluator do
 	defp flush?(%Hand{has_flush_with: flush} = hand) when is_list(flush) and length(flush) > 0 do
 		best = flush |> C.sort_by_rank |> Enum.take(5)
 		[%C{rank: high_card}] = Enum.take(best, 1)
+		
+		high_card = 
+			case high_card do
+				x when is_list(x) -> hd(x)
+				x -> x
+			end
+		
 		%Hand{hand | best_hand: best, hand_type: :flush, type_string: "a Flush, #{stringify_rank(high_card)} High",
-					score: 500 + rank(best)
+					score: 500 + C.value(high_card)
 		}
 	end
 	defp flush?(hand), do: hand
@@ -218,6 +226,7 @@ defmodule PokerEx.Evaluator do
 	@spec straight?(hand) :: hand
 	defp straight?(%Hand{has_straight_with: straight} = hand) when is_list(straight) and length(straight) > 0 do
 		best = straight |> C.sort_by_rank |> Enum.take(5)
+		[high_card|_tail] = best
 		
 		to = 
 			case List.first(best) do
@@ -232,8 +241,14 @@ defmodule PokerEx.Evaluator do
 					[%C{rank: rank}] = Enum.take(best, 1)
 					rank
 			end
+			
+		to = 
+			case to do
+				x when is_list(x) -> hd(x)
+				x -> x
+			end
 		%Hand{hand | best_hand: best, hand_type: :straight, type_string: "a Straight, #{stringify_rank(to)} High",
-					score: 400 + rank(best)
+					score: 400 + C.value(to)
 		}
 	end
 	defp straight?(hand), do: hand
@@ -325,5 +340,21 @@ defmodule PokerEx.Evaluator do
 	@spec rank([C.t]) :: pos_integer
 	defp rank(hand) do
 		Enum.map(hand, fn card -> C.value(card) end) |> Enum.sum
+	end
+	
+	# Determines if a hand pool includes an Ace-to-five straight
+	@spec ace_to_five_straight?([C.t]) :: boolean()
+	def ace_to_five_straight?(hand_pool) do
+		ace_to_five = [:ace, :two, :three, :four, :five]
+		ranks = Enum.map(hand_pool, fn %C{rank: rank} -> rank end)
+		test = ace_to_five |> Enum.all?(fn rank -> rank in ranks end)
+		hand =  Enum.map(hand_pool, 
+			fn %C{rank: rank} = card ->
+				if rank in ace_to_five do
+					card
+				end
+			end)
+		|> Enum.reject(fn val -> is_nil(val) end)
+		if test, do: {true, hand}, else: {:false, []} 
 	end
 end

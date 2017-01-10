@@ -112,7 +112,6 @@ defmodule PokerEx.Room do
 	  {:ok, bet_server} = BetServer.start_link
 	  {:ok, table_manager} = TableManager.start_link([])
 		{:ok, hand_server} = HandServer.start_link()
-		Events.start_link
 		buffer = Buffer.new |> Map.put(:table_manager, table_manager) |> Map.put(:bet_server, bet_server) |> Map.put(:winner, nil)
 		{:next_state, :idle, %Room{bet_server: bet_server, table_manager: table_manager, hand_server: hand_server, buffer: buffer}}
 	end

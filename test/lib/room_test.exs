@@ -8,7 +8,11 @@ defmodule PokerEx.RoomTest do
 	alias PokerEx.TableManager
 	
 	setup do
-		{:ok, room} = Room.start_link
+		room = 
+			case Room.start_link do
+				{:ok, pid} -> pid
+				{:error, _} -> Process.whereis(:room)
+			end
 		players = [p1, p2, p3, p4] = 1..4 |> Enum.to_list |> Enum.map(fn num -> Player.new("#{num}") end)
 		Enum.each(players, fn p -> AppState.put(p) end)
 		table = Room.data.table_manager

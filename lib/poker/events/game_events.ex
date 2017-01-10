@@ -1,31 +1,21 @@
 defmodule PokerEx.GameEvents do
-  use GenEvent
   alias PokerEx.Endpoint
   
-  def init([]) do
-    {:ok, []}
-  end
-  
-  def handle_event({:game_started, {active, _seat}, cards}, state) do
+  def game_started({active, _seat}, cards) do
     hands = Enum.map(cards,
       fn {name, hand} ->
         player_hand = Enum.map(hand, fn card -> Map.from_struct(card) end)
         %{player: name, hand: player_hand}
       end)
     Endpoint.broadcast!("players:lobby", "game_started", %{active: active, hands: hands})
-    {:ok, state}
   end
-  
-  def handle_event({:game_over, winner, reward}, state) do
+
+  def game_over(winner, reward) do
     message = "#{winner} wins #{reward} chips"
     Endpoint.broadcast!("players:lobby", "game_finished", %{message: message})
-    {:ok, state}
   end
   
-  def handle_event({:winner_message, message}, state) do
+  def winner_message(message) do
     Endpoint.broadcast!("players:lobby", "winner_message", %{message: message})
-    {:ok, state}
   end
-  
-  def handle_event(_event, state), do: {:ok, state}
 end
