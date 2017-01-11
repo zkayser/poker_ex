@@ -50,11 +50,12 @@ export default class PlayerMessages {
     });
     
     channel.on("advance", ({player}) => {
-      if (player == name) {
+     console.log("advance called in player-messages module");
+     /* if (player == name) {
         Player.renderPlayerControls();
       } else {
         Player.hidePlayerControls();
-      }
+      } */
     });
     
     channel.on("game_started", (payload) => {

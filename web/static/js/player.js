@@ -32,17 +32,22 @@ export default class Player {
 		this.playerInfo.appendChild(paragraph);
 	}
 	
-	static renderPlayerControls() {
-		console.log("renderPlayerControls");
-		let controls = [$(".player-controls"), $(".fold-btn"), $(".call-btn")];
+	static renderPlayerControls(callAmount, paidInRound) {
+		console.log("renderPlayerControls called", callAmount, paidInRound);
+		$(".player-controls").fadeTo("slow", 1);
+		let controls = [];
+		if (callAmount > paidInRound ) {
+			controls = [$(".call-btn"), $(".fold-btn"), $(".raise-btn")];
+		} else if (callAmount === paidInRound) {
+			controls = [$(".check-btn"), $(".raise-btn")];
+		}
 		controls.forEach((control) => {
 			control.fadeTo("slow", 1);
 		});
 	}
 	
 	static hidePlayerControls() {
-		console.log("hidePlayerControls");
-		let controls = [$(".player-controls"), $(".fold-btn"), $(".call-btn")];
+		let controls = [$(".player-controls"), $(".fold-btn"), $(".call-btn"), (".raise-btn"), $(".check-btn")];
 		controls.forEach((control) => {
 			control.fadeTo("slow", 0);
 		});

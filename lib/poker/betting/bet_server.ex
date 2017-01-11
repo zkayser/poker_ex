@@ -57,6 +57,7 @@ defmodule PokerEx.BetServer do
 		updated_round = update_paid_in_round(player, round, real_amount)
 		
 		update = %History{ history | paid: updated_paid, pot: pot + real_amount, round: updated_round}
+		Events.paid_in_round_update(updated_round)
 		{:reply, update, update}
 	end
 	
@@ -65,6 +66,7 @@ defmodule PokerEx.BetServer do
 		updated_round = update_paid_in_round(player, round, real_amount)
 			
 		update = %History{ history | paid: updated_paid, to_call: amount, pot: pot + real_amount, round: updated_round}
+		Events.paid_in_round_update(updated_round)
 		Events.call_amount_update(update.to_call)
 		{:reply, update, update}
 	end

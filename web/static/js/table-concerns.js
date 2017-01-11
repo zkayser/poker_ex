@@ -1,5 +1,8 @@
+import $ from 'jquery';
+
 import Table from './table';
 import Card from './card';
+import Player from './player';
 
 export default class TableConcerns {
   constructor() {}
@@ -25,6 +28,7 @@ export default class TableConcerns {
     
     channel.on("pot_update", ({amount}) => {
       table.pot += amount;
+      $("#pot").text(table.pot);
     });
     
     channel.on("flop_dealt", ({cards}) => {
@@ -55,14 +59,21 @@ export default class TableConcerns {
     channel.on("advance", ({player}) => {
       table.removeActiveClass();
       table.addActiveClass(player);
+      console.log("table messages advance event: player === table.user?", player === table.user);
+      if (player === table.user) {
+        Player.renderPlayerControls(table.callAmount, table.paidInRound[player]);
+      } else {
+        Player.hidePlayerControls();
+      }
     });
     
     channel.on("call_amount_update", ({amount}) => {
       table.callAmount = amount;
-      console.log("table object: ", table);
-      console.log("call_amount_update", amount);
     });
     
+    channel.on("paid_in_round_update", (payload) => {
+      table.paidInRound = payload;
+    });
     
     channel.on("player_joined", payload => {
       if (!earlierPlayersSeen) {

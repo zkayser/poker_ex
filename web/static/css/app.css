@@ -91,7 +91,7 @@ nav.top-nav a.page-title {
 }
 
 .player-controls {
-	opacity: 0;
+	opacity: 1;
 }
 
 .call-btn {
@@ -102,14 +102,21 @@ nav.top-nav a.page-title {
 	opacity: 0;
 }
 
+.raise-btn {
+	opacity: 0;
+}
+
+.check-btn {
+	opacity: 0;
+}
 
 .card-holder {
 	visibility: hidden;
 	display: flex;
 	flex-wrap: wrap;
 	border-radius: 10%;
-	border: 5px solid teal;
-	background-color: snow;
+	/* border: 5px solid teal; */
+	/* background-color: snow; */
 	justify-content: center;
 }
 
@@ -119,6 +126,10 @@ nav.top-nav a.page-title {
 	margin-bottom: 0;
 	width: 5rem;
 	height: 5rem;
+}
+
+.controls {
+	visibility: hidden;
 }
 
 #player-cards {

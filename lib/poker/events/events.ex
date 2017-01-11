@@ -47,4 +47,8 @@ defmodule PokerEx.Events do
   def chip_update(player, amount) do
     PlayerEvents.chip_update(player, amount)
   end
+  
+  def paid_in_round_update(map) do
+    TableEvents.paid_in_round_update(map)
+  end
 end

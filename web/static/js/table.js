@@ -12,6 +12,7 @@ export default class Table {
 		this.seating = new Object();
 		this.user = undefined;
 		this.markedToFold = [];
+		this.paidInRound = undefined;
 	}
 	
 	renderCards() {

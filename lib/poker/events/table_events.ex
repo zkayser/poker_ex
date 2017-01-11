@@ -22,4 +22,8 @@ defmodule PokerEx.TableEvents do
   def advance({player, _seat}) do
     Endpoint.broadcast("players:lobby", "advance", %{player: player})
   end
+  
+  def paid_in_round_update(map) do
+    Endpoint.broadcast("players:lobby", "paid_in_round_update", map)
+  end
 end

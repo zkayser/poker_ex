@@ -1,4 +1,5 @@
 import {Socket} from "phoenix";
+import $ from 'jquery';
 
 import Player from "./player";
 import PlayerMessages from './messages/player-messages';
@@ -17,6 +18,9 @@ let Connection = {
     PlayerMessages.init(channel, name);
     RoomMessages.init(channel);
     this.me = name;
+    
+    let controls = document.querySelector(".controls");
+    controls.style.visibility = "visible";
     
     channel.join()
     .receive("ok", initialPlayers => {
