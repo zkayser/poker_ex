@@ -25,7 +25,6 @@ defmodule PokerEx.PlayersChannel do
 		# Seating sends back a list of tuples that need to be
 		# encoded to send with Poison. Break this out to a separate
 		# module later.
-		IO.puts "Room seating: #{inspect(Room.seating)}"
 		seating = 
 			case Room.seating do
 				s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
@@ -44,7 +43,6 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_info({:after_join_room, room_id, params}, socket) do
 		assign(socket, :room, room_id)
-		IO.puts "after_join_room called with room_id: #{room_id}"
 		broadcast! socket, "room_joined", %{room: room_id}
 		{:noreply, socket}
 	end

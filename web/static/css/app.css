@@ -94,6 +94,12 @@ nav.top-nav a.page-title {
 	opacity: 1;
 }
 
+/* Put these into one invisible class with opacity = 0 */
+
+.raise {
+	opacity: 0;
+}
+
 .call-btn {
 	opacity: 0;
 }
@@ -128,9 +134,6 @@ nav.top-nav a.page-title {
 	height: 5rem;
 }
 
-.controls {
-	visibility: hidden;
-}
 
 #player-cards {
 	display: flex;

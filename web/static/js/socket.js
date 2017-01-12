@@ -19,8 +19,6 @@ let Connection = {
     RoomMessages.init(channel);
     this.me = name;
     
-    let controls = document.querySelector(".controls");
-    controls.style.visibility = "visible";
     
     channel.join()
     .receive("ok", initialPlayers => {

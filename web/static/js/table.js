@@ -60,16 +60,12 @@ export default class Table {
 		container.appendChild(emblem);
 		fragment.appendChild(container);
 		cardTable.appendChild(fragment);
-		console.log(cardTable);
 	}
 	
 	addActiveClass(player) {
-		console.log("addActiveClass", player);
 		let position = this.seating[player];
-		console.log("addActiveClass", position);
 		let element = $(`.${SEAT_MAPPING[position]}`);
 		element.addClass("active-player");
-		console.log("element", element);
 	}
 	
 	removeActiveClass() {

@@ -11,7 +11,7 @@
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-import "phoenix_html"
+import "phoenix_html";
 
 // Import local files
 //
@@ -20,8 +20,6 @@ import "phoenix_html"
 
 import Connection from "./socket";
 import $ from "jquery";
-import Materialize from "materialize";
-
 
 let joinButton = document.querySelector(".join-btn");
 let chatInput = document.querySelector("#chat-input");

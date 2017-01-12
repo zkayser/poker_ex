@@ -52,7 +52,7 @@
 <!-- controls -->
 <div class="row player-controls table-width" id="offscreen-left">
   
-  <div class="col s8 controls center-align">
+  <div class="col s8 center-align raise">
     <div class="col s12 input-field">
       <input placeholder="0" id="raise-amount" type="text">
       <label for="raise-amount">Raise to</label>

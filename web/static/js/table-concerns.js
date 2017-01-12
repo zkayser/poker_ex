@@ -19,10 +19,10 @@ export default class TableConcerns {
     });
     
     channel.on("game_started", (payload) => {
-      Object.keys(table.seating).forEach((key) => {
-        table.players.push(key);
+      payload.players.forEach((player) => {
+        table.players.push(new Player(player.name, player.chips));
       });
-      console.log(payload);
+      console.log("Game started with players: ", table.players);
       table.addActiveClass(payload.active);
     });
     
@@ -59,9 +59,20 @@ export default class TableConcerns {
     channel.on("advance", ({player}) => {
       table.removeActiveClass();
       table.addActiveClass(player);
-      console.log("table messages advance event: player === table.user?", player === table.user);
+      let p = null;
+      table.players.forEach((pl) => {
+        if (pl.name === player) {
+          p = pl;
+        } 
+      });
       if (player === table.user) {
-        Player.renderPlayerControls(table.callAmount, table.paidInRound[player]);
+        // Handles the situation before the game_started event completes
+        // and the table.players array is empty. This is just a temporary hack
+        if (p) {
+          p.renderPlayerControls(table.callAmount, table.paidInRound[player]);
+        } else {
+         Player.renderPlayerControls(table.callAmount, table.paidInRound[player]); 
+        }
       } else {
         Player.hidePlayerControls();
       }
@@ -82,14 +93,8 @@ export default class TableConcerns {
             table.seating[seat.name] = seat.position;
           });
         } 
-        /*
-        if (!Object.keys(table.seating).includes(name)) {
-          table.seating[name] = payload.seating.length; 
-        } */
         Table.renderPlayers(table.seating);
         earlierPlayersSeen = true; 
-      } else {
-        console.log("players have been seen");
       }
     });
     

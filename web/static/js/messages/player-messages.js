@@ -19,7 +19,6 @@ export default class PlayerMessages {
     });
     
     $(".call-btn").click(() => {
-      console.log("name: ", name);
       Player.call(name, channel);
     });
     
@@ -47,15 +46,6 @@ export default class PlayerMessages {
         this.player.chips = payload.chips;
         this.player.renderPlayerInfo();
       } 
-    });
-    
-    channel.on("advance", ({player}) => {
-     console.log("advance called in player-messages module");
-     /* if (player == name) {
-        Player.renderPlayerControls();
-      } else {
-        Player.hidePlayerControls();
-      } */
     });
     
     channel.on("game_started", (payload) => {
