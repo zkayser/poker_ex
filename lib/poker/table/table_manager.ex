@@ -38,6 +38,10 @@ defmodule PokerEx.TableManager do
 		GenServer.call(pid, :current_player)
 	end
 	
+	def next_player(pid) do
+		GenServer.call(pid, :next_player)
+	end
+	
 	def seating(pid) do
 		GenServer.call(pid, :seating)
 	end
@@ -242,7 +246,7 @@ defmodule PokerEx.TableManager do
 		end
 	end
 	
-	def handle_call({:fold, _}, _, _), do: raise "Illegal operation"
+	def handle_call({:fold, _}, _, state), do: {:reply, "cannot fold", state}
 	
 			#########
 			# Clear #
@@ -265,6 +269,11 @@ defmodule PokerEx.TableManager do
 	
 	def handle_call(:current_player, _from, %State{active: active} = data) do
 		{:reply, hd(active), data}
+	end
+	
+	def handle_call(:next_player, _from, %State{active: active} = data) do
+		next = Enum.at(active, 1)
+		{:reply, next, data}
 	end
 	
 	def handle_call(:seating, _from, %State{seating: seating} = data) do

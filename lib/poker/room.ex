@@ -13,6 +13,8 @@ defmodule PokerEx.Room do
 	@name :room
 	@big_blind 10
 	@small_blind 5
+	# Fold players after 30 seconds if they do not respond
+	@timeout 30_000
 	
 	def start_link do
 		:gen_statem.start_link({:local, @name}, __MODULE__, [], [])
@@ -23,35 +25,35 @@ defmodule PokerEx.Room do
 	##############
 	
 	def join(player) do
-		:gen_statem.call(@name, {:join, player.name})
+		:gen_statem.cast(@name, {:join, player.name})
 	end
 	
 	def call(player) do
-		:gen_statem.call(@name, {:call, player.name})
+		:gen_statem.cast(@name, {:call, player.name})
 	end
 	
 	def check(player) do
-		:gen_statem.call(@name, {:check, player.name})
+		:gen_statem.cast(@name, {:check, player.name})
 	end
 	
 	def raise(player, amount) do
-		:gen_statem.call(@name, {:raise, player.name, amount})
+		:gen_statem.cast(@name, {:raise, player.name, amount})
 	end
 	
 	def fold(player) do
-		:gen_statem.call(@name, {:fold, player.name})
+		:gen_statem.cast(@name, {:fold, player.name})
 	end
 	
 	def auto_complete do
-		:gen_statem.call(@name, :auto_complete)
+		:gen_statem.cast(@name, :auto_complete)
 	end
 	
 	def ready(player) do
-		:gen_statem.call(@name, {:ready, player.name})
+		:gen_statem.cast(@name, {:ready, player.name})
 	end
 	
 	def leave(player) do
-		:gen_statem.call(@name, {:leave, player.name})
+		:gen_statem.cast(@name, {:leave, player.name})
 	end
 	
 	def get_state do
@@ -112,7 +114,7 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, %Room{bet_server: bet_server, table_manager: table_manager, hand_server: hand_server, buffer: buffer}}
 	end
 	
-	def handle_event({:call, from}, {:join, player}, :idle, %Room{buffer: buffer} = data) do
+	def handle_event(:cast, {:join, player}, :idle, %Room{buffer: buffer} = data) do
 	  {bs, hs, tm} = {data.bet_server, data.hand_server, data.table_manager}
 	  TableManager.seat_player(tm, player)
 	  
@@ -124,13 +126,13 @@ defmodule PokerEx.Room do
 	     update = %Room{data | buffer: updated_buffer}
 	     HandServer.deal_first_hand(hs, TableManager.players_only(tm))
 	     Events.game_started(TableManager.current_player(tm), HandServer.player_hands(hs))
-	    {:next_state, :pre_flop, update, [{:reply, from, {:game_begin, "#{player} joined", TableManager.active(tm), HandServer.player_hands(hs)}}]}
+	    {:next_state, :pre_flop, update, @timeout}
 	   _ -> 
-	    {:next_state, :idle, data, [{:reply, from, "#{player} joined"}]}
+	    {:next_state, :idle, data}
 	  end
 	end
 	
-	def handle_event({:call, from}, {:call, player}, :river, %Room{buffer: %{called: called} = buffer} = data) do
+	def handle_event(:cast, {:call, player}, :river, %Room{buffer: %{called: called} = buffer} = data) do
 	  {hs, tm} = {data.hand_server, data.table_manager}
 	  
 	  active = TableManager.active(tm)
@@ -139,19 +141,19 @@ defmodule PokerEx.Room do
 			true ->
 				buffer = Buffer.call(buffer, player)
 				update = %Room{ data | buffer: buffer}
-				{:next_state, :river, update, [{:reply, from, "#{player} called"}]}
+				{:next_state, :river, update, @timeout}
 			_ ->
 				buffer = Buffer.call(buffer, player)
 				updated_buffer = Buffer.reset_called(buffer)
 				HandServer.score(hs)
 				update = %Room{ data | buffer: updated_buffer}
 				{:next_state, :game_over, update, 
-				  [{:next_event, :internal, {:reward_winner, from}}]
+				  [{:next_event, :internal, :reward_winner}]
 				}
 		end
 	end
 	
-	def handle_event({:call, from}, {:call, player}, state, %Room{buffer: %{called: called} = buffer} = data) do
+	def handle_event(:cast, {:call, player}, state, %Room{buffer: %{called: called} = buffer} = data) do
 	  {bs, hs, tm} = {data.bet_server, data.hand_server, data.table_manager}
 	  active = TableManager.active(tm)
 	  all_in_round = TableManager.all_in_round(tm)
@@ -159,35 +161,35 @@ defmodule PokerEx.Room do
 			true ->
 			  buffer = Buffer.call(buffer, player)
 				update = %Room{ data | buffer: buffer}
-				{:next_state, state, update, [{:reply, from, {"#{player} called", TableManager.active(tm)}}]}
+				{:next_state, state, update, @timeout}
 			_ ->
 				if length(TableManager.active(tm)) == 1 && length(TableManager.get_all_in(tm)) > 0 do
 				  buffer = Buffer.call(buffer, player)
 					update = %Room{ data | buffer: buffer}
-					{:next_state, :game_over, update, [{:next_event, :internal, {:auto_complete, from}}]}
+					{:next_state, :game_over, update, [{:next_event, :internal, :auto_complete}]}
 				else
 				  buffer = Buffer.call(buffer, player)
 					updated_buffer = Buffer.reset_called(buffer)
 					advance_round(state, tm, hs, bs)
 					update = %Room{ data | buffer: updated_buffer}
-					{:next_state, advance_state(state), update, [{:reply, from, {TableManager.active(tm), HandServer.table(hs)}}]}
+					{:next_state, advance_state(state), update, @timeout}
 				end
 		end
 	end
 	
-	def handle_event({:call, from}, {:raise, player, amount}, state, %Room{buffer: buffer} = data) do
+	def handle_event(:cast, {:raise, player, amount}, state, %Room{buffer: buffer} = data) do
 	  bs = data.bet_server
 	  case amount > BetServer.get_to_call(bs) do
 	    true ->
 	      {buffer, bet_amount} = Buffer.raise(buffer, player, amount, BetServer.get_to_call(bs))
 	      update = %Room{ data | buffer: buffer}
-	      {:next_state, state, update, [{:reply, from, "#{player} raised by #{bet_amount} to #{BetServer.get_to_call(bs)}"}]}
+	      {:next_state, state, update, @timeout}
 	    _ ->
-	      {:next_state, state, data, [{:reply, from, "#{player} tried to raise but did not specify an amount above #{inspect(BetServer.pot(bs))}"}]}
+	      {:next_state, state, data, @timeout}
 	  end
 	end
 	
-	def handle_event({:call, from}, {:check, player}, :river, %Room{buffer: %{called: called} = buffer} = data) do
+	def handle_event(:cast, {:check, player}, :river, %Room{buffer: %{called: called} = buffer} = data) do
 	  {bs, hs, tm} = {data.bet_server, data.hand_server, data.table_manager}
 	  active = TableManager.active(tm)
 	  all_in_round = TableManager.all_in_round(tm)
@@ -195,17 +197,17 @@ defmodule PokerEx.Room do
 			true ->
 				buffer = Buffer.check(buffer, player, BetServer.get_paid_in_round(bs, player), BetServer.get_to_call(bs))
 				update = %Room{ data | buffer: buffer}
-				{:next_state, :river, update, [{:reply, from, "#{player} checked"}]}
+				{:next_state, :river, update, @timeout}
 			_ ->
 				buffer = Buffer.call(buffer, player)
 				updated_buffer = Buffer.reset_called(buffer)
 				HandServer.score(hs)
 				update = %Room{ data | buffer: updated_buffer}
-				{:next_state, :game_over, update, [{:next_event, :internal, {:reward_winner, from}}]}
+				{:next_state, :game_over, update, [{:next_event, :internal, :reward_winner}]}
 		end
 	end
 	
-	def handle_event({:call, from}, {:check, player}, state, %Room{buffer: %{called: called} = buffer} = data) do
+	def handle_event(:cast, {:check, player}, state, %Room{buffer: %{called: called} = buffer} = data) do
 	  {bs, hs, tm} = {data.bet_server, data.hand_server, data.table_manager}
 	  active = TableManager.active(tm)
 	  all_in_round = TableManager.all_in_round(tm)
@@ -213,35 +215,35 @@ defmodule PokerEx.Room do
 			true ->
 				buffer = Buffer.check(buffer, player, BetServer.get_paid_in_round(bs, player), BetServer.get_to_call(bs))
 				update = %Room{ data | buffer: buffer}
-				{:next_state, state, update, [{:reply, from, "#{player} checked"}]}
+				{:next_state, state, update, @timeout}
 			_ ->
 				buffer = Buffer.check(buffer, player, BetServer.get_paid_in_round(bs, player), BetServer.get_to_call(bs))
 				advance_round(state, tm, hs, bs)
 				update = %Room{ data | buffer: Buffer.reset_called(buffer)}
-				{:next_state, advance_state(state), update, [{:reply, from, {TableManager.active(tm), HandServer.table(hs)}}]}
+				{:next_state, advance_state(state), update, @timeout}
 		end
 	end
 	
-	def handle_event({:call, from}, {:fold, player}, state, %Room{buffer: buffer} = data) do
+	def handle_event(:cast, {:fold, player}, state, %Room{buffer: buffer} = data) do
 	  {bs, tm} = {data.bet_server, data.table_manager}
 	  case length(TableManager.active(tm)) > 2 do
 			true ->
 				TableManager.fold(tm, player)
-				{:next_state, state, data, [{:reply, from, "#{player} folded"}]}
+				{:next_state, state, data, @timeout}
 			_ ->
 				if length(TableManager.get_all_in(tm)) > 0 do
 					unless length(TableManager.active(tm)) == 2 do
-						{:next_state, :game_over, data, [{:next_event, :internal, {:auto_complete, from}}]}
+						{:next_state, :game_over, data, [{:next_event, :internal, :auto_complete}]}
 					else 
 					  TableManager.fold(tm, player)
-						{:next_state, state, data, [{:reply, from, "#{player} folded"}]}
+						{:next_state, state, data}
 					end
 				else
 					TableManager.fold(tm, player)
 					[{winner, _seat}|_] = TableManager.active(tm)
 					update = %Room{ data | buffer: Map.put(buffer, :winner, winner)}
 					{:next_state, :game_over, update,
-					  [{:reply, from, {"#{winner} wins the pot on fold", BetServer.pot(bs)}}, {:next_event, :internal, :reward_winner}]
+					  [{:next_event, :internal, :reward_winner}]
 					}
 				end
 		end
@@ -258,9 +260,9 @@ defmodule PokerEx.Room do
 	  {:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
-	def handle_event(:internal, {:reward_winner, from}, _state, %Room{buffer: buffer, table_manager: tm, hand_server: hs, bet_server: bs} = data) do
+	def handle_event(:internal, :reward_winner, _state, %Room{buffer: buffer, table_manager: tm, hand_server: hs, bet_server: bs} = data) do
 	  send(self, {:reward_winner, HandServer.stats(hs), BetServer.paid(bs), TableManager.active(tm), 
-	              TableManager.get_all_in(tm), HandServer.player_hands(hs), from
+	              TableManager.get_all_in(tm), HandServer.player_hands(hs)
 	             })
 		TableManager.clear_round(tm)
 		BetServer.clear(bs)
@@ -269,16 +271,16 @@ defmodule PokerEx.Room do
 		{:next_state, :between_rounds, update, [{:timeout, 1000, :set_round}]}
 	end
 	
-	def handle_event(:internal, {:auto_complete, from}, state, %Room{hand_server: hs} = data) do
+	def handle_event(:internal, :auto_complete, state, %Room{hand_server: hs} = data) do
 	  case length(HandServer.table(hs)) do
 	    x when x < 5 ->
 	      HandServer.deal_one(hs)
 	      {:next_state, state, data, 
-	        [{:next_event, :internal, {:auto_complete, from}}]
+	        [{:next_event, :internal, :auto_complete}, 5000] # 5000 = temporary hack to give time for front-end animations
 	      }
 	    x when x >= 5 ->
 	      HandServer.score(hs)
-	      {:next_state, :game_over, data, [{:next_event, :internal, {:reward_winner, from}}]}
+	      {:next_state, :game_over, data, [{:next_event, :internal, :reward_winner}]}
 	  end
 	end
 	
@@ -303,7 +305,7 @@ defmodule PokerEx.Room do
 	  end
 	end
 	
-	def handle_event({:call, from}, {:join, player}, state, %Room{buffer: buffer, table_manager: tm, hand_server: hs, bet_server: bs} = data) do
+	def handle_event(:cast, {:join, player}, state, %Room{buffer: buffer, table_manager: tm, hand_server: hs, bet_server: bs} = data) do
 	  TableManager.seat_player(tm, player)
 	  table_state = TableManager.fetch_data(tm)
 	  
@@ -314,9 +316,9 @@ defmodule PokerEx.Room do
 	      {buffer, _bet_amount} = Buffer.raise(buffer, TableManager.get_small_blind(tm), @small_blind, 0)
 	      {buffer, bet_amount} = Buffer.raise(buffer, TableManager.get_big_blind(tm), @big_blind, BetServer.get_to_call(bs))
 	      update = %Room{ data | buffer: buffer}
-	      {:next_state, :pre_flop, update, [:reply, from, {"The first hand has been dealt", HandServer.player_hands(hs)}]}
+	      {:next_state, :pre_flop, update}
 	    _ ->
-	      {:next_state, state, data, [{:reply, from, "#{player} joined the room"}]}
+	      {:next_state, state, data}
 	  end
 	end
 	
@@ -348,15 +350,31 @@ defmodule PokerEx.Room do
 	  }
 	end
 	
-	def handle_event(:info, {:reward_winner, stats, paid, active, all_in, hands, from}, state, data) do
+	def handle_event(:timeout, 30000, state, data) when state in [:pre_flop, :flop, :turn, :river] do
+		{current, _seat} = TableManager.current_player(data.table_manager)
+		{next, seat} = TableManager.next_player(data.table_manager)
+		TableManager.fold(data.table_manager, current)
+		all_in = TableManager.get_all_in(data.table_manager)
+		
+		case {TableManager.active(data.table_manager), all_in} do
+			{x, _} when is_list(x) and length(x) > 1 ->
+				Events.advance({next, seat})
+				{:next_state, state, data}
+			{[x], _} -> 
+				{:next_state, :game_over, data, [{:next_event, :internal, :reward_winner}]}
+			{[], []} ->
+				{:next_state, :idle, data, [{:next_event, :internal, :set_round}]}
+		end
+	end
+	
+	def handle_event(:info, {:reward_winner, stats, paid, active, all_in, hands}, state, data) do
 	  players = active ++ all_in |> Enum.map(fn {pl, _seat} -> pl end)
 	  new_stats = Enum.filter(stats, fn {pl, _score} -> pl in players end) |> Enum.sort(fn {_, score1}, {_, score2} -> score1 > score2 end)
 	  RewardManager.manage_rewards(new_stats, Map.to_list(paid)) |> RewardManager.distribute_rewards
 	  {winner, _} = List.first(new_stats)
 	  {^winner, winner_hand} = Enum.find(hands, fn {pl, _hand} -> pl == winner end)
 	  Events.winner_message("#{winner} wins the round with #{winner_hand.type_string}")
-	  reply = {:game_finished, "#{winner} wins the round with #{inspect(winner_hand.type_string)}"}
-	  {:next_state, state, data, [{:reply, from, reply}, {:next_event, :internal, :set_round}]}
+	  {:next_state, state, data, [{:next_event, :internal, :set_round}]}
 	end
 	
 	def handle_event(:info, {:reward_winner, [{winner, 100}], pot}, state, data) do
