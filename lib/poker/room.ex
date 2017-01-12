@@ -8,10 +8,6 @@ defmodule PokerEx.Room do
 	alias PokerEx.RewardManager
 	alias PokerEx.Room, as: Room
 	
-	## URGENT: A problem arises when there are only two players
-	## and one goes all in. The game does not advance and 
-	## everything is left hanging.
-	
 	defstruct buffer: %{called: []}, bet_server: nil, hand_server: nil, table_manager: nil
 	
 	@name :room

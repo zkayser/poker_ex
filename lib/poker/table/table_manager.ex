@@ -128,7 +128,6 @@ defmodule PokerEx.TableManager do
 			#####################
 			
 	def handle_call(:start_round, _from, %State{seating: seating, big_blind: nil, small_blind: nil} = data) do
-		# Remove any players who have run out of chips
 		[{big_blind, 0}, {small_blind, 1}|rest] = seating
 		
 		case length(rest) do
