@@ -1,5 +1,5 @@
 defmodule PokerEx.Room.Updater do
-  alias PokerEx.Room2, as: Room
+  alias PokerEx.Room, as: Room
   alias PokerEx.Deck
   alias PokerEx.Evaluator
   alias PokerEx.Events

@@ -1,5 +1,5 @@
 defmodule PokerEx.Room.BetTracker do
-  alias PokerEx.Room2, as: Room
+  alias PokerEx.Room, as: Room
   alias PokerEx.Room.Updater
   alias PokerEx.Player
   

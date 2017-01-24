@@ -3,19 +3,18 @@ defmodule PokerEx.PlayersChannel do
 	alias PokerEx.AppState
 	alias PokerEx.Player
 	alias PokerEx.Room
-	alias PokerEx.Room2
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	intercept ["new_msg"]
 
 	def join("players:lobby", message, socket) do
 		players = AppState.players
-		send(self, {:after_join, message})
+		send(self(), {:after_join, message})
 
 		{:ok, %{players: players},socket}
 	end
 	def join("players:" <> room_id, params, socket) do
-		send(self, {:after_join_room, room_id, params})
+		send(self(), {:after_join_room, room_id, params})
 		{:ok, %{}, socket}
 	end
 	
@@ -27,22 +26,22 @@ defmodule PokerEx.PlayersChannel do
 		# encoded to send with Poison. Break this out to a separate
 		# module later.
 		seating = 
-			case Room2.state.seating do
+			case Room.state.seating do
 				s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
 				[] -> nil
 				{name, pos} -> %{name: name, position: pos} 
 			end
 		broadcast! socket, "player_joined", %{player: player, seating: seating}
-		case Room2.join(player) do
+		case Room.join(player) do
 			{:game_begin, _, active, hands} ->
-				send(self, {:game_begin, hd(active), hands})
+				send(self(), {:game_begin, hd(active), hands})
 			_ ->
 				:ok
 		end
 		{:noreply, socket}
 	end
 	
-	def handle_info({:after_join_room, room_id, params}, socket) do
+	def handle_info({:after_join_room, room_id, _params}, socket) do
 		assign(socket, :room, room_id)
 		broadcast! socket, "room_joined", %{room: room_id}
 		{:noreply, socket}
@@ -69,22 +68,22 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
-		Room2.raise(AppState.get(player), amount)
+		Room.raise(AppState.get(player), amount)
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_called", %{"player" => player}, socket) do
-		Room2.call(AppState.get(player))
+		Room.call(AppState.get(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_folded", %{"player" => player}, socket) do
-		Room2.fold(AppState.get(player))
+		Room.fold(AppState.get(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_checked", %{"player" => player}, socket) do
-		Room2.check(AppState.get(player))
+		Room.check(AppState.get(player))
 		{:noreply, socket}
 	end
 	
@@ -105,7 +104,7 @@ defmodule PokerEx.PlayersChannel do
 		player = socket.assigns.player_name
 		player = AppState.get(player)
 		AppState.delete(player)
-		Room2.leave(player)
+		Room.leave(player)
 		broadcast! socket, "player_left", %{body: player}
 		{:shutdown, :left}
 	end

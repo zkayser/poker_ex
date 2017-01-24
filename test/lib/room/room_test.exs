@@ -1,6 +1,6 @@
 defmodule PokerEx.Room2Test do
   use ExUnit.Case
-  alias PokerEx.Room2, as: Room
+  alias PokerEx.Room
   alias PokerEx.AppState
   alias PokerEx.Player
   
@@ -174,21 +174,6 @@ defmodule PokerEx.Room2Test do
       
       assert AppState.get(p1.name).chips == 0 || AppState.get(p2.name).chips == 0
     end
-    
-    test "when both players go all in on the river, a winner should be selected and the state machine should move on to :between_rounds state", context do
-      [p1, p2, _, _] = players(context)
-      Room.t_raise(p1, 20)
-      Room.t_call(p2)
-      Room.t_raise(p1, 20)
-      Room.t_call(p2)
-      Room.t_raise(p1, 20)
-      Room.t_call(p2)
-      Room.t_raise(p1, 940)
-      Room.t_call(p2)
-      Process.sleep(150)
-      
-      refute Room.t_state.winner == nil
-    end
   end
   
   describe "ALL IN AUTO-COMPLETE, MULTIPLAYER:" do
@@ -200,7 +185,7 @@ defmodule PokerEx.Room2Test do
       Room.t_call(p1)
       Room.t_call(p2)
       Room.t_call(p3)
-      Process.sleep(150)
+      Process.sleep(200)
       
       # 2000 is arbitrary, but sufficient to verify that a player won at least
       # double the chips they started out with

@@ -19,7 +19,6 @@ defmodule PokerEx do
       # later so there can be multiple instances of it running at the same
       # time.
       worker(PokerEx.Room, []),
-      worker(PokerEx.Room2, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
