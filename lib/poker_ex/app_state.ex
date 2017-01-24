@@ -19,13 +19,13 @@ defmodule PokerEx.AppState do
 	end
 	
 	def get(%Player{name: player_id}) do
-		players
+		players()
 		|> Enum.filter(fn player -> player.name == player_id end)
 		|> Kernel.hd
 	end
 	
 	def get(name) do
-		players
+		players()
 		|> Enum.filter(fn player -> player.name == name end)
 		|> Kernel.hd
 	end

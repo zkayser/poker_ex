@@ -43,7 +43,7 @@ defmodule PokerEx.RewardManager do
 		calculate_rewards_per_winner(winner_rankings, paid_in, %{}, hand_rankings)
 	end
 	
-	defp find_winner_rankings(rankings, paid_in) do
+	defp find_winner_rankings(rankings, _paid_in) do
 		indexed = Enum.with_index(rankings)
 		results = Enum.take_while(indexed, 
 			fn {{_name, score}, index} ->
@@ -55,17 +55,6 @@ defmodule PokerEx.RewardManager do
 				end
 			end)
 		Enum.map(results, fn {{name, score}, _} -> {name, score} end)
-	end
-	
-	def calculate_total_paid_in_by_winners(winner_rankings, paid_in) do
-		paid_by_winners = Enum.map(winner_rankings, 
-			fn {name, _} ->
-				{_, paid} = Enum.find(paid_in, fn {n, _} -> name == n end)
-				{name, paid}
-			end)
-		|> Enum.sort(fn {_, paid}, {_, paid2} -> paid > paid2 end)
-		
-		number_winners = length(winner_rankings)
 	end
 	
 	defp find_paid_by_winners(winner_rankings, paid_in) do
@@ -87,7 +76,7 @@ defmodule PokerEx.RewardManager do
 	end
 	
 	defp partition_above_min_winner(paid_in, min) do
-		{below, above} = Enum.split_with(paid_in, fn {_, paid} -> paid <= min end)
+		Enum.split_with(paid_in, fn {_, paid} -> paid <= min end)
 	end
 	
 	defp credit_this_round(below_min_list, num_winners, min) do
