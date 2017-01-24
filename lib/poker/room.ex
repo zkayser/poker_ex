@@ -11,6 +11,7 @@ defmodule PokerEx.Room do
 	@name :room2
 	@big_blind 10
 	@small_blind 5
+	@timeout 30000
 	@non_terminal_states [:pre_flop, :flop, :turn] 
 	
 	@type chip_tracker :: %{(String.t | PokerEx.Player.t) => non_neg_integer} | %{}
@@ -225,7 +226,7 @@ defmodule PokerEx.Room do
 		{:next_state, state, update}
 	end
 	
-	def handle_event(:cast, {:leave, player}, state, %Room{seating: seating} = room) when length(seating) == 1 do
+	def handle_event(:cast, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 1 do
 		update = 
 			room
 			|> Updater.reset_table_state
@@ -234,7 +235,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:cast, {:leave, player}, state, %Room{seating: seating} = room) do
-		seated_players = Enum.map(seating, fn {pl, num} -> pl end)
+		seated_players = Enum.map(seating, fn {pl, _num} -> pl end)
 		update =
 			case player in seated_players do
 				true ->
@@ -252,7 +253,7 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> BetTracker.call(player)
-		{:next_state, state, update}
+		{:next_state, state, update, @timeout}
 	end
 	
 	def handle_event(:cast, {:call, player}, state, %Room{all_in: all_in, folded: folded, seating: seating} = room) 
@@ -275,7 +276,7 @@ defmodule PokerEx.Room do
 			true ->
 				{:next_state, :game_over, update, [{:next_event, :internal, :handle_all_in}]}
 			_ ->
-				{:next_state, advance_state(state), update}
+				{:next_state, advance_state(state), update, @timeout}
 		end
 	end
 	
@@ -300,14 +301,14 @@ defmodule PokerEx.Room do
 			room
 			|> BetTracker.fold(player)
 			|> round_transition(state)
-		{:next_state, advance_state(state), update}
+		{:next_state, advance_state(state), update, @timeout}
 	end
 	
 	def handle_event(:cast, {:fold, player}, state, room) do
 		update = 
 			room
 			|> BetTracker.fold(player)
-		{:next_state, state, update}
+		{:next_state, state, update, @timeout}
 	end
 	
 	def handle_event(:cast, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
@@ -320,7 +321,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, state, update}
+		{:next_state, state, update, @timeout}
 	end
 	
 	def handle_event(:cast, {:check, player}, state, %Room{to_call: call_amount, round: round, all_in: all_in, active: active} = room) 
@@ -348,7 +349,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, advance_state(state), update}
+		{:next_state, advance_state(state), update, @timeout}
 	end
 	
 	def handle_event(:cast, {:check, player}, :river, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
@@ -368,7 +369,7 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> BetTracker.raise(player, amount)
-		{:next_state, state, update}
+		{:next_state, state, update, @timeout}
 	end
 	
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
@@ -511,6 +512,21 @@ defmodule PokerEx.Room do
 			|> Updater.reset_pot
 			|> Updater.reset_all_in
 		{:next_state, :between_rounds, update}
+	end
+	
+	def handle_event(:timeout, 30000, state, %Room{active: active} = room) 
+	when state in [:pre_flop, :flop, :turn, :river] and length(active) > 1 do
+	
+		{current_player, _} = hd(active)
+		update =
+			room
+			|> BetTracker.fold(current_player)
+		case update.active do
+			x when length(x) > 1 ->
+				{:next_state, state, update}
+			_ -> 
+				{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}
+		end
 	end
 	
 	# DEBUGGING

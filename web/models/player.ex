@@ -1,5 +1,5 @@
 defmodule PokerEx.Player do
-	# Opting out of the PokerEx.Web, :model for the time being
+	# Opting out of the PokerEx.Web, :model for the time being.
 	# Will add it in if it becomes necessary.
 	alias PokerEx.Player
 	alias PokerEx.AppState
