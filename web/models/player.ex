@@ -14,7 +14,7 @@ defmodule PokerEx.Player do
 		%Player{name: name, chips: chips}
 	end
 	
-	@spec bet(String.t, non_neg_integer) :: Player.t
+	@spec bet(String.t, non_neg_integer) :: Player.t | {:insufficient_chips, non_neg_integer}
 	def bet(name, amount) do
 		player = case AppState.get(name) do
 			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}

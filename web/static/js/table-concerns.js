@@ -8,6 +8,7 @@ export default class TableConcerns {
   constructor() {}
   
   static init(channel, name) {
+    let Materialize = window.Materialize;
     
     let table = new Table();
     table.user = name;
@@ -22,7 +23,6 @@ export default class TableConcerns {
       payload.players.forEach((player) => {
         table.players.push(new Player(player.name, player.chips));
       });
-      console.log("Game started with players: ", table.players);
       table.addActiveClass(payload.active);
     });
     
@@ -76,6 +76,23 @@ export default class TableConcerns {
       } else {
         Player.hidePlayerControls();
       }
+      
+      if (player == table.user) {
+        let amountToCall = table.callAmount - table.paidInRound[player];
+        if (amountToCall > 0) {
+          Materialize.toast(`${amountToCall} to call.`, 2000, 'rounded'); 
+        }
+      }
+      
+      // If a player leaves the table while still active, the player
+      // gets added to the markedToFold array. Once there, the player
+      // folds automatically when their turn comes around. Then they
+      // are removed from the markedToFold list.
+      if (table.markedToFold.includes(player)) {
+        Player.fold(player, channel);
+        let i = table.markedToFold.indexOf(player);
+        table.markedToFold.splice(i, 1);
+      }
     });
     
     channel.on("call_amount_update", ({amount}) => {
@@ -95,6 +112,24 @@ export default class TableConcerns {
         } 
         Table.renderPlayers(table.seating);
         earlierPlayersSeen = true; 
+      }
+    });
+    
+    channel.on("update_seating", payload => {
+      table.clearPlayers();
+      table.seating = payload;
+      Table.renderPlayers(table.seating);
+    });
+    
+    channel.on("player_got_up", payload => {
+      table.removePlayerEmblem(payload.player);
+      table.markedToFold.push(payload.player);
+      
+      let messages = document.getElementById("messages");
+      for (var i = 0; i < messages.children.length; i++) {
+        if(messages.children[i].innerText == payload.player) {
+          messages.removeChild(messages.children[i]);
+        }
       }
     });
     

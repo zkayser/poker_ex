@@ -28,6 +28,10 @@ defmodule PokerEx.Events do
     TableEvents.pot_update(amount)
   end
   
+  def update_seating(seating) do
+    TableEvents.update_seating(seating)
+  end
+  
   def call_amount_update(new_amount) do
     TableEvents.call_amount_update(new_amount)
   end

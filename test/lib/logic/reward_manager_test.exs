@@ -16,6 +16,34 @@ defmodule PokerEx.RewardManagerTest do
 		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
 	end
 	
+	test "creates the proper rewards list when there is a head-to-head tie" do
+		hand_rankings = [{"2", 215}, {"3", 215}]
+		paid_in = [{"2", 200}, {"3", 200}]
+		expected = [{"2", 200}, {"3", 200}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
+	test "creates the proper rewards list when there is a tie with multi-players" do
+		hand_rankings = [{"2", 215}, {"3", 215}, {"1", 120}, {"4", 5}]
+		paid_in = [{"2", 400}, {"3", 400}, {"1", 400}, {"4", 400}]
+		expected = [{"2", 800}, {"3", 800}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
+	test "creates the proper rewards list when there is a tie with multi-players and some all-in" do
+		hand_rankings = [{"2", 215}, {"3", 215}, {"1", 120}, {"4", 5}]
+		paid_in = [{"2", 100}, {"3", 200}, {"1", 200}, {"4", 50}]
+		expected = [{"2", 175}, {"3", 375}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
+	test "creates the proper rewards list when the player with the best hand is all in and the next best 2 hands tie" do
+		hand_rankings = [{"2", 300}, {"3", 200}, {"4", 200}, {"5", 10}]
+		paid_in = [{"2", 50}, {"3", 200}, {"4", 200}, {"5", 100}]
+		expected = [{"2", 200}, {"3", 175}, {"4", 175}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
 	test "creates the proper reward list with one winner, one side-pot, and the winner not all-in" do
 		hand_rankings = [{"a", 300}, {"b", 200}, {"c", 100}]
 		paid_in = [{"a", 100}, {"b", 50}, {"c", 100}, {"d", 20}]

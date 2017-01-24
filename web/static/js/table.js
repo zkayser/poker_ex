@@ -50,6 +50,13 @@ export default class Table {
 		});
 	}
 	
+	clearPlayers() {
+		let seatClasses = Object.values(SEAT_MAPPING);
+		seatClasses.forEach((klass) => {
+			$(`.${klass}`).remove();
+		});
+	}
+	
 	static renderNewPlayer(player, position) {
 		let cardTable = document.querySelector(".card-table");
 		let fragment = document.createDocumentFragment();
@@ -60,6 +67,14 @@ export default class Table {
 		container.appendChild(emblem);
 		fragment.appendChild(container);
 		cardTable.appendChild(fragment);
+	}
+	
+	removePlayerEmblem(player) {
+		let cardTable = document.querySelector(".card-table");
+		let position = this.seating[player];
+		let seatClass = SEAT_MAPPING[position];
+		let node = document.getElementsByClassName(seatClass)[0];
+		cardTable.removeChild(node);
 	}
 	
 	addActiveClass(player) {

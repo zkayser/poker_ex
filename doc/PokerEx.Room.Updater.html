@@ -1,0 +1,1681 @@
+    <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="ExDoc v0.14.3">
+    <title>PokerEx.Room.Updater – poker_ex v0.0.1</title>
+    <link rel="stylesheet" href="dist/app-091c05798a.css" />
+    
+    <script src="dist/sidebar_items.js"></script>
+  </head>
+  <body data-type="modules">
+    <script>if(localStorage.getItem('night-mode')) document.body.className += ' night-mode';</script>
+
+    <div class="main">
+<button class="sidebar-toggle">
+  <i class="icon-menu"></i>
+</button>
+<section class="sidebar">
+
+  
+  <a href="api-reference.html" class="sidebar-projectLink">
+    <div class="sidebar-projectDetails">
+      <h1 class="sidebar-projectName">
+        poker_ex
+      </h1>
+      <h2 class="sidebar-projectVersion">
+        v0.0.1
+      </h2>
+    </div>
+    
+  </a>
+
+  <div class="sidebar-search">
+    <i class="icon-search"></i>
+    <input type="text" class="sidebar-searchInput" placeholder="search" autocomplete="off" />
+  </div>
+
+  <ul class="sidebar-listNav">
+    <li><a id="extras-list" href="#full-list">Pages</a></li>
+
+    
+      <li><a id="modules-list" href="#full-list">Modules</a></li>
+    
+
+    
+
+    
+  </ul>
+  <div class="gradient"></div>
+  <ul id="full-list" class="sidebar-fullList"></ul>
+</section>
+
+<section class="content">
+  <div class="content-outer">
+    <div id="content" class="content-inner">
+
+
+      <h1>
+        <small class="visible-xs">poker_ex v0.0.1</small>
+        PokerEx.Room.Updater
+        
+        
+      </h1>
+
+      
+        <section id="moduledoc">
+          <p>  Provides convenience functions for updating specific attributes of
+  the Room state individually. This module can be used from other
+  modules working with the Room state struct to facilitate updating
+  the state in a pipeline.</p>
+
+        </section>
+      
+
+      
+        <section id="summary" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#summary">
+              <i class="icon-link"></i>
+            </a>
+            Summary
+          </h1>
+          
+  <div class="summary-types summary">
+    <h2>
+      <a href="#types">Types</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#t:player/0">player()</a>
+  </div>
+  
+</div>
+
+  </div>
+
+
+          
+  <div class="summary-functions summary">
+    <h2>
+      <a href="#functions">Functions</a>
+    </h2>
+    <div class="summary-row">
+  <div class="summary-signature">
+    <a href="#active/1">active(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Sets the list of players under the seating attribute to active.
+Used when setting up a round</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#active/2">active(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Removes a single player from the active list.
+Note that active/2 removes a player whereas 
+active/1 sets the active list at game start</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#advance_active/1">advance_active(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Rotates the active list to keep the head of the list current as the
+player whose turn it is</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#all_in/2">all_in(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the list of players who have gone all in during the 
+current game while removing the specified player from the list
+of active players</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#blinds/1">blinds(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the blinds between rounds and before the first game played at a
+table. If both the current_big_blind and current_small_blind data attributes
+are nil, they are set to 1 and 0 by default, respectively. If the big blind
+is currently equal to the length of the seating list minus 1, the big blind
+position gets reset to 0. If the big blind is less than the small blind (in
+terms of seating position), the small blind gets reset to 0 while the big_blind
+moves up to 1</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#call_amount/2">call_amount(room, amount)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the bet required to call or raise. Does nothing if the amount specified is
+less than or equal to the current amount to be called in the to_call attribute</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#called/2">called(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Adds the given player to the front of the list of players who have
+called the current to_call amount</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#erase_called_with/2">erase_called_with(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Erases the list of players who have called and adds the specified player
+to the new list. This method is used when a player raises</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert_stats/3">insert_stats(room, player, number)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Allows you to insert an arbitrary score for a given player in the
+list of stats</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#insert_winner/2">insert_winner(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Allows you to arbitrarily insert a winner</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#paid_in_round/3">paid_in_round(room, player, amount)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the map stored under the round attribute on a room instance</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#player_hands/1">player_hands(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deals out hands and assigns each hand to active
+players</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#pot/2">pot(room, amount)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the amount stored under the pot attribute on a room instance by
+adding the specified amount</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reindex_seating/1">reindex_seating(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Reindexes the indices on the seating attribute of a room instance to
+keep the seat_numbers consistent with each player’s position in the
+seating list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#remove_from_seating/2">remove_from_seating(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Removes the specified player from the seating list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#remove_players_with_no_chips/1">remove_players_with_no_chips(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Removes players whose chip counts have fallen to zero and reindexes
+the list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_active/1">reset_active(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the active list and sets the small_blind and big_blind as the last two
+players in the list, respectively</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_all_in/1">reset_all_in(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the list of all_in players to an empty list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_call_amount/1">reset_call_amount(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the to_call amount to zero</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_called/1">reset_called(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the called list to an empty list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_deck/1">reset_deck(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the deck attribute to store a fresh, shuffled deck</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_paid_in_round/1">reset_paid_in_round(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the round map on a room instance to an empty map</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_player_hands/1">reset_player_hands(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the player_hands attribute on a Room instance to an
+empty list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_pot/1">reset_pot(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the pot attribute back to zero on a room instance</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_stats/1">reset_stats(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the stats list on a room instance to an empty list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_table/1">reset_table(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the table attribute on a room instance to an empty list</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_total_paid/1">reset_total_paid(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the :paid attribute on a room instance to an
+empty map</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_winner/1">reset_winner(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the winner attribute on a room instance to nil</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#reset_winning_hand/1">reset_winning_hand(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Resets the winning_hand attribute on a room instance to nil</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#seating/2">seating(room, player)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the seating attribute of a room instance</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#set_active/1">set_active(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Sets the list of active players based on the seating list and the
+current big blind position</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#stats/1">stats(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the stats attribute on room instances given the player_hands and
+table cards</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#table/1">table(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Deals a new card to be placed in the list of
+cards showing on the table</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#total_paid/3">total_paid(room, player, amount)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Updates the paid map stored under the paid attribute on a room instance for the
+specified player by adding the specified amount to the current amount</p>
+</div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#winner/1">winner(room)</a>
+  </div>
+  
+    <div class="summary-synopsis"><p>Evaluates player hands and determines the winner, then assigns the winner
+and winning_hand to their respective attributes in the room instance</p>
+</div>
+  
+</div>
+
+  </div>
+
+
+          
+
+          
+
+        </section>
+      
+
+      
+        <section id="types" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#types">
+              <i class="icon-link"></i>
+            </a>
+            Types
+          </h1>
+          <div class="types-list">
+            <div class="detail" id="t:player/0">
+  
+  <div class="detail-header">
+    <a href="#t:player/0" class="detail-link" title="Link to this type">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">player()</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre><a href="#t:player/0">player</a> :: <a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+
+          </div>
+        </section>
+      
+
+      
+        <section id="functions" class="details-list">
+          <h1 class="section-heading">
+            <a class="hover-link" href="#functions">
+              <i class="icon-link"></i>
+            </a>
+            Functions
+          </h1>
+          <div class="detail" id="active/1">
+  
+  <div class="detail-header">
+    <a href="#active/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">active(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>active(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Sets the list of players under the seating attribute to active.
+Used when setting up a round.</p>
+<h2 id="active/1-examples" class="section-heading">
+  <a href="#active/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}]}
+iex&gt; Updater.active(room)
+%Room{active: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}], seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="active/2">
+  
+  <div class="detail-header">
+    <a href="#active/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">active(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>active(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Removes a single player from the active list.
+Note that active/2 removes a player whereas 
+active/1 sets the active list at game start.</p>
+<h2 id="active/2-examples" class="section-heading">
+  <a href="#active/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{active: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}]}
+iex&gt; Updater.active(room, &quot;B&quot;)
+%Room{active: [{&quot;A&quot;, 0}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="advance_active/1">
+  
+  <div class="detail-header">
+    <a href="#advance_active/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">advance_active(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>advance_active(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Rotates the active list to keep the head of the list current as the
+player whose turn it is.</p>
+<h2 id="advance_active/1-examples" class="section-heading">
+  <a href="#advance_active/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{active: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}]}
+iex&gt; Updater.advance_active(room)
+%Room{active: [{&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;A&quot;, 0}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="all_in/2">
+  
+  <div class="detail-header">
+    <a href="#all_in/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">all_in(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>all_in(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the list of players who have gone all in during the 
+current game while removing the specified player from the list
+of active players</p>
+<h2 id="all_in/2-examples" class="section-heading">
+  <a href="#all_in/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{all_in: [&quot;A&quot;], active: [{&quot;C&quot;, 2}, {&quot;D&quot;, 3}]}
+iex&gt; Updater.all_in(room, &quot;C&quot;)
+%Room{all_in: [&quot;C&quot;, &quot;A&quot;], active: [{&quot;D&quot;, 3}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="blinds/1">
+  
+  <div class="detail-header">
+    <a href="#blinds/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">blinds(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>blinds(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the blinds between rounds and before the first game played at a
+table. If both the current_big_blind and current_small_blind data attributes
+are nil, they are set to 1 and 0 by default, respectively. If the big blind
+is currently equal to the length of the seating list minus 1, the big blind
+position gets reset to 0. If the big blind is less than the small blind (in
+terms of seating position), the small blind gets reset to 0 while the big_blind
+moves up to 1.</p>
+<h2 id="blinds/1-examples" class="section-heading">
+  <a href="#blinds/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{current_big_blind: nil, current_small_blind: nil}
+iex&gt; room = Updater.blinds(room)
+iex&gt; {room.current_small_blind, room.current_big_blind}
+{0, 1}
+
+iex&gt; room = %Room{current_big_blind: 1, current_small_blind: 0, seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;D&quot;, 3}]}
+iex&gt; room = Updater.blinds(room)
+iex&gt; {room.current_small_blind, room.current_big_blind}
+{1, 2}
+
+iex&gt; room = %Room{current_big_blind: 3, current_small_blind: 2, seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;D&quot;, 3}]}
+iex&gt; room = Updater.blinds(room)
+iex&gt; {room.current_small_blind, room.current_big_blind}
+{3, 0}
+
+iex&gt; room = %Room{current_big_blind: 0, current_small_blind: 3, seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;D&quot;, 3}]}
+iex&gt; room = Updater.blinds(room)
+iex&gt; {room.current_small_blind, room.current_big_blind}
+{0, 1}
+
+iex&gt; room = %Room{current_big_blind: 2, current_small_blind: 1, seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;D&quot;, 3}]}
+iex&gt; room = Updater.blinds(room)
+iex&gt; {room.current_small_blind, room.current_big_blind}
+{2, 3}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="call_amount/2">
+  
+  <div class="detail-header">
+    <a href="#call_amount/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">call_amount(room, amount)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>call_amount(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, pos_integer) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the bet required to call or raise. Does nothing if the amount specified is
+less than or equal to the current amount to be called in the to_call attribute</p>
+<h2 id="call_amount/2-examples" class="section-heading">
+  <a href="#call_amount/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{to_call: 20}
+iex&gt; Updater.call_amount(room, 40)
+%Room{to_call: 40}
+
+iex&gt; room = %Room{to_call: 20}
+iex&gt; Updater.call_amount(room, 15)
+%Room{to_call: 20}
+
+iex&gt; room = %Room{to_call: 20}
+iex&gt; Updater.call_amount(room, 20)
+%Room{to_call: 20}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="called/2">
+  
+  <div class="detail-header">
+    <a href="#called/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">called(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>called(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Adds the given player to the front of the list of players who have
+called the current to_call amount.</p>
+<h2 id="called/2-examples" class="section-heading">
+  <a href="#called/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{called: [&quot;A&quot;, &quot;B&quot;]}
+iex&gt; Updater.called(room, &quot;C&quot;)
+%Room{called: [&quot;C&quot;, &quot;A&quot;, &quot;B&quot;]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="erase_called_with/2">
+  
+  <div class="detail-header">
+    <a href="#erase_called_with/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">erase_called_with(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>erase_called_with(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Erases the list of players who have called and adds the specified player
+to the new list. This method is used when a player raises.</p>
+<h2 id="erase_called_with/2-examples" class="section-heading">
+  <a href="#erase_called_with/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{called: [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]}
+iex&gt; Updater.erase_called_with(room, &quot;D&quot;)
+%Room{called: [&quot;D&quot;]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="insert_stats/3">
+  
+  <div class="detail-header">
+    <a href="#insert_stats/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">insert_stats(room, player, number)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_stats(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>, pos_integer) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Allows you to insert an arbitrary score for a given player in the
+list of stats. </p>
+<h2 id="insert_stats/3-examples" class="section-heading">
+  <a href="#insert_stats/3-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Updater.insert_stats(%Room{}, &quot;B&quot;, 100)
+%Room{stats: [{&quot;B&quot;, 100}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="insert_winner/2">
+  
+  <div class="detail-header">
+    <a href="#insert_winner/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">insert_winner(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>insert_winner(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Allows you to arbitrarily insert a winner.</p>
+<h2 id="insert_winner/2-examples" class="section-heading">
+  <a href="#insert_winner/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; Updater.insert_winner(%Room{}, &quot;A&quot;)
+%Room{winner: &quot;A&quot;}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="paid_in_round/3">
+  
+  <div class="detail-header">
+    <a href="#paid_in_round/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">paid_in_round(room, player, amount)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>paid_in_round(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>, pos_integer) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the map stored under the round attribute on a room instance.</p>
+<h2 id="paid_in_round/3-examples" class="section-heading">
+  <a href="#paid_in_round/3-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{round: %{&quot;A&quot; =&gt; 0}}
+iex&gt; Updater.paid_in_round(room, &quot;A&quot;, 25)
+%Room{round: %{&quot;A&quot; =&gt; 25}}
+
+iex&gt; room = %Room{round: %{&quot;A&quot; =&gt; 25}}
+iex&gt; Updater.paid_in_round(room, &quot;A&quot;, 15)
+%Room{round: %{&quot;A&quot; =&gt; 40}}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="player_hands/1">
+  
+  <div class="detail-header">
+    <a href="#player_hands/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">player_hands(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>player_hands(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deals out hands and assigns each hand to active
+players.</p>
+<h2 id="player_hands/1-examples" class="section-heading">
+  <a href="#player_hands/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{active: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}]}
+iex&gt; room = Updater.player_hands(room)
+iex&gt; length(room.player_hands) == 2
+true</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="pot/2">
+  
+  <div class="detail-header">
+    <a href="#pot/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">pot(room, amount)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>pot(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, pos_integer) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the amount stored under the pot attribute on a room instance by
+adding the specified amount.</p>
+<h2 id="pot/2-examples" class="section-heading">
+  <a href="#pot/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{pot: 75}
+iex&gt; Updater.pot(room, 25)
+%Room{pot: 100}
+
+iex&gt; room = %Room{pot: 75}
+iex&gt; Updater.pot(room, -10)
+%Room{pot: 75}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reindex_seating/1">
+  
+  <div class="detail-header">
+    <a href="#reindex_seating/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reindex_seating(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reindex_seating(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Reindexes the indices on the seating attribute of a room instance to
+keep the seat_numbers consistent with each player’s position in the
+seating list</p>
+<h2 id="reindex_seating/1-examples" class="section-heading">
+  <a href="#reindex_seating/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{seating: [{&quot;A&quot;, 0}, {&quot;C&quot;, 3}]}
+iex&gt; Updater.reindex_seating(room)
+%Room{seating: [{&quot;A&quot;, 0}, {&quot;C&quot;, 1}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="remove_from_seating/2">
+  
+  <div class="detail-header">
+    <a href="#remove_from_seating/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">remove_from_seating(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>remove_from_seating(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Removes the specified player from the seating list.</p>
+<h2 id="remove_from_seating/2-examples" class="section-heading">
+  <a href="#remove_from_seating/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}]}
+iex&gt; Updater.remove_from_seating(room, &quot;B&quot;)
+%Room{seating: [{&quot;A&quot;, 0}, {&quot;C&quot;, 2}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="remove_players_with_no_chips/1">
+  
+  <div class="detail-header">
+    <a href="#remove_players_with_no_chips/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">remove_players_with_no_chips(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>remove_players_with_no_chips(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Removes players whose chip counts have fallen to zero and reindexes
+the list.</p>
+<h2 id="remove_players_with_no_chips/1-examples" class="section-heading">
+  <a href="#remove_players_with_no_chips/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; PokerEx.AppState.put(PokerEx.Player.new(&quot;Michelangelo&quot;))
+iex&gt; PokerEx.AppState.put(PokerEx.Player.new(&quot;Donatello&quot;))
+iex&gt; PokerEx.Player.bet(&quot;Donatello&quot;, 1500)
+iex&gt; room = %Room{seating: [{&quot;Donatello&quot;, 0}, {&quot;Michelangelo&quot;, 1}]}
+iex&gt; room = Updater.remove_players_with_no_chips(room)
+iex&gt; room.seating
+[{&quot;Michelangelo&quot;, 0}]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_active/1">
+  
+  <div class="detail-header">
+    <a href="#reset_active/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_active(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_active(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the active list and sets the small_blind and big_blind as the last two
+players in the list, respectively.</p>
+<h2 id="reset_active/1-examples" class="section-heading">
+  <a href="#reset_active/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{active: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}], current_big_blind: 1}
+iex&gt; room = Updater.reset_active(room)
+iex&gt; room.active
+[{&quot;C&quot;, 2}, {&quot;A&quot;, 0}, {&quot;B&quot;, 1}]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_all_in/1">
+  
+  <div class="detail-header">
+    <a href="#reset_all_in/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_all_in(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_all_in(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the list of all_in players to an empty list.</p>
+<h2 id="reset_all_in/1-examples" class="section-heading">
+  <a href="#reset_all_in/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{all_in: [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;]}
+iex&gt; room = Updater.reset_all_in(room)
+iex&gt; room.all_in
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_call_amount/1">
+  
+  <div class="detail-header">
+    <a href="#reset_call_amount/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_call_amount(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_call_amount(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the to_call amount to zero.</p>
+<h2 id="reset_call_amount/1-examples" class="section-heading">
+  <a href="#reset_call_amount/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{to_call: 500}
+iex&gt; room = Updater.reset_call_amount(room)
+iex&gt; room.to_call
+0</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_called/1">
+  
+  <div class="detail-header">
+    <a href="#reset_called/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_called(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_called(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the called list to an empty list</p>
+<h2 id="reset_called/1-examples" class="section-heading">
+  <a href="#reset_called/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{called: [&quot;A&quot;, &quot;B&quot;, &quot;C&quot;]}
+iex&gt; room = Updater.reset_called(room)
+iex&gt; room.called
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_deck/1">
+  
+  <div class="detail-header">
+    <a href="#reset_deck/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_deck(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_deck(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the deck attribute to store a fresh, shuffled deck.</p>
+<h2 id="reset_deck/1-examples" class="section-heading">
+  <a href="#reset_deck/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; deck = PokerEx.Deck.new |&gt; PokerEx.Deck.shuffle
+iex&gt; room = %Room{deck: deck}
+iex&gt; room = Updater.reset_deck(room)
+iex&gt; deck == room.deck
+false</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_paid_in_round/1">
+  
+  <div class="detail-header">
+    <a href="#reset_paid_in_round/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_paid_in_round(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_paid_in_round(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the round map on a room instance to an empty map.</p>
+<h2 id="reset_paid_in_round/1-examples" class="section-heading">
+  <a href="#reset_paid_in_round/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{round: %{&quot;A&quot; =&gt; 100, &quot;B&quot; =&gt; 50}}
+iex&gt; room = Updater.reset_paid_in_round(room)
+iex&gt; room.round
+%{}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_player_hands/1">
+  
+  <div class="detail-header">
+    <a href="#reset_player_hands/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_player_hands(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_player_hands(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the player_hands attribute on a Room instance to an
+empty list.</p>
+<h2 id="reset_player_hands/1-examples" class="section-heading">
+  <a href="#reset_player_hands/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{player_hands: {&quot;A&quot;, [%PokerEx.Card{rank: :two, suit: :spades}, %PokerEx.Card{rank: :three, suit: :spades}]}}
+iex&gt; room = Updater.reset_player_hands(room)
+iex&gt; room.player_hands
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_pot/1">
+  
+  <div class="detail-header">
+    <a href="#reset_pot/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_pot(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_pot(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the pot attribute back to zero on a room instance.</p>
+<h2 id="reset_pot/1-examples" class="section-heading">
+  <a href="#reset_pot/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{pot: 500}
+iex&gt; room = Updater.reset_pot(room)
+iex&gt; room.pot
+0</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_stats/1">
+  
+  <div class="detail-header">
+    <a href="#reset_stats/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_stats(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_stats(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the stats list on a room instance to an empty list.</p>
+<h2 id="reset_stats/1-examples" class="section-heading">
+  <a href="#reset_stats/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; stats = [{&quot;A&quot;, 400}, {&quot;B&quot;, 600}]
+iex&gt; room = %Room{stats: stats}
+iex&gt; room = Updater.reset_stats(room)
+iex&gt; room.stats
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_table/1">
+  
+  <div class="detail-header">
+    <a href="#reset_table/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_table(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_table(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the table attribute on a room instance to an empty list.</p>
+<h2 id="reset_table/1-examples" class="section-heading">
+  <a href="#reset_table/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{table: [%PokerEx.Card{rank: :two, suit: :spades}, %PokerEx.Card{rank: :three, suit: :spades}, 
+...&gt; %PokerEx.Card{rank: :four, suit: :spades}]}
+iex&gt; room = Updater.reset_table(room)
+iex&gt; room.table
+[]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_total_paid/1">
+  
+  <div class="detail-header">
+    <a href="#reset_total_paid/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_total_paid(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_total_paid(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the :paid attribute on a room instance to an
+empty map.</p>
+<h2 id="reset_total_paid/1-examples" class="section-heading">
+  <a href="#reset_total_paid/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{paid: %{&quot;A&quot; =&gt; 345, &quot;B&quot; =&gt; 700}}
+iex&gt; room = Updater.reset_total_paid(room)
+iex&gt; room.paid
+%{}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_winner/1">
+  
+  <div class="detail-header">
+    <a href="#reset_winner/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_winner(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_winner(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the winner attribute on a room instance to nil</p>
+<h2 id="reset_winner/1-examples" class="section-heading">
+  <a href="#reset_winner/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{winner: &quot;A&quot;}
+iex&gt; room = Updater.reset_winner(room)
+iex&gt; room.winner
+nil</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="reset_winning_hand/1">
+  
+  <div class="detail-header">
+    <a href="#reset_winning_hand/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_winning_hand(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>reset_winning_hand(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Resets the winning_hand attribute on a room instance to nil.</p>
+<h2 id="reset_winning_hand/1-examples" class="section-heading">
+  <a href="#reset_winning_hand/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{winning_hand: %PokerEx.Hand{score: 600, best_hand: []}}
+iex&gt; room = Updater.reset_winning_hand(room)
+iex&gt; room.winning_hand
+nil</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="seating/2">
+  
+  <div class="detail-header">
+    <a href="#seating/2" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">seating(room, player)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>seating(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the seating attribute of a room instance</p>
+<h2 id="seating/2-examples" class="section-heading">
+  <a href="#seating/2-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}]}
+iex&gt; Updater.seating(room, &quot;C&quot;)
+%Room{seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}]}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="set_active/1">
+  
+  <div class="detail-header">
+    <a href="#set_active/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">set_active(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>set_active(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Sets the list of active players based on the seating list and the
+current big blind position</p>
+<h2 id="set_active/1-examples" class="section-heading">
+  <a href="#set_active/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{seating: [{&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}, {&quot;D&quot;, 3}], current_big_blind: 2}
+iex&gt; room = Updater.set_active(room)
+iex&gt; room.active
+[{&quot;D&quot;, 3}, {&quot;A&quot;, 0}, {&quot;B&quot;, 1}, {&quot;C&quot;, 2}]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="stats/1">
+  
+  <div class="detail-header">
+    <a href="#stats/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">stats(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>stats(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the stats attribute on room instances given the player_hands and
+table cards.</p>
+<h2 id="stats/1-examples" class="section-heading">
+  <a href="#stats/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; player_hands = [{&quot;A&quot;, [%PokerEx.Card{rank: :two, suit: :hearts}, %PokerEx.Card{rank: :three, suit: :spades}]},
+...&gt; {&quot;B&quot;, [%PokerEx.Card{rank: :four, suit: :clubs}, %PokerEx.Card{rank: :five, suit: :diamonds}]}]
+iex&gt; table = [%PokerEx.Card{rank: :ten, suit: :hearts}, %PokerEx.Card{rank: :jack, suit: :diamonds}, 
+...&gt; %PokerEx.Card{rank: :queen, suit: :spades}, %PokerEx.Card{rank: :king, suit: :clubs}, %PokerEx.Card{rank: :ace, suit: :spades}]
+iex&gt; room = %Room{player_hands: player_hands, table: table}
+iex&gt; result = Updater.stats(room)
+iex&gt; result.stats
+[{&quot;A&quot;, 414}, {&quot;B&quot;, 414}]</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="table/1">
+  
+  <div class="detail-header">
+    <a href="#table/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">table(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>table(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Deals a new card to be placed in the list of
+cards showing on the table.</p>
+<h2 id="table/1-examples" class="section-heading">
+  <a href="#table/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{table: []}
+iex&gt; room = Updater.table(room)
+iex&gt; length(room.table) == 1
+true</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="total_paid/3">
+  
+  <div class="detail-header">
+    <a href="#total_paid/3" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">total_paid(room, player, amount)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>total_paid(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>, <a href="#t:player/0">player</a>, pos_integer) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Updates the paid map stored under the paid attribute on a room instance for the
+specified player by adding the specified amount to the current amount.</p>
+<h2 id="total_paid/3-examples" class="section-heading">
+  <a href="#total_paid/3-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; room = %Room{paid: %{&quot;A&quot; =&gt; 300}}
+iex&gt; Updater.total_paid(room, &quot;A&quot;, 30)
+%Room{paid: %{&quot;A&quot; =&gt; 330}}</code></pre>
+
+  </section>
+</div>
+<div class="detail" id="winner/1">
+  
+  <div class="detail-header">
+    <a href="#winner/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">winner(room)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>winner(<a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a>) :: <a href="PokerEx.Room2.html#t:t/0">PokerEx.Room2.t</a></pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    <p>Evaluates player hands and determines the winner, then assigns the winner
+and winning_hand to their respective attributes in the room instance.</p>
+<h2 id="winner/1-examples" class="section-heading">
+  <a href="#winner/1-examples" class="hover-link"><i class="icon-link"></i></a>
+  Examples
+</h2>
+
+<pre><code class="iex elixir">iex&gt; player_hands = [{&quot;A&quot;, [%PokerEx.Card{rank: :two, suit: :hearts}, %PokerEx.Card{rank: :three, suit: :hearts}]},
+...&gt; {&quot;B&quot;, [%PokerEx.Card{rank: :four, suit: :clubs}, %PokerEx.Card{rank: :five, suit: :diamonds}]},
+...&gt; {&quot;C&quot;, [%PokerEx.Card{rank: :six, suit: :diamonds}, %PokerEx.Card{rank: :seven, suit: :clubs}]}]
+iex&gt; table = [%PokerEx.Card{rank: :ten, suit: :hearts}, %PokerEx.Card{rank: :jack, suit: :diamonds}, 
+...&gt; %PokerEx.Card{rank: :queen, suit: :hearts}, %PokerEx.Card{rank: :king, suit: :hearts}, %PokerEx.Card{rank: :ace, suit: :spades}]
+iex&gt; active = [{&quot;A&quot;, 0}]
+iex&gt; all_in = [&quot;B&quot;]
+iex&gt; room = %Room{player_hands: player_hands, table: table, active: active, all_in: all_in}
+iex&gt; room = Updater.stats(room)
+iex&gt; room = Updater.winner(room)
+iex&gt; {room.winner, room.winning_hand.type_string}
+{&quot;A&quot;, &quot;a Flush, King High&quot;}</code></pre>
+
+  </section>
+</div>
+
+        </section>
+      
+
+      
+
+      
+          <footer class="footer">
+        <p>
+          <span class="line">
+            Built using
+            <a href="https://github.com/elixir-lang/ex_doc" title="ExDoc" rel="help" target="_blank">ExDoc</a> (v0.14.3),
+          </span>
+          <span class="line">
+            designed by
+            <a href="https://twitter.com/dignifiedquire" target="_blank" title="@dignifiedquire">Friedel Ziegelmayer</a>.
+            </span>
+        </p>
+        <button class="night-mode-toggle" />
+      </footer>
+    </div>
+  </div>
+</section>
+</div>
+  <script src="dist/app-574613960f.js"></script>
+  </body>
+</html>
+

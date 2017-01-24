@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.14.3">
-    <title>PokerEx.Card – poker_ex v0.0.1</title>
+    <title>PokerEx.RewardManager – poker_ex v0.0.1</title>
     <link rel="stylesheet" href="dist/app-091c05798a.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -59,7 +59,7 @@
 
       <h1>
         <small class="visible-xs">poker_ex v0.0.1</small>
-        PokerEx.Card
+        PokerEx.RewardManager
         
         
       </h1>
@@ -81,19 +81,19 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#t:rank/0">rank()</a>
+    <a href="#t:hand_rankings/0">hand_rankings()</a>
   </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#t:suit/0">suit()</a>
+    <a href="#t:paid_in/0">paid_in()</a>
   </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#t:t/0">t()</a>
+    <a href="#t:rewards/0">rewards()</a>
   </div>
   
 </div>
@@ -108,41 +108,20 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#from_atom/1">from_atom(atom)</a>
+    <a href="#distribute_rewards/1">distribute_rewards(rewards)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Takes in an atom describing a card and
-returns a corresponding Card struct</p>
-</div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#sort_by_rank/1">sort_by_rank(hand)</a>
+    <a href="#manage_rewards/2">manage_rewards(hand_rankings, paid_in)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Sorts cards based on their rank</p>
-</div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#value/1">value(rank)</a>
+    <a href="#reward/2">reward(player, amount)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Returns the numerical value of a card
-for comparison purposes</p>
-</div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#value_to_rank/1">value_to_rank(number)</a>
-  </div>
-  
-    <div class="summary-synopsis"><p>Takes in an integer value from 2 to 14
-and returns the corresponding card rank</p>
-</div>
   
 </div>
 
@@ -165,33 +144,19 @@ and returns the corresponding card rank</p>
             Types
           </h1>
           <div class="types-list">
-            <div class="detail" id="t:rank/0">
+            <div class="detail" id="t:hand_rankings/0">
   
   <div class="detail-header">
-    <a href="#t:rank/0" class="detail-link" title="Link to this type">
+    <a href="#t:hand_rankings/0" class="detail-link" title="Link to this type">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">rank()</span>
+    <span class="signature">hand_rankings()</span>
     
     
     
       <div class="specs">
         
-          <pre><a href="#t:rank/0">rank</a> ::
-  :two |
-  :three |
-  :four |
-  :five |
-  :six |
-  :seven |
-  :eight |
-  :nine |
-  :ten |
-  :jack |
-  :queen |
-  :king |
-  :ace |
-  :joker</pre>
+          <pre><a href="#t:hand_rankings/0">hand_rankings</a> :: [{<a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a>, pos_integer}]</pre>
         
       </div>
     
@@ -200,19 +165,19 @@ and returns the corresponding card rank</p>
     
   </section>
 </div>
-<div class="detail" id="t:suit/0">
+<div class="detail" id="t:paid_in/0">
   
   <div class="detail-header">
-    <a href="#t:suit/0" class="detail-link" title="Link to this type">
+    <a href="#t:paid_in/0" class="detail-link" title="Link to this type">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">suit()</span>
+    <span class="signature">paid_in()</span>
     
     
     
       <div class="specs">
         
-          <pre><a href="#t:suit/0">suit</a> :: :spades | :diamonds | :hearts | :clubs</pre>
+          <pre><a href="#t:paid_in/0">paid_in</a> :: [{<a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a>, pos_integer}]</pre>
         
       </div>
     
@@ -221,19 +186,19 @@ and returns the corresponding card rank</p>
     
   </section>
 </div>
-<div class="detail" id="t:t/0">
+<div class="detail" id="t:rewards/0">
   
   <div class="detail-header">
-    <a href="#t:t/0" class="detail-link" title="Link to this type">
+    <a href="#t:rewards/0" class="detail-link" title="Link to this type">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">t()</span>
+    <span class="signature">rewards()</span>
     
     
     
       <div class="specs">
         
-          <pre><a href="#t:t/0">t</a> :: %PokerEx.Card{rank: <a href="#t:rank/0">rank</a> | nil, suit: <a href="#t:suit/0">suit</a> | nil}</pre>
+          <pre><a href="#t:rewards/0">rewards</a> :: [{<a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a>, pos_integer}]</pre>
         
       </div>
     
@@ -255,119 +220,67 @@ and returns the corresponding card rank</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="from_atom/1">
+          <div class="detail" id="distribute_rewards/1">
   
   <div class="detail-header">
-    <a href="#from_atom/1" class="detail-link" title="Link to this function">
+    <a href="#distribute_rewards/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">from_atom(atom)</span>
+    <span class="signature">distribute_rewards(rewards)</span>
     
     
     
       <div class="specs">
         
-          <pre>from_atom(atom) :: <a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a></pre>
+          <pre>distribute_rewards(<a href="#t:rewards/0">rewards</a>) :: :ok</pre>
         
       </div>
     
   </div>
   <section class="docstring">
-    <p>Takes in an atom describing a card and
-returns a corresponding Card struct</p>
-<h2 id="from_atom/1-examples" class="section-heading">
-  <a href="#from_atom/1-examples" class="hover-link"><i class="icon-link"></i></a>
-  Examples
-</h2>
-
-<pre><code class="iex elixir">iex&gt; PokerEx.Card.from_atom(:ace_of_spades)
-    %PokerEx.Card{rank: :ace, suit: :spades}</code></pre>
-
+    
   </section>
 </div>
-<div class="detail" id="sort_by_rank/1">
+<div class="detail" id="manage_rewards/2">
   
   <div class="detail-header">
-    <a href="#sort_by_rank/1" class="detail-link" title="Link to this function">
+    <a href="#manage_rewards/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">sort_by_rank(hand)</span>
+    <span class="signature">manage_rewards(hand_rankings, paid_in)</span>
     
     
     
       <div class="specs">
         
-          <pre>sort_by_rank([<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>]) :: [<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>]</pre>
+          <pre>manage_rewards(<a href="#t:hand_rankings/0">hand_rankings</a>, <a href="#t:paid_in/0">paid_in</a>) :: <a href="#t:rewards/0">rewards</a></pre>
         
       </div>
     
   </div>
   <section class="docstring">
-    <p>Sorts cards based on their rank</p>
-<h2 id="sort_by_rank/1-examples" class="section-heading">
-  <a href="#sort_by_rank/1-examples" class="hover-link"><i class="icon-link"></i></a>
-  Examples
-</h2>
-
-<pre><code class="iex elixir">iex&gt; alias PokerEx.Card
-    iex&gt; cards = [:ten_of_hearts, :two_of_spades, :ace_of_diamonds, :ten_of_clubs, :three_of_hearts] |&gt; Enum.map(&amp;Card.from_atom/1)
-    iex&gt; Card.sort_by_rank(cards)
-    [%PokerEx.Card{rank: :ace, suit: :diamonds}, %PokerEx.Card{rank: :ten, suit: :hearts}, %PokerEx.Card{rank: :ten, suit: :clubs},
-    %PokerEx.Card{rank: :three, suit: :hearts}, %PokerEx.Card{rank: :two, suit: :spades}]</code></pre>
-
+    
   </section>
 </div>
-<div class="detail" id="value/1">
+<div class="detail" id="reward/2">
   
   <div class="detail-header">
-    <a href="#value/1" class="detail-link" title="Link to this function">
+    <a href="#reward/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">value(rank)</span>
+    <span class="signature">reward(player, amount)</span>
     
     
     
       <div class="specs">
         
-          <pre>value(<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>) :: pos_integer</pre>
+          <pre>reward(<a href="PokerEx.Player.html#t:t/0">PokerEx.Player.t</a>, pos_integer) :: <a href="PokerEx.Player.html#t:t/0">PokerEx.Player.t</a></pre>
         
       </div>
     
   </div>
   <section class="docstring">
-    <p>Returns the numerical value of a card
-for comparison purposes.</p>
-
-  </section>
-</div>
-<div class="detail" id="value_to_rank/1">
-  
-  <div class="detail-header">
-    <a href="#value_to_rank/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">value_to_rank(number)</span>
     
-    
-    
-      <div class="specs">
-        
-          <pre>value_to_rank(pos_integer) :: <a href="#t:rank/0">rank</a></pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    <p>Takes in an integer value from 2 to 14
-and returns the corresponding card rank</p>
-<h2 id="value_to_rank/1-examples" class="section-heading">
-  <a href="#value_to_rank/1-examples" class="hover-link"><i class="icon-link"></i></a>
-  Examples
-</h2>
-
-<pre><code class="iex elixir">iex&gt; PokerEx.Card.value_to_rank(14)
-    :ace</code></pre>
-
   </section>
 </div>
 

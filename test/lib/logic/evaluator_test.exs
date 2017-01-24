@@ -187,6 +187,13 @@ defmodule PokerEx.EvaluatorTest do
 			assert p1_score > p2_score
 		end
 		
+		test "a full_house should always be a full_house, even with low pairs" do
+			player_one = set_player_hand(:two_of_spades, :nine_of_diamonds)
+			table = set_table(:jack_of_clubs, :two_of_clubs, :nine_of_hearts, :ace_of_spades, :nine_of_spades)
+			hand = Evaluator.evaluate_hand(player_one, table)
+			assert hand.type_string == "a Full House, Nines Full of Twos"
+		end
+		
 		test "three_of_a_kind twos should beat other hands" do
 			player_one = set_player_hand(:two_of_clubs, :two_of_spades)
 			player_two = set_player_hand(:ace_of_spades, :king_of_diamonds)

@@ -57,12 +57,12 @@ export default class PlayerMessages {
           let playerCards = document.getElementById("player-cards");
           let children = playerCards.childNodes;
           let cards = Card.renderPlayerCards(obj.hand);
-          cards.forEach((card) => {
-            if (children.length > 2) {
-              playerCards.replaceChild(card, children[1]);
-            } else {
-              playerCards.appendChild(card);
+
+          for (let i = children.length - 1; i >= 0; i--) {
+              playerCards.removeChild(children[i]);  
             }
+          cards.forEach((card) => {
+            playerCards.appendChild(card);
           });
         }
       });

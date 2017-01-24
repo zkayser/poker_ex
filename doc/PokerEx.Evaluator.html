@@ -102,6 +102,12 @@ a winning hand in Hold ‘Em.</p>
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
+    <a href="#ace_to_five_straight?/1">ace_to_five_straight?(hand_pool)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
     <a href="#check_for_flush/1">check_for_flush(hand)</a>
   </div>
   
@@ -131,12 +137,6 @@ a winning hand in Hold ‘Em.</p>
   
     <div class="summary-synopsis"><p>Chooses the best five-card hand from a set of seven cards built from a player’s hand and the hand dealt on the table</p>
 </div>
-  
-</div>
-<div class="summary-row">
-  <div class="summary-signature">
-    <a href="#full_house_string/1">full_house_string(full_house)</a>
-  </div>
   
 </div>
 <div class="summary-row">
@@ -199,7 +199,28 @@ a winning hand in Hold ‘Em.</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="check_for_flush/1">
+          <div class="detail" id="ace_to_five_straight?/1">
+  
+  <div class="detail-header">
+    <a href="#ace_to_five_straight?/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">ace_to_five_straight?(hand_pool)</span>
+    
+    
+    
+      <div class="specs">
+        
+          <pre>ace_to_five_straight?([<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>]) :: boolean</pre>
+        
+      </div>
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="check_for_flush/1">
   
   <div class="detail-header">
     <a href="#check_for_flush/1" class="detail-link" title="Link to this function">
@@ -327,29 +348,8 @@ a winning hand in Hold ‘Em.</p>
     has_flush_with: nil,
     has_n_kind_with: [%PokerEx.Card{rank: :queen, suit: :diamonds},
     %PokerEx.Card{rank: :queen, suit: :hearts}], has_straight_with: nil,
-    score: nil, type_string: &quot;a Pair of Queens&quot;}</code></pre>
+    score: 152, type_string: &quot;a Pair of Queens&quot;}</code></pre>
 
-  </section>
-</div>
-<div class="detail" id="full_house_string/1">
-  
-  <div class="detail-header">
-    <a href="#full_house_string/1" class="detail-link" title="Link to this function">
-      <i class="icon-link"></i>
-    </a>
-    <span class="signature">full_house_string(full_house)</span>
-    
-    
-    
-      <div class="specs">
-        
-          <pre>full_house_string([Card.t]) :: <a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a></pre>
-        
-      </div>
-    
-  </div>
-  <section class="docstring">
-    
   </section>
 </div>
 <div class="detail" id="score/1">

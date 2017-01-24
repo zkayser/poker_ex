@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.14.3">
-    <title>PokerEx.UserSocket – poker_ex v0.0.1</title>
+    <title>PokerEx.TableEvents – poker_ex v0.0.1</title>
     <link rel="stylesheet" href="dist/app-091c05798a.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -59,7 +59,7 @@
 
       <h1>
         <small class="visible-xs">poker_ex v0.0.1</small>
-        PokerEx.UserSocket
+        PokerEx.TableEvents
         
         
       </h1>
@@ -83,20 +83,38 @@
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#connect/2">connect(map, socket)</a>
+    <a href="#advance/1">advance(arg)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.2.1/Phoenix.Socket.html#c:connect/2"><code class="inline">Phoenix.Socket.connect/2</code></a></p>
-</div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#id/1">id(socket)</a>
+    <a href="#call_amount_update/1">call_amount_update(new_amount)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.2.1/Phoenix.Socket.html#c:id/1"><code class="inline">Phoenix.Socket.id/1</code></a></p>
 </div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#card_dealt/1">card_dealt(card)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#flop_dealt/1">flop_dealt(flop)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#paid_in_round_update/1">paid_in_round_update(map)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#pot_update/1">pot_update(amount)</a>
+  </div>
   
 </div>
 
@@ -120,36 +138,94 @@
             </a>
             Functions
           </h1>
-          <div class="detail" id="connect/2">
+          <div class="detail" id="advance/1">
   
   <div class="detail-header">
-    <a href="#connect/2" class="detail-link" title="Link to this function">
+    <a href="#advance/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">connect(map, socket)</span>
+    <span class="signature">advance(arg)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.2.1/Phoenix.Socket.html#c:connect/2"><code class="inline">Phoenix.Socket.connect/2</code></a>.</p>
-
+    
   </section>
 </div>
-<div class="detail" id="id/1">
+<div class="detail" id="call_amount_update/1">
   
   <div class="detail-header">
-    <a href="#id/1" class="detail-link" title="Link to this function">
+    <a href="#call_amount_update/1" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">id(socket)</span>
+    <span class="signature">call_amount_update(new_amount)</span>
     
     
     
   </div>
   <section class="docstring">
-    <p>Callback implementation for <a href="https://hexdocs.pm/phoenix/1.2.1/Phoenix.Socket.html#c:id/1"><code class="inline">Phoenix.Socket.id/1</code></a>.</p>
-
+    
+  </section>
+</div>
+<div class="detail" id="card_dealt/1">
+  
+  <div class="detail-header">
+    <a href="#card_dealt/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">card_dealt(card)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="flop_dealt/1">
+  
+  <div class="detail-header">
+    <a href="#flop_dealt/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">flop_dealt(flop)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="paid_in_round_update/1">
+  
+  <div class="detail-header">
+    <a href="#paid_in_round_update/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">paid_in_round_update(map)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="pot_update/1">
+  
+  <div class="detail-header">
+    <a href="#pot_update/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">pot_update(amount)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
   </section>
 </div>
 

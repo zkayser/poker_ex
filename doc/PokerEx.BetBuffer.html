@@ -5,7 +5,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="ExDoc v0.14.3">
-    <title>PokerEx.Deck – poker_ex v0.0.1</title>
+    <title>PokerEx.BetBuffer – poker_ex v0.0.1</title>
     <link rel="stylesheet" href="dist/app-091c05798a.css" />
     
     <script src="dist/sidebar_items.js"></script>
@@ -59,17 +59,11 @@
 
       <h1>
         <small class="visible-xs">poker_ex v0.0.1</small>
-        PokerEx.Deck
+        PokerEx.BetBuffer
         
         
       </h1>
 
-      
-        <section id="moduledoc">
-          <p>Provides a deck struct to keep track of a deck of cards
-along with functions for creating and handling decks.</p>
-
-        </section>
       
 
       
@@ -102,11 +96,20 @@ along with functions for creating and handling decks.</p>
     </h2>
     <div class="summary-row">
   <div class="summary-signature">
-    <a href="#deal/2">deal(arg1, number)</a>
+    <a href="#call/2">call(buffer, player)</a>
   </div>
   
-    <div class="summary-synopsis"><p>Deals <code class="inline">number</code> of cards from a deck</p>
 </div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#check/4">check(buffer, player, paid, to_call)</a>
+  </div>
+  
+</div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#clear/1">clear(buffer)</a>
+  </div>
   
 </div>
 <div class="summary-row">
@@ -114,18 +117,17 @@ along with functions for creating and handling decks.</p>
     <a href="#new/0">new()</a>
   </div>
   
-    <div class="summary-synopsis"><p>Creates a new deck</p>
 </div>
+<div class="summary-row">
+  <div class="summary-signature">
+    <a href="#raise/4">raise(buffer, player, amount, to_call)</a>
+  </div>
   
 </div>
 <div class="summary-row">
   <div class="summary-signature">
-    <a href="#shuffle/1">shuffle(deck)</a>
+    <a href="#reset_called/1">reset_called(buffer)</a>
   </div>
-  
-    <div class="summary-synopsis"><p>Shuffles a deck in random order using the built-in
-shuffle function from the Enum module</p>
-</div>
   
 </div>
 
@@ -160,7 +162,7 @@ shuffle function from the Enum module</p>
     
       <div class="specs">
         
-          <pre><a href="#t:t/0">t</a> :: %PokerEx.Deck{cards: [<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>], dealt: [<a href="PokerEx.Card.html#t:t/0">PokerEx.Card.t</a>] | nil}</pre>
+          <pre><a href="#t:t/0">t</a> :: %{called: [<a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a>] | [], player: [<a href="http://elixir-lang.org/docs/stable/elixir/String.html#t:t/0">String.t</a>] | []}</pre>
         
       </div>
     
@@ -182,39 +184,49 @@ shuffle function from the Enum module</p>
             </a>
             Functions
           </h1>
-          <div class="detail" id="deal/2">
+          <div class="detail" id="call/2">
   
   <div class="detail-header">
-    <a href="#deal/2" class="detail-link" title="Link to this function">
+    <a href="#call/2" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">deal(arg1, number)</span>
+    <span class="signature">call(buffer, player)</span>
     
     
-    
-      <div class="specs">
-        
-          <pre>deal(<a href="PokerEx.Deck.html#t:t/0">PokerEx.Deck.t</a>, pos_integer) :: <a href="PokerEx.Deck.html#t:t/0">PokerEx.Deck.t</a></pre>
-        
-      </div>
     
   </div>
   <section class="docstring">
-    <p>Deals <code class="inline">number</code> of cards from a deck</p>
-<h2 id="deal/2-examples" class="section-heading">
-  <a href="#deal/2-examples" class="hover-link"><i class="icon-link"></i></a>
-  Examples
-</h2>
-
-<pre><code class="iex elixir">iex&gt; deck = Deck.new
-    iex&gt; deck |&gt; Deck.deal(5)
-    iex&gt; deck.dealt
-    [%PokerEx.Card{rank: :two, suit: :spades},
-    %PokerEx.Card{rank: :three, suit: :spades},
-    %PokerEx.Card{rank: :four, suit: :spades},
-    %PokerEx.Card{rank: :five, suit: :spades},
-    %PokerEx.Card{rank: :six, suit: :spades}]</code></pre>
-
+    
+  </section>
+</div>
+<div class="detail" id="check/4">
+  
+  <div class="detail-header">
+    <a href="#check/4" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">check(buffer, player, paid, to_call)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
+  </section>
+</div>
+<div class="detail" id="clear/1">
+  
+  <div class="detail-header">
+    <a href="#clear/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">clear(buffer)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
   </section>
 </div>
 <div class="detail" id="new/0">
@@ -227,39 +239,39 @@ shuffle function from the Enum module</p>
     
     
     
-      <div class="specs">
-        
-          <pre>new :: <a href="PokerEx.Deck.html#t:t/0">PokerEx.Deck.t</a></pre>
-        
-      </div>
-    
   </div>
   <section class="docstring">
-    <p>Creates a new deck.</p>
-
+    
   </section>
 </div>
-<div class="detail" id="shuffle/1">
+<div class="detail" id="raise/4">
   
   <div class="detail-header">
-    <a href="#shuffle/1" class="detail-link" title="Link to this function">
+    <a href="#raise/4" class="detail-link" title="Link to this function">
       <i class="icon-link"></i>
     </a>
-    <span class="signature">shuffle(deck)</span>
+    <span class="signature">raise(buffer, player, amount, to_call)</span>
     
     
-    
-      <div class="specs">
-        
-          <pre>shuffle(<a href="PokerEx.Deck.html#t:t/0">PokerEx.Deck.t</a>) :: <a href="PokerEx.Deck.html#t:t/0">PokerEx.Deck.t</a></pre>
-        
-      </div>
     
   </div>
   <section class="docstring">
-    <p>Shuffles a deck in random order using the built-in
-shuffle function from the Enum module.</p>
-
+    
+  </section>
+</div>
+<div class="detail" id="reset_called/1">
+  
+  <div class="detail-header">
+    <a href="#reset_called/1" class="detail-link" title="Link to this function">
+      <i class="icon-link"></i>
+    </a>
+    <span class="signature">reset_called(buffer)</span>
+    
+    
+    
+  </div>
+  <section class="docstring">
+    
   </section>
 </div>
 
