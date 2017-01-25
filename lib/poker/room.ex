@@ -19,6 +19,7 @@ defmodule PokerEx.Room do
 	@type seating :: [{String.t, non_neg_integer}] | []
 	@type stats :: [{String.t, pos_integer}] | []
 	@type seat_number :: 0..6 | nil
+	@type room_id :: atom()
 	
 	@type t :: %__MODULE__{
 							to_call: non_neg_integer,
@@ -32,6 +33,7 @@ defmodule PokerEx.Room do
 							current_small_blind: seat_number,
 							all_in: player_tracker,
 							folded: player_tracker,
+							room_id: room_id,
 							player_hands: [{String.t, [Card.t]}] | [],
 							table: [Card.t] | [],
 							deck: [Card.t] | [],
@@ -51,6 +53,7 @@ defmodule PokerEx.Room do
 						current_small_blind: nil,
 						all_in: [],
 						folded: [],
+						room_id: nil,
 						player_hands: [],
 						table: [],
 						deck: Deck.new |> Deck.shuffle,
@@ -60,7 +63,7 @@ defmodule PokerEx.Room do
 						
 	def start_link(args \\ []) do
 		room_id = :"#{args}"
-		:gen_statem.start_link({:local, room_id}, __MODULE__, [], [])
+		:gen_statem.start_link({:local, room_id}, __MODULE__, [args], [])
 		# {:debug, [:trace, :log]}
 	end
 	
@@ -90,10 +93,6 @@ defmodule PokerEx.Room do
 	
 	def fold(room_id, player) do
 		:gen_statem.cast(room_id, {:fold, player.name})
-	end
-	
-	def auto_complete(room_id) do
-		:gen_statem.cast(room_id, :auto_complete)
 	end
 	
 	def ready(room_id, player) do
@@ -132,10 +131,6 @@ defmodule PokerEx.Room do
 		:gen_statem.cast(:test, {:fold, player.name})
 	end
 	
-	def t_auto_complete do
-		:gen_statem.cast(:test, :auto_complete)
-	end
-	
 	def t_ready(player) do
 		:gen_statem.cast(:test, {:ready, player.name})
 	end
@@ -160,8 +155,8 @@ defmodule PokerEx.Room do
 		{:ok, state, data}
 	end
 	
-	def init(_) do
-		{:ok, :idle, %__MODULE__{}}
+	def init([id]) do
+		{:ok, :idle, %Room{room_id: id}}
 	end
 	
 	def callback_mode do
