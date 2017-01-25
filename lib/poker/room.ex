@@ -73,8 +73,7 @@ defmodule PokerEx.Room do
 	##############
 	
 	def join(room_id, player) do
-		pid = Process.whereis(room_id)
-		:gen_statem.cast(pid, {:join, player.name})
+		:gen_statem.cast(room_id, {:join, player.name})
 	end
 	
 	def call(room_id, player) do
@@ -106,8 +105,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def state(room_id) do
-		pid = Process.whereis(room_id)
-		:gen_statem.call(pid, :state)
+		:gen_statem.call(room_id, :state)
 	end
 	
 	#############

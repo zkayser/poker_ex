@@ -12,13 +12,11 @@ defmodule PokerEx.RoomServer do
   
   def handle_info({:start_rooms, rooms}, state) do
     IO.puts "Starting up #{rooms} initial rooms..."
-    room_pids = 
-      for x <- 0..rooms do
-        room = :"room_#{x}"
-        {:ok, pid} = Supervisor.start_child(PokerEx.RoomsSupervisor, [room])
-        pid
-      end
-    {:noreply, room_pids}
+    for x <- 0..rooms do
+      room = :"room_#{x}"
+      Supervisor.start_child(PokerEx.RoomsSupervisor, [room])
+    end
+    {:noreply, state}
   end
   
   def handle_info(msg, state) do
