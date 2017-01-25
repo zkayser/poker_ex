@@ -27,7 +27,7 @@ defmodule PokerEx.RewardManager do
 		Player.reward(player, amount)
 	end
 	
-	def manage(hand_rankings, paid_in) when length(hand_rankings) > 0 do
+	defp manage(hand_rankings, paid_in) when length(hand_rankings) > 0 do
 		indexed = Enum.with_index(hand_rankings)
 		results = Enum.take_while(indexed, 
 			fn {{_name, score}, index} ->

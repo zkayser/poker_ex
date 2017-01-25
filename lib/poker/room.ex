@@ -219,12 +219,14 @@ defmodule PokerEx.Room do
 		{:next_state, :pre_flop, update}
 	end
 	
-	def handle_event(:cast, {:join, player}, state, room) do
+	def handle_event(:cast, {:join, player}, state, %Room{seating: seating} = room) when length(seating) <= 7 do
 		update =
 			room
 			|> Updater.seating(player)
 		{:next_state, state, update}
 	end
+	
+	def handle_event(:cast, {:join, _player}, state, room), do: {:next_state, state, room}
 	
 	def handle_event(:cast, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 1 do
 		update = 

@@ -125,6 +125,10 @@ export default class TableConcerns {
       table.removePlayerEmblem(payload.player);
       table.markedToFold.push(payload.player);
       
+      if (table.user == payload.player) {
+        channel.leave();
+      }
+      
       let messages = document.getElementById("messages");
       for (var i = 0; i < messages.children.length; i++) {
         if(messages.children[i].innerText == payload.player) {
