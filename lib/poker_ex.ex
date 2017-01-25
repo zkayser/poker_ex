@@ -13,12 +13,15 @@ defmodule PokerEx do
       # Start the endpoint when the application starts
       supervisor(PokerEx.Endpoint, []),
       supervisor(PokerEx.Presence, []),
+      supervisor(Registry, [:unique, :room_id_registry]),
+      supervisor(PokerEx.RoomsSupervisor, []),
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
       worker(PokerEx.AppState, []),
+      worker(PokerEx.RoomServer, [10]),
       # The Room worker will be moved out to a separate supervision tree
       # later so there can be multiple instances of it running at the same
       # time.
-      worker(PokerEx.Room, []),
+      # worker(PokerEx.Room, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

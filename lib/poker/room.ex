@@ -58,8 +58,9 @@ defmodule PokerEx.Room do
 						winner: nil,
 						winning_hand: nil
 						
-	def start_link do
-		:gen_statem.start_link({:local, @name}, __MODULE__, [], [])
+	def start_link(args \\ []) do
+		room_id = :"#{args}"
+		:gen_statem.start_link({:local, room_id}, __MODULE__, [], [])
 		# {:debug, [:trace, :log]}
 	end
 	
@@ -71,40 +72,42 @@ defmodule PokerEx.Room do
 	# Client API #
 	##############
 	
-	def join(player) do
-		:gen_statem.cast(@name, {:join, player.name})
+	def join(room_id, player) do
+		pid = Process.whereis(room_id)
+		:gen_statem.cast(pid, {:join, player.name})
 	end
 	
-	def call(player) do
-		:gen_statem.cast(@name, {:call, player.name})
+	def call(room_id, player) do
+		:gen_statem.cast(room_id, {:call, player.name})
 	end
 	
-	def check(player) do
-		:gen_statem.cast(@name, {:check, player.name})
+	def check(room_id, player) do
+		:gen_statem.cast(room_id, {:check, player.name})
 	end
 	
-	def raise(player, amount) do
-		:gen_statem.cast(@name, {:raise, player.name, amount})
+	def raise(room_id, player, amount) do
+		:gen_statem.cast(room_id, {:raise, player.name, amount})
 	end
 	
-	def fold(player) do
-		:gen_statem.cast(@name, {:fold, player.name})
+	def fold(room_id, player) do
+		:gen_statem.cast(room_id, {:fold, player.name})
 	end
 	
-	def auto_complete do
-		:gen_statem.cast(@name, :auto_complete)
+	def auto_complete(room_id) do
+		:gen_statem.cast(room_id, :auto_complete)
 	end
 	
-	def ready(player) do
-		:gen_statem.cast(@name, {:ready, player.name})
+	def ready(room_id, player) do
+		:gen_statem.cast(room_id, {:ready, player.name})
 	end
 	
-	def leave(player) do
-		:gen_statem.cast(@name, {:leave, player.name})
+	def leave(room_id, player) do
+		:gen_statem.cast(room_id, {:leave, player.name})
 	end
 	
-	def state do
-		:gen_statem.call(@name, :state)
+	def state(room_id) do
+		pid = Process.whereis(room_id)
+		:gen_statem.call(pid, :state)
 	end
 	
 	#############
