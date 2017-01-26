@@ -8,7 +8,6 @@ defmodule PokerEx.Room do
 	alias PokerEx.Room.Updater
 	alias PokerEx.Room.BetTracker
 	
-	@name :room2
 	@big_blind 10
 	@small_blind 5
 	@timeout 30000
@@ -103,6 +102,10 @@ defmodule PokerEx.Room do
 		:gen_statem.cast(room_id, {:leave, player.name})
 	end
 	
+	def player_count(room_id) do
+		:gen_statem.call(room_id, :player_count)
+	end
+	
 	def state(room_id) do
 		:gen_statem.call(room_id, :state)
 	end
@@ -154,6 +157,8 @@ defmodule PokerEx.Room do
 	def code_change(_vsn, state, data, _extra) do
 		{:ok, state, data}
 	end
+	
+	def init([]), do: {:ok, :idle, %Room{}}
 	
 	def init([id]) do
 		{:ok, :idle, %Room{room_id: id}}
@@ -525,6 +530,10 @@ defmodule PokerEx.Room do
 			_ -> 
 				{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}
 		end
+	end
+	
+	def handle_event({:call, from}, :player_count, state, %Room{seating: seating} = room) do
+		{:next_state, state, room, [{:reply, from, length(seating)}]}
 	end
 	
 	# DEBUGGING

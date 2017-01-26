@@ -1,0 +1,59 @@
+<!-- cardtable -->
+<div class='circle-container card-table'>
+	<div class="circle-center">
+	  <div class="deck">
+	    <img id="deck" src="images/card-back.svg.png">
+	    <!-- <p id="deck">🂠</p> -->
+	  </div>
+	  <div class="table-cards">
+
+	  </div>
+	  <div class="pot">
+	    <a class="btn-floating btn-large red" id="pot">0</a>
+	  </div>
+	</div>
+</div>
+
+<!-- card-holders -->
+<div class="row player-center table-width" id="offscreen-left">
+  
+  <div class="col s12 card-panel card-holder">
+    <div id="player-cards" class="col s12">
+      
+    </div>
+    <br/>
+    <div class="divider"></div>
+    <br/>
+    <div id="player-info" class="col s12 center-align">
+      
+    </div>
+  </div>
+</div>
+
+<!-- controls -->
+<div class="row player-controls table-width" id="offscreen-left">
+  
+  <div class="col s8 center-align raise">
+    <div class="col s12 input-field">
+      <input placeholder="0" id="raise-amount" type="text">
+      <label for="raise-amount">Raise to</label>
+    </div>
+  </div>
+  <div class="col s4 center-align">
+    <button class="waves-effect waves-light btn-floating btn btn-large raise-btn">Raise</button>
+  </div>
+</div>
+
+<div class="row player-controls table-width" id="offscreen-left">
+  <div class="col s4 center-align">
+      <button class="waves-effect waves-light btn-floating btn btn-large fold-btn">Fold</button>
+  </div>
+  
+  <div class="col s4 center-align">
+      <button class="waves-effect waves-light btn-floating btn btn-large call-btn">Call</button>
+  </div>
+  
+  <div class="col s4 center-align">
+    <button class="waves-effect waves-light btn-floating btn btn-large check-btn">Check</button>
+  </div>
+</div>

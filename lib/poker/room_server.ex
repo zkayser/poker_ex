@@ -12,9 +12,9 @@ defmodule PokerEx.RoomServer do
   
   def handle_info({:start_rooms, rooms}, state) do
     IO.puts "Starting up #{rooms} initial rooms..."
-    for x <- 0..rooms do
+    for x <- 1..rooms do
       room = :"room_#{x}"
-      Supervisor.start_child(PokerEx.RoomsSupervisor, [room])
+      PokerEx.RoomsSupervisor.find_or_create_process(room)
     end
     {:noreply, state}
   end
