@@ -42,7 +42,7 @@ defmodule PokerEx.Room.BetTracker do
           Enum.find(active, fn {_name, seat} -> seat == sb end)
       end
     
-    case Player.bet(player, amount) do
+    case Player.bet(player, amount, room.room_id) do
       %Player{name: _, chips: _} ->
         room
         |> Updater.call_amount(amount)
@@ -81,7 +81,7 @@ defmodule PokerEx.Room.BetTracker do
     paid_in_round = paid_in_round[player] || 0
     bet_amount = amount - paid_in_round
     
-    case Player.bet(player, bet_amount) do
+    case Player.bet(player, bet_amount, room.room_id) do
       %Player{name: _, chips: _} ->
         room 
         |> Updater.call_amount(amount)
@@ -121,7 +121,7 @@ defmodule PokerEx.Room.BetTracker do
     paid_in_round = paid_in_round[player] || 0
     bet_amount = call_amount - paid_in_round
     
-    case Player.bet(player, bet_amount) do
+    case Player.bet(player, bet_amount, room.room_id) do
       %Player{name: _, chips: _} ->
         room
         |> Updater.paid_in_round(player, bet_amount)

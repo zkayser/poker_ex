@@ -14,8 +14,8 @@ defmodule PokerEx.Player do
 		%Player{name: name, chips: chips}
 	end
 	
-	@spec bet(String.t, non_neg_integer) :: Player.t | {:insufficient_chips, non_neg_integer}
-	def bet(name, amount) do
+	@spec bet(String.t, non_neg_integer, atom()) :: Player.t | {:insufficient_chips, non_neg_integer}
+	def bet(name, amount, room_id \\ nil) do
 		player = case AppState.get(name) do
 			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
 			_ -> :player_not_found
@@ -23,26 +23,26 @@ defmodule PokerEx.Player do
 		
 		case player.chips > amount do
 			true -> 
-				Events.chip_update(player, player.chips - amount)
-				Events.pot_update(amount)
+				Events.chip_update(room_id, player, player.chips - amount)
+				Events.pot_update(room_id, amount)
 				%Player{player | chips: player.chips - amount} |> update
 			_ -> 
 				total = player.chips
-				Events.chip_update(player, 0)
-				Events.pot_update(total)
+				Events.chip_update(room_id, player, 0)
+				Events.pot_update(room_id, total)
 				%Player{player | chips: 0} |> update
 				{:insufficient_chips, total}
 		end
 	end
 	
-	@spec reward(String.t, non_neg_integer) :: Player.t
-	def reward(name, amount) do
+	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
+	def reward(name, amount, room_id) do
 		player = case AppState.get(name) do
 			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
 			_ -> :player_not_found
 		end
 		
-		Events.chip_update(player, player.chips + amount)
+		Events.chip_update(room_id, player, player.chips + amount)
 		%Player{ player | chips: player.chips + amount} |> update
 	end
 	

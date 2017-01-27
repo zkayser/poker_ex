@@ -12,19 +12,19 @@ defmodule PokerEx.RewardManager do
 		manage(hand_rankings, paid_in)
 	end
 	
-	@spec distribute_rewards(rewards) :: :ok
-	def distribute_rewards(rewards) do
+	@spec distribute_rewards(rewards, atom()) :: :ok
+	def distribute_rewards(rewards, room_id) do
 		Enum.each(rewards, 
 			fn {player, amount} -> 
-				Player.reward(player, amount)
-				Events.game_over(player, amount)
+				Player.reward(player, amount, room_id)
+				Events.game_over(room_id, player, amount)
 			end)
 	end
 	
 	# Used to reward player when all others fold
-	@spec reward(Player.t, pos_integer) :: Player.t
-	def reward(player, amount) do
-		Player.reward(player, amount)
+	@spec reward(Player.t, pos_integer, atom()) :: Player.t
+	def reward(player, amount, room_id) do
+		Player.reward(player, amount, room_id)
 	end
 	
 	defp manage(hand_rankings, paid_in) when length(hand_rankings) > 0 do

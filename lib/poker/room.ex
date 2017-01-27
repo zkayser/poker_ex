@@ -191,8 +191,8 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 		
-			Events.game_started(hd(update.active), update.player_hands)
-			Events.advance(hd(update.active))
+			Events.game_started(room.room_id, hd(update.active), update.player_hands)
+			Events.advance(room.room_id, hd(update.active))
 		
 		{:next_state, :pre_flop, update}
 	end
@@ -218,8 +218,8 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
-			Events.game_started(hd(update.active), update.player_hands)
-			Events.advance(hd(update.active))
+			Events.game_started(room.room_id, hd(update.active), update.player_hands)
+			Events.advance(room.room_id, hd(update.active))
 			
 		{:next_state, :pre_flop, update}
 	end
@@ -384,8 +384,8 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.stats
 			|> Updater.winner
-		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards
-		Events.winner_message("#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
+		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -397,8 +397,8 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.insert_winner(winner)
 			|> Updater.insert_stats(winner, 100)
-		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards
-		Events.winner_message("#{inspect(update.winner)} wins the round on a fold")
+		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
+		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round on a fold")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -410,8 +410,8 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.insert_winner(winner)
 			|> Updater.insert_stats(winner, 100)
-		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards
-		Events.winner_message("#{inspect(update.winner)} wins the round on a fold")
+		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
+		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round on a fold")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -430,8 +430,8 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.stats
 			|> Updater.winner
-		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards
-		Events.winner_message("#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
+		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -448,8 +448,8 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.stats
 			|> Updater.winner
-		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards
-		Events.winner_message("#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
+		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -478,8 +478,8 @@ defmodule PokerEx.Room do
 					|> Updater.player_hands
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
-				Events.game_started(hd(update.active), update.player_hands)
-				Events.advance(hd(update.active))
+				Events.game_started(room.room_id, hd(update.active), update.player_hands)
+				Events.advance(room.room_id, hd(update.active))
 				{:next_state, :pre_flop, update}
 			_ ->
 				{:next_state, :between_rounds, update_one, [{:next_event, :internal, :clear}]}

@@ -56,6 +56,20 @@ defmodule PokerEx.PlayersChannel do
 		
 		players = room_id |> atomize() |> Room.player_list()
 		
+		seating = 
+			case Room.state(room_id |> atomize()).seating do
+				s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
+				[] -> nil
+				{name, pos} -> %{name: name, position: pos} 
+			end
+		broadcast! socket, "player_joined", %{player: player, seating: seating}
+		case Room.join(room_id |> atomize(), player) do
+			{:game_begin, _, active, hands} ->
+				send(self(), {:game_begin, hd(active), hands})
+			_ ->
+				:ok
+		end
+		
 		broadcast! socket, "room_joined", %{player: player, players: players, room_id: room_id}
 
 		{:noreply, socket}

@@ -33,5 +33,4 @@ export default class SpinnerAnimation {
     element.removeClass("light-transparent");
   }
   
-  
 }
