@@ -106,6 +106,10 @@ defmodule PokerEx.Room do
 		:gen_statem.call(room_id, :player_count)
 	end
 	
+	def player_list(room_id) do
+		:gen_statem.call(room_id, :player_list)
+	end
+	
 	def state(room_id) do
 		:gen_statem.call(room_id, :state)
 	end
@@ -534,6 +538,11 @@ defmodule PokerEx.Room do
 	
 	def handle_event({:call, from}, :player_count, state, %Room{seating: seating} = room) do
 		{:next_state, state, room, [{:reply, from, length(seating)}]}
+	end
+	
+	def handle_event({:call, from}, :player_list, state, %Room{seating: seating} = room) do
+		players = Enum.map(seating, fn {player, _} -> PokerEx.AppState.get(player) |> Map.from_struct() end)
+		{:next_state, state, room, [{:reply, from, players}]}
 	end
 	
 	# DEBUGGING

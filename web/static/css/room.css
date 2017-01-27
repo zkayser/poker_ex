@@ -1,0 +1,14 @@
+#staggered-list-item {
+  opacity: 0;
+}
+
+#staggered {
+  opacity: 0;
+}
+
+.join-spinner {
+  position: relative;
+  left: 45%;
+  top: 20em;
+  z-index: 1;
+}

@@ -20,32 +20,32 @@ import "phoenix_html";
 
 import Connection from "./socket";
 import $ from "jquery";
+import SpinnerAnimation from "./animations/spinner-animations";
 
 let joinButton = document.querySelector(".join-btn");
-let chatInput = document.querySelector("#chat-input");
+let joinInput = document.querySelector("#join-input");
 
+if (joinButton && joinInput) {
 
-joinButton.addEventListener('click', handleJoin);
-chatInput.addEventListener('keypress', (e) => {
-	if (e.charCode === 13) {
-		$(".login-spinner").addClass("active");
-		$(".signup").addClass("light-transparent");
-		handleJoin();
-	}
-});
-
-function handleJoin() {
-	let name = chatInput.value;
-	chatInput.value = "";
-	if (name.length > 0) {
-		Connection.init(name.trim());
-	}	else {
-			$(".login-spinner").removeClass("active");
-			$(".signup").removeClass("light-transparent");
-			alert("You must enter a name to join");
-	}
+	joinButton.addEventListener('click', handleJoin);
+	joinInput.addEventListener('keypress', (e) => {
+		if (e.charCode === 13) {
+			SpinnerAnimation.initiateSpinnerOnElement($(".login-spinner"), $(".signup"));
+			handleJoin();
+		}
+	});
 }
-
+	
+	function handleJoin() {
+		let name = joinInput.value;
+		joinInput.value = "";
+		if (name.length > 0) {
+			Connection.init(name.trim());
+		}	else {
+				SpinnerAnimation.terminateSpinnerOnElement($(".login-spinner"), $(".signup"));
+				alert("You must enter a name to join");
+		}
+	}
 
 
 
