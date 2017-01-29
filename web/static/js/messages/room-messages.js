@@ -12,6 +12,10 @@ export default class RoomMessages {
       Materialize.toast(`${payload.message}`, 2000, 'rounded');
     });
     
+    channel.on("welcome_player", payload => {
+      console.log("Got welcome_player", payload);
+    });
+    
     channel.on("game_finished", payload => {
       setTimeout(() => {
         Materialize.toast(`${payload.message}`, 2000, 'rounded');

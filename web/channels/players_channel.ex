@@ -3,6 +3,7 @@ defmodule PokerEx.PlayersChannel do
 	alias PokerEx.AppState
 	alias PokerEx.Player
 	alias PokerEx.Room
+	alias PokerEx.Endpoint
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	intercept ["new_msg"]
@@ -48,7 +49,6 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_info({:after_join_room, room_id, _params}, socket) do
 		socket = assign(socket, :room, room_id)
-		IO.puts "Socket assigns: #{inspect(socket.assigns)}"
 		player = Player.new(socket.assigns.player_name) |> AppState.put()
 		room_id
 		|> atomize()
@@ -62,15 +62,17 @@ defmodule PokerEx.PlayersChannel do
 				[] -> nil
 				{name, pos} -> %{name: name, position: pos} 
 			end
-		broadcast! socket, "player_joined", %{player: player, seating: seating}
-		case Room.join(room_id |> atomize(), player) do
-			{:game_begin, _, active, hands} ->
-				send(self(), {:game_begin, hd(active), hands})
-			_ ->
-				:ok
-		end
-		
+		# broadcast! socket, "player_joined", %{player: player, seating: seating}
+		#case Room.join(room_id |> atomize(), player) do
+		#	{:game_begin, _, active, hands} ->
+		#		send(self(), {:game_begin, hd(active), hands})
+		#	_ ->
+		#		:ok
+		# end
 		broadcast! socket, "room_joined", %{player: player, players: players, room_id: room_id}
+		broadcast! socket, "player_joined", %{player: player.name, seating: seating}
+		IO.puts "Room_id: #{inspect(room_id)}"
+		# Endpoint.broadcast("room:" <> room_id, "room_joined", %{player: player, players: players, room_id: room_id})
 
 		{:noreply, socket}
 	end
@@ -82,7 +84,7 @@ defmodule PokerEx.PlayersChannel do
 				cards = Enum.map(hand, fn card -> Map.from_struct(card) end)
 				%{player: name, hand: cards}
 			end)
-		broadcast! socket, "game_began", %{active: player, hands: hands}
+		Endpoint.broadcast("room:" <> socket.assigns.room, "game_began", %{active: player, hands: hands})
 		{:noreply, socket}
 	end
 	
@@ -91,28 +93,28 @@ defmodule PokerEx.PlayersChannel do
 	#####################
 	
 	def handle_in("new_msg", %{"body" => body}, socket) do
-		broadcast! socket, "new_msg", %{body: body}
+		broadcast!(socket, "new_msg", %{body: body})
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
-		Room.raise(AppState.get(player), amount)
+		Room.raise(socket.assigns.room |> atomize(), AppState.get(player), amount)
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_called", %{"player" => player}, socket) do
-		Room.call(AppState.get(player))
+		Room.call(socket.assigns.room |> atomize(), AppState.get(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_folded", %{"player" => player}, socket) do
-		Room.fold(AppState.get(player))
+		Room.fold(socket.assigns.room |> atomize(), AppState.get(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_checked", %{"player" => player}, socket) do
-		Room.check(AppState.get(player))
+		Room.check(socket.assigns.room |> atomize(), AppState.get(player))
 		{:noreply, socket}
 	end
 	

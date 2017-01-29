@@ -7,7 +7,7 @@ import Player from './player';
 export default class TableConcerns {
   constructor() {}
   
-  static init(channel, name) {
+  static init(channel, name, initialPlayers) {
     let Materialize = window.Materialize;
     
     let table = new Table();

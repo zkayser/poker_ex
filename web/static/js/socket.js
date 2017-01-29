@@ -10,7 +10,7 @@ import MessageBox from './message-box';
 
 let Connection = {
   
-  setRoomsLinks(socket, name) {
+  setRoomsLinks(socket, name, lobby) {
     let links = document.getElementsByTagName('a');
     let classArray = [];
     let roomRegEx = new RegExp("room_");
@@ -28,20 +28,16 @@ let Connection = {
       $(`a.${klass}`).click(() => {
         SpinnerAnimation.initiateSpinnerOnElement($(".join-spinner"), $(".collection"));
         SpinnerAnimation.onJoinRoom();
+        lobby.leave();
         
         let room = klass;
         let roomChan = socket.channel(`players:${room}`, {player: name});
         roomChan.join()
-        .receive("ok", payload => {
-          console.log(`Room channel players:${room} joined with payload: `, payload);
-        });
-        
-        // Test code
-        roomChan.on("room_joined", (payload) => {
-          TableConcerns.init(roomChan, name);
+        .receive("ok", ({players}) => {
+          console.log(`Room channel players:${room} joined with players: `, players);
+          TableConcerns.init(roomChan, name, players);
           PlayerMessages.init(roomChan, name);
           RoomMessages.init(roomChan);
-          console.log("room_joined", payload);
         });
       });
     });
@@ -55,11 +51,6 @@ let Connection = {
     socket.connect();
     let channel = socket.channel("players:lobby", {});
     
-    /*
-    TableConcerns.init(channel, name);
-    PlayerMessages.init(channel, name);
-    RoomMessages.init(channel);
-    */
     this.me = name;
     
     
@@ -67,7 +58,7 @@ let Connection = {
     .receive("ok", initialPlayers => {
       SpinnerAnimation.fadeOnSignin();
       Materialize.toast(`Welcome to PokerEx, ${name}`, 3000, 'rounded');
-      this.setRoomsLinks(socket, name);
+      this.setRoomsLinks(socket, name, channel);
       console.log("joined lobby", name);
       /* if(!(initialPlayers.players === null)) {
         initialPlayers.players.forEach(player => {

@@ -18,6 +18,7 @@ export default class SpinnerAnimation {
     console.log("onJoinRoom function called");
     $(".collection").fadeOut(400, () => {
         $(".card-table").addClass("slide-onscreen-right");
+        $(".player-controls").addClass("slide-onscreen-right");
       });
     
     $(".join-spinner").removeClass("active");

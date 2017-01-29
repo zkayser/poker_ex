@@ -30,6 +30,20 @@ export default class PlayerMessages {
       Player.fold(name, channel);
     });
     
+    channel.on("room_joined", ({player}) => {
+      console.log("got room_joined with player: ", player);
+      
+      let p = new Player(player.name, player.chips);
+      if (p.name == name) {
+        this.player = p;
+        // p.renderPlayerInfo();
+      }
+      let msg = Player.addToList(player);
+      MessageBox.appendAndScroll(msg);
+      
+    });
+    
+    /*
     channel.on("player_joined", ({player}) => {
       let p = new Player(player.name, player.chips);
       if (p.name == name) {
@@ -38,11 +52,18 @@ export default class PlayerMessages {
       }
       let msg = Player.addToList(player);
       MessageBox.appendAndScroll(msg);
-      
-    });
+    }); */
     
     channel.on("chip_update", (payload) => {
-      if (name == payload.player) {
+      console.log("got chip_update with payload: ", payload);
+
+      if (name == payload.player && this.player == undefined) {
+        if (this.player == undefined) {
+         this.player = new Player(payload.player, payload.chips); 
+        }
+        this.player.chips = payload.chips;
+        this.player.renderPlayerInfo();
+      } else if (name == payload.player) {
         this.player.chips = payload.chips;
         this.player.renderPlayerInfo();
       } 
