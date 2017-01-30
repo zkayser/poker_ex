@@ -59,8 +59,16 @@
 	h3 .alert {
 		padding-left: 0;
 	}
+	
+	.menu-dropdown {
+		visibility: hidden;
+	}
 }
 
+.nav-wrapper .menu-dropdown {
+	margin-top: 75%;
+	font-size: 3em;
+}
 
 .top-nav {
 	height: 122px;

@@ -17,7 +17,12 @@
     <header>
       <nav class="top-nav teal darken-4">
         <div class="container">
-          <div class="nav-wrapper"><a class="page-title">PokerEx</a></div>
+          <div class="nav-wrapper">
+            <a class="page-title">PokerEx</a>
+            <div class="right">
+               <i class="material-icons dp48 white-text menu-dropdown" data-activates="slide-out">reorder</i>
+            </div>
+          </div>
         </div>
       </nav>
       <div class="container hide-on-med-and-down"><a href="#" data-activates="nav-mobile" class="button-collapse top-nav full hide-on-large-only"><i class="material-icons">menu</i></a></div>
@@ -42,6 +47,27 @@
             
           </ul>
         </div>
+      </ul>
+      <ul id="slide-out" class="side-nav">
+      <li><div class="userView">
+        <%= if @current_player do %>
+           <div class="background">
+            <img src="images/office.jpg">
+          </div>
+          <a href="#"><span class="white-text name"><%= @current_player.name %></span></a>
+          <a href="#"><span class="white-text email"><%= @current_player.email %></span></a>
+        <% end %>
+      </div>
+      </li>
+        <%= if @current_player do %>
+          <li><%= @current_player.name %></li>
+          <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
+        <% else %>
+          <li><%= link "Register", to: player_path(@conn, :new) %></li>
+          <li><%= link "Log in", to: session_path(@conn, :new) %></li>
+        <% end %>
+        <li class="bold"><a href="#" class="waves-effect waves-teal">Getting Started</a></li>  
+        <li class="bold"><a href="#" class="waves-effect waves-teal">Online</a></li>
       </ul>
     </header>    
 
@@ -79,5 +105,6 @@
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+    <script>$(".menu-dropdown").sideNav();</script>
   </body>
 </html>

@@ -48,14 +48,10 @@ if (joinButton && joinInput) {
 	}
 
 // Dismisses any flash alerts
-if ($(".alert")) {
+if ($(".alert-info").text().trim().length || $(".alert-danger").text().trim().length) {
 	setTimeout(() => {
 		$(".alert").fadeOut(500, () => {
 			$(".alert").css({"visibility": "hidden", display: "block"}).slideUp();
 		});
 	}, 5000);
 }
-	
-
-
-
