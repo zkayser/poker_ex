@@ -19,7 +19,7 @@ defmodule PokerEx.Mixfile do
   def application do
     [mod: {PokerEx, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex]]
+                    :phoenix_ecto, :postgrex, :comeonin]]
   end
 
   # Specifies which paths to compile per environment.
@@ -39,7 +39,8 @@ defmodule PokerEx.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:ex_doc, "~> 0.12"},
-     {:gen_fsm, "~> 0.1.0"}]
+     {:gen_fsm, "~> 0.1.0"},
+     {:comeonin, "~> 2.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
