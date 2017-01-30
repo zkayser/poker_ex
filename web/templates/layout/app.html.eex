@@ -79,7 +79,7 @@
             <div class="card-panel blue">
               <div class="row">
                 <div class="col s12">
-                   <h3 class="alert-info white-text center-align" role="alert"><%= get_flash(@conn, :info) %></h3>
+                   <h4 class="alert-info white-text center-align" role="alert"><%= get_flash(@conn, :info) %></h4>
                 </div>
               </div>
             </div>
@@ -88,7 +88,7 @@
             <div class="card-panel red">
               <div class="row">
                 <div class="col s12">
-                  <h3 class="alert-danger white-text center-align" role="alert"><%= get_flash(@conn, :error) %></h3>
+                  <h5 class="alert-danger white-text center-align" role="alert"><%= get_flash(@conn, :error) %></h5>
                 </div>
               </div>
             </div>

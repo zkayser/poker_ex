@@ -36,6 +36,7 @@ defmodule PokerEx.Web do
 
       import PokerEx.Router.Helpers
       import PokerEx.Gettext
+      import PokerEx.Auth, only: [authenticate_player: 2]
     end
   end
 
@@ -58,6 +59,8 @@ defmodule PokerEx.Web do
   def router do
     quote do
       use Phoenix.Router
+      
+      import PokerEx.Auth, only: [authenticate_player: 2]
     end
   end
 
