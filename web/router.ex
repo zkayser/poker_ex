@@ -17,7 +17,7 @@ defmodule PokerEx.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    get "/:id", RoomController, :show
+    resources "/players", PlayerController, only: [:index, :show, :new, :create]
   end
 
   # Other scopes may use custom stacks.
