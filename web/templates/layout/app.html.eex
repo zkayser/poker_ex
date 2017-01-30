@@ -47,8 +47,28 @@
 
 
       <div class="container">
-      <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
-      <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
+      <div class="alert row">
+        <div class="col s12">
+          <%= if get_flash(@conn, :info) do %>
+            <div class="card-panel blue">
+              <div class="row">
+                <div class="col s12">
+                   <h3 class="alert-info white-text center-align" role="alert"><%= get_flash(@conn, :info) %></h3>
+                </div>
+              </div>
+            </div>
+          <% end %>
+          <%= if get_flash(@conn, :error) do %>
+            <div class="card-panel red">
+              <div class="row">
+                <div class="col s12">
+                  <h3 class="alert-danger white-text center-align" role="alert"><%= get_flash(@conn, :error) %></h3>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
 
       <main role="main">
         <%= render @view_module, @view_template, assigns %>

@@ -51,6 +51,14 @@
 	header {
 	padding-left: 300px;
 }
+
+	div .alert {
+		padding-left: 300px;
+	}
+	
+	h3 .alert {
+		padding-left: 0;
+	}
 }
 
 

@@ -47,5 +47,15 @@ if (joinButton && joinInput) {
 		}
 	}
 
+// Dismisses any flash alerts
+if ($(".alert")) {
+	setTimeout(() => {
+		$(".alert").fadeOut(500, () => {
+			$(".alert").css({"visibility": "hidden", display: "block"}).slideUp();
+		});
+	}, 5000);
+}
+	
+
 
 
