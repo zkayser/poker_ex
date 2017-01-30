@@ -1,0 +1,13 @@
+<h1>Login</h1>
+
+<div class="row">
+  <%= form_for @conn, session_path(@conn, :create), [as: :session, class: "col s12"], fn f -> %>
+  <div class="row">
+    <%= text_input f, :name, placeholder: "Username", class: "input-field, col s12" %>
+  </div>
+  <div class="row">
+    <%= password_input f, :password, placeholder: "Password", class: "input-field col s12" %>
+  </div>
+  <%= submit "Log in", class: "waves-effect waves-light btn" %>
+  <% end %>
+</div>

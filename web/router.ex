@@ -19,6 +19,7 @@ defmodule PokerEx.Router do
 
     get "/", PageController, :index
     resources "/players", PlayerController, only: [:index, :show, :new, :create]
+    resources "/sessions", SessionController, only: [:new, :create, :delete]
   end
 
   # Other scopes may use custom stacks.

@@ -27,6 +27,13 @@
               <img src="images/office.jpg">
             </div>
           </div>
+        <%= if @current_player do %>
+          <li><%= @current_player.name %></li>
+          <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
+        <% else %>
+          <li><%= link "Register", to: player_path(@conn, :new) %></li>
+          <li><%= link "Log in", to: session_path(@conn, :new) %></li>
+        <% end %>
         <li class="bold"><a href="#" class="waves-effect waves-teal">Getting Started</a></li>  
         <li class="bold"><a href="#" class="waves-effect waves-teal">Online</a></li>
         <li><div class="divider"></div></li>
