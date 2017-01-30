@@ -12,15 +12,23 @@
       <%= text_input f, :name, placeholder: "Username", class: "form-control" %>
       <%= error_tag f, :name %>
     </div>
+    <div class="input-field col s6">
+      <%= text_input f, :first_name, placeholder: "First name" %>
+      <%= error_tag f, :first_name %>
+    </div>
+    <div class="input-field col s6">
+      <%= text_input f, :last_name, placeholder: "Last name" %>
+      <%= error_tag f, :last_name %>
+    </div>
     <div class="input-field col s12">
-      <%= text_input f, :real_name, placeholder: "first_name last_name" %>
-      <%= error_tag f, :real_name %>
+      <%= text_input f, :email, placeholder: "Email address" %>
+      <%= error_tag f, :email %>
     </div>
     <div class="input-field col s12">
       <%= text_input f, :password, placeholder: "Password" %>
       <%= error_tag f, :password %>
     </div>
-    <%= submit "Create Player", class: "waves-effect waves-light btn" %>
+    <%= submit "Sign up", class: "waves-effect waves-light btn" %>
   </div>
   <% end %>
 </div>

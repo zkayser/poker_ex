@@ -4,7 +4,8 @@ defmodule PokerEx.Player do
 	
 	schema "players" do
 		field :name, :string
-		field :real_name, :string
+		field :first_name, :string
+		field :last_name, :string
 		field :email, :string
 		field :chips, :integer
 		field :password, :string, virtual: true
@@ -62,11 +63,18 @@ defmodule PokerEx.Player do
 		AppState.get_and_update(player)
 	end
 	
+	def full_name(%Player{first_name: first, last_name: last}) do
+		"#{first} #{last}"
+	end
+	def full_name(_), do: nil
+	
 	def changeset(model, params \\ :empty) do
 		model
-		|> cast(params, ~w(name real_name), [])
+		|> cast(params, ~w(name first_name last_name email), [])
+		|> put_change(:chips, 1000)
 		|> validate_length(:name, min: 1, max: 20)
 		|> unique_constraint(:name)
+		|> unique_constraint(:email)
 	end
 	
 	def registration_changeset(model, params) do
