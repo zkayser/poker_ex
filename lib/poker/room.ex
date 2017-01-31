@@ -7,6 +7,7 @@ defmodule PokerEx.Room do
 	alias PokerEx.Hand
 	alias PokerEx.Room.Updater
 	alias PokerEx.Room.BetTracker
+	alias PokerEx.Repo
 	
 	@big_blind 10
 	@small_blind 5
@@ -541,7 +542,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event({:call, from}, :player_list, state, %Room{seating: seating} = room) do
-		players = Enum.map(seating, fn {player, _} -> PokerEx.AppState.get(player) |> Map.from_struct() end)
+		players = Enum.map(seating, fn {player, _} -> Repo.get_by(Player, name: player) end)
 		{:next_state, state, room, [{:reply, from, players}]}
 	end
 	

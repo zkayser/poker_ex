@@ -560,8 +560,9 @@ defmodule PokerEx.Room.Updater do
     updated_seating =    
       Enum.reject(seating, 
         fn {player, _seat} ->
-          if PokerEx.AppState.get(player).chips == 0, do: Events.player_left(room.room_id, player)
-          PokerEx.AppState.get(player).chips == 0
+          pl_struct = PokerEx.Repo.get_by(PokerEx.Player, name: player)
+          if pl_struct.chips == 0, do: Events.player_left(room.room_id, player)
+          pl_struct.chips == 0
         end)
         
     update =    

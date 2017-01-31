@@ -2,6 +2,7 @@ defmodule PokerEx.Player do
 	
 	use PokerEx.Web, :model
 	
+	@derive {Poison.Encoder, only: [:chips, :name]}
 	schema "players" do
 		field :name, :string
 		field :first_name, :string
@@ -23,7 +24,6 @@ defmodule PokerEx.Player do
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
 	
-	
 	# No longer have any use for this function after shifting to Ecto-backed model
 	@spec new(String.t, pos_integer) :: Player.t
 	def new(name, chips \\ 1000) do
@@ -33,18 +33,15 @@ defmodule PokerEx.Player do
 	# This is going to have side effects and should ideally be moved into a different module
 	@spec bet(String.t, non_neg_integer, atom()) :: Player.t | {:insufficient_chips, non_neg_integer}
 	def bet(name, amount, room_id \\ nil) do
-		IO.puts "\nIn bet call with params: name - #{inspect(name)}; amount - #{inspect(amount)}; and room_id: #{inspect(room_id)}"
 	
 		player = case Repo.one from(p in Player, where: p.name == ^name) do
 			nil -> :player_not_found
 			player -> player
 		end
-		IO.puts "\nAfter player Repo case with player: #{inspect(player)}"
 		
 		cond do
 			player.chips > amount ->
 				changeset = chip_changeset(player, %{"chips" => player.chips - amount})
-				IO.puts "\nCond statement happy path with changeset: #{inspect(changeset)}"
 				case Repo.update(changeset) do
 					{:ok, player_struct} -> 
 						Events.chip_update(room_id, player, player.chips - amount)

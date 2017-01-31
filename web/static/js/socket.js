@@ -6,9 +6,32 @@ import PlayerMessages from './messages/player-messages';
 import TableConcerns from "./table-concerns";
 import RoomMessages from './messages/room-messages';
 import SpinnerAnimation from "./animations/spinner-animations";
-import MessageBox from './message-box';
+import RoomsListAnimation from "./animations/rooms-list-animation";
 
 let Connection = {
+  
+  init(){
+    let Materialize = window.Materialize;
+    // The server will now give you back a player_id rather than a name.
+    // Consequently, the params will be modified to {token: window.playerToken}
+    // rather than {name: name}
+    let socket = new Socket('/socket', {params: 
+      {token: window.playerToken},
+      logger: (kind, msg, data) => {console.log(`${kind}:${msg}`, data)}
+      });
+    socket.connect();
+    let channel = socket.channel("players:lobby", {});
+    
+    
+    channel.join()
+    .receive("ok", ({name}) => {
+      SpinnerAnimation.fadeOnSignin();
+      Materialize.toast(`Welcome to PokerEx, ${name}`, 3000, 'rounded');
+      this.setRoomsLinks(socket, name, channel);
+      RoomsListAnimation.animate();
+    });
+    
+  },
   
   setRoomsLinks(socket, name, lobby) {
     let links = document.getElementsByTagName('a');
@@ -43,39 +66,7 @@ let Connection = {
     });
   
     console.log("setRoomsLinks called and classArray: ", classArray);
-  },
-   
-  init(name){
-    let Materialize = window.Materialize;
-    // The server will now give you back a player_id rather than a name.
-    // Consequently, the params will be modified to {token: window.playerToken}
-    // rather than {name: name}
-    let socket = new Socket('/socket', {params: 
-      {token: window.playerToken},
-      logger: (kind, msg, data) => {console.log(`${kind}:${msg}`, data)}
-      });
-    socket.connect();
-    let channel = socket.channel("players:lobby", {});
-    
-    this.me = name;
-    
-    
-    channel.join()
-    .receive("ok", initialPlayers => {
-      SpinnerAnimation.fadeOnSignin();
-      Materialize.toast(`Welcome to PokerEx, ${name}`, 3000, 'rounded');
-      this.setRoomsLinks(socket, name, channel);
-      console.log("joined lobby", name);
-      /* if(!(initialPlayers.players === null)) {
-        initialPlayers.players.forEach(player => {
-          let msg = Player.addToList(player.name);
-          MessageBox.appendAndScroll(msg);
-        });
-      } */
-      channel.push("new_msg", {body: name});
-    });
-    
-  },
+  }
 };
 
 export default Connection;

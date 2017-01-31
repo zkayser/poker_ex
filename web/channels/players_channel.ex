@@ -4,14 +4,15 @@ defmodule PokerEx.PlayersChannel do
 	alias PokerEx.Room
 	alias PokerEx.Endpoint
 	alias PokerEx.Repo
+	alias PokerEx.PlayerView
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	intercept ["new_msg"]
 
 	def join("players:lobby", message, socket) do
 		send(self(), {:after_join, message})
-
-		{:ok, %{}, socket}
+		player_name = Repo.get(Player, socket.assigns[:player_id]).name
+		{:ok, %{name: player_name}, socket}
 	end
 	def join("players:" <> room_id, params, socket) do
 		send(self(), {:after_join_room, room_id, params})
@@ -54,7 +55,11 @@ defmodule PokerEx.PlayersChannel do
 		|> atomize()
 		|> Room.join(player)
 		
-		players = room_id |> atomize() |> Room.player_list()
+		players = 
+			room_id 
+			|> atomize() 
+			|> Room.player_list()
+		IO.puts "\nIn :after_join_room callback with room_id: #{room_id} and players list: #{inspect(players)}"
 		
 		seating = 
 			case Room.state(room_id |> atomize()).seating do
@@ -62,16 +67,13 @@ defmodule PokerEx.PlayersChannel do
 				[] -> nil
 				{name, pos} -> %{name: name, position: pos} 
 			end
-		# broadcast! socket, "player_joined", %{player: player, seating: seating}
-		#case Room.join(room_id |> atomize(), player) do
-		#	{:game_begin, _, active, hands} ->
-		#		send(self(), {:game_begin, hd(active), hands})
-		#	_ ->
-		#		:ok
-		# end
-		broadcast! socket, "room_joined", %{player: player, players: players, room_id: room_id}
+		
+		IO.puts "Player: #{inspect(player)}"
+		
+		broadcast! socket, "room_joined", 
+			%{player: PlayerView.render("show.json", %{player: player}), room_id: room_id}
+			|> Map.merge(PlayerView.render("index.json", %{players: players}))
 		broadcast! socket, "player_joined", %{player: player.name, seating: seating}
-		IO.puts "Room_id: #{inspect(room_id)}"
 		# Endpoint.broadcast("room:" <> room_id, "room_joined", %{player: player, players: players, room_id: room_id})
 
 		{:noreply, socket}
