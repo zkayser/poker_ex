@@ -18,9 +18,6 @@ import "phoenix_html";
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import Connection from "./socket";
-import $ from "jquery";
-import SpinnerAnimation from "./animations/spinner-animations";
 import loadView from './views/loader';
 
 function handleDOMContentLoaded() {
@@ -39,37 +36,3 @@ function handleDocumentUnload() {
 
 window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
 window.addEventListener('unload', handleDocumentUnload, false);
-
-let joinButton = document.querySelector(".join-btn");
-let joinInput = document.querySelector("#join-input");
-
-if (joinButton && joinInput) {
-
-	joinButton.addEventListener('click', handleJoin);
-	joinInput.addEventListener('keypress', (e) => {
-		if (e.charCode === 13) {
-			SpinnerAnimation.initiateSpinnerOnElement($(".login-spinner"), $(".signup"));
-			handleJoin();
-		}
-	});
-}
-	
-	function handleJoin() {
-		let name = joinInput.value;
-		joinInput.value = "";
-		if (name.length > 0) {
-			Connection.init(name.trim());
-		}	else {
-				SpinnerAnimation.terminateSpinnerOnElement($(".login-spinner"), $(".signup"));
-				alert("You must enter a name to join");
-		}
-	}
-
-// Dismisses any flash alerts
-if ($(".alert-info").text().trim().length || $(".alert-danger").text().trim().length) {
-	setTimeout(() => {
-		$(".alert").fadeOut(500, () => {
-			$(".alert").css({"visibility": "hidden", display: "block"}).slideUp();
-		});
-	}, 5000);
-}

@@ -24,27 +24,6 @@ defmodule PokerEx.PlayersChannel do
 		player = Repo.get(Player, socket.assigns[:player_id]).name
 		broadcast! socket, "welcome_player", %{player: player}
 		
-		# The code below is from when the app was limited to a single
-		# table that was joined upon signup. That is no longer the case,
-		# but I am keeping this around for reference later when the client 
-		# side gets readjusted.
-		
-		# Seating sends back a list of tuples that need to be
-		# encoded to send with Poison. Break this out to a separate
-		# module later.
-		#seating = 
-		#	case Room.state.seating do
-		#		s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
-		#		[] -> nil
-		#		{name, pos} -> %{name: name, position: pos} 
-		#	end
-		#broadcast! socket, "player_joined", %{player: player, seating: seating}
-		#case Room.join(player) do
-		#	{:game_begin, _, active, hands} ->
-		#		send(self(), {:game_begin, hd(active), hands})
-		#	_ ->
-		#		:ok
-		#end
 		{:noreply, socket}
 	end
 	
@@ -59,7 +38,6 @@ defmodule PokerEx.PlayersChannel do
 			room_id 
 			|> atomize() 
 			|> Room.player_list()
-		IO.puts "\nIn :after_join_room callback with room_id: #{room_id} and players list: #{inspect(players)}"
 		
 		seating = 
 			case Room.state(room_id |> atomize()).seating do
@@ -68,13 +46,10 @@ defmodule PokerEx.PlayersChannel do
 				{name, pos} -> %{name: name, position: pos} 
 			end
 		
-		IO.puts "Player: #{inspect(player)}"
-		
 		broadcast! socket, "room_joined", 
 			%{player: PlayerView.render("show.json", %{player: player}), room_id: room_id}
 			|> Map.merge(PlayerView.render("index.json", %{players: players}))
 		broadcast! socket, "player_joined", %{player: player.name, seating: seating}
-		# Endpoint.broadcast("room:" <> room_id, "room_joined", %{player: player, players: players, room_id: room_id})
 
 		{:noreply, socket}
 	end
@@ -133,17 +108,15 @@ defmodule PokerEx.PlayersChannel do
 	# Terminate #
 	#############
 	
-	#def terminate(_message, socket) do
-	
-	# Also a remnant of earlier design
-	#	player = socket.assigns.player_name
-	#	player = AppState.get(player)
-	#	AppState.delete(player)
-	#	Room.leave(player)
-	#	broadcast! socket, "player_left", %{body: player}
-	#	{:shutdown, :left}
-	#end
-	
+	def terminate(_message, socket) do
+		room_id = socket.assigns[:room]
+		player = Repo.get(Player, socket.assigns[:player_id])
+		room_id
+			|> atomize()
+			|> Room.leave(player.name)
+		broadcast! socket, "player_left", %{body: player.name}
+		{:shutdown, :left}
+	end
 	
 	#####################
 	# Utility functions #
