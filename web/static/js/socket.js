@@ -47,7 +47,13 @@ let Connection = {
    
   init(name){
     let Materialize = window.Materialize;
-    let socket = new Socket('/socket', {params: {name: name}});
+    // The server will now give you back a player_id rather than a name.
+    // Consequently, the params will be modified to {token: window.playerToken}
+    // rather than {name: name}
+    let socket = new Socket('/socket', {params: 
+      {token: window.playerToken},
+      logger: (kind, msg, data) => {console.log(`${kind}:${msg}`, data)}
+      });
     socket.connect();
     let channel = socket.channel("players:lobby", {});
     

@@ -1,0 +1,31 @@
+<div class="row">
+  <div class="preloader-wrapper big join-spinner">
+    <div class="spinner-layer spinner-green-only">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div>
+  
+  <ul class="collection" id="staggered">
+    <%= for room <- sort_rooms(@rooms) do %>
+      <li class="collection-item avatar" id="staggered-list-item">
+        <i class="material-icons circle green">play_arrow</i>
+        <span class="title teal-text"><%= room_id(room) %></span>
+        <p>
+          <span id="<%= (Atom.to_string(room.room_id)) %>">Players: <%= players_in_room(room) %></span><br>
+          <%= link "Join Room", to: "#", class: Atom.to_string(room.room_id) %>
+        </p>
+      </li>
+    <% end %>
+  </ul>
+  
+  <div class="table-container" id="offscreen-left">
+    <%= render "_table.html" %>
+  </div>
+</div>
+  

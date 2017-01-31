@@ -17,50 +17,70 @@ defmodule PokerEx.Player do
 	alias PokerEx.Player
 	alias PokerEx.AppState
 	alias PokerEx.Events
+	alias PokerEx.Repo
 	
-	@type t :: %Player{name: String.t, chips: non_neg_integer}
+	@type t :: %Player{name: String.t, chips: non_neg_integer, first_name: String.t | nil, 
+										 last_name: String.t | nil, email: String.t, password_hash: String.t
+										}
 	
-	# defstruct name: nil, chips: nil
 	
+	# No longer have any use for this function after shifting to Ecto-backed model
 	@spec new(String.t, pos_integer) :: Player.t
 	def new(name, chips \\ 1000) do
 		%Player{name: name, chips: chips}
 	end
 	
+	# This is going to have side effects and should ideally be moved into a different module
 	@spec bet(String.t, non_neg_integer, atom()) :: Player.t | {:insufficient_chips, non_neg_integer}
 	def bet(name, amount, room_id \\ nil) do
-		player = case AppState.get(name) do
-			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
-			_ -> :player_not_found
+		IO.puts "\nIn bet call with params: name - #{inspect(name)}; amount - #{inspect(amount)}; and room_id: #{inspect(room_id)}"
+	
+		player = case Repo.one from(p in Player, where: p.name == ^name) do
+			nil -> :player_not_found
+			player -> player
 		end
+		IO.puts "\nAfter player Repo case with player: #{inspect(player)}"
 		
-		case player.chips > amount do
-			true -> 
-				Events.chip_update(room_id, player, player.chips - amount)
-				Events.pot_update(room_id, amount)
-				%Player{player | chips: player.chips - amount} |> update
-			_ -> 
+		cond do
+			player.chips > amount ->
+				changeset = chip_changeset(player, %{"chips" => player.chips - amount})
+				IO.puts "\nCond statement happy path with changeset: #{inspect(changeset)}"
+				case Repo.update(changeset) do
+					{:ok, player_struct} -> 
+						Events.chip_update(room_id, player, player.chips - amount)
+						Events.pot_update(room_id, amount)
+						player_struct
+					{:error, _} ->
+						{:error, "could not update chips"}
+				end
+			true ->
 				total = player.chips
-				Events.chip_update(room_id, player, 0)
-				Events.pot_update(room_id, total)
-				%Player{player | chips: 0} |> update
-				{:insufficient_chips, total}
+				changeset = chip_changeset(player, %{"chips" => total})
+				case Repo.update(changeset) do
+					{:ok, _} ->
+						Events.chip_update(room_id, player, 0)
+						Events.pot_update(room_id, total)
+						{:insufficient_chips, total}
+				end
 		end
 	end
 	
+	# Same as above
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
 	def reward(name, amount, room_id) do
-		player = case AppState.get(name) do
-			%Player{name: name, chips: chips} -> %Player{name: name, chips: chips}
-			_ -> :player_not_found
+	
+		player = case Repo.one from(p in Player, where: p.name == ^name) do
+			nil -> :player_not_found
+			player -> player
 		end
 		
-		Events.chip_update(room_id, player, player.chips + amount)
-		%Player{ player | chips: player.chips + amount} |> update
-	end
-	
-	def update(player) do
-		AppState.get_and_update(player)
+		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+		case Repo.update(changeset) do
+			{:ok, player_struct} -> 
+				Events.chip_update(room_id, player, player.chips + amount)
+				player_struct
+			{:error, _} -> {:error, "problem updating chips"}
+		end
 	end
 	
 	def full_name(%Player{first_name: first, last_name: last}) do
@@ -83,6 +103,11 @@ defmodule PokerEx.Player do
 		|> cast(params, ~w(password), [])
 		|> validate_length(:password, min: 6, max: 100)
 		|> put_pass_hash()
+	end
+	
+	def chip_changeset(model, %{"chips" => chips} = params) do
+		model
+		|> cast(params, ~w(chips), [])
 	end
 	
 	defp put_pass_hash(changeset) do

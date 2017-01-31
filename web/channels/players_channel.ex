@@ -1,9 +1,9 @@
 defmodule PokerEx.PlayersChannel do
 	use Phoenix.Channel
-	alias PokerEx.AppState
 	alias PokerEx.Player
 	alias PokerEx.Room
 	alias PokerEx.Endpoint
+	alias PokerEx.Repo
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	intercept ["new_msg"]
@@ -20,7 +20,7 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	def handle_info({:after_join, _message}, socket) do
-		player = socket.assigns.player_name
+		player = Repo.get(Player, socket.assigns[:player_id]).name
 		broadcast! socket, "welcome_player", %{player: player}
 		
 		# The code below is from when the app was limited to a single
@@ -49,7 +49,7 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_info({:after_join_room, room_id, _params}, socket) do
 		socket = assign(socket, :room, room_id)
-		player = Player.new(socket.assigns.player_name) |> AppState.put()
+		player = Repo.get(Player, socket.assigns[:player_id])
 		room_id
 		|> atomize()
 		|> Room.join(player)
@@ -99,22 +99,22 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
-		Room.raise(socket.assigns.room |> atomize(), AppState.get(player), amount)
+		Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_called", %{"player" => player}, socket) do
-		Room.call(socket.assigns.room |> atomize(), AppState.get(player))
+		Room.call(socket.assigns.room |> atomize(), get_player_by_name(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_folded", %{"player" => player}, socket) do
-		Room.fold(socket.assigns.room |> atomize(), AppState.get(player))
+		Room.fold(socket.assigns.room |> atomize(), get_player_by_name(player))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_checked", %{"player" => player}, socket) do
-		Room.check(socket.assigns.room |> atomize(), AppState.get(player))
+		Room.check(socket.assigns.room |> atomize(), get_player_by_name(player))
 		{:noreply, socket}
 	end
 	
@@ -149,4 +149,9 @@ defmodule PokerEx.PlayersChannel do
 	
 	defp atomize(str) when is_binary(str), do: String.to_atom(str)
 	defp atomize(_), do: :error
+	
+	defp get_player_by_name(name) when is_binary(name) do
+		Repo.get_by(Player, name: name)
+	end
+	defp get_player_by_name(_), do: :error
 end
