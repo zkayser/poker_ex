@@ -21,6 +21,24 @@ import "phoenix_html";
 import Connection from "./socket";
 import $ from "jquery";
 import SpinnerAnimation from "./animations/spinner-animations";
+import loadView from './views/loader';
+
+function handleDOMContentLoaded() {
+	const viewName = document.getElementsByTagName('body')[0].dataset.jsViewName;
+	
+	const VIEW_CLASS = loadView(viewName);
+	const view = new VIEW_CLASS();
+	view.mount();
+	
+	window.currentView = view;
+}
+
+function handleDocumentUnload() {
+	window.currentView.unmount();
+}
+
+window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
+window.addEventListener('unload', handleDocumentUnload, false);
 
 let joinButton = document.querySelector(".join-btn");
 let joinInput = document.querySelector("#join-input");

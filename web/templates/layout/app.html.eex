@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
-  <body>
+  <body data-js-view-name="<%= js_view_name(@conn, @view_template)%>">
     <header>
       <nav class="top-nav teal darken-4">
         <div class="container">
@@ -29,7 +29,7 @@
       <ul id="nav-mobile" class="side-nav fixed">
           <div class="search-wrapper card">
             <div class="card-image">
-              <img src="images/office.jpg">
+              <img src="<%= static_path(@conn, "/images/office.jpg")%>">
             </div>
           </div>
         <%= if @current_player do %>
@@ -52,7 +52,7 @@
       <li><div class="userView">
         <%= if @current_player do %>
            <div class="background">
-            <img src="images/office.jpg">
+            <img src="<%= static_path(@conn, "/images/office.jpg")%>">
           </div>
           <a href="#"><span class="white-text name"><%= @current_player.name %></span></a>
           <a href="#"><span class="white-text email"><%= @current_player.email %></span></a>
