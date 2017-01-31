@@ -18,8 +18,6 @@ defmodule PokerEx.Room.BetTracker do
   
       iex> active = [{"A", 0}, {"B", 1}]
       iex> room = %Room{current_big_blind: 1, current_small_blind: 0, active: active}
-      iex> PokerEx.AppState.put(PokerEx.Player.new("A"))
-      iex> PokerEx.AppState.put(PokerEx.Player.new("B"))
       iex> room = BetTracker.post_blind(room, 10, :big_blind)
       iex> {room.to_call, room.round, room.pot, room.paid}
       {10, %{"B" => 10}, 10, %{"B" => 10}}
@@ -68,8 +66,6 @@ defmodule PokerEx.Room.BetTracker do
   
       iex> room = %Room{active: [{"A", 0}, {"B", 1}], to_call: 20, round: %{"B" => 20, "A" => 5},
       ...> paid: %{"B" => 20, "A" => 5}, called: ["B"], pot: 25}
-      iex> PokerEx.AppState.put(PokerEx.Player.new("A"))
-      iex> PokerEx.AppState.put(PokerEx.Player.new("B"))
       iex> room = BetTracker.raise(room, "A", 40)
       iex> {room.to_call, room.called, room.round, room.pot, room.paid}
       {40, ["A"], %{"A" => 40, "B" => 20}, 60, %{"A" => 40, "B" => 20}}
@@ -109,8 +105,6 @@ defmodule PokerEx.Room.BetTracker do
   
       iex> room = %Room{to_call: 30, round: %{"A" => 20, "B" => 30}, paid: %{"A" => 20, "B" => 30},
       ...> active: [{"A", 0}, {"B", 1}], pot: 50, called: ["B"]}
-      iex> PokerEx.AppState.put(PokerEx.Player.new("A"))
-      iex> PokerEx.AppState.put(PokerEx.Player.new("B"))
       iex> room = BetTracker.call(room, "A")
       iex> {room.to_call, room.called, room.round, room.paid, room.pot}
       {30, ["A", "B"], %{"A" => 30, "B" => 30}, %{"A" => 30, "B" => 30}, 60}

@@ -1,8 +1,8 @@
-defmodule PokerEx.Room2Test do
+defmodule PokerEx.RoomTest do
   use ExUnit.Case
   alias PokerEx.Room
-  alias PokerEx.AppState
   alias PokerEx.Player
+  alias PokerEx.Repo
   
   setup do
     room = 
@@ -10,12 +10,25 @@ defmodule PokerEx.Room2Test do
         {:ok, pid} -> pid
         {:error, _} -> Process.whereis(:test)
       end
-      
-    players = [p1, p2, p3, p4] = for x <- 1..4, do: Player.new("Player #{x}")
-    Enum.each(players, fn p -> AppState.put(p) end)
     
-    on_exit fn -> Process.exit(room, :kill) end
-    on_exit fn -> Enum.each(players, fn p -> AppState.delete(p) end) end
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+    Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
+    
+    [p1, p2, p3, p4] = 
+      for x <- 1..4 do
+        changeset = Player.registration_changeset(%Player{}, 
+          %{
+            "name" => "Player #{x}", 
+            "email" => "email#{x}@mail.com",
+            "password" => "password",
+            "first_name" => "#{x}",
+            "last_name" => "#{x}"
+          })
+        Repo.insert(changeset)
+      end
+    |> Enum.map(fn {:ok, player} -> player end)
+    
+    # on_exit fn -> Process.exit(room, :kill) end
     
     [room: room, p1: p1, p2: p2, p3: p3, p4: p4]
   end
@@ -64,9 +77,9 @@ defmodule PokerEx.Room2Test do
       end
       Room.t_raise(p1, 20)
       Room.t_call(p2)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert AppState.get(p2.name).chips > 1000 || AppState.get(p1.name).chips > 1000
+      assert Repo.get_by(Player, name: p2.name).chips > 1000 || Repo.get_by(Player, name: p1.name).chips > 1000
     end
     
     test "a player should be able to join in the middle of an ongoing hand", context do
@@ -88,22 +101,22 @@ defmodule PokerEx.Room2Test do
       [p1, p2, _, _] = players(context)
       Room.t_raise(p1, 40)
       Room.t_fold(p2)
-      Process.sleep(150)
-      assert AppState.get(p2.name).chips < 1000
-      assert AppState.get(p1.name).chips >= 1000
+      Process.sleep(125)
+      assert Repo.get_by(Player, name: p2.name).chips < 1000
+      assert Repo.get_by(Player, name: p1.name).chips >= 1000
     end
     
     test "in head-to-head, the game ends when one player folds in the flop state", context do
       [p1, p2, _, _] = players(context)
-      p1_start = AppState.get(p1.name).chips
-      p2_start = AppState.get(p2.name).chips
+      p1_start = Repo.get_by(Player, name: p1.name).chips
+      p2_start = Repo.get_by(Player, name: p2.name).chips
       Room.t_raise(p1, 40)
       Room.t_call(p2)
       Room.t_raise(p1, 40)
       Room.t_fold(p2)
-      Process.sleep(150)
-      assert p1_start < AppState.get(p1.name).chips
-      refute p2_start < AppState.get(p2.name).chips
+      Process.sleep(125)
+      assert p1_start < Repo.get_by(Player, name: p1.name).chips
+      refute p2_start < Repo.get_by(Player, name: p2.name).chips
     end
   end
   
@@ -121,15 +134,15 @@ defmodule PokerEx.Room2Test do
     
     test "the game should end when all but one player folds", context do
       [p1, p2, p3, p4] = players(context)
-      p4_start = AppState.get(p4.name).chips
+      p4_start = Repo.get_by(Player, name: p4.name).chips
       simulate_pre_flop_betting(context)
       Room.t_raise(p4, 20)
       Room.t_fold(p1)
       Room.t_fold(p2)
       Room.t_fold(p3)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert p4_start < AppState.get(p4.name).chips
+      assert p4_start < Repo.get_by(Player, name: p4.name).chips
     end
     
     test "the active list should be updated properly when a player folds", context do
@@ -150,29 +163,18 @@ defmodule PokerEx.Room2Test do
       [p1, p2, _, _] = players(context)
       Room.t_raise(p1, 1000)
       Room.t_call(p2)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert AppState.get(p1.name).chips > 1000 || AppState.get(p2.name).chips > 1000
-    end
-    
-    test "auto-complete should kick in when both players go all_in in later rounds", context do
-      [p1, p2, _, _] = players(context)
-      Room.t_raise(p1, 20)
-      Room.t_call(p2)
-      Room.t_raise(p1, 1000)
-      Room.t_call(p2)
-      Process.sleep(150)
-      
-      assert AppState.get(p1.name).chips > 1000 || AppState.get(p2.name).chips > 1000
+      assert Repo.get_by(Player, name: p1.name).chips > 1000 || Repo.get_by(Player, name: p2.name).chips > 1000
     end
     
     test "when both players go all in, one player should have 0 chips after the game is finished (unless a tie)", context do
       [p1, p2, _, _] = players(context)
       Room.t_raise(p1, 1000)
       Room.t_call(p2)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert AppState.get(p1.name).chips == 0 || AppState.get(p2.name).chips == 0
+      assert Repo.get_by(Player, name: p1.name).chips == 0 || Repo.get_by(Player, name: p2.name).chips == 0
     end
   end
   
@@ -185,13 +187,13 @@ defmodule PokerEx.Room2Test do
       Room.t_call(p1)
       Room.t_call(p2)
       Room.t_call(p3)
-      Process.sleep(200)
+      Process.sleep(125)
       
       # 2000 is arbitrary, but sufficient to verify that a player won at least
       # double the chips they started out with
       assert Enum.any?(players, 
         fn p -> 
-          AppState.get(p.name).chips >= 2000
+          Repo.get_by(Player, name: p.name).chips >= 2000
         end)
     end
     
@@ -201,9 +203,9 @@ defmodule PokerEx.Room2Test do
       Room.t_call(p1)
       Room.t_fold(p2)
       Room.t_call(p3)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert Enum.any?(players, fn p -> AppState.get(p.name).chips >= 2000 end)
+      assert Enum.any?(players, fn p -> Repo.get_by(Player, name: p.name).chips >= 2000 end)
     end
     
     test "auto-complete kicks in when all players go all_in in later rounds", context do
@@ -213,9 +215,9 @@ defmodule PokerEx.Room2Test do
       Room.t_call(p1)
       Room.t_call(p2)
       Room.t_call(p3)
-      Process.sleep(150)
+      Process.sleep(125)
       
-      assert Enum.any?(players, fn p -> AppState.get(p.name).chips >= 2000 end)
+      assert Enum.any?(players, fn p -> Repo.get_by(Player, name: p.name).chips >= 2000 end)
     end
   end
   

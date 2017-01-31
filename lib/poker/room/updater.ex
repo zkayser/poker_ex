@@ -545,9 +545,14 @@ defmodule PokerEx.Room.Updater do
   the list.
   
   ## Examples
-  
-      iex> PokerEx.AppState.put(PokerEx.Player.new("Michelangelo"))
-      iex> PokerEx.AppState.put(PokerEx.Player.new("Donatello"))
+      iex> changeset = PokerEx.Player.registration_changeset(%PokerEx.Player{}, 
+      ...> %{"name" => "Donatello", "email" => "donnie@turtles.com", "password" => "password",
+      ...>  "first_name" => "D", "last_name" => "T"})
+      iex> changeset2 = PokerEx.Player.registration_changeset(%PokerEx.Player{}, 
+      ...> %{"name" => "Michelangelo", "email" => "Mikie@turtles.com", "password" => "password",
+      ...>  "first_name" => "M", "last_name" => "T"})
+      iex> PokerEx.Repo.insert(changeset)
+      iex> PokerEx.Repo.insert(changeset2)
       iex> PokerEx.Player.bet("Donatello", 1500)
       iex> room = %Room{seating: [{"Donatello", 0}, {"Michelangelo", 1}]}
       iex> room = Updater.remove_players_with_no_chips(room)

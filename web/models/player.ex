@@ -52,7 +52,7 @@ defmodule PokerEx.Player do
 				end
 			true ->
 				total = player.chips
-				changeset = chip_changeset(player, %{"chips" => total})
+				changeset = chip_changeset(player, %{"chips" => 0})
 				case Repo.update(changeset) do
 					{:ok, _} ->
 						Events.chip_update(room_id, player, 0)
