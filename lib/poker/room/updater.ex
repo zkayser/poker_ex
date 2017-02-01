@@ -26,6 +26,7 @@ defmodule PokerEx.Room.Updater do
     seat_number = length(seating)
     new_seating = [{player, seat_number} | Enum.reverse(seating)] |> Enum.reverse
     Events.player_joined(room.room_id, player, seat_number)
+    Events.update_number_players(room.room_id, length(new_seating))
     %Room{ room | seating: new_seating }
   end
   
@@ -71,6 +72,7 @@ defmodule PokerEx.Room.Updater do
   def remove_from_seating(%Room{seating: seating} = room, player) do
     update = Enum.reject(seating, fn {name, _} -> player == name end)
     Events.player_left(room.room_id, player)
+    Events.update_number_players(room.room_id, length(update))
     %Room{ room | seating: update }
    end
   

@@ -17,7 +17,9 @@
         <i class="material-icons circle green">play_arrow</i>
         <span class="title teal-text"><%= room_id(room) %></span>
         <p>
-          <span id="<%= (Atom.to_string(room.room_id)) %>">Players: <%= players_in_room(room) %></span><br>
+          <span id="<%= (Atom.to_string(room.room_id)) %>">Players: 
+            <span id="<%= (Atom.to_string(room.room_id)) %>-players"><%= players_in_room(room) %></span>
+          </span><br>
           <%= link "Join Room", to: "#", class: Atom.to_string(room.room_id) %>
         </p>
       </li>

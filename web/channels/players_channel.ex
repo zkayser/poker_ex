@@ -74,6 +74,15 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	def handle_in("get_num_players", _, socket) do
+		for x <- 1..10 do
+			room = :"room_#{x}"
+			length = length(Room.state(room).seating)
+			broadcast! socket, "update_num_players", %{room: room, length: length}
+		end
+		{:noreply, socket}
+	end
+	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
 		Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)

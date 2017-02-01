@@ -1,7 +1,10 @@
 defmodule PokerEx.RoomView do
   use PokerEx.Web, :view
   
-  def players_in_room(%PokerEx.Room{seating: seating}) when length(seating) > 0 do
+  def players_in_room(%PokerEx.Room{seating: seating}) when length(seating) == 1 do
+    "1 player currently at table"
+  end
+  def players_in_room(%PokerEx.Room{seating: seating}) when length(seating) > 1 do
     "#{length(seating)} players currently at table"
   end
   def players_in_room(_), do: "There are no players currently at the table"

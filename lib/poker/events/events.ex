@@ -3,9 +3,14 @@ defmodule PokerEx.Events do
   alias PokerEx.PlayerEvents
   alias PokerEx.RoomEvents
   alias PokerEx.TableEvents
+  alias PokerEx.LobbyEvents
   
   def player_joined(room_id, player, position) do
     RoomEvents.player_joined(stringify(room_id), player, position)
+  end
+  
+  def update_number_players(room_id, number) do
+    LobbyEvents.update_number_players(stringify(room_id), number)
   end
 
   def game_started(room_id, active, cards) do

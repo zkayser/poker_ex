@@ -1,12 +1,13 @@
 import {Socket} from "phoenix";
 import $ from 'jquery';
 
-import Player from "./player";
 import PlayerMessages from './messages/player-messages';
 import TableConcerns from "./table-concerns";
 import RoomMessages from './messages/room-messages';
+import LobbyMessages from "./messages/lobby-messages";
 import SpinnerAnimation from "./animations/spinner-animations";
 import RoomsListAnimation from "./animations/rooms-list-animation";
+
 
 let Connection = {
   
@@ -25,6 +26,8 @@ let Connection = {
     channel.join()
     .receive("ok", ({name}) => {
       SpinnerAnimation.fadeOnSignin();
+      LobbyMessages.init(channel);
+      channel.push("get_num_players", {});
       Materialize.toast(`Welcome to PokerEx, ${name}`, 3000, 'rounded');
       this.setRoomsLinks(socket, name, channel);
       RoomsListAnimation.animate();
