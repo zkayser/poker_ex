@@ -113,7 +113,7 @@ defmodule PokerEx.PlayersChannel do
 		player = Repo.get(Player, socket.assigns[:player_id])
 		room_id
 			|> atomize()
-			|> Room.leave(player.name)
+			|> Room.leave(player)
 		broadcast! socket, "player_left", %{body: player.name}
 		{:shutdown, :left}
 	end

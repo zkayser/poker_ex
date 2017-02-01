@@ -83,16 +83,6 @@ export default class TableConcerns {
           Materialize.toast(`${amountToCall} to call.`, 2000, 'rounded'); 
         }
       }
-      
-      // If a player leaves the table while still active, the player
-      // gets added to the markedToFold array. Once there, the player
-      // folds automatically when their turn comes around. Then they
-      // are removed from the markedToFold list.
-      if (table.markedToFold.includes(player)) {
-        Player.fold(player, channel);
-        let i = table.markedToFold.indexOf(player);
-        table.markedToFold.splice(i, 1);
-      }
     });
     
     channel.on("call_amount_update", ({amount}) => {
@@ -123,6 +113,7 @@ export default class TableConcerns {
     
     channel.on("player_got_up", payload => {
       table.removePlayerEmblem(payload.player);
+      // markedToFold deprecated...
       table.markedToFold.push(payload.player);
       
       if (table.user == payload.player) {

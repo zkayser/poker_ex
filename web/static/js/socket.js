@@ -12,13 +12,12 @@ let Connection = {
   
   init(){
     let Materialize = window.Materialize;
-    // The server will now give you back a player_id rather than a name.
-    // Consequently, the params will be modified to {token: window.playerToken}
-    // rather than {name: name}
+    
     let socket = new Socket('/socket', {params: 
       {token: window.playerToken},
       logger: (kind, msg, data) => {console.log(`${kind}:${msg}`, data)}
       });
+      
     socket.connect();
     let channel = socket.channel("players:lobby", {});
     
@@ -44,20 +43,16 @@ let Connection = {
       }
     }
     
-    // Does not work when you click on a link and issue
-    // a new request. You need a new strategy.
     
     classArray.forEach((klass) => {
       $(`a.${klass}`).click(() => {
         SpinnerAnimation.initiateSpinnerOnElement($(".join-spinner"), $(".collection"));
         SpinnerAnimation.onJoinRoom();
-        lobby.leave();
         
         let room = klass;
         let roomChan = socket.channel(`players:${room}`, {player: name});
         roomChan.join()
         .receive("ok", ({players}) => {
-          console.log(`Room channel players:${room} joined with players: `, players);
           TableConcerns.init(roomChan, name, players);
           PlayerMessages.init(roomChan, name);
           RoomMessages.init(roomChan);
@@ -65,7 +60,6 @@ let Connection = {
       });
     });
   
-    console.log("setRoomsLinks called and classArray: ", classArray);
   }
 };
 

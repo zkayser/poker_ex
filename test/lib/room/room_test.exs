@@ -6,7 +6,7 @@ defmodule PokerEx.RoomTest do
   
   setup do
     room = 
-      case Room.start_test do
+      case Room.start_test(self()) do
         {:ok, pid} -> pid
         {:error, _} -> Process.whereis(:test)
       end
@@ -77,9 +77,8 @@ defmodule PokerEx.RoomTest do
       end
       Room.t_raise(p1, 20)
       Room.t_call(p2)
-      Process.sleep(125)
       
-      assert Repo.get_by(Player, name: p2.name).chips > 1000 || Repo.get_by(Player, name: p1.name).chips > 1000
+      assert_receive :rewarding_winner
     end
     
     test "a player should be able to join in the middle of an ongoing hand", context do
@@ -101,9 +100,8 @@ defmodule PokerEx.RoomTest do
       [p1, p2, _, _] = players(context)
       Room.t_raise(p1, 40)
       Room.t_fold(p2)
-      Process.sleep(125)
-      assert Repo.get_by(Player, name: p2.name).chips < 1000
-      assert Repo.get_by(Player, name: p1.name).chips >= 1000
+      
+      assert_receive :handling_fold_and_marking_winner
     end
     
     test "in head-to-head, the game ends when one player folds in the flop state", context do
@@ -114,9 +112,7 @@ defmodule PokerEx.RoomTest do
       Room.t_call(p2)
       Room.t_raise(p1, 40)
       Room.t_fold(p2)
-      Process.sleep(125)
-      assert p1_start < Repo.get_by(Player, name: p1.name).chips
-      refute p2_start < Repo.get_by(Player, name: p2.name).chips
+      assert_receive :handling_fold_and_marking_winner
     end
   end
   
@@ -140,9 +136,8 @@ defmodule PokerEx.RoomTest do
       Room.t_fold(p1)
       Room.t_fold(p2)
       Room.t_fold(p3)
-      Process.sleep(125)
       
-      assert p4_start < Repo.get_by(Player, name: p4.name).chips
+      assert_receive :handling_fold_and_marking_winner
     end
     
     test "the active list should be updated properly when a player folds", context do
@@ -163,18 +158,8 @@ defmodule PokerEx.RoomTest do
       [p1, p2, _, _] = players(context)
       Room.t_raise(p1, 1000)
       Room.t_call(p2)
-      Process.sleep(125)
       
-      assert Repo.get_by(Player, name: p1.name).chips > 1000 || Repo.get_by(Player, name: p2.name).chips > 1000
-    end
-    
-    test "when both players go all in, one player should have 0 chips after the game is finished (unless a tie)", context do
-      [p1, p2, _, _] = players(context)
-      Room.t_raise(p1, 1000)
-      Room.t_call(p2)
-      Process.sleep(125)
-      
-      assert Repo.get_by(Player, name: p1.name).chips == 0 || Repo.get_by(Player, name: p2.name).chips == 0
+      assert_receive :handle_all_in_marking_winner
     end
   end
   
@@ -187,14 +172,8 @@ defmodule PokerEx.RoomTest do
       Room.t_call(p1)
       Room.t_call(p2)
       Room.t_call(p3)
-      Process.sleep(125)
       
-      # 2000 is arbitrary, but sufficient to verify that a player won at least
-      # double the chips they started out with
-      assert Enum.any?(players, 
-        fn p -> 
-          Repo.get_by(Player, name: p.name).chips >= 2000
-        end)
+      assert_receive :handling_fold_and_marking_winner
     end
     
     test "auto-complete kicks in when a player folds and the others go all_in during pre-flop", context do
@@ -203,9 +182,8 @@ defmodule PokerEx.RoomTest do
       Room.t_call(p1)
       Room.t_fold(p2)
       Room.t_call(p3)
-      Process.sleep(125)
       
-      assert Enum.any?(players, fn p -> Repo.get_by(Player, name: p.name).chips >= 2000 end)
+      assert_receive :handling_fold_and_marking_winner
     end
     
     test "auto-complete kicks in when all players go all_in in later rounds", context do
@@ -215,9 +193,8 @@ defmodule PokerEx.RoomTest do
       Room.t_call(p1)
       Room.t_call(p2)
       Room.t_call(p3)
-      Process.sleep(125)
       
-      assert Enum.any?(players, fn p -> Repo.get_by(Player, name: p.name).chips >= 2000 end)
+      assert_receive :handling_fold_and_marking_winner
     end
   end
   

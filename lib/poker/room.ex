@@ -29,6 +29,7 @@ defmodule PokerEx.Room do
 							called: [String.t],
 							seating: seating,
 							active: seating,
+							skip_advance?: boolean(),
 							current_big_blind: seat_number,
 							current_small_blind: seat_number,
 							all_in: player_tracker,
@@ -39,7 +40,8 @@ defmodule PokerEx.Room do
 							deck: [Card.t] | [],
 							stats: stats,
 							winner: String.t | Player.t,
-							winning_hand: Hand.t | nil
+							winning_hand: Hand.t | nil,
+							parent: pid
 												}
 	
 	defstruct to_call: 0,
@@ -49,6 +51,7 @@ defmodule PokerEx.Room do
 						called: [],
 						seating: [],
 						active: [],
+						skip_advance?: false,
 						current_big_blind: nil,
 						current_small_blind: nil,
 						all_in: [],
@@ -59,7 +62,8 @@ defmodule PokerEx.Room do
 						deck: Deck.new |> Deck.shuffle,
 						stats: [],
 						winner: nil,
-						winning_hand: nil
+						winning_hand: nil,
+						parent: nil
 						
 	def start_link(args \\ []) do
 		room_id = :"#{args}"
@@ -67,8 +71,8 @@ defmodule PokerEx.Room do
 		# {:debug, [:trace, :log]}
 	end
 	
-	def start_test do
-		:gen_statem.start_link({:local, :test}, __MODULE__, [], [])
+	def start_test(caller) do
+		:gen_statem.start_link({:local, :test}, __MODULE__, [caller], [])
 	end
 	
 	##############
@@ -164,7 +168,9 @@ defmodule PokerEx.Room do
 	end
 	
 	def init([]), do: {:ok, :idle, %Room{}}
-	
+	def init([pid]) when is_pid(pid) do
+		{:ok, :idle, %Room{parent: pid}}
+	end
 	def init([id]) do
 		{:ok, :idle, %Room{room_id: id}}
 	end
@@ -268,6 +274,7 @@ defmodule PokerEx.Room do
 	when length(all_in) + length(folded) == length(seating) - 1 and state in @non_terminal_states do
 		update = 
 			room
+			|> Updater.no_advance_event
 			|> BetTracker.call(player)
 			|> round_transition(state)
 		{:next_state, :game_over, update, [{:next_event, :internal, :handle_all_in}]}
@@ -276,6 +283,7 @@ defmodule PokerEx.Room do
 	def handle_event(:cast, {:call, player}, state, room) when state in @non_terminal_states do
 		update = 
 			room
+			|> Updater.no_advance_event
 			|> BetTracker.call(player)
 			|> round_transition(state)
 		
@@ -338,6 +346,7 @@ defmodule PokerEx.Room do
 			case call_amount == round[player] || call_amount == 0 do
 				true ->
 					room
+					|> Updater.no_advance_event
 					|> BetTracker.check(player)
 					|> round_transition(state)
 				_ ->
@@ -352,6 +361,7 @@ defmodule PokerEx.Room do
 			case call_amount == round[player] || call_amount == 0 do
 				true ->
 					room
+					|> Updater.no_advance_event
 					|> BetTracker.check(player)
 					|> round_transition(state)
 				_ ->
@@ -381,6 +391,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
+		if room.parent, do: send(room.parent, :rewarding_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -393,6 +404,7 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, active: active} = room) 
 	when length(all_in) == 0 and length(active) == 1 do
+		if room.parent, do: send(room.parent, :handling_fold_and_marking_winner)
 		{winner, _} = hd(active)
 		update =
 			room
@@ -406,6 +418,7 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, active: active} = room)
 	when length(all_in) == 1 and length(active) == 0 do
+		if room.parent, do: send(room.parent, :handling_fold_and_marking_winner)
 		winner = hd(all_in)
 		update =
 			room
@@ -419,6 +432,7 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, table: table} = room)
 	when length(all_in) >= 1 and length(table) < 5 do
+		if room.parent, do: send(room.parent, :handling_fold)
 		update =
 			room
 			|> Updater.table
@@ -427,6 +441,7 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, table: table} = room)
 	when length(all_in) >= 1 and length(table) == 5 do
+		if room.parent, do: send(room.parent, :handle_fold_marking_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -445,6 +460,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:internal, :handle_all_in, :game_over, %Room{table: table} = room) when length(table) == 5 do
+		if room.parent, do: send(room.parent, :handle_all_in_marking_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -479,6 +495,7 @@ defmodule PokerEx.Room do
 					|> Updater.player_hands
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
+					
 				Events.game_started(room.room_id, hd(update.active), update.player_hands)
 				Events.advance(room.room_id, hd(update.active))
 				{:next_state, :pre_flop, update}
@@ -569,30 +586,41 @@ defmodule PokerEx.Room do
   defp advance_state(:between_rounds), do: :pre_flop
   
   defp round_transition(room, :pre_flop) do
-  	room
-  	|> Updater.reset_active
-  	|> Updater.reset_paid_in_round
-  	|> Updater.reset_call_amount
-  	|> Updater.reset_called
-  	|> Updater.table
-  	|> Updater.table
-  	|> Updater.table
+  	update = 
+  		room
+  		|> Updater.reset_advance_event_flag
+  		|> Updater.reset_active
+  		|> Updater.reset_paid_in_round
+  		|> Updater.reset_call_amount
+  		|> Updater.reset_called
+  		|> Updater.table
+  		|> Updater.table
+  		|> Updater.table
+  	if length(update.active) >= 1, do: Events.advance(room.room_id, hd(update.active))
+  	update
   end
   
   defp round_transition(room, :between_rounds) do
-  	room
-  	|> Updater.reset_active
-  	|> Updater.reset_paid_in_round
-  	|> Updater.reset_call_amount
-  	|> Updater.reset_called
+  	update = 
+  		room
+  		|> Updater.reset_advance_event_flag
+  		|> Updater.reset_active
+  		|> Updater.reset_paid_in_round
+  		|> Updater.reset_call_amount
+  		|> Updater.reset_called
+  	update
   end
   
   defp round_transition(room, _state) do
-  	room
-  	|> Updater.reset_active
-  	|> Updater.reset_paid_in_round
-  	|> Updater.reset_call_amount
-  	|> Updater.reset_called
-  	|> Updater.table
+  	update = 
+  		room
+  		|> Updater.reset_advance_event_flag
+  		|> Updater.reset_active
+  		|> Updater.reset_paid_in_round
+  		|> Updater.reset_call_amount
+  		|> Updater.reset_called
+  		|> Updater.table
+  	if length(update.active) >= 1, do: Events.advance(room.room_id, hd(update.active))
+  	update
   end
 end

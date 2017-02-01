@@ -13,7 +13,7 @@ export default class RoomMessages {
     });
     
     channel.on("welcome_player", payload => {
-      console.log("Got welcome_player", payload);
+      Materialize.toast(`Welcome to the lobby.`, 2000, 'rounded');
     });
     
     channel.on("game_finished", payload => {

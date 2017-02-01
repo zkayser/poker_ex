@@ -255,13 +255,19 @@ defmodule PokerEx.Room.Updater do
       
   """
   @spec advance_active(Room.t) :: Room.t
+  def advance_active(%Room{active: active, skip_advance?: true} = room) when is_list(active) and length(active) > 1 do
+    current = hd(active)
+    update = Enum.drop(active, 1) ++ [current]
+    %Room{ room | active: update}
+  end
+  def advance_active(%Room{skip_advance?: true} = room), do: room
   def advance_active(%Room{active: active} = room) when is_list(active) and length(active) > 1 do
     current = hd(active)
     update = Enum.drop(active, 1) ++ [current]
     Events.advance(room.room_id, hd(update))
     %Room{ room | active: update }
   end
-  def advance_active(%Room{active: active} = room) when is_list(active) and length(active) >= 1 do
+  def advance_active(%Room{active: active} = room) when is_list(active) and length(active) == 1 do
     current = hd(active)
     Events.advance(room.room_id, current)
     room
@@ -402,21 +408,50 @@ defmodule PokerEx.Room.Updater do
   #############################
   
   @doc ~S"""
+  Sets the skip_advance? flag on the room to true to skip
+  sending the advance event when a player calls or checks
+  to move on to the next round.
+  
+  ## Examples
+  
+      iex> room = %Room{}
+      iex> Updater.no_advance_event(room)
+      iex> room.skip_advance?
+      false
+      
+  """
+  
+  @spec no_advance_event(Room.t) :: Room.t
+  def no_advance_event(room) do
+    %Room{ room | skip_advance?: true}
+  end
+  
+  @doc ~S"""
+  Sets the skip_advance? flag back to false.
+  """
+  @spec reset_advance_event_flag(Room.t) :: Room.t
+  def reset_advance_event_flag(room), do: %Room{ room | skip_advance?: false }
+  
+  @doc ~S"""
   Resets the active list and sets the small_blind and big_blind as the last two
   players in the list, respectively.
   
   ## Examples
   
-      iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}], current_big_blind: 1}
+      iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}], current_big_blind: 1, current_small_blind: 0}
       iex> room = Updater.reset_active(room)
       iex> room.active
       [{"C", 2}, {"A", 0}, {"B", 1}]
       
   """
   @spec reset_active(Room.t) :: Room.t
-  def reset_active(%Room{active: active, current_big_blind: big_blind} = room) do
-    {back, front} = Enum.split_while(active, fn {_player, seat} -> seat <= big_blind end)
-    %Room{ room | active: front ++ back }
+  def reset_active(%Room{active: active} = room) when length(active) <= 1, do: room
+  def reset_active(%Room{active: active, current_big_blind: bb, current_small_blind: sb} = room) do
+    big = Enum.filter(active, fn {_, seat} -> seat == bb end)
+    small = Enum.filter(active, fn {_, seat} -> seat == sb end)
+    rest = Enum.filter(active, fn {_, seat} -> seat != bb && seat != sb end)
+    update = rest ++ small ++ big
+    %Room{ room | active: update }
   end
   
   @doc ~S"""
