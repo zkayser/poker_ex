@@ -56,6 +56,15 @@ export default class TableConcerns {
       table.players = [];
     });
     
+    // untested; keep an eye on any issues;
+    channel.on("clear_ui", (payload) => {
+      table.pot = 0;
+      table.cards = [];
+      table.removeCards();
+      table.players = [];
+      
+    });
+    
     channel.on("advance", ({player}) => {
       table.removeActiveClass();
       table.addActiveClass(player);

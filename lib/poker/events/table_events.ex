@@ -33,6 +33,10 @@ defmodule PokerEx.TableEvents do
     Endpoint.broadcast("players:" <> room_id, "advance", %{player: player})
   end
   
+  def clear_ui(room_id) do
+    Endpoint.broadcast("players:" <> room_id, "clear_ui", %{})
+  end
+  
   def paid_in_round_update(room_id, map) do
     Endpoint.broadcast("players:" <> room_id, "paid_in_round_update", map)
   end

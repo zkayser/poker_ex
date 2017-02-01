@@ -41,6 +41,10 @@ defmodule PokerEx.Events do
     TableEvents.call_amount_update(stringify(room_id), new_amount)
   end
   
+  def clear_ui(room_id) do
+    TableEvents.clear_ui(stringify(room_id))
+  end
+  
   def game_over(room_id, winner, reward) do
     GameEvents.game_over(stringify(room_id), winner, reward)
   end

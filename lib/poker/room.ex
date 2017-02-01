@@ -250,6 +250,16 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, update}
 	end
 	
+	def handle_event(:cast, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 2 do
+		update =
+			room
+			|> Updater.reset_table_state
+			|> Updater.remove_from_seating(player)
+		
+		Events.clear_ui(room.room_id)
+		{:next_state, :idle, update}
+	end
+	
 	def handle_event(:cast, {:leave, player}, state, %Room{seating: seating} = room) do
 		seated_players = Enum.map(seating, fn {pl, _num} -> pl end)
 		update =
