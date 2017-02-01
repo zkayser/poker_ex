@@ -80,11 +80,6 @@ defmodule PokerEx.Player do
 		end
 	end
 	
-	def full_name(%Player{first_name: first, last_name: last}) do
-		"#{first} #{last}"
-	end
-	def full_name(_), do: nil
-	
 	def changeset(model, params \\ :empty) do
 		model
 		|> cast(params, ~w(name first_name last_name email), [])
@@ -94,12 +89,20 @@ defmodule PokerEx.Player do
 		|> unique_constraint(:email)
 	end
 	
-	def registration_changeset(model, params) do
+	def registration_changeset(model, params \\ :empty) do
 		model
 		|> changeset(params)
 		|> cast(params, ~w(password), [])
 		|> validate_length(:password, min: 6, max: 100)
 		|> put_pass_hash()
+	end
+	
+	def update_changeset(model, params \\ %{}) do
+		model
+		|> cast(params, ~w(name first_name last_name email))
+		|> validate_length(:name, min: 1, max: 20)
+		|> unique_constraint(:name)
+		|> unique_constraint(:email)
 	end
 	
 	def chip_changeset(model, %{"chips" => chips} = params) do
@@ -115,4 +118,6 @@ defmodule PokerEx.Player do
 				changeset
 		end
 	end
+	
+	
 end

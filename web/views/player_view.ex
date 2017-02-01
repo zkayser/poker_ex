@@ -1,5 +1,6 @@
 defmodule PokerEx.PlayerView do
   use PokerEx.Web, :view
+  alias PokerEx.Player
   
   def render("index.json", %{players: players}) do
     %{
@@ -17,4 +18,9 @@ defmodule PokerEx.PlayerView do
       chips: player.chips
     }
   end 
+  
+  def full_name(%Player{first_name: first, last_name: last}) do
+    "#{String.capitalize(first)} #{String.capitalize(last)}'s Profile"
+  end
+  def full_name(%Player{name: name}), do: "#{String.capitalize(name)}'s Profile"
 end

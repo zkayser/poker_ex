@@ -15,7 +15,7 @@ defmodule PokerEx.RoomController do
   end
   
   def create(conn, %{"name" => name} = _params) when is_binary(name) do
-    case RoomsSupervisor.rooms_process_exists?(String.to_atom(name)) do
+    case RoomsSupervisor.room_process_exists?(String.to_atom(name)) do
       true -> 
         conn
         |> put_flash(:error, "A room with the name #{name} already exists")

@@ -14,6 +14,20 @@ defmodule PokerEx.PlayerController do
     render conn, "index.html", players: players
   end
   
+  def show(conn, %{"id" => player_id} = params) do
+    {id, _} = Integer.parse(player_id)
+    redirect_wrong_user(conn, params)
+    player = Repo.get(Player, id)
+    render conn, "show.html", player: player
+  end
+  
+  def edit(conn, %{"id" => player_id} = params) do
+    {id, _} = Integer.parse(player_id)
+    player = Repo.get(Player, id)
+    changeset = Player.update_changeset(player)
+    render conn, "edit.html", changeset: changeset, player: player
+  end
+  
   def create(conn, %{"player" => player_params}) do
     player_params = Map.put(player_params, "chips", "1000")
     changeset = Player.registration_changeset(%Player{}, player_params)
@@ -29,4 +43,26 @@ defmodule PokerEx.PlayerController do
     end
   end
   
+  def update(conn, %{"player" => player_params, "id" => player_id}) do
+    player = Repo.get(Player, player_id)
+    changeset = Player.update_changeset(player, player_params)
+    
+    case Repo.insert(changeset) do
+      {:ok, player} ->
+        conn
+        |> put_flash(:info, "Successfully updated")
+        |> redirect(to: player_path(conn, :show, player.id))
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset, player: player)
+    end
+  end
+  
+  defp redirect_wrong_user(conn, %{"id" => player_id}) do
+    {id, _} = Integer.parse(player_id)
+    unless id == conn.assigns.current_player.id do
+      conn
+      |> put_flash(:error, "Access restricted")
+      |> redirect(to: player_path(conn, :show, conn.assigns.current_player.id))
+    end
+  end
 end

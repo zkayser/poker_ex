@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col s12 text-center">
+    <h1><%= full_name(@current_player) %></h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content teal-text darken-4">
+        <span class="card-title">Your Information</span>
+        <ul class="collection">
+          <li class="collection-item">Username: <%= @current_player.name %></li>
+          <li class="collection-item">First Name: <%= @current_player.first_name %></li>
+          <li class="collection-item">Last Name: <%= @current_player.last_name %></li>
+          <li class="collection-item">Chip Balance: <%= @current_player.chips %></li>
+          <li class="collection-item">Email: <%= @current_player.email %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col s12">
+    <div class="card blue">
+      <div class="card-content white-text">
+        <span class="card-title">More Info</span>
+        <p>Some stuff here</p>
+      </div>
+    </div>
+  </div>
+  <div class="col s12">
+    <div class="card red">
+      <div class="card-content white-text">
+        <span class="card-title">Room Info</span>
+        <p>More info here</p>
+      </div>
+    </div>
+  </div>
+</div>
