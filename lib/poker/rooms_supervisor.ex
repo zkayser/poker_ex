@@ -32,6 +32,16 @@ defmodule PokerEx.RoomsSupervisor do
     end
   end
   
+  def create_private_room(room_id) when is_binary(room_id) do
+    case Supervisor.start_child(__MODULE__, [String.to_atom(room_id), :private]) do
+      {:ok, pid} ->
+        Registry.register(@registry, room_id, pid)
+        {:ok, String.to_atom(room_id)}
+      {:error, {:already_started, _pid}} -> {:error, :room_already_started}
+      other -> {:error, other}
+    end
+  end
+  
   def room_process_count, do: Supervisor.which_children(__MODULE__) |> length()
   
   def room_ids do
