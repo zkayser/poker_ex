@@ -19,8 +19,8 @@ export default class SpinnerAnimation {
     $(".collection").fadeOut(400, () => {
         $(".card-table").addClass("slide-onscreen-right");
         $(".player-controls").addClass("slide-onscreen-right");
+        $(".table-container").css("display", "inline-block");
       });
-    
     $(".join-spinner").removeClass("active");
   }
   

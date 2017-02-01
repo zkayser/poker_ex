@@ -16,7 +16,7 @@ defmodule PokerEx.RoomsSupervisor do
   end
   
   def room_process_exists?(room_id) do
-    case Registry.lookup(@registry, room_id) do
+    case Registry.lookup(@registry, Atom.to_string(room_id)) do
       [] -> false
       _ -> true
     end

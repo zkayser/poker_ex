@@ -18,14 +18,15 @@ defmodule PokerEx.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", PageController, :index
-    resources "/players", PlayerController, only: [:new, :create]
+    resources "/players", PlayerController, only: [:new, :create, :show]
     resources "/sessions", SessionController, only: [:new, :create, :delete]
+    resources "/rooms", RoomController, only: [:new, :create, :delete]
   end
   
   scope "/private", PokerEx do
     pipe_through [:browser, :authenticate_player]
     
-    resources "/rooms", RoomController
+    resources "/rooms", RoomController, only: [:index, :show]
   end
 
   # Other scopes may use custom stacks.

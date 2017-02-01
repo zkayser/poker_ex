@@ -4,8 +4,8 @@ defmodule PokerEx.Emails do
   
   def welcome_email do
     new_email()
-    |> to("zkayser@gmail.com")
-    |> from("admin@poker_ex.com")
+    |> to("zkayser@i.softbank.com")
+    |> from("zkayser@gmail.com")
     |> subject("Welcome to PokerEx")
     |> html_body("<strong>Thank you for joining PokerEx! Your account has been made</strong>")
     |> text_body("Welcome to PokerEx.")

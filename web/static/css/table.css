@@ -16,6 +16,10 @@
 	left: 150em;
 }
 
+.table-container {
+	display: none;
+}
+
 .circle-container {
 	position: relative;
 	width: 28em;

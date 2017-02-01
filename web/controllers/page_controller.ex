@@ -9,7 +9,7 @@ defmodule PokerEx.PageController do
       fn (room, acc) ->
         {{room, :state}, Map.put(acc, String.to_atom(room), PokerEx.Room.state(String.to_atom(room)))}
       end)
-    
+      
     render conn, "index.html", rooms: Map.values(room_states)
   end
 end
