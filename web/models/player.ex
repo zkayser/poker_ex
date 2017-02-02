@@ -99,7 +99,8 @@ defmodule PokerEx.Player do
 	
 	def update_changeset(model, params \\ %{}) do
 		model
-		|> cast(params, ~w(name first_name last_name email))
+		|> cast(params, ~w(name first_name last_name email chips))
+		|> validate_chips_update(model.chips)
 		|> validate_length(:name, min: 1, max: 20)
 		|> unique_constraint(:name)
 		|> unique_constraint(:email)
@@ -119,5 +120,8 @@ defmodule PokerEx.Player do
 		end
 	end
 	
-	
+	defp validate_chips_update(%Ecto.Changeset{changes: %{chips: update}} = changeset, chips) when chips >= 100 do
+		changeset = %Ecto.Changeset{changeset | changes: %{changeset.changes | chips: chips}}
+	end
+	defp validate_chips_update(changeset, chips), do: changeset
 end
