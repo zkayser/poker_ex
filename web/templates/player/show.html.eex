@@ -95,13 +95,13 @@
           </li>
           <li>
             <div class="collapsible-header" id="chips-header">Chips: <span id="player-chips-info"><%= @player.chips %></span>
-              <%= if @player.chips do %>
+              <%= if @player.chips < 100 do %>
                 <span class="right"><i class="material-icons">info</i></span>
               <% end %>
             </div>
             <div class="collapsible-body">
               <!-- Add option to replenish chips to 1000 when chips < 100 -->
-              <%= if @player.chips do %>
+              <%= if @player.chips < 100 do %>
                 <p>Replenish chips? <span class="right">
                   <button class="btn-floating green waves-effect" id="chip-edit"><i class="material-icons">add</i></button>
                 </p>
