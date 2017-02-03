@@ -1,4 +1,5 @@
 import {Socket} from "phoenix";
+import PlayerUpdates from "./updates/player-updates";
 
 export default class Notifications {
   constructor() {}
@@ -17,6 +18,7 @@ export default class Notifications {
     
     channel.join()
     .receive("ok", resp => {
+      PlayerUpdates.init(channel);
       console.log("successfully joined notifications channel for player: ", playerId);
     })
     .receive("error", reason => {

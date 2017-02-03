@@ -2,20 +2,36 @@ defmodule PokerEx.PlayerView do
   use PokerEx.Web, :view
   alias PokerEx.Player
   
+  # You can just use Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json")
   def render("index.json", %{players: players}) do
     %{
       players: Enum.map(players, &player_json/1)
     }
   end
   
+  # TODO: Deprecate and remove
   def render("show.json", %{player: player}) do
     player_json(player)
   end
   
+  def render("player.json", %{player: player}) do
+    %{
+      name: player.name,
+      chips: player.chips,
+      firstName: player.first_name,
+      lastName: player.last_name,
+      email: player.email 
+    }
+  end
+  
+  # TODO: Deprecate and remove
   defp player_json(player) do
     %{
       name: player.name,
-      chips: player.chips
+      chips: player.chips,
+      firstName: player.first_name,
+      lastName: player.last_name,
+      email: player.email
     }
   end 
   

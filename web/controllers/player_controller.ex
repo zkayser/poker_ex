@@ -18,8 +18,7 @@ defmodule PokerEx.PlayerController do
     {id, _} = Integer.parse(player_id)
     redirect_wrong_user(conn, params)
     player = Repo.get(Player, id)
-    changeset = Player.update_changeset(player, %{})
-    render conn, "show.html", player: player, changeset: changeset
+    render conn, "show.html", player: player
   end
   
   def edit(conn, %{"id" => player_id} = params) do

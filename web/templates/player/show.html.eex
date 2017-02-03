@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col s12 text-center">
-    <h1><%= full_name(@player) %></h1>
+    <h3 id="profile-greeting"><%= full_name(@player) %></h3>
   </div>
 </div>
 <div class="row">
@@ -10,85 +10,100 @@
         <span class="card-title">Your Information</span>
         <ul class="collapsible popout" data-collapsible="accordion" id="player-profile" data-player-id="<%= @player.id %>">
           <li>
-            <div class="collapsible-header">Username: <%= @player.name %> 
+            <div class="collapsible-header" id="name-header">Username: <span id="player-name-info"><%= @player.name %></span>
               <span class="right">
                 <i class="material-icons">mode_edit</i>
               </span>
             </div>
             <div class="collapsible-body">
-              <div class="row">
-                <div class="input-field col s6 offset-s2">
-                  <input value="<%= @player.name %>" id="name" type="text" class="validate">
-                  <label for="name" class="active">Username</label>
-                </div>
-                <div class="col s4"></div>
-                <div class="col s6 offset-s2">
-                  <a class="btn green disabled">Save changes</a>
-                </div>
+              <form name="nameForm" id="name-form">
+                <div class="row">
+                  <div class="input-field col s6 offset-s2">
+                    <input value="<%= @player.name %>" id="name" type="text" class="validate">
+                    <label for="name" class="active">Username</label>
+                  </div>
+                  <div class="col s4"></div>
+                  <div class="col s6 offset-s2">
+                    <button class="btn green disabled" id="name-edit" type="submit">Save changes</button>
+                  </div>
+                </form>
+            </div>
             </div>
           </li>
           <li>
-            <div class="collapsible-header">First Name: <%= @player.first_name %> 
+            <div class="collapsible-header" id="first-name-header">First Name: <span id="player-first-name-info"><%= @player.first_name %></span>
               <span class="right">
                 <i class="material-icons">mode_edit</i>
               </span>
             </div>
             <div class="collapsible-body">
               <div class="row">
+                <form name="firstNameForm" id="first-name-form">
                 <div class="input-field col s6 offset-s2">
                   <input value="<%= @player.first_name %>" id="first-name" type="text" class="validate">
                   <label for="first-name" class="active">First Name</label>
                 </div>
                 <div class="col s4"></div>
                 <div class="col s6 offset-s2">
-                  <a class="btn green disabled">Save changes</a>
+                  <button class="btn green disabled" id="first-name-edit" type="submit">Save changes</button>
                 </div>
+                </form>
+            </div>
             </div>
           </li>
           <li>
-            <div class="collapsible-header">Last Name: <%= @player.last_name %> 
+            <div class="collapsible-header" id="last-name-header">Last Name: <span id="player-last-name-info"><%= @player.last_name %></span>
               <span class="right">
                 <i class="material-icons">mode_edit</i>
               </span>
             </div>
             <div class="collapsible-body">
+              <form name="lastNameForm" id="last-name-form">
               <div class="row">
                 <div class="input-field col s6 offset-s2">
                   <input value="<%= @player.last_name %>" id="last-name" type="text" class="validate">
                   <label for="last-name" class="active">Last Name</label>
                 </div>
                 <div class="col s4"></div>
-                <div class="col s6 offset-s2">
-                  <a class="btn green disabled">Save changes</a>
+                <div class="col s8 offset-s4">
+                  <button class="btn green disabled" id="last-name-edit" type="submit">Save</button>
                 </div>
+              </form> 
+              </div>
             </div>
           </li>
           <li>
-            <div class="collapsible-header">Email: <%= @player.email %> 
+            <div class="collapsible-header" id="email-header">Email: <span id="player-email-info"><%= @player.email %></span>
               <span class="right">
                 <i class="material-icons">mode_edit</i>
               </span>
             </div>
             <div class="collapsible-body">
               <div class="row">
+                <form name="emailForm" id="email-form">
                 <div class="input-field col s6 offset-s2">
                   <input value="<%= @player.email %>" id="email" type="text" class="validate">
                   <label for="email" class="active">Email</label>
                 </div>
                 <div class="col s4"></div>
                 <div class="col s6 offset-s2">
-                  <a class="btn green disabled">Save changes</a>
+                  <button class="btn green disabled" id="email-edit" type="submit">Save changes</button>
                 </div>
+                </form>
             </div>
+            </div>  
           </li>
           <li>
-            <div class="collapsible-header">Chips: <%= @player.chips %> 
+            <div class="collapsible-header" id="chips-header">Chips: <span id="player-chips-info"><%= @player.chips %></span>
+              <%= if @player.chips do %>
+                <span class="right"><i class="material-icons">info</i></span>
+              <% end %>
             </div>
             <div class="collapsible-body">
               <!-- Add option to replenish chips to 1000 when chips < 100 -->
-              <%= if @player.chips < 100 do %>
+              <%= if @player.chips do %>
                 <p>Replenish chips? <span class="right">
-                  <a class="btn-floating green waves-effect"><i class="material-icons">add</i></a>
+                  <button class="btn-floating green waves-effect" id="chip-edit"><i class="material-icons">add</i></button>
                 </p>
               <% end %>
             </div>

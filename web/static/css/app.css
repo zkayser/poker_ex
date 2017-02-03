@@ -91,6 +91,10 @@ nav.top-nav a.page-title {
 	margin-left: 10px;
 }
 
+#profile-greeting {
+	padding-left: 10%;
+}
+
 .card-table {
 	border: 10px solid black;
 	border-radius: 50%;

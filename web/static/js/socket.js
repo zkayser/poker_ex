@@ -25,6 +25,7 @@ let Connection = {
     
     channel.join()
     .receive("ok", ({name}) => {
+      console.log("Joined players lobby: ", name);
       SpinnerAnimation.fadeOnSignin();
       LobbyMessages.init(channel);
       channel.push("get_num_players", {});
