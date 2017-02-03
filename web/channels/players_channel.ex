@@ -54,7 +54,6 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	
 	def handle_info({:game_begin, {player, _seat}, hands}, socket) do
 		hands = Enum.map(hands, 
 			fn {name, hand} -> 

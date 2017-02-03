@@ -8,7 +8,7 @@
     <div class="card">
       <div class="card-content teal-text darken-4">
         <span class="card-title">Your Information</span>
-        <ul class="collapsible popout" data-collapsible="accordion">
+        <ul class="collapsible popout" data-collapsible="accordion" id="player-profile" data-player-id="<%= @player.id %>">
           <li>
             <div class="collapsible-header">Username: <%= @player.name %> 
               <span class="right">
