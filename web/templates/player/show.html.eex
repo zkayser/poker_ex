@@ -9,90 +9,10 @@
       <div class="card-content teal-text darken-4">
         <span class="card-title">Your Information</span>
         <ul class="collapsible popout" data-collapsible="accordion" id="player-profile" data-player-id="<%= @player.id %>">
-          <li>
-            <div class="collapsible-header" id="name-header">Username: <span id="player-name-info"><%= @player.name %></span>
-              <span class="right">
-                <i class="material-icons">mode_edit</i>
-              </span>
-            </div>
-            <div class="collapsible-body">
-              <form name="nameForm" id="name-form">
-                <div class="row">
-                  <div class="input-field col s6 offset-s2">
-                    <input value="<%= @player.name %>" id="name" type="text" class="validate">
-                    <label for="name" class="active">Username</label>
-                  </div>
-                  <div class="col s4"></div>
-                  <div class="col s6 offset-s2">
-                    <button class="btn green disabled" id="name-edit" type="submit">Save changes</button>
-                  </div>
-                </form>
-            </div>
-            </div>
-          </li>
-          <li>
-            <div class="collapsible-header" id="first-name-header">First Name: <span id="player-first-name-info"><%= @player.first_name %></span>
-              <span class="right">
-                <i class="material-icons">mode_edit</i>
-              </span>
-            </div>
-            <div class="collapsible-body">
-              <div class="row">
-                <form name="firstNameForm" id="first-name-form">
-                <div class="input-field col s6 offset-s2">
-                  <input value="<%= @player.first_name %>" id="first-name" type="text" class="validate">
-                  <label for="first-name" class="active">First Name</label>
-                </div>
-                <div class="col s4"></div>
-                <div class="col s6 offset-s2">
-                  <button class="btn green disabled" id="first-name-edit" type="submit">Save changes</button>
-                </div>
-                </form>
-            </div>
-            </div>
-          </li>
-          <li>
-            <div class="collapsible-header" id="last-name-header">Last Name: <span id="player-last-name-info"><%= @player.last_name %></span>
-              <span class="right">
-                <i class="material-icons">mode_edit</i>
-              </span>
-            </div>
-            <div class="collapsible-body">
-              <form name="lastNameForm" id="last-name-form">
-              <div class="row">
-                <div class="input-field col s6 offset-s2">
-                  <input value="<%= @player.last_name %>" id="last-name" type="text" class="validate">
-                  <label for="last-name" class="active">Last Name</label>
-                </div>
-                <div class="col s4"></div>
-                <div class="col s8 offset-s4">
-                  <button class="btn green disabled" id="last-name-edit" type="submit">Save</button>
-                </div>
-              </form> 
-              </div>
-            </div>
-          </li>
-          <li>
-            <div class="collapsible-header" id="email-header">Email: <span id="player-email-info"><%= @player.email %></span>
-              <span class="right">
-                <i class="material-icons">mode_edit</i>
-              </span>
-            </div>
-            <div class="collapsible-body">
-              <div class="row">
-                <form name="emailForm" id="email-form">
-                <div class="input-field col s6 offset-s2">
-                  <input value="<%= @player.email %>" id="email" type="text" class="validate">
-                  <label for="email" class="active">Email</label>
-                </div>
-                <div class="col s4"></div>
-                <div class="col s6 offset-s2">
-                  <button class="btn green disabled" id="email-edit" type="submit">Save changes</button>
-                </div>
-                </form>
-            </div>
-            </div>  
-          </li>
+        <%= for {attr, display_name} <- [{:name, "Username"}, {:first_name, "First Name"}, {:last_name, "Last Name"}, {:email, "Email"},
+                                         {:blurb, "Blurb"}] do %>
+          <%= render_dynamic_update_form_for(@player, attr, [display_name: display_name, html_name: to_html_attr(attr)]) %>
+        <% end %>
           <li>
             <div class="collapsible-header" id="chips-header">Chips: <span id="player-chips-info"><%= @player.chips %></span>
               <%= if @player.chips < 100 do %>

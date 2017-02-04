@@ -45,6 +45,11 @@ defmodule PokerEx.NotificationsChannel do
     handle_player_update_response(changeset, "email", socket)
   end
   
+  def handle_in("player_update", %{"blurb" => blurb}, player, socket) do
+    changeset = Player.update_changeset(player, %{blurb: blurb})
+    handle_player_update_response(changeset, "blurb", socket)
+  end
+  
   def handle_in("player_update", %{"chips" => 1000}, player, socket) do
     if player.chips >= 100 do
       {:reply, {:error, %{message: "Cannot replenish chips unless you have less than 100 chips remaining"}}, socket}

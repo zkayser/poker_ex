@@ -20,13 +20,18 @@ defmodule PokerEx.Router do
     get "/", PageController, :index
     resources "/players", PlayerController
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-    resources "/rooms", RoomController, only: [:new, :create, :delete]
+  end
+  
+  scope "/protected", PokerEx do
+    pipe_through [:browser, :authenticate_player]
+    
+    resources "/rooms", RoomController, only: [:index]
   end
   
   scope "/private", PokerEx do
     pipe_through [:browser, :authenticate_player]
     
-    resources "/rooms", RoomController, only: [:index, :show]
+    resources "/rooms", RoomController, except: [:index]
   end
 
   # Other scopes may use custom stacks.

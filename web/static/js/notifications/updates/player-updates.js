@@ -6,20 +6,22 @@ export default class PlayerUpdates {
   }
   
   static init(channel) {
-    let forms = ["#name-form", "#first-name-form", "#last-name-form", "#email-form"];
+    let forms = ["#name-form", "#first-name-form", "#last-name-form", "#email-form", "#blurb-form"];
     
     let inputIdToBtn = {
       "name": "#name-edit",
       "first-name": "#first-name-edit",
       "last-name": "#last-name-edit",
-      "email": "#email-edit"
+      "email": "#email-edit",
+      "blurb": "#blurb-edit"
     };
     
     let inputIdToServAttr = {
       "#name": "name",
       "#first-name": "first_name",
       "#last-name": "last_name",
-      "#email": "email"
+      "#email": "email",
+      "#blurb": "blurb"
     };
     
     let dirtyFields = [];
@@ -82,6 +84,7 @@ export default class PlayerUpdates {
     const lastName = $("#player-last-name-info");
     const email = $("#player-email-info");
     const chips = $("#player-chips-info");
+    const blurb = $("#player-blurb-info");
     
     switch (player.update_type) {
       case "name": 
@@ -95,6 +98,9 @@ export default class PlayerUpdates {
         break;
       case "email":
         PlayerUpdates.updateEl(email, player.email, "#email");
+        break;
+      case "blurb":
+        PlayerUpdates.updateEl(blurb, player.blurb, "#blurb");
         break;
       case "chips":
         PlayerUpdates.updateEl(chips, player.chips, "#chips");
