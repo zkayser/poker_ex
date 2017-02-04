@@ -11,8 +11,14 @@ defmodule PokerEx.Player do
 		field :chips, :integer
 		field :password, :string, virtual: true
 		field :password_hash, :string
+		field :blurb, :string
+		has_many :invitations,  PokerEx.Invitation, foreign_key: :sender_id
+		has_many :owned_rooms, PokerEx.PrivateRoom, foreign_key: :owner_id
+		has_many :received_invitations, PokerEx.Invitation, foreign_key: :recipient_id
+		many_to_many :participating_rooms, PokerEx.PrivateRoom, join_through: "participants_private_rooms", join_keys: [participant_id: :id, private_room_id: :id]
+		many_to_many :invited_rooms, PokerEx.PrivateRoom, join_through: "invitees_private_rooms", join_keys: [invitee_id: :id, private_room_id: :id]
 		
-		timestamps
+		timestamps()
 	end
 	
 	alias PokerEx.Player
