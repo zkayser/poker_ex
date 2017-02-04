@@ -43,7 +43,7 @@ export default class PlayerUpdates {
           return;
         }
         
-        let btn = form.replace("form", "-edit");
+        let btn = form.replace("-form", "-edit");
         let inputId = form.replace("-form", "");
         let value = $(inputId)[0].value;
         let pushParams = new Object();
