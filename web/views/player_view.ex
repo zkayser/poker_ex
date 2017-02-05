@@ -84,15 +84,18 @@ defmodule PokerEx.PlayerView do
   
   defp to_camel_case(str) when is_binary(str) do
     [head|tail] = String.split(str, "_")
-      case tail do
-        [] -> head
-        x when is_list(x) ->
-          tail_string =
-            x
-            |> Enum.drop(1)
-            |> Enum.map(&String.capitalize/1)
-            |> Enum.join("")
-          head <> tail_string
-      end
+    case tail do
+      [] -> head
+      x when is_list(x) ->
+        tail_string =
+          x
+          |> Enum.drop(1)
+          |> Enum.map(&String.capitalize/1)
+          |> Enum.join("")
+        head <> tail_string
+    end
   end
+  
+  defp pluralize(1, {singular, _}), do: "1 #{singular}"
+  defp pluralize(num, {_, plural}), do: "#{num} #{plural}"
 end

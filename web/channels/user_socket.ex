@@ -6,6 +6,7 @@ defmodule PokerEx.UserSocket do
   # channel "room:*", PokerEx.RoomChannel
   channel "players:*", PokerEx.PlayersChannel
   channel "notifications:*", PokerEx.NotificationsChannel
+  channel "online:lobby", PokerEx.OnlineChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

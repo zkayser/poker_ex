@@ -20,7 +20,6 @@
               <% end %>
             </div>
             <div class="collapsible-body">
-              <!-- Add option to replenish chips to 1000 when chips < 100 -->
               <%= if @player.chips < 100 do %>
                 <p>Replenish chips? <span class="right">
                   <button class="btn-floating green waves-effect" id="chip-edit"><i class="material-icons">add</i></button>
@@ -34,17 +33,24 @@
   </div>
   <div class="col s12">
     <div class="card blue">
-      <div class="card-content white-text">
+      <div class="card-content white-text center-align">
         <span class="card-title">More Info</span>
-        <p>Some stuff here</p>
+        <p>You currently have <%= pluralize(length(@invitations), {"invitation", "invitations"}) %></p>
+        <hr>
+        <p>Invite other players to join</p><br>
+        <p><button class="btn-floating green waves-effect"><i class="material-icons">person_add</i></button></p>
       </div>
     </div>
   </div>
   <div class="col s12">
     <div class="card red">
-      <div class="card-content white-text">
+      <div class="card-content white-text center-align">
         <span class="card-title">Room Info</span>
-        <p>More info here</p>
+        <p>You have ongoing games in <%= pluralize(length(@participating), {"room", "rooms"}) %></p>
+        <hr>
+        <p>Start a new game?</p><br>
+        <p><%= button(content_tag(:i, "plus_one", class: "material-icons"), to: private_room_path(@conn, :new), 
+                     method: "get", class: "btn-floating green waves-effect") %></p>
       </div>
     </div>
   </div>

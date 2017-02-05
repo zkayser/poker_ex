@@ -31,7 +31,7 @@ defmodule PokerEx.Router do
   scope "/private", PokerEx do
     pipe_through [:browser, :authenticate_player]
     
-    resources "/rooms", RoomController, except: [:index]
+    resources "/rooms", PrivateRoomController, except: [:index]
   end
 
   # Other scopes may use custom stacks.

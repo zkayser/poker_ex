@@ -1,0 +1,33 @@
+<%= form_for @changeset, private_room_path(@conn, :create), fn f -> %>
+  <div class="input-field col s12">
+    <%= text_input f, :title, placeholder: "Unique title" %>
+    <%= label(f, :title) %>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <div class="card-panel z-depth-5 green-text text-darken-4">
+        <h4><strong>Invitees:</strong></h4>
+        <%= hidden_input :invitees, :id %>
+        <%= hidden_input :invitees, :id %>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <ul class="collection with-header left-align">
+        <li class="collection-header">Invite Players</li>
+        <%= for {list, color} <- Enum.zip(@players, ~w(purple teal red blue yellow green)) do %>
+          <li class="collection-item avatar" id="select-list-for-<% List.first(list) %>">
+            <i class="material-icons medium left <%= color %>-text">person</i>
+            <p>User: <%= Enum.at(list, 1) |> humanize() %></p>
+            <p><%= Enum.at(list, 2) || "" |> humanize() %></p>
+            <span class="secondary-content">
+              <button class="btn-floating green lighten-2 waves-effect waves-light" type="button"><i class="material-icons">plus_one</i></button>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+  <%= submit "Create room", class: "btn light-blue waves-effect" %>
+<% end %>

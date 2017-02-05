@@ -88,12 +88,18 @@ defmodule PokerEx.Player do
 	
 	def changeset(model, params \\ :empty) do
 		model
-		|> cast(params, ~w(name first_name last_name email, blurb), [])
+		|> cast(params, ~w(name first_name last_name email blurb), [])
 		|> put_change(:chips, 1000)
 		|> validate_length(:name, min: 1, max: 20)
 		|> validate_length(:blurb, min: 10, max: 150)
 		|> unique_constraint(:name)
 		|> unique_constraint(:email)
+	end
+	
+	def association_changeset(model, params \\ %{}) do
+		model
+		|> update_changeset(params)
+		|> cast_assoc(:owned_rooms)
 	end
 	
 	def registration_changeset(model, params \\ :empty) do
