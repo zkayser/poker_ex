@@ -38,6 +38,7 @@ export default class PrivateRoomNewView extends MainView {
                 <i class="material-icons">plus_one</i>
               </button>
             </span>`);
+      $(`input[name='invitees[${id}]']`).remove();
     });
     $(".player-list").on("click", ".btn-floating", (event) => {
       let id = event.currentTarget.dataset.playerId;
@@ -51,6 +52,18 @@ export default class PrivateRoomNewView extends MainView {
                 <i class="material-icons">clear</i>
               </button>
             </span>`);
+      this.buildInput(id).appendTo('form');
     });
   }
+  
+  buildInput(id) {
+    return $('<input>', {
+    type: 'hidden',
+    name: `invitees[${id}]`,
+    id: id,
+    value: `${id}`
+    });
+  }
+  
+  
 }
