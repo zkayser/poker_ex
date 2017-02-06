@@ -5,24 +5,25 @@
   </div>
   <div class="row">
     <div class="col s12">
-      <div class="card-panel z-depth-5 green-text text-darken-4">
-        <h4><strong>Invitees:</strong></h4>
-        <%= hidden_input :invitees, :id %>
-        <%= hidden_input :invitees, :id %>
-      </div>
+      <ul class="collection with-header white z-depth-5 green-text text-darken-4" id="invitees">
+        <li class="collection-header"><h4>Invitees:</h4></li>
+      </ul>
     </div>
   </div>
   <div class="row">
     <div class="col s12">
-      <ul class="collection with-header left-align">
+      <ul class="collection with-header left-align player-list">
         <li class="collection-header">Invite Players</li>
         <%= for {list, color} <- Enum.zip(@players, ~w(purple teal red blue yellow green)) do %>
-          <li class="collection-item avatar" id="select-list-for-<% List.first(list) %>">
+          <li class="collection-item avatar player-list-item" id="player-list-item-<%= List.first(list) %>" data-player-id="<%= hd(list) %>">
             <i class="material-icons medium left <%= color %>-text">person</i>
             <p>User: <%= Enum.at(list, 1) |> humanize() %></p>
             <p><%= Enum.at(list, 2) || "" |> humanize() %></p>
             <span class="secondary-content">
-              <button class="btn-floating green lighten-2 waves-effect waves-light" type="button"><i class="material-icons">plus_one</i></button>
+              <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-<%= List.first(list) %>"
+                      data-player-id="<%= hd(list) %>">
+                <i class="material-icons">plus_one</i>
+              </button>
             </span>
           </li>
         <% end %>
