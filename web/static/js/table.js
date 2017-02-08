@@ -4,15 +4,15 @@ import {SEAT_MAPPING} from "./seat-mapping";
 import Player from './player';
 
 export default class Table {
-	constructor() {
-		this.pot = 0;
-		this.callAmount = 0;
-		this.cards = [];
-		this.players = [];
-		this.seating = new Object();
-		this.user = undefined;
-		this.markedToFold = [];
-		this.paidInRound = undefined;
+	constructor(data) {
+		this.pot = data.pot || 0;
+		this.callAmount = data.callAmount || 0;
+		this.cards = data.cards || [];
+		this.players = data.players || [];
+		this.seating = data.seating || new Object();
+		this.user = data.user || undefined;
+		this.markedToFold = data.markedToFold || [];
+		this.paidInRound = data.paidInRound || undefined;
 	}
 	
 	renderCards() {

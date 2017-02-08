@@ -8,7 +8,7 @@ defmodule PokerEx.TableEvents do
   
   def card_dealt(room_id, card) do
     card = Map.from_struct(card)
-    Endpoint.broadcast("players:" <> room_id, "card_deal", %{card: card})
+    Endpoint.broadcast("players:" <> room_id, "card_dealt", %{card: card})
   end
   
   def flop_dealt(room_id, flop) do

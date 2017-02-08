@@ -35,7 +35,6 @@ export default class PlayerMessages {
       let p = new Player(player.name, player.chips);
       if (p.name == name) {
         this.player = p;
-        // p.renderPlayerInfo();
       }
       let msg = Player.addToList(player);
       MessageBox.appendAndScroll(msg);

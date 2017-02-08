@@ -24,6 +24,13 @@ export default class SpinnerAnimation {
     $(".join-spinner").removeClass("active");
   }
   
+  static onJoinPrivateRoom() {
+    console.log("onJoinPrivateRoom function called");
+    $(".card-table").addClass("slide-onscreen-right");
+    $(".player-controls").addClass("slide-onscreen-right");
+    $(".table-container").css("display", "inline-block");
+  }
+  
   static initiateSpinnerOnElement(spinner, element) {
     spinner.addClass("active");
     element.addClass("light-transparent");

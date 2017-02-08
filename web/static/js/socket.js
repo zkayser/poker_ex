@@ -57,7 +57,7 @@ let Connection = {
         let roomChan = socket.channel(`players:${room}`, {player: name});
         roomChan.join()
         .receive("ok", ({players}) => {
-          TableConcerns.init(roomChan, name, players);
+          TableConcerns.init(roomChan, name, players, {});
           PlayerMessages.init(roomChan, name);
           RoomMessages.init(roomChan);
         });

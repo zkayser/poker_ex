@@ -7,10 +7,10 @@ import Player from './player';
 export default class TableConcerns {
   constructor() {}
   
-  static init(channel, name, initialPlayers) {
+  static init(channel, name, initialPlayers, tableData) {
     let Materialize = window.Materialize;
     
-    let table = new Table();
+    let table = new Table(tableData);
     table.user = name;
     let earlierPlayersSeen = false;
     
@@ -157,6 +157,5 @@ export default class TableConcerns {
         }
       }
     });
-    
   }
 }

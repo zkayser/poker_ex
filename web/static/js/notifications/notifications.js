@@ -43,7 +43,7 @@ export default class Notifications {
         fragment.appendChild(tr);
         document.querySelector("#invitations-table-body").appendChild(fragment);
       }
-      window.Materialize.toast(`${owner} has invited you to join ${title}`);
+      window.Materialize.toast(`${owner} has invited you to join ${title}`, 3000);
     });
   }
 }

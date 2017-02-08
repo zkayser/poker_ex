@@ -1,1 +1,18 @@
-<h1>Room show page</h1>
+<div class="row">
+  <div class="col s4">
+    
+  </div>
+  <div class="col s4">
+    <%= unless @current_player in @room.participants do %>
+      <button class="btn green join-btn waves-effect" type="button">Join</button>
+    <% else %>
+      <button class="btn red leave-btn waves-effect" type="button">Quit</button>
+    <% end %>
+  </div>
+  <div class="col s4">
+    
+  </div>
+  <div class="table-container" id="offscreen-left">
+    <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
+  </div>
+</div>

@@ -14,6 +14,11 @@ defmodule PokerEx.PlayersChannel do
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
 		{:ok, %{name: player_name}, socket}
 	end
+	def join("players:" <> room_id, %{"type" => "private"}, socket) do
+		send(self(), {:after_join_private_room, room_id})
+		players = room_id |> atomize() |> Room.player_list()
+		{:ok, %{players: players}, socket}
+	end
 	def join("players:" <> room_id, params, socket) do
 		send(self(), {:after_join_room, room_id, params})
 		players = room_id |> atomize() |> Room.player_list()
@@ -30,6 +35,7 @@ defmodule PokerEx.PlayersChannel do
 	def handle_info({:after_join_room, room_id, _params}, socket) do
 		socket = assign(socket, :room, room_id)
 		player = Repo.get(Player, socket.assigns[:player_id])
+		
 		room_id
 		|> atomize()
 		|> Room.join(player)
@@ -52,6 +58,17 @@ defmodule PokerEx.PlayersChannel do
 		broadcast! socket, "player_joined", %{player: player.name, seating: seating}
 
 		{:noreply, socket}
+	end
+	
+	def handle_info({:after_join_private_room, room_id}, socket) do
+		socket = assign(socket, :room, room_id)
+		player = Repo.get(Player, socket.assigns[:player_id])
+		
+		unless player.name in (room_id |> atomize() |> Room.state |> Map.get(:seating) |> Enum.map(fn {pl, _seat} -> pl end)) do
+			room_id |> atomize() |> Room.join(player)
+		end
+		
+		# Come up with a RoomView.render("room.json") with room.state's return object. 
 	end
 	
 	def handle_info({:game_begin, {player, _seat}, hands}, socket) do

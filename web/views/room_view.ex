@@ -1,5 +1,33 @@
 defmodule PokerEx.RoomView do
   use PokerEx.Web, :view
+  alias PokerEx.Room
+  
+  def render("room.json", %{room: room}) do
+    %{active: hd(room.active) || nil,
+      current_big_blind: room.current_big_blind || nil,
+      current_small_blind: room.current_small_blind || nil,
+      paid: room.paid || %{},
+      to_call: room.to_call || 0,
+      player_hands: Phoenix.View.render_many(room.player_hands, __MODULE__, "player_hands.json", as: :player_hand),
+      round: room.round || %{},
+      pot: room.pot || 0,
+      table: Phoenix.View.render_many(room.table, __MODULE__, "card.json", as: :card)
+     }
+  end
+  
+  def render("player_hands.json", %{player_hand: {player, hand}}) do
+    %{
+      player: player,
+      hand: Enum.map(hand, fn card -> Map.from_struct(card) end)
+     }
+  end
+  
+  def render("card.json", %{card: card}) do
+    %{
+      rank: card.rank,
+      suit: card.suit
+    }
+  end
   
   def players_in_room(%PokerEx.Room{seating: seating}) when length(seating) == 1 do
     "1 player currently at table"
