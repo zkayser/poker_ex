@@ -33,7 +33,7 @@ defmodule PokerEx.RoomsSupervisor do
   end
   
   def create_private_room(room_id) when is_binary(room_id) do
-    case Supervisor.start_child(__MODULE__, [String.to_atom(room_id), :private]) do
+    case Supervisor.start_child(__MODULE__, [[String.to_atom(room_id), :private]]) do
       {:ok, pid} ->
         Registry.register(@registry, room_id, pid)
         {:ok, String.to_atom(room_id)}
