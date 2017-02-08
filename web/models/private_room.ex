@@ -23,6 +23,7 @@ defmodule PokerEx.PrivateRoom do
     model
     |> cast(params, ~w(title))
     |> validate_length(:title, min: 1, max: 16)
+    |> unique_constraint(:title)
   end
   
   def create_changeset(model, %{"owner" => owner} = params) do

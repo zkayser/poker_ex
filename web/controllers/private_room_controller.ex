@@ -24,9 +24,17 @@ defmodule PokerEx.PrivateRoomController do
     
     case PokerEx.Repo.insert(changeset) do
       {:ok, room} -> 
-        conn
-        |> put_flash(:info, "#{room.title} has been created")
-        |> redirect(to: private_room_path(conn, :show, room.id))
+        case PokerEx.RoomsSupervisor.create_private_room(title) do
+          {:ok, _pid} -> 
+            PokerEx.Notifications.notify_invitees(room)
+            conn
+            |> put_flash(:info, "#{title} has been created")
+            |> redirect(to: private_room_path(conn, :show, room.id))
+          _ ->
+            conn
+            |> put_flash(:error, "Could not create room. Please try again.")
+            |> redirect(to: private_room_path(conn, :new))
+        end
       {:error, error_changeset} ->
         conn
         |> put_flash(:error, "Something went wrong")
@@ -36,12 +44,17 @@ defmodule PokerEx.PrivateRoomController do
   
   def show(conn, %{"id" => id}) do
     room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) |> PrivateRoom.preload()
-    unless conn.assigns[:current_player] in room.invitees || conn.assigns[:current_player] == room.owner do
+    authenticate(conn, room)
+    
+    render conn, "show.html", room: room
+  end
+  
+  defp authenticate(conn, room) do
+    player = conn.assigns[:current_player]
+    unless player in room.invitees || player == room.owner || player in room.participants do
       conn
       |> put_flash(:error, "Access restricted")
       |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
     end
-    
-    render conn, "show.html", room: room
   end
 end

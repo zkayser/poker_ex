@@ -35,7 +35,27 @@
     <div class="card blue">
       <div class="card-content white-text center-align">
         <span class="card-title">More Info</span>
-        <p>You currently have <%= pluralize(length(@invitations), {"invitation", "invitations"}) %></p>
+        <p>You currently have <%= pluralize(length(@invited), {"invitation", "invitations"}) %></p>
+        <%= if length(@invited) > 0 do %>
+        <table class="centered responsive-table" id="invitations-table">
+          <thead>
+            <tr>
+              <th data-field="title">Game</th>
+              <th data-field="participants">Players</th>
+              <th data-field="button"></th>
+            </tr>
+          </thead>
+          <tbody id="invitations-table-body">
+          <%= for invitation <- @invited  do %>
+            <tr>
+              <td><%= invitation.title %></td>
+              <td><%= invitation |> PokerEx.PrivateRoom.preload() |> Map.get(:participants) |> length %></td>
+              <td><%= button("Go", to: private_room_path(@conn, :show, invitation.id), class: "btn-floating green", method: "get") %></td>
+            </tr>
+          <% end %>
+          </tbody>
+        </table>
+        <% end %>
         <hr>
         <p>Invite other players to join</p><br>
         <p><button class="btn-floating green waves-effect"><i class="material-icons">person_add</i></button></p>
