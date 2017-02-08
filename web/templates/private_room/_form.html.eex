@@ -1,7 +1,9 @@
 <%= form_for @changeset, private_room_path(@conn, :create), fn f -> %>
+
   <div class="input-field col s12">
     <%= text_input f, :title, placeholder: "Unique title" %>
     <%= label(f, :title) %>
+    <%= if @conn.private.phoenix_action == :new, do: hidden_input(f, :owner, value: @player.id) %>
   </div>
   <div class="row">
     <div class="col s12">
