@@ -111,8 +111,8 @@ defmodule PokerEx.Room do
 		:gen_statem.cast(room_id, {:fold, player.name})
 	end
 	
-	def ready(room_id, player) do
-		:gen_statem.cast(room_id, {:ready, player.name})
+	def start(room_id) do
+		:gen_statem.cast(room_id, :start)
 	end
 	
 	def leave(room_id, player) do
@@ -129,6 +129,10 @@ defmodule PokerEx.Room do
 	
 	def state(room_id) do
 		:gen_statem.call(room_id, :state)
+	end
+	
+	def which_state(room_id) do
+		:gen_statem.call(room_id, :which_state)
 	end
 	
 	#############
@@ -606,6 +610,10 @@ defmodule PokerEx.Room do
 	def handle_event({:call, from}, :player_list, state, %Room{seating: seating} = room) do
 		players = Enum.map(seating, fn {player, _} -> Repo.get_by(Player, name: player) end)
 		{:next_state, state, room, [{:reply, from, players}]}
+	end
+	
+	def handle_event({:call, from}, :which_state, state, room) do
+		{:next_state, state, room, [{:reply, from, state}]}
 	end
 	
 	# DEBUGGING

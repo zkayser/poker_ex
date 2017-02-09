@@ -19,6 +19,7 @@ export default class PrivateRoomShowView extends MainView {
     let player = div.dataset.userName;
     let joinBtn = $("#join-btn");
     let leaveBtn = $("#leave-btn");
+    let startBtn = $("#start-btn");
     
     let socket = new Socket('/socket', {params: {token: window.playerToken}});
     
@@ -36,6 +37,10 @@ export default class PrivateRoomShowView extends MainView {
         channel.push("remove_player", {player: player, room: roomTitle});
         leaveBtn.slideUp();
       });
+      startBtn.click(() => {
+        channel.push("start_game", {room: roomTitle});
+        startBtn.slideUp();
+      });
     })
     .receive("error", params => {
       console.log("Something went wrong when joining channel: ", params);
@@ -45,7 +50,9 @@ export default class PrivateRoomShowView extends MainView {
     channel.on("private_room_join", state => {
       console.log("private_room_join received with: ", state);
       SpinnerAnimation.onJoinPrivateRoom();
-      Table.renderPlayers(state.seating);
+      let seating = this.formatSeating(state.seating);
+      state.seating = seating;
+      Table.renderPlayers(seating);
       Table.addActiveClass(state.active);
       this.handlePlayerHands(player, state.player_hands);
       this.setPot(state.pot);
@@ -92,6 +99,14 @@ export default class PrivateRoomShowView extends MainView {
   
   setPot(pot) {
     $("#pot").text(pot);
+  }
+  
+  formatSeating(seatingArray) {
+    let seating = new Object();
+    seatingArray.forEach((seat) => {
+      seating[`${seat.name}`] = seat.position;
+    });
+    return seating;
   }
   
   unmount() {

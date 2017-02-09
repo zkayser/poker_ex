@@ -3,11 +3,7 @@
     
   </div>
   <div class="col s4">
-    <%= unless @current_player in @room.participants do %>
-      <button class="btn green waves-effect" id="join-btn" type="button">Join</button>
-    <% else %>
-      <button class="btn red waves-effect" id="leave-btn" type="button">Quit</button>
-    <% end %>
+    
   </div>
   <div class="col s4">
     
@@ -15,4 +11,30 @@
   <div class="table-container" id="offscreen-left">
     <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
   </div>
+  <div class="fixed-action-btn toolbar">
+    <a class="btn-floating btn-large red">
+      <i class="large material-icons">explore</i>
+    </a>
+    <ul id="player-toolbar">
+      <li class="waves-effect waves-light">
+        
+        <%= if @current_player in @room.invitees do %>
+          <a href="#!" class="white-text" id="join-btn">JOIN</a>
+        <% else %>
+          <a href="#!" class="white-text" id="leave-btn">QUIT</a>
+        <% end %>
+      </li>
+      <li>
+        <%= if PokerEx.Room.which_state(String.to_atom(@room.title)) == :idle && @current_player in @room.participants
+            && length(PokerEx.Room.state(String.to_atom(@room.title)).seating) > 1 do %>
+          <a href="#!" class="white-text" id="start-btn">START</a>
+        <% else %>
+          <a href="#!" class="white-text">Waiting on others to join...</a>
+        <% end %>
+      </li>
+    </ul>
+  </div>
 </div>
+<script>
+  window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";
+</script>

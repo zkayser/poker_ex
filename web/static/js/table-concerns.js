@@ -13,6 +13,11 @@ export default class TableConcerns {
     let table = new Table(tableData);
     table.user = name;
     let earlierPlayersSeen = false;
+    // Initializes the table cards for private
+    // visitors returning to a table
+    if (table.type == "private") {
+      table.renderCards();
+    }
     
     channel.on("player_seated", ({position, player}) => {
       table.seating[player] = position;

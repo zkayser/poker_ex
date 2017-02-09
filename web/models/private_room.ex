@@ -69,12 +69,13 @@ defmodule PokerEx.PrivateRoom do
   end
   
   def remove_invitee(changeset, invitees, invitee) do
-    invitees = Enum.reject(invitees, fn inv -> inv == invitee end)
+    invitees = Enum.reject(invitees, fn inv -> inv.id == invitee.id end)
     put_assoc(changeset, :invitees, invitees)
   end
   
   def put_invitee_in_participants(changeset, participants, invitee) do
-    participants == participants ++ [invitee]
+    participants = participants ++ [invitee]
+    IO.puts "put_invitee_in_participants called with: #{inspect(participants)}"
     put_assoc(changeset, :participants, participants)
   end
   

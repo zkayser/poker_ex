@@ -102,6 +102,8 @@ defmodule PokerEx.PlayersChannel do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl -> pl
 				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
+				IO.puts "private_room.participants: #{inspect(private_room.participants)}"
+				IO.puts "pl: #{inspect(pl)}"
 				changeset = 
 					PokerEx.PrivateRoom.changeset(private_room)
 					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
@@ -117,6 +119,18 @@ defmodule PokerEx.PlayersChannel do
 			_ -> push socket, "error_on_room_join", %{}
 		end
 		{:noreply, socket}
+	end
+	
+	def handle_in("start_game", %{"room" => roomTitle}, socket) do
+		room = roomTitle |> atomize()
+		case length(Room.state(room).seating) > 1 do
+			false -> 
+				# Ignore request if seating <= 1
+				{:noreply, socket}
+			true ->
+				Room.start(room)
+				{:noreply, socket}
+		end
 	end
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do

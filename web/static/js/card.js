@@ -10,7 +10,11 @@ export default class Card {
   render() {
     let path = CARDS[this.suit.toUpperCase()][this.rank];
     let image = document.createElement('img');
-    image.src = "../" + path;
+    if (window.basePath) {
+      image.src = window.basePath + path;
+    } else {
+      image.src = "../" + path; 
+    }
     if (this.suit == 'hearts' || this.suit == 'diamonds') {
       image.setAttribute('id', 'deck-red-suit');
     } else {
@@ -24,7 +28,11 @@ export default class Card {
     cards.forEach((card) => {
       let path = CARDS[card.suit.toUpperCase()][card.rank];
       let image = document.createElement('img');
-      image.src = "../" + path;
+      if (window.basePath) {
+        image.src = window.basePath + path;
+      } else {
+        image.src = "../" + path;
+      }
       // Set red font if suit is hearts or diamonds
       if (card.suit === 'hearts' || card.suit === 'diamonds') {
         image.setAttribute('id', 'red-suit'); 

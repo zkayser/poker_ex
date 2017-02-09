@@ -4,7 +4,7 @@ defmodule PokerEx.RoomView do
   import Ecto.Query
   
   def render("room.json", %{room: room}) do
-    active = if room.active == [], do: nil, else: hd(room.active)
+    {active, _} = if room.active == [], do: {nil, nil}, else: hd(room.active)
     players = 
       if room.active == [] do
         []

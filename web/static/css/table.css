@@ -114,6 +114,12 @@
 	}
 }
 
+@media (min-width: 989px) {
+	#player-toolbar {
+		margin-left: 300px;
+	}
+}
+
 
 
 .circle-container div { display: block; width: 100%; }
