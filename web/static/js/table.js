@@ -7,12 +7,13 @@ export default class Table {
 	constructor(data) {
 		this.pot = data.pot || 0;
 		this.callAmount = data.callAmount || 0;
-		this.cards = data.cards || [];
+		this.cards = data.table || [];
+		this.type = data.type || "public";
 		this.players = data.players || [];
 		this.seating = data.seating || new Object();
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
-		this.paidInRound = data.paidInRound || undefined;
+		this.paidInRound = data.round || undefined;
 	}
 	
 	renderCards() {
@@ -75,6 +76,14 @@ export default class Table {
 		let seatClass = SEAT_MAPPING[position];
 		let node = document.getElementsByClassName(seatClass)[0];
 		cardTable.removeChild(node);
+	}
+	
+	static addActiveClass(player, seating) {
+		if (!(player == null)) {
+			let position = seating[player];
+			let element = $(`.${SEAT_MAPPING[position]}`);
+			element.addClass("active-player");	
+		}
 	}
 	
 	addActiveClass(player) {

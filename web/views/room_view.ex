@@ -1,20 +1,36 @@
 defmodule PokerEx.RoomView do
   use PokerEx.Web, :view
   alias PokerEx.Room
+  import Ecto.Query
   
   def render("room.json", %{room: room}) do
-    %{active: hd(room.active) || nil,
+    active = if room.active == [], do: nil, else: hd(room.active)
+    players = 
+      if room.active == [] do
+        []
+      else
+        Enum.map(room.active, 
+          fn {name, _} -> 
+            PokerEx.Repo.one(from p in PokerEx.Player, where: p.name == ^name)
+          end)
+      end
+    
+    %{active: active,
       current_big_blind: room.current_big_blind || nil,
       current_small_blind: room.current_small_blind || nil,
       paid: room.paid || %{},
       to_call: room.to_call || 0,
+      players: Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json"),
+      type: Atom.to_string(room.type),
+      seating: Phoenix.View.render_many(room.seating, __MODULE__, "seating.json", as: :seating),
       player_hands: Phoenix.View.render_many(room.player_hands, __MODULE__, "player_hands.json", as: :player_hand),
       round: room.round || %{},
       pot: room.pot || 0,
-      table: Phoenix.View.render_many(room.table, __MODULE__, "card.json", as: :card)
+      table: (unless room.table == [], do: [], else:  Phoenix.View.render_many(room.table, __MODULE__, "card.json", as: :card))
      }
   end
   
+  def render("player_hands.json", %{player_hand: {_, []}}), do: %{}
   def render("player_hands.json", %{player_hand: {player, hand}}) do
     %{
       player: player,
@@ -26,6 +42,13 @@ defmodule PokerEx.RoomView do
     %{
       rank: card.rank,
       suit: card.suit
+    }
+  end
+  
+  def render("seating.json", %{seating: {name, position}}) do
+    %{
+      name: name,
+      position: position
     }
   end
   

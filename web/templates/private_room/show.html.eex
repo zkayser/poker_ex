@@ -1,12 +1,12 @@
-<div class="row">
+<div class="row" id="room-row" data-room-title="<%= @room.title %>" data-user-name="<%= @current_player.name %>">
   <div class="col s4">
     
   </div>
   <div class="col s4">
     <%= unless @current_player in @room.participants do %>
-      <button class="btn green join-btn waves-effect" type="button">Join</button>
+      <button class="btn green waves-effect" id="join-btn" type="button">Join</button>
     <% else %>
-      <button class="btn red leave-btn waves-effect" type="button">Quit</button>
+      <button class="btn red waves-effect" id="leave-btn" type="button">Quit</button>
     <% end %>
   </div>
   <div class="col s4">

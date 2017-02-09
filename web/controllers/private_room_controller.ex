@@ -20,7 +20,7 @@ defmodule PokerEx.PrivateRoomController do
     changeset = 
       PrivateRoom.changeset(private_room, room_params)
       |> PrivateRoom.put_owner(owner)
-      |> PrivateRoom.put_invitees(Map.values(invitees))
+      |> PrivateRoom.put_invitees(Map.values(invitees) ++ [owner])
     
     case PokerEx.Repo.insert(changeset) do
       {:ok, room} -> 
