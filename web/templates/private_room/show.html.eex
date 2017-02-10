@@ -11,26 +11,37 @@
   <div class="table-container" id="offscreen-left">
     <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
   </div>
+  <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+  
+  
   <div class="fixed-action-btn toolbar">
     <a class="btn-floating btn-large red">
       <i class="large material-icons">explore</i>
     </a>
-    <ul id="player-toolbar">
-      <li class="waves-effect waves-light">
-        
+    <ul id="player-toolbar" class="white-text">
+      <li class="waves-effect waves-light" id="join-quit-item">
         <%= if @current_player in @room.invitees do %>
           <a href="#!" class="white-text" id="join-btn">JOIN</a>
         <% else %>
           <a href="#!" class="white-text" id="leave-btn">QUIT</a>
         <% end %>
       </li>
-      <li>
+      <li id="start-info-item">
         <%= if PokerEx.Room.which_state(String.to_atom(@room.title)) == :idle && @current_player in @room.participants
             && length(PokerEx.Room.state(String.to_atom(@room.title)).seating) > 1 do %>
           <a href="#!" class="white-text" id="start-btn">START</a>
         <% else %>
-          <a href="#!" class="white-text">Waiting on others to join...</a>
+          <a href="#!" class="white-text"><i class="material-icons">account_circle</i></a>
         <% end %>
+      </li>
+      <li id="action-item">
+        <a><i class="material-icons">grade</i></a>
+      </li>
+      <li id="chat-item">
+        <a><i class="material-icons">room</i></a>
+      </li>
+      <li id="settings-item">
+        <a class=""><i class="material-icons">attach_money</i></a>
       </li>
     </ul>
   </div>

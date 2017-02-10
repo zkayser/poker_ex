@@ -53,7 +53,7 @@ export default class PrivateRoomShowView extends MainView {
       let seating = this.formatSeating(state.seating);
       state.seating = seating;
       Table.renderPlayers(seating);
-      Table.addActiveClass(state.active);
+      Table.addActiveClass(state.active, seating);
       this.handlePlayerHands(player, state.player_hands);
       this.setPot(state.pot);
       TableConcerns.init(channel, player, {}, state);
@@ -72,7 +72,7 @@ export default class PrivateRoomShowView extends MainView {
   
   handlePlayerHands(player, player_hands) {
     let players = player_hands.map((obj) => {
-      obj.player;
+      return obj.player;
     });
     if (players.includes(player)) {
       $("#offscreen-left").addClass("slide-onscreen-right");
@@ -83,7 +83,8 @@ export default class PrivateRoomShowView extends MainView {
           return true;
         }
       });
-      let {hand} = filtered[0].hand;
+      let hand = filtered[0].hand;
+      console.log("filtered hand: ", hand);
       let playerCards = document.getElementById("player-cards");
       let children = playerCards.childNodes;
       let cards = Card.renderPlayerCards(hand);

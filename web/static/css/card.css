@@ -30,3 +30,11 @@
   border: 0;
   z-index: 0;
 }
+
+#player-card-image {
+  height: 10em;
+}
+
+#player-card-row {
+  margin-bottom: 3em;
+}

@@ -1,0 +1,10 @@
+<div class="row" id="player-card-row">
+  <div class="col s6">
+    <div class="card-image right">
+      <img src="" id="player-card-image" class="card-image-left">
+    </div>
+  </div>
+  <div class="col s6">
+    <img src="" id="player-card-image" class="card-image-right">
+  </div>
+</div>

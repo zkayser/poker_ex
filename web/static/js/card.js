@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import {CARDS} from './card_codes';
 
 export default class Card {
@@ -24,6 +25,17 @@ export default class Card {
   }
   
   static renderPlayerCards(cards) {
+    // practice shot with jquery
+    let imgRight = $(".card-image-right");
+    let imgLeft = $(".card-image-left");
+    
+    let pathLeft = CARDS[cards[0].suit.toUpperCase()][cards[0].rank];
+    let pathRight = CARDS[cards[1].suit.toUpperCase()][cards[1].rank];
+    
+    let base = window.basePath || 'https://phoenix-experiment-zkayser.c9users.io/';
+    imgLeft.attr('src', base + pathLeft);
+    imgRight.attr('src', base + pathRight);
+    
     let cardArray = [];
     cards.forEach((card) => {
       let path = CARDS[card.suit.toUpperCase()][card.rank];
