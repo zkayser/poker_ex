@@ -47,8 +47,10 @@ export default class PlayerMessages {
          this.player = new Player(payload.player, payload.chips); 
         }
         this.player.chips = payload.chips;
+        $("#player-chips").text(payload.chips);
       } else if (name == payload.player) {
         this.player.chips = payload.chips;
+        $("#player-chips").text(payload.chips);
       } 
     });
     

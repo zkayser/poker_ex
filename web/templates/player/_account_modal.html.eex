@@ -4,18 +4,18 @@
       <div class="col s12 center-align">
         <h4>Account Info</h4>
       </div>
-      <div class="col s2">
+      <div class="col m2 s12 center-align">
       <i class="large material-icons circle blue white-text">person_outline</i>
     </div>
-    <div class="col s4">
+    <div class="col m4 s12">
       <div class="col s12">
         <h5>Username: <%= humanize(@current_player.name) %></h5>
       </div>
       <div class="col s12">
-        <h5>Chips: <%= @current_player.chips %></h5>
+        <h5>Chips: <span id="player-chips"><%= @current_player.chips %></span></h5>
       </div>
     </div>
-    <div class="col s4">
+    <div class="col m4 s12">
       <div class="col s12">
         <h5><%= link("Update account", to: player_path(@conn, :show, @current_player.id)) %></h5>
       </div>

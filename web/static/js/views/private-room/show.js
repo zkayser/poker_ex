@@ -122,7 +122,6 @@ export default class PrivateRoomShowView extends MainView {
   
   handleActivePlayerRender(player, state) {
     if (player == state.active) {
-      console.log("player == active player");
       Player.renderPlayerControls(state.to_call, state.round[player]);
     }
   }
