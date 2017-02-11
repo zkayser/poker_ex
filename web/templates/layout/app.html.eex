@@ -29,7 +29,7 @@
       <ul id="nav-mobile" class="side-nav fixed">
           <div class="search-wrapper card">
             <div class="card-image">
-              <img src="<%= static_path(@conn, "/images/office.jpg")%>">
+              <img src="<%= static_path(@conn, "/images/poker.jpg")%>">
             </div>
           </div>
         <%= if @current_player do %>
