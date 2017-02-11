@@ -84,7 +84,6 @@ export default class PrivateRoomShowView extends MainView {
         }
       });
       let hand = filtered[0].hand;
-      console.log("filtered hand: ", hand);
       let playerCards = document.getElementById("player-cards");
       let children = playerCards.childNodes;
       let cards = Card.renderPlayerCards(hand);

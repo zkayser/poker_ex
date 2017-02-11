@@ -1,0 +1,28 @@
+<div id="player-account-modal" class="modal bottom-sheet">
+  <div class="modal-content">
+    <div class="row">
+      <div class="col s12 center-align">
+        <h4>Account Info</h4>
+      </div>
+      <div class="col s2">
+      <i class="large material-icons circle blue white-text">person_outline</i>
+    </div>
+    <div class="col s4">
+      <div class="col s12">
+        <h5>Username: <%= humanize(@current_player.name) %></h5>
+      </div>
+      <div class="col s12">
+        <h5>Chips: <%= @current_player.chips %></h5>
+      </div>
+    </div>
+    <div class="col s4">
+      <div class="col s12">
+        <h5><%= link("Update account", to: player_path(@conn, :show, @current_player.id)) %></h5>
+      </div>
+    </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat"><i class="material-icons">close</i></a>
+  </div>
+</div>

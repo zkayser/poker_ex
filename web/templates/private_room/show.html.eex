@@ -31,11 +31,11 @@
             && length(PokerEx.Room.state(String.to_atom(@room.title)).seating) > 1 do %>
           <a href="#!" class="white-text" id="start-btn">START</a>
         <% else %>
-          <a href="#!" class="white-text"><i class="material-icons">account_circle</i></a>
+          <a href="#player-account-modal" class="white-text waves-effect waves-light"><i class="material-icons">account_circle</i></a>
         <% end %>
       </li>
       <li id="action-item">
-        <a><i class="material-icons">grade</i></a>
+        <a href="#controls-modal" class="waves-effect waves-light"><i class="material-icons">grade</i></a>
       </li>
       <li id="chat-item">
         <a><i class="material-icons">room</i></a>
@@ -46,6 +46,10 @@
     </ul>
   </div>
 </div>
+
+<%= render PokerEx.PlayerView, "_account_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
+
 <script>
   window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";
 </script>

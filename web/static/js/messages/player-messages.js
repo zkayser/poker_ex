@@ -42,7 +42,6 @@ export default class PlayerMessages {
     });
     
     channel.on("chip_update", (payload) => {
-
       if (name == payload.player && this.player == undefined) {
         if (this.player == undefined) {
          this.player = new Player(payload.player, payload.chips); 
