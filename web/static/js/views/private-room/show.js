@@ -4,6 +4,7 @@ import $ from 'jquery';
 import SpinnerAnimation from '../../animations/spinner-animations';
 import Table from '../../table';
 import Card from '../../card';
+import Player from '../../player';
 import TableConcerns from '../../table-concerns';
 import PlayerMessages from '../../messages/player-messages';
 import RoomMessages from '../../messages/room-messages';
@@ -55,6 +56,7 @@ export default class PrivateRoomShowView extends MainView {
       Table.renderPlayers(seating);
       Table.addActiveClass(state.active, seating);
       this.handlePlayerHands(player, state.player_hands);
+      this.handleActivePlayerRender(player, state);
       this.setPot(state.pot);
       TableConcerns.init(channel, player, {}, state);
       PlayerMessages.init(channel, player);
@@ -75,25 +77,13 @@ export default class PrivateRoomShowView extends MainView {
       return obj.player;
     });
     if (players.includes(player)) {
-      $("#offscreen-left").addClass("slide-onscreen-right");
-      let cardHolder = document.querySelector(".card-holder");
-      cardHolder.style.visibility = "visible";
       let filtered = player_hands.filter((obj) => {
         if (obj.player == player) {
           return true;
         }
       });
       let hand = filtered[0].hand;
-      let playerCards = document.getElementById("player-cards");
-      let children = playerCards.childNodes;
-      let cards = Card.renderPlayerCards(hand);
-      
-      for (let i = children.length - 1; i >= 0; i-- ) {
-        playerCards.removeChild(children[i]);
-      }
-      cards.forEach((card) => {
-        playerCards.appendChild(card);
-      });
+      Card.renderPlayerCards(hand);
     }
   }
   
@@ -107,6 +97,13 @@ export default class PrivateRoomShowView extends MainView {
       seating[`${seat.name}`] = seat.position;
     });
     return seating;
+  }
+  
+  handleActivePlayerRender(player, state) {
+    if (player == state.active) {
+      console.log("player == active player");
+      Player.renderPlayerControls(state.to_call, state.round[player]);
+    }
   }
   
   unmount() {

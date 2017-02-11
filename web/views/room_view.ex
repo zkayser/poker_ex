@@ -14,7 +14,7 @@ defmodule PokerEx.RoomView do
             PokerEx.Repo.one(from p in PokerEx.Player, where: p.name == ^name)
           end)
       end
-    
+      
     %{active: active,
       current_big_blind: room.current_big_blind || nil,
       current_small_blind: room.current_small_blind || nil,
@@ -26,7 +26,7 @@ defmodule PokerEx.RoomView do
       player_hands: Phoenix.View.render_many(room.player_hands, __MODULE__, "player_hands.json", as: :player_hand),
       round: room.round || %{},
       pot: room.pot || 0,
-      table: (unless room.table == [], do: [], else:  Phoenix.View.render_many(room.table, __MODULE__, "card.json", as: :card))
+      table: (if room.table == [], do: [], else:  Phoenix.View.render_many(room.table, __MODULE__, "card.json", as: :card))
      }
   end
   

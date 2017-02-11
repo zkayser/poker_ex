@@ -11,6 +11,7 @@ export default class TableConcerns {
     let Materialize = window.Materialize;
     
     let table = new Table(tableData);
+    console.log("new table initiated from TableConcerns class with table and tableData: ", table, tableData);
     table.user = name;
     let earlierPlayersSeen = false;
     // Initializes the table cards for private

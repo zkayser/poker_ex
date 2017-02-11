@@ -5,7 +5,7 @@
         <h4>Controls</h4>
       </div>
       <div class="col s12 m6 center-align btn-div">
-        <a class="waves-effect waves-light red accent-4 btn btn-large raise-btn action-btn" 
+        <a class="waves-effect waves-light red accent-4 btn btn-large raise-control-btn action-btn" 
                 href="#raise-modal">
           <i class="material-icons left">add</i>
           Raise
@@ -57,7 +57,7 @@
     <div class="modal-footer">
       <div class="row">
         <div class="col s4">
-          <button type="button" id="raise-submit" class="btn waves-effect red accent-4 left">Raise</button>
+          <button type="button" id="raise-submit" class="btn raise-btn waves-effect red accent-4 left">Raise</button>
         </div>
         <div class="col s4">
           <div class="col s12 input-field">

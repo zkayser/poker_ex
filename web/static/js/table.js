@@ -2,14 +2,30 @@ import $ from 'jquery';
 
 import {SEAT_MAPPING} from "./seat-mapping";
 import Player from './player';
+import Card from './card';
 
 export default class Table {
 	constructor(data) {
 		this.pot = data.pot || 0;
 		this.callAmount = data.callAmount || 0;
-		this.cards = data.table || [];
+		if (data.table.length > 0) {
+			this.cards = [];
+			data.table.forEach((card) => {
+				this.cards.push(new Card(card.rank, card.suit));
+			});
+		} else {
+			this.cards = [];
+		}
 		this.type = data.type || "public";
-		this.players = data.players || [];
+		if (data.players.length > 0) {
+			console.log("data.players.length > 0; if statement called in constructor");
+			this.players = [];
+			data.players.forEach((player) => {
+				this.players.push(new Player(player.name, player.chips));
+			});
+		} else {
+			this.players = [];
+		}
 		this.seating = data.seating || new Object();
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
