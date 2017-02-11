@@ -22,6 +22,9 @@ export default class PrivateRoomShowView extends MainView {
     let leaveBtn = $("#leave-btn");
     let startBtn = $("#start-btn");
     
+    let tableMsgsInitiated = false;
+    let lastTableCardsSeen = [];
+    
     let socket = new Socket('/socket', {params: {token: window.playerToken}});
     
     socket.connect();
@@ -49,7 +52,6 @@ export default class PrivateRoomShowView extends MainView {
     
     // Initialize the table UI and player info section in this callback, then init TableConcerns
     channel.on("private_room_join", state => {
-      console.log("private_room_join received with: ", state);
       SpinnerAnimation.onJoinPrivateRoom();
       let seating = this.formatSeating(state.seating);
       state.seating = seating;
@@ -58,13 +60,32 @@ export default class PrivateRoomShowView extends MainView {
       this.handlePlayerHands(player, state.player_hands);
       this.handleActivePlayerRender(player, state);
       this.setPot(state.pot);
-      TableConcerns.init(channel, player, {}, state);
-      PlayerMessages.init(channel, player);
-      RoomMessages.init(channel);
+      if (tableMsgsInitiated) {
+        this.handleTableCardUpdate(state.table, lastTableCardsSeen);
+        lastTableCardsSeen = state.table.map((obj) => {return new Card(obj.rank, obj.suit)});
+      } else {
+        TableConcerns.init(channel, player, {}, state);
+        PlayerMessages.init(channel, player);
+        RoomMessages.init(channel);
+        tableMsgsInitiated = true;
+      }
     });
     
     channel.on("join_room_success", () => {
       console.log("Room joined successfully!");
+    });
+    
+    channel.on("flop_dealt", ({cards}) => {
+      cards.forEach((card) => {
+        lastTableCardsSeen.push(new Card(card.rank, card.suit));
+      });
+    });
+    channel.on("card_dealt", (card) => {
+      lastTableCardsSeen.push(new Card(card.rank, card.suit));
+    });
+    
+    channel.on("game_finished", (payload) => {
+      lastTableCardsSeen = [];
     });
     
     channel.on("error_on_room_join", (payload) => {
@@ -104,6 +125,18 @@ export default class PrivateRoomShowView extends MainView {
       console.log("player == active player");
       Player.renderPlayerControls(state.to_call, state.round[player]);
     }
+  }
+  
+  handleTableCardUpdate(currentTable, lastSeen) {
+    let tableCards = document.querySelector(".table-cards");
+    let cards = [];
+    if (currentTable.length > 0) {
+      currentTable.forEach((obj) => {
+        cards.push(new Card(obj.rank, obj.suit));
+      });
+    }
+    tableCards.innerHTML = '';
+    Table.renderCards(cards);
   }
   
   unmount() {

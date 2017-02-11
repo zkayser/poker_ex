@@ -71,6 +71,13 @@ export default class TableConcerns {
       
     });
     
+    channel.on("clear_table", (payload) => {
+      if (payload.player == table.user) {
+        table.removeCards();
+        table = null;
+      }
+    });
+    
     channel.on("advance", ({player}) => {
       table.removeActiveClass();
       table.addActiveClass(player);

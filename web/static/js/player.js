@@ -6,7 +6,6 @@ export default class Player {
 		this.name = name;
 		this.chips = chips;
 		this.seatingPosition = seatingPosition || undefined;
-		this.playerInfo = document.getElementById("player-info");
 	}
 	
 	bet(amount, table) {
@@ -19,17 +18,6 @@ export default class Player {
 		joinMsg.innerText = player.name || player;
 		joinMsg.setAttribute('id', 'player-element');
 		return joinMsg;
-	}
-	
-	renderPlayerInfo() {
-		let oldInfo = document.getElementById("info");
-		if (oldInfo) {
-			this.playerInfo.removeChild(oldInfo);
-		}
-		let paragraph = document.createElement('p');
-		paragraph.innerText = `${this.name}: ${this.chips}`;
-		paragraph.setAttribute("id", "info");
-		this.playerInfo.appendChild(paragraph);
 	}
 	
 	static renderPlayerControls(callAmount, paidInRound) {

@@ -43,6 +43,14 @@ export default class Table {
 		});
 	}
 	
+	static renderCards(cards) {
+		let tableCards = $(".table-cards");
+		cards.forEach((card) => {
+			let markup = card.render();
+			tableCards.append($(markup));
+		});
+	}
+	
 	removeCards() {
 		let tableCards = document.querySelector(".table-cards");
 		tableCards.innerHTML = "";

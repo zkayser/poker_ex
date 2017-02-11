@@ -48,7 +48,10 @@
         <i class="large material-icons decrease-btn teal-text left">chevron_left</i>
       </div>
       <div class="col s4 center-align">
-        <h1 id="raise-value">100</h1>
+        <h1 class="hide-on-small-only" id="raise-value">100</h1>
+        <div class="hide-on-med-and-up valign-wrapper">
+          <h4 class="hide-on-med-and-up valign" id="raise-value">100</h4>
+        </div>
       </div>
       <div class="col s4">
         <i class="large material-icons increase-btn teal-text right">chevron_right</i>

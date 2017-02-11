@@ -170,6 +170,7 @@ defmodule PokerEx.PlayersChannel do
 	def terminate(_message, socket) do
 		case socket.assigns[:room_type] do
 			:private ->
+				broadcast!(socket, "clear_table", %{player: Repo.get(Player, socket.assigns[:player_id]).name})
 				{:shutdown, :left}
 			_ ->
 				room_id = socket.assigns[:room]
