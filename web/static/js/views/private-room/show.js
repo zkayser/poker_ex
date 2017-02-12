@@ -8,6 +8,7 @@ import Player from '../../player';
 import TableConcerns from '../../table-concerns';
 import PlayerMessages from '../../messages/player-messages';
 import RoomMessages from '../../messages/room-messages';
+import RaiseControl from '../../components/raise-control';
 
 export default class PrivateRoomShowView extends MainView {
   
@@ -53,6 +54,12 @@ export default class PrivateRoomShowView extends MainView {
     // Initialize the table UI and player info section in this callback, then init TableConcerns
     channel.on("private_room_join", state => {
       SpinnerAnimation.onJoinPrivateRoom();
+      let raiseData = RaiseControl.extractRaiseControlData(state, player);
+      if (state.active == player) {
+        console.log("initiating raiseControl Component...");
+        let raiseControl = new RaiseControl(raiseData, player);
+        raiseControl.initComponent(player, channel);
+      }
       let seating = this.formatSeating(state.seating);
       state.seating = seating;
       Table.renderPlayers(seating);

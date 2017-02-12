@@ -35,9 +35,9 @@ export default class Player {
 	renderPlayerControls(callAmount, paidInRound) {
 		let controls = [];
 		if (callAmount > paidInRound || paidInRound === undefined ) {
-			controls = [$(".call-btn"), $(".fold-btn"), $(".raise"), $(".raise-btn")];
+			controls = [$(".call-btn"), $(".fold-btn"), $(".raise"), $(".raise-btn"), $(".raise-control-btn")];
 		} else if (callAmount === paidInRound || callAmount === 0) {
-			controls = [$(".check-btn"), $(".raise"), $(".raise-btn")];
+			controls = [$(".check-btn"), $(".raise"), $(".raise-btn"), $(".raise-control-btn")];
 		} else if (callAmount > this.chips) {
 			controls = [$(".call-btn"), $(".fold-btn")];
 		}
@@ -47,7 +47,7 @@ export default class Player {
 	}
 	
 	static hidePlayerControls() {
-		let controls = [$(".fold-btn"), $(".call-btn"), $(".check-btn"), $(".raise"), $(".raise-btn")];
+		let controls = [$(".fold-btn"), $(".call-btn"), $(".check-btn"), $(".raise"), $(".raise-btn"), $(".raise-control-btn")];
 		controls.forEach((control) => {
 			control.fadeTo("slow", 0);
 		});

@@ -50,7 +50,7 @@
       <div class="col s4 center-align">
         <h1 class="hide-on-small-only" id="raise-value">100</h1>
         <div class="hide-on-med-and-up valign-wrapper">
-          <h4 class="hide-on-med-and-up valign" id="raise-value">100</h4>
+          <h3 class="hide-on-med-and-up valign" id="raise-value-mobile">100</h3>
         </div>
       </div>
       <div class="col s4">
@@ -69,7 +69,7 @@
         </div> 
         </div>
         <div class="col s4">
-           <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat"><i class="material-icons">close</i></a>
+           <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat"><i class="material-icons" id="raise-control-close">close</i></a>
         </div>
       </div>
     </div>

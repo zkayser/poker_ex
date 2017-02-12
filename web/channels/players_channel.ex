@@ -154,6 +154,8 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	# TODO: Implement "remove_player" message
+	
 	#####################
 	# Outgoing Messages #
 	#####################
