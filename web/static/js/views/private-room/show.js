@@ -58,7 +58,7 @@ export default class PrivateRoomShowView extends MainView {
       if (state.active == player) {
         console.log("initiating raiseControl Component...");
         let raiseControl = new RaiseControl(raiseData, player);
-        raiseControl.initComponent(player, channel);
+        raiseControl.initComponent(channel, player);
       }
       let seating = this.formatSeating(state.seating);
       state.seating = seating;

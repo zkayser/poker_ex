@@ -21,6 +21,15 @@ export default class RaiseControl {
       this.raiseControlBtn.addClass("disabled");
       this.submitBtn.addClass("disabled");
     }
+    if (this.max) {
+      let val = Math.round(this.max / 2);
+      while (val % 5 != 0) {
+        val++;
+      }
+      this.slider.val(val);
+      this.raiseValDisplay.text(val);
+      this.raiseValMobile.text(val);
+    }
   }
   
   initComponent(player, channel) {
@@ -30,7 +39,7 @@ export default class RaiseControl {
     this.attachRaiseInputEvent();
     this.attachIncreaseButtonEvent();
     this.attachDecreaseButtonEvent();
-    this.attachSubmitEvent();
+    this.attachSubmitEvent(player, channel);
     this.setCursorOnIncDecBtns();
   }
   
@@ -43,26 +52,22 @@ export default class RaiseControl {
   
   attachSliderEvent() {
     this.slider.on('change', (event) => {
-      this.raiseValDisplay.text(this.keepInRange(event.target.value));
-      this.raiseValMobile.text(this.keepInRange(event.target.value));
+      this.updateDisplayValue(this.keepInRange(event.target.value));
     });
   }
   
   attachRaiseInputEvent() {
     this.raiseInput.on('input', (event) => {
       if (!isNaN(parseInt(event.target.value, 10))) {
-        this.raiseValDisplay.text(this.keepInRange(event.target.value));
-        this.raiseValMobile.text(this.keepInRange(event.target.value));
+        this.updateDisplayValue(this.keepInRange(event.target.value));
       } else {
-        this.raiseValDisplay.text("0"); 
-        this.raiseValMobile.text("0");
+        this.updateDisplayValue("0"); 
       }
     });
   }
   
   attachRaiseValDisplayUpdate() {
     this.raiseValDisplay.bind('DOMSubtreeModified', (e) => {
-      console.log("should be updating with: ", e.currentTarget.innerText);
       this.slider.val(e.currentTarget.innerText);
     });
   }
@@ -77,8 +82,8 @@ export default class RaiseControl {
   
   attachSubmitEvent(channel, player) {
     this.submitBtn.on('click', (e) => {
-      // Player.raise(player, this.raiseValDisplay.text(), channel);
       $("#raise-control-close").click();
+      Player.raise(player, this.slider.val(), channel);
     });
   }
   
@@ -114,6 +119,11 @@ export default class RaiseControl {
     this.decreaseButton.css('cursor', 'pointer');
   }
   
+  updateDisplayValue(number) {
+    this.raiseValDisplay.text(number);
+    this.raiseValMobile.text(number);
+  }
+  
   keepInRange(number) {
     if (number > this.max) {
       return this.max || 0;
@@ -124,7 +134,6 @@ export default class RaiseControl {
     }
   }
   
-
   static extractRaiseControlData(data, player) {
     let raiseData = new Object();
     let paidInRound = data[player] || 0;
