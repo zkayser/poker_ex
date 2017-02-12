@@ -44,6 +44,7 @@ export default class Player {
 		controls.forEach((control) => {
 			control.fadeTo("slow", 1);
 		});
+		window.Materialize.toast("Your turn!", 1000);
 	}
 	
 	static hidePlayerControls() {
@@ -51,6 +52,9 @@ export default class Player {
 		controls.forEach((control) => {
 			control.fadeTo("slow", 0);
 		});
+		$("#controls-modal").css("display", "none").css("opacity", 0);
+		$(".modal-overlay").css("display", "none");
+		$("#controls-modal").removeClass("open");
 	}
 	
 	static raise(player, amount, channel) {
@@ -58,6 +62,7 @@ export default class Player {
 			player: player.name || player,
 			amount: amount
 		});
+		$("#close-controls").click();
 	}
 	
 	static fold(player, channel) {

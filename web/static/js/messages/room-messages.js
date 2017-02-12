@@ -9,16 +9,17 @@ export default class RoomMessages {
     });
     
     channel.on("winner_message", payload => {
-      Materialize.toast(`${payload.message}`, 2000, 'rounded');
+      console.log("winner_message received with payload: ", payload);
+      Materialize.toast(`${payload.message}`, 2000);
     });
     
     channel.on("welcome_player", payload => {
-      Materialize.toast(`Welcome to the lobby.`, 2000, 'rounded');
+      Materialize.toast(`Welcome to the lobby.`, 2000);
     });
     
     channel.on("game_finished", payload => {
       setTimeout(() => {
-        Materialize.toast(`${payload.message}`, 2000, 'rounded');
+        Materialize.toast(`${payload.message}`, 2000);
       }, 1000);
     });
     

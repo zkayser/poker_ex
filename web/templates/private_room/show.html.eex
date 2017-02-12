@@ -15,7 +15,7 @@
   
   
   <div class="fixed-action-btn toolbar">
-    <a class="btn-floating btn-large red">
+    <a class="btn-floating btn-large red controls-btn">
       <i class="large material-icons">explore</i>
     </a>
     <ul id="player-toolbar" class="white-text">

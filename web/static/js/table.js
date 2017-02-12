@@ -106,7 +106,7 @@ export default class Table {
 		if (!(player == null)) {
 			let position = seating[player];
 			let element = $(`.${SEAT_MAPPING[position]}`);
-			element.addClass("active-player");	
+			element.addClass("active-player");
 		}
 	}
 	

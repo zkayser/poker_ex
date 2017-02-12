@@ -102,7 +102,7 @@ export default class TableConcerns {
       if (player == table.user) {
         let amountToCall = table.callAmount - table.paidInRound[player];
         if (amountToCall > 0) {
-          Materialize.toast(`${amountToCall} to call.`, 2000, 'rounded'); 
+          Materialize.toast(`${amountToCall} to call.`, 2000); 
         }
       }
     });

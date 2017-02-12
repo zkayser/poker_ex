@@ -154,6 +154,9 @@ nav.top-nav a.page-title {
 	height: 5rem;
 }
 
+.hidden {
+	display: none;
+}
 
 #player-cards {
 	display: flex;

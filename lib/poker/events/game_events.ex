@@ -23,6 +23,6 @@ defmodule PokerEx.GameEvents do
   end
   
   def winner_message(room_id, message) do
-    Endpoint.broadcast!("players" <> room_id, "winner_message", %{message: message})
+    Endpoint.broadcast!("players:" <> room_id, "winner_message", %{message: message})
   end
 end
