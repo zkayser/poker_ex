@@ -90,4 +90,18 @@ export default class Player {
 		div.appendChild(span);
 		return div;
 	}
+	
+	static filterPlayersArrayByName(state, name) {
+		console.log("name: ", name);
+		let filtered = state.players.filter((player) => {
+			if (player.name == name) {
+				return player;
+			}
+		});
+		if (filtered.length > 0) {
+			return filtered[0];
+		} else {
+			return null;
+		}
+	}
 }

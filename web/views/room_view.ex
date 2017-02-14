@@ -18,6 +18,7 @@ defmodule PokerEx.RoomView do
     %{active: active,
       current_big_blind: room.current_big_blind || nil,
       current_small_blind: room.current_small_blind || nil,
+      state: Room.which_state(room.room_id),
       paid: room.paid || %{},
       to_call: room.to_call || 0,
       players: Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json"),

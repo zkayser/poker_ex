@@ -27,8 +27,8 @@
         <% end %>
       </li>
       <li id="start-info-item">
-        <%= if PokerEx.Room.which_state(String.to_atom(@room.title)) == :idle && @current_player in @room.participants
-            && length(PokerEx.Room.state(String.to_atom(@room.title)).seating) > 1 do %>
+        <%= if PokerEx.Room.which_state(String.to_atom(@room.title)) == :idle && (@current_player in @room.participants || 
+            @current_player in @room.invitees) && length(PokerEx.Room.state(String.to_atom(@room.title)).seating) > 1 do %>
           <a href="#!" class="white-text" id="start-btn">START</a>
         <% else %>
           <a href="#player-account-modal" class="white-text waves-effect waves-light"><i class="material-icons">account_circle</i></a>

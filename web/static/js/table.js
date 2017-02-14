@@ -18,7 +18,6 @@ export default class Table {
 		}
 		this.type = data.type || "public";
 		if (data.players.length > 0) {
-			console.log("data.players.length > 0; if statement called in constructor");
 			this.players = [];
 			data.players.forEach((player) => {
 				this.players.push(new Player(player.name, player.chips));
@@ -30,6 +29,10 @@ export default class Table {
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
 		this.paidInRound = data.round || undefined;
+	}
+	
+	init() {
+		
 	}
 	
 	renderCards() {
@@ -60,6 +63,26 @@ export default class Table {
 		this.players.push(player);
 	}
 	
+	updatePot(pot) {
+		$("#pot").text(pot);
+	}
+	
+	renderPlayers() {
+		console.log("Rendering players...");
+		let keys = Object.keys(this.seating);
+		keys.forEach((key) => {
+			let cardTable = document.querySelector(".card-table");
+			let fragment = document.createDocumentFragment();
+			let position = SEAT_MAPPING[this.seating[key]];
+			let player = Player.emblem(key);
+			let container = document.createElement('a');
+			container.setAttribute('class', position);
+			container.appendChild(player);
+			fragment.appendChild(container);
+			cardTable.appendChild(fragment);
+		});
+	}
+	
 	static renderPlayers(seating) {
 		let keys = Object.keys(seating);
 		keys.forEach((key) => {
@@ -83,6 +106,18 @@ export default class Table {
 	}
 	
 	static renderNewPlayer(player, position) {
+		let cardTable = document.querySelector(".card-table");
+		let fragment = document.createDocumentFragment();
+		let seatClass = SEAT_MAPPING[position];
+		let emblem = Player.emblem(player);
+		let container = document.createElement('a');
+		container.setAttribute('class', seatClass);
+		container.appendChild(emblem);
+		fragment.appendChild(container);
+		cardTable.appendChild(fragment);
+	}
+	
+	renderNewPlayer(player, position) {
 		let cardTable = document.querySelector(".card-table");
 		let fragment = document.createDocumentFragment();
 		let seatClass = SEAT_MAPPING[position];
@@ -123,4 +158,25 @@ export default class Table {
 	markupFor(position) {
 		return SEAT_MAPPING[position];
 	}
+	
+	static extractTableData(data) {
+		let tableData = new Object();
+		tableData.seating = this.formatSeating(data.seating);
+		tableData.pot = data.pot;
+		tableData.callAmount = data.to_call || 0;
+		tableData.table = data.table;
+		tableData.type = data.type;
+		tableData.players = data.players;
+		tableData.user = data.user;
+		tableData.paidInRound = data.round;
+		return tableData;
+	}
+	
+	static formatSeating(seatingArray) {
+    let seating = new Object();
+    seatingArray.forEach((seat) => {
+      seating[`${seat.name}`] = seat.position;
+    });
+    return seating;
+  }
 }

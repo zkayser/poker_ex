@@ -4,26 +4,26 @@
       <div class="col s12 center-align">
         <h4>Controls</h4>
       </div>
-      <div class="col s12 m6 center-align btn-div">
+      <div class="col s12 m6 center-align btn-div" id="raise-div">
         <a class="waves-effect waves-light red accent-4 btn btn-large raise-control-btn action-btn" 
                 href="#raise-modal">
           <i class="material-icons left">add</i>
           Raise
         </a>
       </div>
-      <div class="col s12 m6 center-align btn-div">
+      <div class="col s12 m6 center-align btn-div" id="call-div">
         <button class="waves-effect waves-light blue accent-2 btn btn-large call-btn action-btn">
           <i class="material-icons left">forward</i>
           Call
         </button>
       </div>
-      <div class="col s12 m6 center-align btn-div">
+      <div class="col s12 m6 center-align btn-div" id="check-div">
         <button class="waves-effect waves-light green accent-3 btn btn-large check-btn action-btn">
           <i class="material-icons left">done</i>
           Check
         </button>
       </div>
-      <div class="col s12 m6 center-align btn-div">
+      <div class="col s12 m6 center-align btn-div" id="fold-div">
          <button class="waves-effect waves-light grey darken-3 btn btn-large fold-btn action-btn">
            <i class="material-icons left">clear</i>
            Fold
