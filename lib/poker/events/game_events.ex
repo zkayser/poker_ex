@@ -4,17 +4,12 @@ defmodule PokerEx.GameEvents do
   alias PokerEx.Repo
   alias PokerEx.PlayerView
   
-  def game_started(room_id, {active, _seat}, cards) do
-    hands = Enum.map(cards,
-      fn {name, hand} ->
-        player_hand = Enum.map(hand, fn card -> Map.from_struct(card) end)
-        %{player: name, hand: player_hand}
-      end)
-    players = Enum.map(cards, 
-      fn {name, _hand} -> 
-        Repo.get_by(Player, name: name)
-      end)
-    Endpoint.broadcast!("players:" <> room_id, "game_started", %{active: active, hands: hands} |> Map.merge(PlayerView.render("index.json", %{players: players})))
+  def game_started(room_id, room) do
+    Endpoint.broadcast!("players:" <> room_id, "game_started", PokerEx.RoomView.render("room.json", %{room: room}))
+  end
+  
+  def state_updated(room_id, update) do
+    Endpoint.broadcast!("players:" <> room_id, "state_updated", PokerEx.RoomView.render("room.json", %{room: update}))
   end
 
   def game_over(room_id, winner, reward) do

@@ -71,13 +71,11 @@ defmodule PokerEx.Room do
 						timeout: @timeout
 	
 	def start_link(args) when is_list(args) do
-		IO.puts "Start link called with args: #{inspect(args)}"
 		id = List.first(args)
 		:gen_statem.start_link({:local, id}, __MODULE__, [args], [])
 	end
 						
 	def start_link(args \\ []) do
-		IO.puts "Start link called with args: #{inspect(args)}"
 		room_id = :"#{args}"
 		:gen_statem.start_link({:local, room_id}, __MODULE__, [args], [])
 		# {:debug, [:trace, :log]}
@@ -92,31 +90,31 @@ defmodule PokerEx.Room do
 	##############
 	
 	def join(room_id, player) do
-		:gen_statem.cast(room_id, {:join, player.name})
+		:gen_statem.call(room_id, {:join, player.name})
 	end
 	
 	def call(room_id, player) do
-		:gen_statem.cast(room_id, {:call, player.name})
+		:gen_statem.call(room_id, {:call, player.name})
 	end
 	
 	def check(room_id, player) do
-		:gen_statem.cast(room_id, {:check, player.name})
+		:gen_statem.call(room_id, {:check, player.name})
 	end
 	
 	def raise(room_id, player, amount) do
-		:gen_statem.cast(room_id, {:raise, player.name, amount})
+		:gen_statem.call(room_id, {:raise, player.name, amount})
 	end
 	
 	def fold(room_id, player) do
-		:gen_statem.cast(room_id, {:fold, player.name})
+		:gen_statem.call(room_id, {:fold, player.name})
 	end
 	
 	def start(room_id) do
-		:gen_statem.cast(room_id, :start)
+		:gen_statem.call(room_id, :start)
 	end
 	
 	def leave(room_id, player) do
-		:gen_statem.cast(room_id, {:leave, player.name})
+		:gen_statem.call(room_id, {:leave, player.name})
 	end
 	
 	def player_count(room_id) do
@@ -140,31 +138,31 @@ defmodule PokerEx.Room do
 	############
 	
 	def t_join(player) do
-		:gen_statem.cast(:test, {:join, player.name})
+		:gen_statem.call(:test, {:join, player.name})
 	end
 	
 	def t_call(player) do
-		:gen_statem.cast(:test, {:call, player.name})
+		:gen_statem.call(:test, {:call, player.name})
 	end
 	
 	def t_check(player) do
-		:gen_statem.cast(:test, {:check, player.name})
+		:gen_statem.call(:test, {:check, player.name})
 	end
 	
 	def t_raise(player, amount) do
-		:gen_statem.cast(:test, {:raise, player.name, amount})
+		:gen_statem.call(:test, {:raise, player.name, amount})
 	end
 	
 	def t_fold(player) do
-		:gen_statem.cast(:test, {:fold, player.name})
+		:gen_statem.call(:test, {:fold, player.name})
 	end
 	
 	def t_ready(player) do
-		:gen_statem.cast(:test, {:ready, player.name})
+		:gen_statem.call(:test, {:ready, player.name})
 	end
 	
 	def t_leave(player) do
-		:gen_statem.cast(:test, {:leave, player.name})
+		:gen_statem.call(:test, {:leave, player.name})
 	end
 	
 	def t_state do
@@ -202,17 +200,17 @@ defmodule PokerEx.Room do
 	# State Functions #
 	###################
 	
-	def handle_event(:cast, {:join, player}, :idle, %Room{type: :private, seating: seating} = room) when length(seating) <= @seating_capacity do
+	def handle_event({:call, from}, {:join, player}, :idle, %Room{type: :private, seating: seating} = room) when length(seating) <= @seating_capacity do
 		update = Updater.seating(room, player)
-		{:next_state, :idle, update}
+		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:join, player}, :idle, %Room{seating: seating} = room) when length(seating) < 1 do
+	def handle_event({:call, from}, {:join, player}, :idle, %Room{seating: seating} = room) when length(seating) < 1 do
 		update = Updater.seating(room, player)
-		{:next_state, :idle, update}
+		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:join, player}, :idle, room) do
+	def handle_event({:call, from}, {:join, player}, :idle, room) do
 		update =
 			room
 			|> Updater.seating(player)
@@ -222,13 +220,13 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 		
-			Events.game_started(room.room_id, hd(update.active), update.player_hands)
+			Events.game_started(room.room_id, update)
 			Events.advance(room.room_id, hd(update.active))
 		
-		{:next_state, :pre_flop, update}
+		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, :start, :idle, room) do
+	def handle_event({:call, from}, :start, :idle, room) do
 		update =
 			room
 			|> Updater.blinds
@@ -237,13 +235,13 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
-			Events.game_started(room.room_id, hd(update.active), update.player_hands)
+			Events.game_started(room.room_id, update)
 			Events.advance(room.room_id, hd(update.active))
 			
-		{:next_state, :pre_flop, update}
+		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:join, player}, :between_rounds, %Room{seating: seating} = room) when length(seating) == 1 do
+	def handle_event({:call, from}, {:join, player}, :between_rounds, %Room{seating: seating} = room) when length(seating) == 1 do
 		update =
 			room
 			|> round_transition(:between_rounds)
@@ -264,40 +262,40 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
-			Events.game_started(room.room_id, hd(update.active), update.player_hands)
+			Events.game_started(room.room_id, update)
 			Events.advance(room.room_id, hd(update.active))
 			
-		{:next_state, :pre_flop, update}
+		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:join, player}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
+	def handle_event({:call, from}, {:join, player}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
 		update =
 			room
 			|> Updater.seating(player)
-		{:next_state, state, update}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:join, _player}, state, room), do: {:next_state, state, room}
+	def handle_event({:call, from}, {:join, _player}, state, room), do: {:next_state, state, room, [{:reply, from, room}]}
 	
-	def handle_event(:cast, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 1 do
+	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 1 do
 		update = 
 			room
 			|> Updater.reset_table_state
 			|> Updater.remove_from_seating(player)
-		{:next_state, :idle, update}
+		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 2 do
+	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 2 do
 		update =
 			room
 			|> Updater.reset_table_state
 			|> Updater.remove_from_seating(player)
 		
 		Events.clear_ui(room.room_id)
-		{:next_state, :idle, update}
+		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:leave, player}, state, %Room{seating: seating} = room) do
+	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating} = room) do
 		seated_players = Enum.map(seating, fn {pl, _num} -> pl end)
 		update =
 			case player in seated_players do
@@ -308,28 +306,28 @@ defmodule PokerEx.Room do
 					|> Updater.advance_active
 				_ -> room
 			end
-		{:next_state, state, update}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event(:cast, {:call, player}, state, %Room{called: called, active: active} = room) 
+	def handle_event({:call, from}, {:call, player}, state, %Room{called: called, active: active} = room) 
 	when length(called) < length(active) - 1 do
 		update =
 			room
 			|> BetTracker.call(player)
-		{:next_state, state, update, update.timeout}
+		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
 	end
 	
-	def handle_event(:cast, {:call, player}, state, %Room{all_in: all_in, folded: folded, seating: seating} = room) 
+	def handle_event({:call, from}, {:call, player}, state, %Room{all_in: all_in, folded: folded, seating: seating} = room) 
 	when length(all_in) + length(folded) == length(seating) - 1 and state in @non_terminal_states do
 		update = 
 			room
 			|> Updater.no_advance_event
 			|> BetTracker.call(player)
 			|> round_transition(state)
-		{:next_state, :game_over, update, [{:next_event, :internal, :handle_all_in}]}
+		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
 	end
 	
-	def handle_event(:cast, {:call, player}, state, room) when state in @non_terminal_states do
+	def handle_event({:call, from}, {:call, player}, state, room) when state in @non_terminal_states do
 		update = 
 			room
 			|> Updater.no_advance_event
@@ -339,44 +337,44 @@ defmodule PokerEx.Room do
 		{all_in, folded, seating} = {update.all_in, update.folded, update.seating}
 		case (length(all_in) + length(folded) == length(seating) - 1) do
 			true ->
-				{:next_state, :game_over, update, [{:next_event, :internal, :handle_all_in}]}
+				{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
 			_ ->
-				{:next_state, advance_state(state), update, update.timeout}
+				{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
 		end
 	end
 	
-	def handle_event(:cast, {:call, player}, :river, room) do
+	def handle_event({:call, from}, {:call, player}, :river, room) do
 		update = 
 			room
 			|> BetTracker.call(player)
-		{:next_state, :game_over, update, [{:next_event, :internal, :reward_winner}]}	
+		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}	
 	end
 	
-	def handle_event(:cast, {:fold, player}, state, %Room{active: active, all_in: all_in} = room)
+	def handle_event({:call, from}, {:fold, player}, state, %Room{active: active, all_in: all_in} = room)
 	when length(active) == 2 or length(all_in) >= 1 and length(active) == 1 do
 		update =
 			room
 			|> BetTracker.fold(player)
 			|> round_transition(state)
-		{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}
+		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_fold}]}
 	end
 	
-	def handle_event(:cast, {:fold, player}, state, %Room{called: called, active: active} = room) when length(called) >= length(active) - 1 do
+	def handle_event({:call, from}, {:fold, player}, state, %Room{called: called, active: active} = room) when length(called) >= length(active) - 1 do
 		update =
 			room
 			|> BetTracker.fold(player)
 			|> round_transition(state)
-		{:next_state, advance_state(state), update, update.timeout}
+		{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
 	end
 	
-	def handle_event(:cast, {:fold, player}, state, room) do
+	def handle_event({:call, from}, {:fold, player}, state, room) do
 		update = 
 			room
 			|> BetTracker.fold(player)
-		{:next_state, state, update, update.timeout}
+		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
 	end
 	
-	def handle_event(:cast, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
+	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
 	when length(called) < length(active) - 1 do
 		update =
 			case call_amount == round[player] || call_amount == 0 do
@@ -386,10 +384,10 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, state, update, update.timeout}
+		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
 	end
 	
-	def handle_event(:cast, {:check, player}, state, %Room{to_call: call_amount, round: round, all_in: all_in, active: active} = room) 
+	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, all_in: all_in, active: active} = room) 
 	when length(all_in) >= 1 and length(active) == 1 do
 		update = 
 			case call_amount == round[player] || call_amount == 0 do
@@ -401,10 +399,10 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, :game_over, update, [{:next_event, :internal, :handle_all_in}]}
+		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
 	end
 	
-	def handle_event(:cast, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
+	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
 	when length(called) >= length(active) - 1 and state in @non_terminal_states do
 		update = 
 			case call_amount == round[player] || call_amount == 0 do
@@ -416,10 +414,10 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, advance_state(state), update, update.timeout}
+		{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
 	end
 	
-	def handle_event(:cast, {:check, player}, :river, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
+	def handle_event({:call, from}, {:check, player}, :river, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
 	when length(called) >= length(active) - 1 do
 		update =
 			case call_amount == round[player] || call_amount == 0 do
@@ -429,14 +427,14 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, :game_over, update, [{:next_event, :internal, :reward_winner}]}
+		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}
 	end
 	
-	def handle_event(:cast, {:raise, player, amount}, state, %Room{to_call: call_amount} = room) when amount > call_amount do
+	def handle_event({:call, from}, {:raise, player, amount}, state, %Room{to_call: call_amount} = room) when amount > call_amount do
 		update =
 			room
 			|> BetTracker.raise(player, amount)
-		{:next_state, state, update, update.timeout}
+		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
 	end
 	
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
@@ -446,7 +444,7 @@ defmodule PokerEx.Room do
 			|> Updater.stats
 			|> Updater.winner
 		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
-		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -460,7 +458,7 @@ defmodule PokerEx.Room do
 			|> Updater.insert_winner(winner)
 			|> Updater.insert_stats(winner, 100)
 		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
-		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round on a fold")
+		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -474,7 +472,7 @@ defmodule PokerEx.Room do
 			|> Updater.insert_winner(winner)
 			|> Updater.insert_stats(winner, 100)
 		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
-		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round on a fold")
+		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -496,7 +494,7 @@ defmodule PokerEx.Room do
 			|> Updater.stats
 			|> Updater.winner
 		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
-		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -515,7 +513,7 @@ defmodule PokerEx.Room do
 			|> Updater.stats
 			|> Updater.winner
 		RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
-		Events.winner_message(room.room_id, "#{inspect(update.winner)} wins the round with #{inspect(update.winning_hand.type_string)}")
+		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
 		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -545,7 +543,7 @@ defmodule PokerEx.Room do
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
 					
-				Events.game_started(room.room_id, hd(update.active), update.player_hands)
+				Events.game_started(room.room_id, update) # This is the only case where broadcasting from the endpoint is actually necessary...
 				Events.advance(room.room_id, hd(update.active))
 				{:next_state, :pre_flop, update}
 			_ ->
@@ -597,6 +595,7 @@ defmodule PokerEx.Room do
 			|> BetTracker.fold(current_player)
 		case update.active do
 			x when length(x) > 1 ->
+				Events.state_updated(room.room_id, update)
 				{:next_state, state, update}
 			_ -> 
 				{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}

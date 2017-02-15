@@ -9,12 +9,16 @@ defmodule PokerEx.Events do
     RoomEvents.player_joined(stringify(room_id), player, position)
   end
   
+  def state_updated(room_id, update) do
+    GameEvents.state_updated(stringify(room_id), update)
+  end
+  
   def update_number_players(room_id, number) do
     LobbyEvents.update_number_players(stringify(room_id), number)
   end
 
-  def game_started(room_id, active, cards) do
-    GameEvents.game_started(stringify(room_id), active, cards)
+  def game_started(room_id, room) do
+    GameEvents.game_started(stringify(room_id), room)
   end
   
   def advance(room_id, player) do
