@@ -5,6 +5,7 @@ export default class Controls {
   
   constructor(data) {
     this.player = data.user || null; // string
+    this.channel = data.channel || null;
     this.callDiv = $("#call-div");
     this.raiseDiv = $("#raise-div");
     this.checkDiv = $("#check-div");
@@ -14,6 +15,13 @@ export default class Controls {
     this.checkBtn = $(".check-btn");
     this.foldBtn = $(".fold-btn");
   }
+  
+  update(state) {
+    let ctrls = this.selectCtrlTypes(state);
+    (state.user) == state.active ? this.showAllAndAttachEvents(ctrls) : this.hideAllAndDetachEvents(); 
+  }
+  
+  // Private
   
   show(type) {
     this[`${type}Div`].fadeIn('slow');
@@ -38,9 +46,14 @@ export default class Controls {
     });
   }
   
-  init(state) {
-    let initCtrls = this.selectCtrlTypes(state);
-    (state.user) == state.active ? this.showAll(initCtrls) : this.hideAll();
+  showAllAndAttachEvents(ctrls) {
+    this.showAll(ctrls);
+    this.attachClickEvents();
+  }
+  
+  hideAllAndDetachEvents() {
+    this.hideAll();
+    this.detachClickEvents();
   }
   
   ctrlTypes() {
@@ -61,5 +74,35 @@ export default class Controls {
       ctrls = ["check"];
     }
     return ctrls;
+  }
+  
+  attachClickEvents() {
+    // Remove any lingering click handlers;
+    let btns = [$(".call-btn"), $(".check-btn"), $(".fold-btn")];
+    btns.forEach((btn) => {
+      console.log("Removing lingering click handlers");
+      btn.off("click");
+    });
+    
+    $(".call-btn").click((e) => {
+      Player.call(this.player, this.channel);
+      $(".call-btn").off("click");
+    });
+    $(".check-btn").click((e) => {
+      Player.check(this.player, this.channel);
+      $(".check-btn").off("click");
+    });
+    $(".fold-btn").click((e) => {
+      Player.fold(this.player, this.channel);
+      $(".fold-btn").off("click");
+    });
+  }
+  
+  detachClickEvents() {
+    console.log("Detaching click events...");
+    let btns = [".call-btn", ".check-btn", ".fold-btn"];
+    btns.forEach((btn) => {
+      removeEventListener('click', btn);
+    });
   }
 }

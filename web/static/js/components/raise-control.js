@@ -4,6 +4,8 @@ import Player from '../player';
 export default class RaiseControl {
   
   constructor(data) {
+    this.channel = data.channel;
+    this.user = data.user;
     this.slider = $("#raise-amount-slider");
     this.raiseValDisplay = $("#raise-value");
     this.raiseValMobile = $("#raise-value-mobile");
@@ -32,15 +34,35 @@ export default class RaiseControl {
     }
   }
   
-  initComponent(player, channel) {
+  init() {
     this.attachRaiseValDisplayUpdate();
     this.attachSliderEvent();
     this.setSliderMinMax();
     this.attachRaiseInputEvent();
     this.attachIncreaseButtonEvent();
     this.attachDecreaseButtonEvent();
-    this.attachSubmitEvent(player, channel);
+    this.attachSubmitEvent();
     this.setCursorOnIncDecBtns();
+  }
+  
+  update(state) {
+    if (state.raiseable) {
+      this.min = state.min + 5;
+      this.max = state.max;
+    } else {
+      this.raiseControlBtn.addClass("disabled");
+      this.submitBtn.addClass("disabled");
+    }
+    if (this.max) {
+      let val = Math.round(this.max / 2);
+      while (val % 5 != 0) {
+        val++;
+      }
+      this.slider.val(val);
+      this.raiseValDisplay.text(val);
+      this.raiseValMobile.text(val);
+    }
+    this.setSliderMinMax();
   }
   
   setSliderMinMax() {
@@ -80,10 +102,10 @@ export default class RaiseControl {
     this.setIncDecBtnEvents('dec');
   }
   
-  attachSubmitEvent(channel, player) {
+  attachSubmitEvent() {
     this.submitBtn.on('click', (e) => {
       $("#raise-control-close").click();
-      Player.raise(player, this.slider.val(), channel);
+      Player.raise(this.user, this.slider.val(), this.channel);
     });
   }
   
@@ -136,7 +158,7 @@ export default class RaiseControl {
   
   static extractRaiseControlData(data, player) {
     let raiseData = new Object();
-    let paidInRound = data[player] || 0;
+    let paidInRound = data.round[player] || 0;
     let callAmount = data.to_call - paidInRound;
     let filtered = data.players.filter((pl) => {
       if (pl.name == player) {

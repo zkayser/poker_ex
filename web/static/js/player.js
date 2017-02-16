@@ -8,6 +8,10 @@ export default class Player {
 		this.seatingPosition = seatingPosition || undefined;
 	}
 	
+	update(player) {
+		this.chips = player.chips;
+	}
+	
 	bet(amount, table) {
 		this.chips - amount;
 		table.pot + amount;
@@ -92,7 +96,6 @@ export default class Player {
 	}
 	
 	static filterPlayersArrayByName(state, name) {
-		console.log("name: ", name);
 		let filtered = state.players.filter((player) => {
 			if (player.name == name) {
 				return player;

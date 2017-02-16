@@ -12,7 +12,7 @@ import RoomMessages from '../../messages/room-messages';
 import RaiseControl from '../../components/raise-control';
 import GAMEMESSAGES from '../../messages/game-messages';
 import Dispatcher from '../../messages/dispatcher';
-import Store from '../../store';
+import Game from '../../game';
 
 export default class PrivateRoomShowView extends MainView {
   
@@ -23,6 +23,12 @@ export default class PrivateRoomShowView extends MainView {
     let div = document.getElementById("room-row");
     let roomTitle = div.dataset.roomTitle;
     let player = div.dataset.userName;
+    
+    let game = new Game(player, roomTitle);
+    game.init();
+    
+    /*
+    
     let joinBtn = $("#join-btn");
     let leaveBtn = $("#leave-btn");
     let startBtn = $("#start-btn");
@@ -107,7 +113,6 @@ export default class PrivateRoomShowView extends MainView {
         PlayerMessages.init(channel, player);
         RoomMessages.init(channel);
         tableMsgsInitiated = true;
-      */
       }
     });
     
@@ -145,6 +150,7 @@ export default class PrivateRoomShowView extends MainView {
     channel.on("error_on_room_join", (payload) => {
       console.log("An error occured when joining the room: ", payload);
     });
+    */
   }
   
   handlePlayerHands(player, player_hands) {

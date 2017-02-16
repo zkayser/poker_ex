@@ -31,6 +31,23 @@ defmodule PokerEx.RoomView do
      }
   end
   
+  def render("full_room.json", %{room: room}) do
+    {active, _} = hd(room.active)
+    players = Enum.map(room.active, fn {p, _} -> PokerEx.Repo.get_by(PokerEx.Player, name: p) end)
+    
+    %{active: active,
+      state: Room.which_state(room.room_id),
+      paid: room.paid,
+      to_call: room.to_call,
+      players: Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json"),
+      type: Atom.to_string(room.type),
+      player_hands: Phoenix.View.render_many(room.player_hands, __MODULE__, "player_hands.json", as: :player_hand),
+      round: room.round,
+      pot: room.pot,
+      table: []
+    }
+  end
+  
   def render("player_hands.json", %{player_hand: {_, []}}), do: %{}
   def render("player_hands.json", %{player_hand: {player, hand}}) do
     %{

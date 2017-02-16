@@ -108,7 +108,7 @@ defmodule PokerEx.PlayersChannel do
 					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
 				case Repo.update(changeset) do
 					{:ok, _priv_room} -> 
-						title |> atomize() |> Room.join(pl)
+						room = title |> atomize() |> Room.join(pl)
 						push(socket, "add_player_success", %{})
 						push socket, "join_room_success", %{}
 					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
@@ -127,32 +127,50 @@ defmodule PokerEx.PlayersChannel do
 				# Ignore request if seating <= 1
 				{:noreply, socket}
 			true ->
-				Room.start(room)
-				room = Room.state(room)
-				broadcast(socket, "started_game", PokerEx.RoomView.render("room.json", %{room: room}))
+				room = Room.start(room)
+				broadcast!(socket, "started_game", PokerEx.RoomView.render("room.json", %{room: room}))
 				{:noreply, socket}
 		end
 	end
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
-		Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)
+		room = Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)
+		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 	
 	def handle_in("player_called", %{"player" => player}, socket) do
-		Room.call(socket.assigns.room |> atomize(), get_player_by_name(player))
-		{:noreply, socket}
+		room = Room.call(socket.assigns.room |> atomize(), get_player_by_name(player))
+		case room do
+			%Room{} -> 
+				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+				{:noreply, socket}
+			_ ->
+				{:noreply, socket}
+		end
 	end
 	
 	def handle_in("player_folded", %{"player" => player}, socket) do
-		Room.fold(socket.assigns.room |> atomize(), get_player_by_name(player))
-		{:noreply, socket}
+		room = Room.fold(socket.assigns.room |> atomize(), get_player_by_name(player))
+		case room do
+			%Room{} -> 
+				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+				{:noreply, socket}
+			_ ->
+				{:noreply, socket}
+		end
 	end
 	
 	def handle_in("player_checked", %{"player" => player}, socket) do
-		Room.check(socket.assigns.room |> atomize(), get_player_by_name(player))
-		{:noreply, socket}
+		room = Room.check(socket.assigns.room |> atomize(), get_player_by_name(player))
+		case room do
+			%Room{} -> 
+				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+				{:noreply, socket}
+			_ ->
+				{:noreply, socket}
+		end
 	end
 	
 	# TODO: Implement "remove_player" message
@@ -170,7 +188,7 @@ defmodule PokerEx.PlayersChannel do
 	# Terminate #
 	#############
 	
-	def terminate(_message, socket) do
+	def terminate(message, socket) do
 		case socket.assigns[:room_type] do
 			:private ->
 				broadcast!(socket, "clear_table", %{player: Repo.get(Player, socket.assigns[:player_id]).name})

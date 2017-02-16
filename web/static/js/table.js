@@ -7,32 +7,46 @@ import Card from './card';
 export default class Table {
 	constructor(data) {
 		this.pot = data.pot || 0;
-		this.callAmount = data.callAmount || 0;
+		this.to_call = data.to_call || 0;
 		if (data.table.length > 0) {
-			this.cards = [];
-			data.table.forEach((card) => {
-				this.cards.push(new Card(card.rank, card.suit));
-			});
+			this.cards = data.table;
 		} else {
 			this.cards = [];
 		}
 		this.type = data.type || "public";
 		if (data.players.length > 0) {
-			this.players = [];
-			data.players.forEach((player) => {
-				this.players.push(new Player(player.name, player.chips));
-			});
+			this.players = data.players;
 		} else {
 			this.players = [];
 		}
 		this.seating = data.seating || new Object();
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
-		this.paidInRound = data.round || undefined;
+		this.round = data.round || undefined;
 	}
 	
-	init() {
-		
+	init(state) {
+		this.renderPlayers();
+		this.addActiveClass(state.active);
+		this.renderCards();
+		this.updatePot(state.pot);
+	}
+	
+	update(state) {
+		this.removeActiveClass();
+		this.updateCards(state.table);
+		this.players = state.players;
+		this.seating = state.seating;
+		this.to_call = state.to_call;
+		this.cards = state.table;
+		this.updatePot(state.pot);
+		this.addActiveClass(state.active);
+	}
+	
+	clear() {
+		this.removeCards();
+		this.cards = [];
+		this.pot = 0;
 	}
 	
 	renderCards() {
@@ -41,10 +55,28 @@ export default class Table {
 			if (!card.rendered) {
 				let markup = card.render();
 				tableCards.append($(markup));
-				card.rendered = true;
 			}
 		});
 	}
+	
+	updateCards(newCards) {
+		if (this.cards.length == 0) {
+			this.cards = newCards;
+			this.renderCards();	
+		} else {
+				for (let i = 0; i < newCards.length; i++) {
+				if (this.cards[i] && this.cards[i].rank == newCards[i].rank && this.cards[i].suit == newCards[i].suit) {
+					this.cards[i];
+				} else {
+					this.cards.push(newCards[i]);
+					let card = newCards[i];
+					let markup = card.render();
+					$(".table-cards").append($(markup));
+				}
+			}		
+		}
+	}
+
 	
 	static renderCards(cards) {
 		let tableCards = $(".table-cards");
