@@ -38,7 +38,15 @@ export default class Game {
     
     this.playerToolbar = new PlayerToolbar(this.userName, this.roomTitle, channel);
     
-    const MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated"];
+    const MESSAGES = [
+      "private_room_join",
+      "started_game", 
+      "game_started",
+      "update",
+      "add_player_success",
+      "player_seated",
+      "game_finished",
+      "winner_message"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
         Dispatcher.dispatch(message, payload, {

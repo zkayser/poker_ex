@@ -33,6 +33,12 @@ export default class Dispatcher {
       case "update":
         game.update(payload, channel);
         break;
+      case "game_finished":
+        window.Materialize.toast(payload.message, 3000);
+        break;
+      case "winner_message":
+        window.Materialize.toast(payload.message, 3000);
+        break;
     default:
       console.log("dispatch switch statement did not catch any defined messages; message, state, ...extra: ", message, payload, options);
     }
