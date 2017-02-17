@@ -1,10 +1,4 @@
-import $ from 'jquery';
-
-import Controls from '../components/controls';
 import Table from '../table';
-import PlayerToolbar from '../components/player-toolbar';
-import RaiseControl from '../components/raise-control';
-import Card from '../card';
 
 export default class Dispatcher {
   
