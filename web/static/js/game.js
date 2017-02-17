@@ -2,6 +2,7 @@ import {Socket} from 'phoenix';
 import $ from 'jquery';
 
 import Table from './table';
+import Card from './card';
 import Controls from './components/controls';
 import RaiseControl from './components/raise-control';
 import SpinnerAnimation from './animations/spinner-animations';
@@ -44,33 +45,6 @@ export default class Game {
         });
       });
     });
-    
-    /*
-    channel.on("private_room_join", (payload) => {
-      if (payload.state == "idle" || payload.state == "between_rounds") {
-        console.log("Game in state: payload.state");
-      } else {
-        this.setup(payload, channel);
-      }
-    });
-  
-    channel.on("started_game", (payload) => {
-      this.setup(payload, channel);
-    });
-    
-    channel.on("game_started", (payload) => {
-      this.table.clear();
-      this.setup(payload, channel);
-    });
-    
-    channel.on("update", (payload) => {
-      let data = this.dataFormatter.format(this.addUser(payload));
-      data.channel = channel;
-      this.table.update(data);
-      this.controls.update(data);
-      this.raiseControl.update(data);
-    });
-    */
   }
   
   // private
@@ -88,11 +62,13 @@ export default class Game {
   }
   
   setup(payload, channel) {
+    console.log("payload: ", payload);
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
     this.table = new Table(data);
     this.controls = new Controls(data);
     this.raiseControl = new RaiseControl(data);
+    Card.renderPlayerCards(data.playerHand);
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();

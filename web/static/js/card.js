@@ -25,7 +25,6 @@ export default class Card {
   }
   
   static renderPlayerCards(cards) {
-    // practice shot with jquery
     let imgRight = $(".card-image-right");
     let imgLeft = $(".card-image-left");
     
@@ -35,25 +34,5 @@ export default class Card {
     let base = window.basePath || 'https://phoenix-experiment-zkayser.c9users.io/';
     imgLeft.attr('src', base + pathLeft);
     imgRight.attr('src', base + pathRight);
-    
-    let cardArray = [];
-    cards.forEach((card) => {
-      let path = CARDS[card.suit.toUpperCase()][card.rank];
-      let image = document.createElement('img');
-      if (window.basePath) {
-        image.src = window.basePath + path;
-      } else {
-        image.src = "../" + path;
-      }
-      // Set red font if suit is hearts or diamonds
-      if (card.suit === 'hearts' || card.suit === 'diamonds') {
-        image.setAttribute('id', 'red-suit'); 
-      } else {
-        image.setAttribute('id', 'black-suit');
-      }
-      image.setAttribute('class', 'player-cards');
-      cardArray.push(image);
-    });
-    return cardArray;
   }
 }

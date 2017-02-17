@@ -76,7 +76,11 @@ export default class DataFormatter {
         }
       });
       let hand = filtered[0].hand;
-      return hand;
+      let cards = [];
+      hand.forEach((card) => {
+        cards.push(new Card(card.rank, card.suit));
+      });
+      return cards;
     }
   }
   
