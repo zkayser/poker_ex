@@ -80,26 +80,27 @@ export default class Controls {
     // Remove any lingering click handlers;
     let btns = [$(".call-btn"), $(".check-btn"), $(".fold-btn")];
     btns.forEach((btn) => {
-      console.log("Removing lingering click handlers");
       btn.off("click");
     });
     
     $(".call-btn").click((e) => {
       Player.call(this.player, this.channel);
+      $("#controls-close").click();
       $(".call-btn").off("click");
     });
     $(".check-btn").click((e) => {
       Player.check(this.player, this.channel);
+      $("#controls-close").click();
       $(".check-btn").off("click");
     });
     $(".fold-btn").click((e) => {
       Player.fold(this.player, this.channel);
+      $("#controls-close").click();
       $(".fold-btn").off("click");
     });
   }
   
   detachClickEvents() {
-    console.log("Detaching click events...");
     let btns = [".call-btn", ".check-btn", ".fold-btn"];
     btns.forEach((btn) => {
       removeEventListener('click', btn);

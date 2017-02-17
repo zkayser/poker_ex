@@ -35,6 +35,7 @@ export default class RaiseControl {
   }
   
   init() {
+    this.submitBtn.fadeTo('slow', 1);
     this.attachRaiseValDisplayUpdate();
     this.attachSliderEvent();
     this.setSliderMinMax();
@@ -46,9 +47,11 @@ export default class RaiseControl {
   }
   
   update(state) {
+    this.detachEvents();
     if (state.raiseable) {
       this.min = state.min + 5;
       this.max = state.max;
+      this.submitBtn.fadeTo('slow', 1);
     } else {
       this.raiseControlBtn.addClass("disabled");
       this.submitBtn.addClass("disabled");
@@ -63,6 +66,11 @@ export default class RaiseControl {
       this.raiseValMobile.text(val);
     }
     this.setSliderMinMax();
+    this.attachSubmitEvent();
+    this.attachSliderEvent();
+    this.attachRaiseInputEvent();
+    this.attachIncreaseButtonEvent();
+    this.attachDecreaseButtonEvent();
   }
   
   setSliderMinMax() {
@@ -105,6 +113,7 @@ export default class RaiseControl {
   attachSubmitEvent() {
     this.submitBtn.on('click', (e) => {
       $("#raise-control-close").click();
+      $("#controls-close").click();
       Player.raise(this.user, this.slider.val(), this.channel);
     });
   }
@@ -146,6 +155,20 @@ export default class RaiseControl {
     this.raiseValMobile.text(number);
   }
   
+  detachEvents() {
+    this.submitBtn.off('click');
+    this.slider.off('change');
+    this.raiseInput.off('input');
+    let incDec = [this.increaseButton, this.decreaseButton];
+    incDec.forEach((btn) => {
+      btn.off('click');
+      btn.off('mousedown');
+      btn.off('mouseup');
+      btn.off('touchdown');
+      btn.off('touchup');
+    });
+  }
+  
   keepInRange(number) {
     if (number > this.max) {
       return this.max || 0;
@@ -154,25 +177,5 @@ export default class RaiseControl {
     } else {
       return number;
     }
-  }
-  
-  static extractRaiseControlData(data, player) {
-    let raiseData = new Object();
-    let paidInRound = data.round[player] || 0;
-    let callAmount = data.to_call - paidInRound;
-    let filtered = data.players.filter((pl) => {
-      if (pl.name == player) {
-        return true;
-      }
-    });
-    let chips = filtered[0].chips;
-    if (chips > callAmount) {
-      raiseData.raiseable = true;
-      raiseData.min = callAmount;
-      raiseData.max = chips;
-    } else {
-      raiseData.raiseable = false; 
-    }
-    return raiseData;
   }
 }
