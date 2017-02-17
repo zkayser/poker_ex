@@ -77,22 +77,9 @@ export default class Table {
 		}
 	}
 
-	
-	static renderCards(cards) {
-		let tableCards = $(".table-cards");
-		cards.forEach((card) => {
-			let markup = card.render();
-			tableCards.append($(markup));
-		});
-	}
-	
 	removeCards() {
 		let tableCards = document.querySelector(".table-cards");
 		tableCards.innerHTML = "";
-	}
-	
-	addPlayer(player) {
-		this.players.push(player);
 	}
 	
 	updatePot(pot) {
@@ -137,44 +124,12 @@ export default class Table {
 		});
 	}
 	
-	static renderNewPlayer(player, position) {
-		let cardTable = document.querySelector(".card-table");
-		let fragment = document.createDocumentFragment();
-		let seatClass = SEAT_MAPPING[position];
-		let emblem = Player.emblem(player);
-		let container = document.createElement('a');
-		container.setAttribute('class', seatClass);
-		container.appendChild(emblem);
-		fragment.appendChild(container);
-		cardTable.appendChild(fragment);
-	}
-	
-	renderNewPlayer(player, position) {
-		let cardTable = document.querySelector(".card-table");
-		let fragment = document.createDocumentFragment();
-		let seatClass = SEAT_MAPPING[position];
-		let emblem = Player.emblem(player);
-		let container = document.createElement('a');
-		container.setAttribute('class', seatClass);
-		container.appendChild(emblem);
-		fragment.appendChild(container);
-		cardTable.appendChild(fragment);
-	}
-	
 	removePlayerEmblem(player) {
 		let cardTable = document.querySelector(".card-table");
 		let position = this.seating[player];
 		let seatClass = SEAT_MAPPING[position];
 		let node = document.getElementsByClassName(seatClass)[0];
 		cardTable.removeChild(node);
-	}
-	
-	static addActiveClass(player, seating) {
-		if (!(player == null)) {
-			let position = seating[player];
-			let element = $(`.${SEAT_MAPPING[position]}`);
-			element.addClass("active-player");
-		}
 	}
 	
 	addActiveClass(player) {
@@ -190,25 +145,4 @@ export default class Table {
 	markupFor(position) {
 		return SEAT_MAPPING[position];
 	}
-	
-	static extractTableData(data) {
-		let tableData = new Object();
-		tableData.seating = this.formatSeating(data.seating);
-		tableData.pot = data.pot;
-		tableData.callAmount = data.to_call || 0;
-		tableData.table = data.table;
-		tableData.type = data.type;
-		tableData.players = data.players;
-		tableData.user = data.user;
-		tableData.paidInRound = data.round;
-		return tableData;
-	}
-	
-	static formatSeating(seatingArray) {
-    let seating = new Object();
-    seatingArray.forEach((seat) => {
-      seating[`${seat.name}`] = seat.position;
-    });
-    return seating;
-  }
 }
