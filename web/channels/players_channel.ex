@@ -7,8 +7,6 @@ defmodule PokerEx.PlayersChannel do
 	alias PokerEx.PlayerView
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
-	intercept ["new_msg"]
-
 	def join("players:lobby", message, socket) do
 		send(self(), {:after_join, message})
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
@@ -84,11 +82,6 @@ defmodule PokerEx.PlayersChannel do
 	# INCOMING MESSAGES #
 	#####################
 	
-	def handle_in("new_msg", %{"body" => body}, socket) do
-		broadcast!(socket, "new_msg", %{body: body})
-		{:noreply, socket}
-	end
-	
 	def handle_in("get_num_players", _, socket) do
 		for x <- 1..10 do
 			room = :"room_#{x}"
@@ -107,9 +100,9 @@ defmodule PokerEx.PlayersChannel do
 					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
 					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
 				case Repo.update(changeset) do
-					{:ok, _priv_room} -> 
+					{:ok, priv_room} -> 
 						room = title |> atomize() |> Room.join(pl)
-						push(socket, "add_player_success", %{})
+						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
 						push socket, "join_room_success", %{}
 					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
 					_ -> push socket, "error_on_room_join", %{}
@@ -174,15 +167,6 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	# TODO: Implement "remove_player" message
-	
-	#####################
-	# Outgoing Messages #
-	#####################
-	
-	def handle_out("new_msg", payload, socket) do
-		push socket, "new_msg", payload
-		{:noreply, socket}
-	end
 	
 	#############
 	# Terminate #

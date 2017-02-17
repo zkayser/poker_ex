@@ -23,7 +23,7 @@ defmodule PokerEx.GameEvents do
     player_hands = %{player_hands: 
                      Enum.map(room.player_hands, fn {player, [card1, card2]} -> %{player: player, hand: [Map.from_struct(card1), Map.from_struct(card2)]} end)
                     }
-    map = 
+    map =  
       base_map
       |> Map.merge(seating)
       |> Map.merge(player_hands)

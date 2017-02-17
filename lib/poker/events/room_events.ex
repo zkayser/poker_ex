@@ -1,5 +1,4 @@
 defmodule PokerEx.RoomEvents do
-  use GenEvent
   alias PokerEx.Endpoint
   
   

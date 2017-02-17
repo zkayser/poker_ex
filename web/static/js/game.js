@@ -36,7 +36,7 @@ export default class Game {
       console.log("could not join channel");
     });
     
-    const MESSAGES = ["private_room_join", "started_game", "game_started", "update"];
+    const MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
         Dispatcher.dispatch(message, payload, {
