@@ -28,7 +28,6 @@ defmodule PokerEx.GameEvents do
       |> Map.merge(seating)
       |> Map.merge(player_hands)
       |> Map.merge(%{table: []})
-    IO.puts "map created: #{inspect(map)}"
     Endpoint.broadcast!("players:" <> room_id, "game_started", map)  
   end
   

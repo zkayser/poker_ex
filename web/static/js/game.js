@@ -2,12 +2,11 @@ import {Socket} from 'phoenix';
 import $ from 'jquery';
 
 import Table from './table';
-import Card from './card';
-import Player from './player';
 import Controls from './components/controls';
 import RaiseControl from './components/raise-control';
 import SpinnerAnimation from './animations/spinner-animations';
 import DataFormatter from './data-formatter';
+import Dispatcher from './messages/dispatcher';
 
 export default class Game {
   
@@ -36,6 +35,17 @@ export default class Game {
       console.log("could not join channel");
     });
     
+    const MESSAGES = ["private_room_join", "started_game", "game_started", "update"];
+    MESSAGES.forEach((message) => {
+      channel.on(message, (payload) => {
+        Dispatcher.dispatch(message, payload, {
+          game: this,
+          channel: channel
+        });
+      });
+    });
+    
+    /*
     channel.on("private_room_join", (payload) => {
       if (payload.state == "idle" || payload.state == "between_rounds") {
         console.log("Game in state: payload.state");
@@ -60,6 +70,7 @@ export default class Game {
       this.controls.update(data);
       this.raiseControl.update(data);
     });
+    */
   }
   
   // private
@@ -85,6 +96,14 @@ export default class Game {
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();
+  }
+  
+  update(payload, channel) {
+    let data = this.dataFormatter.format(this.addUser(payload));
+    data.channel = channel;
+    this.table.update(data);
+    this.controls.update(data);
+    this.raiseControl.update(data);
   }
   
   addUser(data) {
