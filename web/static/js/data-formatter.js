@@ -27,10 +27,15 @@ export default class DataFormatter {
   
   // Private
   formatSeating(seatingArray) {
-    let seating = new Object();
-    seatingArray.forEach((seat) => {
+    let seating;
+    if (seatingArray instanceof Array) {
+      seating = new Object();
+      seatingArray.forEach((seat) => {
       seating[`${seat.name}`] = seat.position;
-    });
+      });
+    } else {
+      seating = seatingArray;
+    }
     return seating;
   }
   

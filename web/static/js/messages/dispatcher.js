@@ -8,6 +8,7 @@ export default class Dispatcher {
     // Define messages
     switch (message) {
       case "private_room_join":
+        game.playerToolbar.init(game.dataFormatter.format(game.addUser(payload)));
         if (payload.state == "idle" || payload.state == "between_rounds") {
           console.log("Game currently in state: ", payload.state);
           if (!game.table) {
@@ -26,6 +27,7 @@ export default class Dispatcher {
         game.setup(payload, channel);
         break;
       case "add_player_success":
+        game.playerToolbar.update(game.dataFormatter.format(payload));
         Table.renderPlayers(game.dataFormatter.format(payload).seating);
         break;
       case "update":

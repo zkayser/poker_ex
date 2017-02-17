@@ -5,6 +5,7 @@ import Table from './table';
 import Card from './card';
 import Controls from './components/controls';
 import RaiseControl from './components/raise-control';
+import PlayerToolbar from './components/player-toolbar';
 import SpinnerAnimation from './animations/spinner-animations';
 import DataFormatter from './data-formatter';
 import Dispatcher from './messages/dispatcher';
@@ -29,12 +30,13 @@ export default class Game {
     
     channel.join()
     .receive("ok", () => {
-      this.setButtons(channel);
       console.log("joined");
     })
     .receive("error", () => {
       console.log("could not join channel");
     });
+    
+    this.playerToolbar = new PlayerToolbar(this.userName, this.roomTitle, channel);
     
     const MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated"];
     MESSAGES.forEach((message) => {
@@ -48,23 +50,11 @@ export default class Game {
   }
   
   // private
-  setButtons(channel) {
-    let buttons = [$("#join-btn"), $("#leave-btn"), $("#start-btn")];
-    let messages = ["add_player", "remove_player", "start_game"];
-    let params = [{player: this.userName, room: this.roomTitle}, {player: this.userName, room: this.roomTitle}, {room: this.roomTitle}];
-    for (let i = 0; i < buttons.length; i++) {
-      buttons[i].click(() => {
-        console.log("sending message, channel: ", channel, messages[i]);
-        channel.push(messages[i], params[i]);
-        buttons[i].slideUp();
-      });
-    }
-  }
-  
   setup(payload, channel) {
     console.log("payload: ", payload);
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
+    this.playerToolbar.update(data);
     this.table = new Table(data);
     this.controls = new Controls(data);
     this.raiseControl = new RaiseControl(data);
