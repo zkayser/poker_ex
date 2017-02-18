@@ -1,6 +1,7 @@
 defmodule PokerEx.RoomController do
   use PokerEx.Web, :controller
-  alias PokerEx.Inviter
+  alias PokerEx.RoomsSupervisor, as: RoomsSupervisor
+  # alias PokerEx.Inviter
   
   def index(conn, _params) do
     [{pid, _}] = Registry.lookup(PokerEx.RoomRegistry, "room_1")
@@ -29,7 +30,7 @@ defmodule PokerEx.RoomController do
     end
   end
   
-  def show(conn, %{"id" => name}) do
+  def show(_conn, %{"id" => _name}) do
     
   end
 end

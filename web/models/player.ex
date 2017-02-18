@@ -22,7 +22,6 @@ defmodule PokerEx.Player do
 	end
 	
 	alias PokerEx.Player
-	alias PokerEx.AppState
 	alias PokerEx.Events
 	alias PokerEx.Repo
 	
@@ -119,7 +118,7 @@ defmodule PokerEx.Player do
 		|> unique_constraint(:email)
 	end
 	
-	def chip_changeset(model, %{"chips" => chips} = params) do
+	def chip_changeset(model, %{"chips" => _chips} = params) do
 		model
 		|> cast(params, ~w(chips), [])
 	end
@@ -133,8 +132,8 @@ defmodule PokerEx.Player do
 		end
 	end
 	
-	defp validate_chips_update(%Ecto.Changeset{changes: %{chips: update}} = changeset, chips) when chips >= 100 do
-		changeset = %Ecto.Changeset{changeset | changes: %{changeset.changes | chips: chips}}
+	defp validate_chips_update(%Ecto.Changeset{changes: %{chips: _update}} = changeset, chips) when chips >= 100 do
+		%Ecto.Changeset{changeset | changes: %{changeset.changes | chips: chips}}
 	end
-	defp validate_chips_update(changeset, chips), do: changeset
+	defp validate_chips_update(changeset, _chips), do: changeset
 end

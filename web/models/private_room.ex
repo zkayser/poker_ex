@@ -26,13 +26,13 @@ defmodule PokerEx.PrivateRoom do
     |> unique_constraint(:title)
   end
   
-  def create_changeset(model, %{"owner" => owner} = params) do
+  def create_changeset(model, %{"owner" => _owner} = params) do
     model
     |> changeset(params)
     |> cast_assoc(:owner, required: true)
   end
   
-  def update_changeset(model, %{"participants" => participants, "invitees" => invitees} = params) do
+  def update_changeset(model, %{"participants" => _participants, "invitees" => _invitees} = params) do
     model
     |> changeset(params)
     |> cast_assoc(:participants)
@@ -50,13 +50,12 @@ defmodule PokerEx.PrivateRoom do
   end
   
   def put_owner(changeset, owner) do
-    owner = 
-      case Repo.get(Player, String.to_integer(owner)) do
-        nil -> add_error(changeset, :owner, "invalid owner")
-        player -> 
-          changeset
-          |> put_assoc(:owner, player)
-      end
+    case Repo.get(Player, String.to_integer(owner)) do
+      nil -> add_error(changeset, :owner, "invalid owner")
+      player -> 
+        changeset
+        |> put_assoc(:owner, player)
+    end
   end
   
   def put_invitees(changeset, invitees) when is_list(invitees) do
@@ -80,18 +79,18 @@ defmodule PokerEx.PrivateRoom do
   end
   
   def remove_participant(changeset, participants, participant) do
-    participants == participants -- [participant]
+    participants = participants -- [participant]
     put_assoc(changeset, :participants, participants)
   end
   
-  defp do_update_changeset(changeset, %{"participants" => participants, "invitees" => invitees} = params) do
+  defp do_update_changeset(changeset, %{"participants" => _participants, "invitees" => _invitees}) do
     cast_assoc(changeset, :participants)
     |> cast_assoc(:invitees)
   end
-  defp do_update_changeset(changeset, %{"participants" => participants} = params) do
+  defp do_update_changeset(changeset, %{"participants" => _participants}) do
     cast_assoc(changeset, :participants)
   end
-  defp do_update_changeset(changeset, %{"invitees" => invitees} = params) do
+  defp do_update_changeset(changeset, %{"invitees" => _invitees}) do
     cast_assoc(changeset, :invitees)
   end
   defp do_update_changeset(changeset, %{}), do: changeset

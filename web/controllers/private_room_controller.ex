@@ -1,9 +1,8 @@
 defmodule PokerEx.PrivateRoomController do
   use PokerEx.Web, :controller
   alias PokerEx.PrivateRoom
-  alias PokerEx.Player
   
-  def new(conn, params) do
+  def new(conn, _params) do
     changeset = PrivateRoom.changeset(%PrivateRoom{invitees: [], owner: nil}, %{})
     query = 
       from p in PokerEx.Player,
@@ -15,7 +14,7 @@ defmodule PokerEx.PrivateRoomController do
     render conn, "new.html", changeset: changeset, players: players
   end
   
-  def create(conn, %{"invitees" => invitees, "private_room" => %{"title" => title, "owner" => owner} = room_params} = params) do
+  def create(conn, %{"invitees" => invitees, "private_room" => %{"title" => title, "owner" => owner} = room_params}) do
     private_room = %PrivateRoom{invitees: [], owner: nil, participants: []}
     changeset = 
       PrivateRoom.changeset(private_room, room_params)
@@ -35,7 +34,7 @@ defmodule PokerEx.PrivateRoomController do
             |> put_flash(:error, "Could not create room. Please try again.")
             |> redirect(to: private_room_path(conn, :new))
         end
-      {:error, error_changeset} ->
+      {:error, _error_changeset} ->
         conn
         |> put_flash(:error, "Something went wrong")
         |> redirect(to: private_room_path(conn, :new))

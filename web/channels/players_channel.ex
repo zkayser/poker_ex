@@ -94,14 +94,14 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_in("add_player", %{"player" => name, "room" => title}, socket) do
 		case Repo.get_by(Player, name: name) do
-			%Player{} = pl -> pl
+			%Player{} = pl -> 
 				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
 				changeset = 
 					PokerEx.PrivateRoom.changeset(private_room)
 					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
 					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
 				case Repo.update(changeset) do
-					{:ok, priv_room} -> 
+					{:ok, _priv_room} -> 
 						room = title |> atomize() |> Room.join(pl)
 						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
 						push socket, "join_room_success", %{}
@@ -180,7 +180,7 @@ defmodule PokerEx.PlayersChannel do
 	# Terminate #
 	#############
 	
-	def terminate(message, socket) do
+	def terminate(_message, socket) do
 		case socket.assigns[:room_type] do
 			:private ->
 				broadcast!(socket, "clear_table", %{player: Repo.get(Player, socket.assigns[:player_id]).name})

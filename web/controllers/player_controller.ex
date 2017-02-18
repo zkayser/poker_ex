@@ -30,7 +30,7 @@ defmodule PokerEx.PlayerController do
       invited: player.invited_rooms
   end
   
-  def edit(conn, %{"id" => player_id} = params) do
+  def edit(conn, %{"id" => player_id}) do
     {id, _} = Integer.parse(player_id)
     player = Repo.get(Player, id)
     changeset = Player.update_changeset(player)

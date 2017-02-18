@@ -19,6 +19,7 @@ defmodule PokerEx.Room do
 	@type player_tracker :: [String.t | PokerEx.Player.t] | []
 	@type seating :: [{String.t, non_neg_integer}] | []
 	@type stats :: [{String.t, pos_integer}] | []
+	@type chip_roll :: [{String.t, non_neg_integer}] | []
 	@type seat_number :: 0..6 | nil
 	@type room_id :: atom()
 	
@@ -32,6 +33,7 @@ defmodule PokerEx.Room do
 							active: seating,
 							skip_advance?: boolean(),
 							type: atom(),
+							chip_roll: chip_roll,
 							current_big_blind: seat_number,
 							current_small_blind: seat_number,
 							all_in: player_tracker,
@@ -56,6 +58,7 @@ defmodule PokerEx.Room do
 						active: [],
 						skip_advance?: false,
 						type: :public,
+						chip_roll: [],
 						current_big_blind: nil,
 						current_small_blind: nil,
 						all_in: [],
