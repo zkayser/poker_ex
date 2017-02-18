@@ -24,7 +24,7 @@
         <div class="center-align">
           <div class="row">
             <div class="col s12">
-              <div class="input-field col s6 offset-s4" id="chat-input-container">
+              <div class="input-field col s8 offset-s2" id="chat-input-container">
                 <input id="chat-input" placeholder="chat">
               </div>
               <div class="col s2" id="chat-send">

@@ -40,6 +40,9 @@ export default class Dispatcher {
         window.Materialize.toast(payload.message, 3000);
         break;
       case "new_message":
+        if (!(payload.name == game.userName)) {
+          window.Materialize.toast(`${payload.name} says: ${payload.text}`, 3000, 'green-toast');
+        }
         game.chatComponent.update(payload);
         break;
     default:

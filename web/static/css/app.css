@@ -197,6 +197,11 @@ nav.top-nav a.page-title {
 	top: -1.5em;
 }
 
+.green-toast {
+	background-color: #1b5e20;
+	color: white;
+}
+
 
 
 ::-webkit-input-placeholder {
