@@ -6,6 +6,7 @@ import Card from './card';
 import Controls from './components/controls';
 import RaiseControl from './components/raise-control';
 import PlayerToolbar from './components/player-toolbar';
+import ChatComponent from './components/chat-component';
 import SpinnerAnimation from './animations/spinner-animations';
 import DataFormatter from './data-formatter';
 import Dispatcher from './messages/dispatcher';
@@ -46,7 +47,8 @@ export default class Game {
       "add_player_success",
       "player_seated",
       "game_finished",
-      "winner_message"];
+      "winner_message",
+      "new_message"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
         Dispatcher.dispatch(message, payload, {
@@ -59,17 +61,18 @@ export default class Game {
   
   // private
   setup(payload, channel) {
-    console.log("payload: ", payload);
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
     this.playerToolbar.update(data);
     this.table = new Table(data);
     this.controls = new Controls(data);
     this.raiseControl = new RaiseControl(data);
+    this.chatComponent = new ChatComponent(this.userName, channel);
     Card.renderPlayerCards(data.playerHand);
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();
+    this.chatComponent.init();
   }
   
   update(payload, channel) {

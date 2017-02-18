@@ -62,6 +62,7 @@ defmodule PokerEx.PlayersChannel do
 	def handle_info({:after_join_private_room, room_id}, socket) do
 		socket = assign(socket, :room, room_id)
 		player = Repo.get(Player, socket.assigns[:player_id])
+		socket = assign(socket, :player_name, player.name)
 		room = Room.state(room_id |> atomize())
 	
 		push(socket, "private_room_join", PokerEx.RoomView.render("room.json", %{room: room}))
@@ -124,6 +125,11 @@ defmodule PokerEx.PlayersChannel do
 				broadcast!(socket, "started_game", PokerEx.RoomView.render("room.json", %{room: room}))
 				{:noreply, socket}
 		end
+	end
+	
+	def handle_in("chat_message", %{"input" => input}, socket) do
+		broadcast!(socket, "new_message", %{name: socket.assigns[:player_name], text: input})
+		{:noreply, socket}
 	end
 	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
