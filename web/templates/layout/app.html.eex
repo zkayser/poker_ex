@@ -35,18 +35,14 @@
         <%= if @current_player do %>
           <li><%= @current_player.name %></li>
           <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
+          <li class="bold"><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li> 
+          <li class="bold"><%= link "Public Games", to: room_path(@conn, :index) %></li>
         <% else %>
           <li><%= link "Register", to: player_path(@conn, :new) %></li>
           <li><%= link "Log in", to: session_path(@conn, :new) %></li>
         <% end %>
-        <li class="bold"><a href="#" class="waves-effect waves-teal">Getting Started</a></li>  
-        <li class="bold"><a href="#" class="waves-effect waves-teal">Online</a></li>
+        <li class="bold"><%= link "Home", to: page_path(@conn, :index) %></li>
         <li><div class="divider"></div></li>
-        <div id="message-container">
-          <ul id="messages">
-            
-          </ul>
-        </div>
       </ul>
       <ul id="slide-out" class="side-nav">
       <li><div class="userView">
@@ -110,5 +106,6 @@
     <script>$("#player-account-modal").modal();</script>
     <script>$("#controls-modal").modal();</script>
     <script>$("#raise-modal").modal();</script>
+    <script>$("#chat-box-modal").modal();</script>
   </body>
 </html>
