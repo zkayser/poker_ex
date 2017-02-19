@@ -40,6 +40,10 @@ export default class Notifications {
       let id = payload.remove;
       $(`#${id}`).css('transition', 'background-color 0.75s ease').css('background-color', 'red');
       $(`#${id}`).slideUp('slow');
+      
+      let current = $("#invitation-number").text();
+      let update = parseInt(current, 10) - 1;
+      $("#invitation-number").text(`${update}`);
     });
     
     channel.on("decline_error", (payload) => {
