@@ -72,6 +72,14 @@ defmodule PokerEx.PrivateRoom do
     put_assoc(changeset, :invitees, invitees)
   end
   
+  def remove_invitee(private_room, invitee) do
+    private_room 
+      |> preload()
+      |> changeset()
+      |> put_assoc(:invitees, Enum.reject((private_room |> Repo.preload(:invitees)).invitees, fn inv -> inv.id == invitee.id end))
+      |> Repo.update()
+  end
+  
   def put_invitee_in_participants(changeset, participants, invitee) do
     participants = participants ++ [invitee]
     IO.puts "put_invitee_in_participants called with: #{inspect(participants)}"

@@ -8,6 +8,7 @@ export default class Notifications {
   static init() {
     let profile = document.getElementById("player-profile");
     let playerId = profile.getAttribute("data-player-id");
+    let declineBtns = document.getElementsByClassName("decline-btn");
     
     let socket = new Socket('/socket', {params: {
      token: window.playerToken
@@ -24,6 +25,25 @@ export default class Notifications {
     })
     .receive("error", reason => {
       console.log("joining notifications channel failed for reason: ", reason);
+    });
+    
+    for (let i = 0; i < declineBtns.length; i++) {
+      declineBtns[i].addEventListener('click', (e) => {
+        console.log("decline btn pressed: ", e.target.parentElement);
+        let id = e.target.parentElement.id;
+        id = id.split("-")[1];
+        channel.push("decline_invitation", {room: id});
+      });
+    }
+    
+    channel.on("declined_invitation", (payload) => {
+      let id = payload.remove;
+      $(`#${id}`).css('transition', 'background-color 0.75s ease').css('background-color', 'red');
+      $(`#${id}`).slideUp('slow');
+    });
+    
+    channel.on("decline_error", (payload) => {
+      window.Materialize.toast(`Failed to decline invitation to ${payload.room}`, 3000, 'red-toast');
     });
     
     channel.on("invitation_received", ({title, id, participants, owner}) => {

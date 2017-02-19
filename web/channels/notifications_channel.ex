@@ -3,6 +3,7 @@ defmodule PokerEx.NotificationsChannel do
   alias PokerEx.Player
   alias PokerEx.Repo
   alias PokerEx.Endpoint
+  alias PokerEx.PrivateRoom
   
   def join("notifications:" <> player_id, message, socket) do
     send(self(), {:after_join, player_id})
@@ -24,9 +25,17 @@ defmodule PokerEx.NotificationsChannel do
     handle_in(event, params, player, socket)
   end
   
-  def handle_in("player_update", %{"name" => name}, player, socket) do
-    changeset = Player.update_changeset(player, %{name: name})
-    handle_player_update_response(changeset, "name", socket)
+  def handle_in("decline_invitation", %{"room" => id}, player, socket) do
+    IO.puts "NOW IN DECLINE_INVITATION HANDLE_IN CALLBACK: #{id}; \n#{inspect(player)}"
+    private_room = Repo.get(PrivateRoom, id)
+    case PrivateRoom.remove_invitee(private_room, player) do
+      {:ok, _} -> 
+        push(socket, "declined_invitation", %{remove: "row-#{id}"})
+        {:noreply, socket}
+      {:error, _} -> 
+        push(socket, "decline_error", %{room: "#{private_room.title}"})
+        {:noreply, socket}
+    end
   end
   
   def handle_in("player_update", %{"first_name" => first}, player, socket) do
