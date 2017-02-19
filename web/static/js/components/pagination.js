@@ -36,7 +36,7 @@ export default class Pagination {
     this.removeActive();
     this.appendPageNumHeadings(payload);
     this.addActive(payload);
-    this.removeDisabledClass();
+    this.removeDisabledClass(payload);
     this.disableButtonIfNeeded(payload);
     let entries = [];
     payload.entries.forEach((entry) => {
@@ -71,9 +71,21 @@ export default class Pagination {
     return bool;
   }
   
-  removeDisabledClass() {
-    this.pageBack.removeClass('disabled');
-    this.pageAhead.removeClass('disabled');
+  removeDisabledClass(payload) {
+    if (this.pageBack.hasClass('disabled')) {
+      this.pageBack.removeClass('disabled');
+      this.pageBack.off('click');
+      this.pageBack.on('click', (e) => {
+        this.channel.push("new_page", {current: payload.current_page, get: "back"});
+      });
+    }
+    if (this.pageAhead.hasClass('disabled')) {
+      this.pageAhead.removeClass('disabled');
+      this.pageAhead.off('click');
+      this.pageAhead.on('click', (e) => {
+        this.channel.push('new_page', {current: payload.current_page, get: "ahead"});
+      });
+    }
   }
   
   disableButtonIfNeeded(payload) {
@@ -81,8 +93,10 @@ export default class Pagination {
     console.log("isFirstPage?: ", this.isFirstPage(payload));
     if (this.isFirstPage(payload)) {
       this.pageBack.addClass('disabled');
+      this.pageBack.off('click');
     } else if (this.isLastPage(payload)) {
       this.pageAhead.addClass('disabled');
+      this.pageAhead.off('click');
     }
   }
   
