@@ -207,7 +207,13 @@ nav.top-nav a.page-title {
 	color: white;
 }
 
+.active-page {
+	background-color: #69f0ae;
+}
 
+.page-numbers {
+	display: inline-block;
+}
 
 ::-webkit-input-placeholder {
    color: darkslategray;

@@ -1,6 +1,8 @@
 import {Socket} from "phoenix";
 import $ from 'jquery';
+
 import PlayerUpdates from "./updates/player-updates";
+import Pagination from '../components/pagination';
 
 export default class Notifications {
   constructor() {}
@@ -25,6 +27,14 @@ export default class Notifications {
     })
     .receive("error", reason => {
       console.log("joining notifications channel failed for reason: ", reason);
+    });
+    
+    let pagination = new Pagination({channel: channel});
+    pagination.init();
+    
+    channel.on("update_pages", (payload) => {
+      console.log("receiving update_pages: ", payload);
+      pagination.update(payload);
     });
     
     for (let i = 0; i < declineBtns.length; i++) {

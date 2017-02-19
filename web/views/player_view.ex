@@ -114,4 +114,8 @@ defmodule PokerEx.PlayerView do
         "#{num} #{plural}"
     end
   end
+  
+  defp paginated_entries(list) when is_list(list) do
+    Scrivener.paginate(list, page_number: 1, page_size: 10).entries
+  end
 end
