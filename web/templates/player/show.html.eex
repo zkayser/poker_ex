@@ -69,7 +69,8 @@
         <% end %>
         <hr>
         <p>Invite other players to join</p><br>
-        <p><button class="btn-floating green waves-effect"><i class="material-icons">person_add</i></button></p>
+        <p><%= button(content_tag(:i, "person_add", class: "material-icons"), to: invitation_path(@conn, :new),
+            method: "get", class: "btn-floating green waves-effect") %></p>
       </div>
     </div>
   </div>

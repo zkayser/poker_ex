@@ -1,0 +1,19 @@
+<div class="row">
+  <div class="col s12">
+    <%= form_for @conn, invitation_path(@conn, :create), [as: :invitation], fn f -> %>
+      <div class="row">
+        <div class="input-field col s12">
+          <%= text_input f, :email_address, placeholder: "Enter a friend's email address" %>
+          <%= label f, :email_address %>
+        </div>
+        <div class="input-field col s12">
+          <%= textarea f, :message, placeholder: "Message", class: "materialize-textarea" %>
+          <%= label f, :message %>
+        </div>
+      </div>
+      <div class="col s12 center-align">
+        <%= submit content_tag(:i, "send", class: "material-icons"), class: "btn waves-effect waves-light" %>
+      </div>
+    <% end %>
+  </div>
+</div>
