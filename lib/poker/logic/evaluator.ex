@@ -226,7 +226,7 @@ defmodule PokerEx.Evaluator do
 	@spec straight?(hand) :: hand
 	defp straight?(%Hand{has_straight_with: straight} = hand) when is_list(straight) and length(straight) > 0 do
 		best = straight |> C.sort_by_rank |> Enum.take(5)
-		[high_card|_tail] = best
+		# [high_card|_tail] = best
 		
 		to = 
 			case List.first(best) do

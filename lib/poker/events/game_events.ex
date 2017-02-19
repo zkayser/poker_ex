@@ -1,8 +1,6 @@
 defmodule PokerEx.GameEvents do
   alias PokerEx.Endpoint
   alias PokerEx.Player
-  alias PokerEx.Repo
-  alias PokerEx.PlayerView
   import Ecto.Query
   
   def game_started(room_id, room) do
@@ -13,7 +11,7 @@ defmodule PokerEx.GameEvents do
       else
         Enum.map(room.active, 
         fn {name, _} -> 
-            PokerEx.Repo.one(from p in PokerEx.Player, where: p.name == ^name)
+            PokerEx.Repo.one(from p in Player, where: p.name == ^name)
         end)
       end
     players = Enum.map(players, fn p -> %{chips: p.chips, name: p.name} end)

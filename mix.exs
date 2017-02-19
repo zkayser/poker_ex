@@ -19,7 +19,7 @@ defmodule PokerEx.Mixfile do
   def application do
     [mod: {PokerEx, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :bamboo]]
+                    :phoenix_ecto, :postgrex, :comeonin, :bamboo, :scrivener]]
   end
 
   # Specifies which paths to compile per environment.
@@ -42,7 +42,9 @@ defmodule PokerEx.Mixfile do
      {:gen_fsm, "~> 0.1.0"},
      {:comeonin, "~> 2.0"},
      {:bamboo, "~> 0.7"},
-     {:bamboo_smtp, "~> 1.2.1"}]
+     {:bamboo_smtp, "~> 1.2.1"},
+     {:scrivener, "~> 2.0"},
+     {:scrivener_list, "~> 1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

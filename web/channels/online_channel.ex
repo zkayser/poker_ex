@@ -1,9 +1,7 @@
 defmodule PokerEx.OnlineChannel do
   use Phoenix.Channel
-  alias PokerEx.Player
-  alias PokerEx.PrivateRoom
   
-  def join("online:lobby", message, socket) do
+  def join("online:lobby", _message, socket) do
     send(self(), :after_join)
     {:ok, %{}, socket}
   end

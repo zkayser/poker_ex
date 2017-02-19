@@ -2,15 +2,14 @@ defmodule PokerEx.NotificationsChannel do
   use Phoenix.Channel
   alias PokerEx.Player
   alias PokerEx.Repo
-  alias PokerEx.Endpoint
   alias PokerEx.PrivateRoom
   
-  def join("notifications:" <> player_id, message, socket) do
+  def join("notifications:" <> player_id, _message, socket) do
     send(self(), {:after_join, player_id})
     {:ok, %{}, socket}
   end
   
-  def handle_info({:after_join, player_id}, socket) do
+  def handle_info({:after_join, _player_id}, socket) do
     player = Repo.get(Player, socket.assigns.player_id)
     socket = assign(socket, :player, player)
     {:noreply, socket}
