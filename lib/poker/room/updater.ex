@@ -2,7 +2,6 @@ defmodule PokerEx.Room.Updater do
   alias PokerEx.Room, as: Room
   alias PokerEx.Deck
   alias PokerEx.Evaluator
-  alias PokerEx.Events
   @moduledoc """
     Provides convenience functions for updating specific attributes of
     the Room state individually. This module can be used from other
@@ -25,8 +24,6 @@ defmodule PokerEx.Room.Updater do
   def seating(%Room{seating: seating} = room, player) when is_binary(player) do
     seat_number = length(seating)
     new_seating = [{player, seat_number} | Enum.reverse(seating)] |> Enum.reverse
-    Events.player_joined(room.room_id, player, seat_number)
-    Events.update_number_players(room.room_id, length(new_seating))
     %Room{ room | seating: new_seating }
   end
   
@@ -49,7 +46,6 @@ defmodule PokerEx.Room.Updater do
         {name, _} = Enum.at(seating, x)
         {name, x}
       end
-    Events.update_seating(room.room_id, update)
     %Room{ room | seating: update }
   end
   def reindex_seating(room), do: room
@@ -71,8 +67,6 @@ defmodule PokerEx.Room.Updater do
   @spec remove_from_seating(Room.t, player) :: Room.t  
   def remove_from_seating(%Room{seating: seating} = room, player) do
     update = Enum.reject(seating, fn {name, _} -> player == name end)
-    Events.player_left(room.room_id, player)
-    Events.update_number_players(room.room_id, length(update))
     %Room{ room | seating: update }
    end
   
@@ -96,7 +90,6 @@ defmodule PokerEx.Room.Updater do
   """
   @spec call_amount(Room.t, pos_integer) :: Room.t
   def call_amount(%Room{to_call: call_amount} = room, amount) when call_amount <= amount do
-    Events.call_amount_update(room.room_id, amount)
     %Room{ room | to_call: amount }
   end
   def call_amount(room, _), do: room
@@ -118,7 +111,6 @@ defmodule PokerEx.Room.Updater do
   @spec paid_in_round(Room.t, player, pos_integer) :: Room.t
   def paid_in_round(%Room{round: round} = room, player, amount) do
     update = Map.update(round, player, amount, &(&1 + amount))
-    Events.paid_in_round_update(room.room_id, update)
     %Room{ room | round: update }
   end
   
@@ -201,13 +193,6 @@ defmodule PokerEx.Room.Updater do
   def all_in(%Room{all_in: all_in, active: active} = room, player) do
     updated_active = Enum.reject(active, fn {name, _seat_num} -> name == player end)
     updated_all_in = [player | all_in]
-    
-    case length(active) do
-      x when x > 1 ->
-        Events.advance(room.room_id, hd(updated_active))
-      _ -> false
-    end
-    
     %Room{ room | all_in: updated_all_in, active: updated_active }
   end
   
@@ -266,14 +251,9 @@ defmodule PokerEx.Room.Updater do
   def advance_active(%Room{active: active} = room) when is_list(active) and length(active) > 1 do
     current = hd(active)
     update = Enum.drop(active, 1) ++ [current]
-    Events.advance(room.room_id, hd(update))
     %Room{ room | active: update }
   end
-  def advance_active(%Room{active: active} = room) when is_list(active) and length(active) == 1 do
-    current = hd(active)
-    Events.advance(room.room_id, current)
-    room
-  end
+  def advance_active(%Room{active: active} = room) when is_list(active) and length(active) == 1, do: room
   def advance_active(room), do: room
   
   @spec folded(Room.t, player) :: Room.t
@@ -320,7 +300,6 @@ defmodule PokerEx.Room.Updater do
   @spec table(Room.t ) :: Room.t
   def table(%Room{deck: deck, table: table} = room) do
     {new_card, remaining_deck} = Deck.deal(deck, 1)
-    Events.card_dealt(room.room_id, new_card)
     %Room{ room | table: table ++ new_card, deck: remaining_deck }
   end
   
@@ -612,7 +591,6 @@ defmodule PokerEx.Room.Updater do
         {name, _} = Enum.at(updated_seating, x)
         {name, x}
       end
-    Events.update_seating(room.room_id, update);
     %Room{ room | seating: update }
   end
   

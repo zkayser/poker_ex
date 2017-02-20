@@ -22,7 +22,6 @@ defmodule PokerEx.Player do
 	end
 	
 	alias PokerEx.Player
-	alias PokerEx.Events
 	alias PokerEx.Repo
 	
 	@type t :: %Player{name: String.t, chips: non_neg_integer, first_name: String.t | nil, 
@@ -49,8 +48,6 @@ defmodule PokerEx.Player do
 				changeset = chip_changeset(player, %{"chips" => player.chips - amount})
 				case Repo.update(changeset) do
 					{:ok, player_struct} -> 
-						Events.chip_update(room_id, player, player.chips - amount)
-						Events.pot_update(room_id, amount)
 						player_struct
 					{:error, _} ->
 						{:error, "could not update chips"}
@@ -60,8 +57,6 @@ defmodule PokerEx.Player do
 				changeset = chip_changeset(player, %{"chips" => 0})
 				case Repo.update(changeset) do
 					{:ok, _} ->
-						Events.chip_update(room_id, player, 0)
-						Events.pot_update(room_id, total)
 						{:insufficient_chips, total}
 				end
 		end
@@ -79,7 +74,6 @@ defmodule PokerEx.Player do
 		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
 		case Repo.update(changeset) do
 			{:ok, player_struct} -> 
-				Events.chip_update(room_id, player, player.chips + amount)
 				player_struct
 			{:error, _} -> {:error, "problem updating chips"}
 		end

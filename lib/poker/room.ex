@@ -224,7 +224,6 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 		
 			Events.game_started(room.room_id, update)
-			Events.advance(room.room_id, hd(update.active))
 		
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
@@ -239,7 +238,6 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
 			Events.game_started(room.room_id, update)
-			Events.advance(room.room_id, hd(update.active))
 			
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
@@ -266,7 +264,6 @@ defmodule PokerEx.Room do
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
 			Events.game_started(room.room_id, update)
-			Events.advance(room.room_id, hd(update.active))
 			
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
@@ -546,8 +543,7 @@ defmodule PokerEx.Room do
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
 					
-				Events.game_started(room.room_id, update) # This is the only case where broadcasting from the endpoint is actually necessary...
-				Events.advance(room.room_id, hd(update.active))
+				Events.game_started(room.room_id, update)
 				{:next_state, :pre_flop, update}
 			_ ->
 				{:next_state, :between_rounds, update_one, [{:next_event, :internal, :clear}]}
@@ -598,7 +594,7 @@ defmodule PokerEx.Room do
 			|> BetTracker.fold(current_player)
 		case update.active do
 			x when length(x) > 1 ->
-				Events.state_updated(room.room_id, update)
+				Events.state_updated(room.room_id, update) # Keep?
 				{:next_state, state, update}
 			_ -> 
 				{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}
@@ -651,8 +647,6 @@ defmodule PokerEx.Room do
   		|> Updater.table
   		|> Updater.table
   		|> Updater.table
-  	if length(update.active) >= 1, do: Events.advance(room.room_id, hd(update.active))
-  	update
   end
   
   defp round_transition(room, :between_rounds) do
@@ -663,7 +657,6 @@ defmodule PokerEx.Room do
   		|> Updater.reset_paid_in_round
   		|> Updater.reset_call_amount
   		|> Updater.reset_called
-  	update
   end
   
   defp round_transition(room, _state) do
@@ -675,7 +668,5 @@ defmodule PokerEx.Room do
   		|> Updater.reset_call_amount
   		|> Updater.reset_called
   		|> Updater.table
-  	if length(update.active) >= 1, do: Events.advance(room.room_id, hd(update.active))
-  	update
   end
 end

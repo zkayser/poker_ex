@@ -127,7 +127,6 @@ defmodule PokerEx.Room.BetTracker do
         |> Updater.pot(total)
         |> Updater.total_paid(player, total)
         |> Updater.all_in(player)
-        # Updater.active(player) <- deleted from pipeline
     end
   end
   

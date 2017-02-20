@@ -38,6 +38,8 @@ export default class Game {
     });
     
     this.playerToolbar = new PlayerToolbar(this.userName, this.roomTitle, channel);
+    this.chatComponent = new ChatComponent(this.userName, channel);
+    this.chatComponent.init();
     
     const MESSAGES = [
       "private_room_join",
@@ -61,6 +63,7 @@ export default class Game {
   
   // private
   setup(payload, channel) {
+    delete this.chatComponent;
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
     this.playerToolbar.update(data);
