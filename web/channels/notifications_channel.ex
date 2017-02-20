@@ -24,7 +24,8 @@ defmodule PokerEx.NotificationsChannel do
     handle_in(event, params, player, socket)
   end
   
-  def handle_in("new_page", %{"current" => current, "get" => "back"}, player, socket) do
+  def handle_in("new_page", %{"current" => current, "get" => "back"} = params, player, socket) do
+    IO.puts "Got params: #{inspect(params)}"
     player = player |> Repo.preload(:participating_rooms)
     page_num = current - 1
     pagination = Scrivener.paginate(player.participating_rooms, %Scrivener.Config{page_number: page_num, page_size: 10})
@@ -38,36 +39,54 @@ defmodule PokerEx.NotificationsChannel do
     {:noreply, socket}
   end
   
-  def handle_in("new_page", %{"current" => current, "get" => "ahead"}, player, socket) do
+  def handle_in("new_page", %{"current" => current, "get" => "ahead"} = params, player, socket) do
+    IO.puts "Got params: #{inspect(params)}"
     player = player |> Repo.preload(:participating_rooms)
     page_num = current + 1
     pagination = Scrivener.paginate(player.participating_rooms, %Scrivener.Config{page_number: page_num, page_size: 10})
-    entries = 
-      pagination.entries
-      |> Enum.map(
-      fn priv_room ->
-        %{title: priv_room.title, participants: length(Repo.preload(priv_room, :participants).participants), link: "/private/rooms/#{priv_room.id}"}
-      end)
-    push(socket, "update_pages", %{entries: entries, current_page: page_num, total: pagination.total_pages})
-    {:noreply, socket}
+    
+    case page_num > pagination.total_pages do
+      true -> {:noreply, socket}
+      _ ->
+        entries = 
+          pagination.entries
+          |> Enum.map(
+            fn priv_room ->
+              %{
+              title: priv_room.title, 
+              participants: length(Repo.preload(priv_room, :participants).participants),
+              link: "/private/rooms/#{priv_room.id}"
+              }
+            end)
+      push(socket, "update_pages", %{entries: entries, current_page: page_num, total: pagination.total_pages})
+      {:noreply, socket}
+    end
   end
   
-  def handle_in("new_page", %{"get" => page_num}, player, socket) do
+  def handle_in("new_page", %{"get" => page_num} = params, player, socket) do
+    IO.puts "Got params: #{inspect(params)}"
     player = player |> Repo.preload(:participating_rooms)
     page_num = String.to_integer(page_num)
     pagination = Scrivener.paginate(player.participating_rooms, %Scrivener.Config{page_number: page_num, page_size: 10})
-    entries = 
-      pagination.entries
-      |> Enum.map(
-      fn priv_room ->
-        %{title: priv_room.title, participants: length(Repo.preload(priv_room, :participants).participants), link: "/private/rooms/#{priv_room.id}"}
-      end)
-    push(socket, "update_pages", %{entries: entries, current_page: page_num, total: pagination.total_pages})
-    {:noreply, socket}
+    case page_num > pagination.total_pages do
+      true -> {:noreply, socket}
+      _ ->
+       entries = 
+        pagination.entries
+        |> Enum.map(
+          fn priv_room ->
+            %{
+            title: priv_room.title,
+            participants: length(Repo.preload(priv_room, :participants).participants),
+            link: "/private/rooms/#{priv_room.id}"
+            }
+          end)
+        push(socket, "update_pages", %{entries: entries, current_page: page_num, total: pagination.total_pages})
+        {:noreply, socket} 
+    end
   end
   
   def handle_in("decline_invitation", %{"room" => id}, player, socket) do
-    IO.puts "NOW IN DECLINE_INVITATION HANDLE_IN CALLBACK: #{id}; \n#{inspect(player)}"
     private_room = Repo.get(PrivateRoom, id)
     case PrivateRoom.remove_invitee(private_room, player) do
       {:ok, _} -> 

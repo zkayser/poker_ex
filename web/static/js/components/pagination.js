@@ -4,6 +4,7 @@ export default class Pagination {
   constructor(opts) {
     this.default = opts.default || 1;
     this.defaultLinks = opts.defaultLinks || [$("#page-1"), $("#page-2"), $("#page-3"), $("#page-4"), $("#page-5")];
+    this.showingPages = opts.showingPages || [1, 2, 3, 4, 5]; 
     this.pageBack = opts.pageBack || $("#page-back");
     this.pageAhead = opts.pageAhead || $("#page-ahead");
     this.newLinksOn = opts.newLinksOn || 5;
@@ -34,7 +35,7 @@ export default class Pagination {
   
   update(payload) {
     this.removeActive();
-    this.appendPageNumHeadings(payload);
+    this.changePageNumHeadings(payload);
     this.addActive(payload);
     this.removeDisabledClass(payload);
     this.disableButtonIfNeeded(payload);
@@ -76,21 +77,18 @@ export default class Pagination {
       this.pageBack.removeClass('disabled');
       this.pageBack.off('click');
       this.pageBack.on('click', (e) => {
-        this.channel.push("new_page", {current: payload.current_page, get: "back"});
+        this.channel.push("new_page", {current: this.currentPage, get: "back"});
       });
     }
     if (this.pageAhead.hasClass('disabled')) {
       this.pageAhead.removeClass('disabled');
-      this.pageAhead.off('click');
       this.pageAhead.on('click', (e) => {
-        this.channel.push('new_page', {current: payload.current_page, get: "ahead"});
+        this.channel.push('new_page', {current: this.currentPage, get: "ahead"});
       });
     }
   }
   
   disableButtonIfNeeded(payload) {
-    console.log("disableBtn? - payload.current_page: ", payload);
-    console.log("isFirstPage?: ", this.isFirstPage(payload));
     if (this.isFirstPage(payload)) {
       this.pageBack.addClass('disabled');
       this.pageBack.off('click');
@@ -109,16 +107,26 @@ export default class Pagination {
   }
   
   changePageNumHeadings(payload) {
-    return payload.current_page > 5 && payload.current_page < payload.total;
+    if (this.showingPages.includes(payload.current_page)) {
+      return;
+    } else {
+      this.showingPages = this.makeRangeForNumber(payload);
+      let listElems = this.buildPageNumListElems(this.showingPages);
+      this.appendPageNumHeadings(listElems);
+    }
   }
   
   makeRangeForNumber(payload) {
     let number = payload.current_page;
     let remFive = number % 5;
-    let start = (number - remFive) + 1;
+    let start;
+    if (remFive == 0) {
+      start = (number - 4);
+    } else {
+      start = (number - remFive) + 1;
+    }
     let pageNums = [];
-    while (start < payload.total || pageNums.length < 5) {
-      console.log("start: ", start);
+    while (start <= payload.total && pageNums.length < 5) {
       pageNums.push(start);
       start++;
     }
@@ -133,20 +141,16 @@ export default class Pagination {
     return listElems;
   }
   
-  appendPageNumHeadings(payload) {
-    if (this.changePageNumHeadings(payload)) {
-      let range = this.makeRangeForNumber(payload);
-      let pageNums = this.buildPageNumListElems(range);
-      $(".page-numbers").empty();
-      for (let i = 0; i < pageNums.length; i++) {
-        $(".page-numbers").append(pageNums[i]);
-        pageNums[i].off('click');
-        pageNums[i].on('click', (e) => {
-          let id = pageNums[i].attr('id');
-          id = id.split("-")[1];
-          this.channel.push("new_page", {get: id});
-        });
-      }
+  appendPageNumHeadings(listElems) {
+    $(".page-numbers").empty();
+    for (let i = 0; i < listElems.length; i++) {
+      $(".page-numbers").append(listElems[i]);
+      listElems[i].off('click');
+      listElems[i].on('click', (e) => {
+        let id = listElems[i].attr('id');
+        id = id.split("-")[1];
+        this.channel.push("new_page", {get: id});
+      });
     }
   }
 }
