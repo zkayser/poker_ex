@@ -7,8 +7,11 @@ export default class Pagination {
     this.showingPages = opts.showingPages || [1, 2, 3, 4, 5]; 
     this.pageBack = opts.pageBack || $("#page-back");
     this.pageAhead = opts.pageAhead || $("#page-ahead");
+    this.entryType = opts.entryType || 'gameInfo';
     this.newLinksOn = opts.newLinksOn || 5;
+    this.liTextColor = opts.liTextColor || 'white-text';
     this.currentPage = opts.currentPage || $(".pagination").data("currentPage");
+    this.activeClass = opts.activeClass || "active-page";
     this.channel = opts.channel;
     this.appendTarget = opts.appendTarget || $("#participating-table-body");
   }
@@ -53,6 +56,15 @@ export default class Pagination {
   
   // private
   buildEntry(entry) {
+    switch (this.entryType) {
+      case 'gameInfo':
+        return this.buildGameInfoEntry(entry);
+      default:
+        console.log('buildEntry failed');
+    }
+  }
+  
+  buildGameInfoEntry(entry) {
     return $(`
       <tr>
         <td>${entry.title}</td>
@@ -99,11 +111,11 @@ export default class Pagination {
   }
   
   removeActive() {
-    $(".active-page").removeClass('active-page');
+    $(`.${this.activeClass}`).removeClass(this.activeClass);
   }
   
   addActive(payload) {
-    $(`#page-${payload.current_page}`).addClass('active-page');
+    $(`#page-${payload.current_page}`).addClass(this.activeClass);
   }
   
   changePageNumHeadings(payload) {
@@ -136,7 +148,7 @@ export default class Pagination {
   buildPageNumListElems(numbers) {
     let listElems = [];
     for (let i = 0; i < numbers.length; i++) {
-      listElems.push($(`<li class="page-btn" id="page-${numbers[i]}"><a class="white-text" href="#!">${numbers[i]}</a></li>`));
+      listElems.push($(`<li class="page-btn" id="page-${numbers[i]}"><a class="${this.liTextColor}" href="#!">${numbers[i]}</a></li>`));
     }
     return listElems;
   }
