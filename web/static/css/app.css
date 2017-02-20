@@ -215,6 +215,18 @@ nav.top-nav a.page-title {
 	display: inline-block;
 }
 
+.player-icon {
+	margin-top: 1em;
+}
+
+.user-info {
+	font-size: 1.25em !important;
+}
+
+.blurb {
+	margin-top: 0.5em !important;
+}
+
 ::-webkit-input-placeholder {
    color: darkslategray;
 }
