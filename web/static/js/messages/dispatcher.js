@@ -23,6 +23,7 @@ export default class Dispatcher {
         game.setup(payload, channel);
         break;
       case "game_started":
+        game.controls.clear();
         game.table.clear();
         game.setup(payload, channel);
         break;

@@ -16,7 +16,15 @@ defmodule PokerEx.GameEvents do
       end
     players = Enum.map(players, fn p -> %{chips: p.chips, name: p.name} end)
     
-    base_map = %{active: active, players: players, paid: room.paid, round: room.round, to_call: room.to_call, type: Atom.to_string(room.type), pot: room.pot}
+    base_map = 
+      %{active: active,
+        players: players,
+        paid: room.paid, 
+        round: room.round, 
+        to_call: room.to_call,
+        type: Atom.to_string(room.type),
+        chip_roll: room.chip_roll,
+        pot: room.pot}
     seating = %{seating: Enum.map(room.seating, fn {name, pos} -> %{name: name, position: pos} end)}
     player_hands = %{player_hands: 
                      Enum.map(room.player_hands, fn {player, [card1, card2]} -> %{player: player, hand: [Map.from_struct(card1), Map.from_struct(card2)]} end)

@@ -4,8 +4,11 @@ import Player from '../player';
 export default class Controls {
   
   constructor(data) {
+    console.log('initializing controls with data.to_call and data.round[data.user]: ', data.to_call, data.round[data.user])
     this.player = data.user || null; // string
     this.channel = data.channel || null;
+    this.to_call = data.to_call || 0;
+    this.round = data.round[data.user] || 0;
     this.callDiv = $("#call-div");
     this.raiseDiv = $("#raise-div");
     this.checkDiv = $("#check-div");
@@ -17,13 +20,26 @@ export default class Controls {
   }
   
   update(state) {
+    this.hideAllAndDetachEvents();
+    this.to_call = state.to_call;
+    this.round = state.round[this.player] || 0;
+    console.log('Updating controls to this.to_call, this.round: ', this.to_call, this.round);
     let ctrls = this.selectCtrlTypes(state);
     (state.user) == state.active ? this.showAllAndAttachEvents(ctrls) : this.hideAllAndDetachEvents(); 
+  }
+  
+  clear() {
+    this.hideAllAndDetachEvents();
   }
   
   // Private
   
   show(type) {
+    if (type == 'call') {
+      console.log('editing call button');
+      $("#call-amount-info").remove();
+      this[`${type}Btn`].append($(`<span id="call-amount-info" class="white-text">${this.amountToCall()}</span>`));
+    }
     this[`${type}Div`].fadeIn('slow');
     this[`${type}Btn`].fadeTo('slow', 1);
   }
@@ -74,6 +90,11 @@ export default class Controls {
       ctrls = ["check"];
     }
     return ctrls;
+  }
+  
+  amountToCall() {
+    console.log('Amount to call: ', this.to_call - this.round);
+    return this.to_call - this.round;
   }
   
   attachClickEvents() {

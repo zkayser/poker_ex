@@ -63,7 +63,13 @@ export default class Game {
   
   // private
   setup(payload, channel) {
+    if (this.table) {
+      this.table.clear();
+    }
     delete this.chatComponent;
+    delete this.raiseControl;
+    delete this.controls;
+    delete this.table;
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
     this.playerToolbar.update(data);
@@ -75,6 +81,7 @@ export default class Game {
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();
+    this.raiseControl.update(data);
     this.chatComponent.init();
   }
   

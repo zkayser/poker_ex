@@ -22,6 +22,7 @@ defmodule PokerEx.RoomView do
       paid: room.paid || %{},
       to_call: room.to_call || 0,
       players: Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json"),
+      chip_roll: room.chip_roll,
       type: Atom.to_string(room.type),
       seating: Phoenix.View.render_many(room.seating, __MODULE__, "seating.json", as: :seating),
       player_hands: Phoenix.View.render_many(room.player_hands, __MODULE__, "player_hands.json", as: :player_hand),

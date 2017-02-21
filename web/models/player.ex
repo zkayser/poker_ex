@@ -80,15 +80,30 @@ defmodule PokerEx.Player do
 	end
 	
 	def update_chips(username, amount) when amount >= 0 do
-		player = case Repo.one from(p in Player, where: p.name == ^username) do
-			nil -> :player_not_found
-			player -> player
-		end
+		player = 
+			case Repo.one from(p in Player, where: p.name == ^username) do
+				nil -> :player_not_found
+				player -> player
+			end
 		
 		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
 		case Repo.update(changeset) do
 			{:ok, struct} ->
 				struct
+			{:error, _} -> {:error, "problem updating chips"}
+		end
+	end
+	
+	def subtract_chips(username, amount) do
+		player =
+			case Repo.one from(p in Player, where: p.name == ^username) do
+				nil -> :player_not_found
+				player -> player
+			end
+		
+		changeset = chip_changeset(player, %{"chips" => player.chips - amount})
+		case Repo.update(changeset) do
+			{:ok, struct} -> struct
 			{:error, _} -> {:error, "problem updating chips"}
 		end
 	end

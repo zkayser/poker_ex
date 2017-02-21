@@ -207,6 +207,7 @@ defmodule PokerEx.Room do
 	###################
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room) when length(seating) <= @seating_capacity do
+		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update = 
 			room
 			|> Updater.seating(player)
@@ -215,6 +216,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) when length(seating) < 1 do
+		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> Updater.seating(player)
@@ -222,7 +224,8 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, room) do
+	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
+		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> Updater.seating(player)
@@ -253,6 +256,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room) when length(seating) == 1 do
+		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> round_transition(:between_rounds)
@@ -281,6 +285,7 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
+		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> Updater.seating(player)

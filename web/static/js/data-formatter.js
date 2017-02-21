@@ -12,9 +12,9 @@ export default class DataFormatter {
       case "game":
         // Add a raiseable attribute and whatever else is needed; format seating array
         data.seating = this.formatSeating(data.seating);
+        data.players = this.extractPlayers(data.chip_roll);
         let raiseData = this.extractRaiseData(data);
         data.table = this.extractTableCards(data.table);
-        data.players = this.extractPlayers(data.players);
         data.playerHand = this.extractPlayerHand(data);
         data.raiseable = raiseData.raiseable;
         data.min = raiseData.min;
@@ -41,7 +41,7 @@ export default class DataFormatter {
   
   extractRaiseData(data) {
     let raiseData = new Object();
-    if (!(data.active) || data.active != data.players[0].name) {
+    if (!(data.active)) {
       raiseData.raiseable = false;
     } else {
       let round = data.round[data.user] || 0;
@@ -51,11 +51,13 @@ export default class DataFormatter {
         return true;
       }
     });
-    let chips = filtered[0].chips;
+    let chips = data.chip_roll[filtered[0].name];
     if (chips > toCall) {
       raiseData.raiseable = true;
       raiseData.min = toCall;
       raiseData.max = chips;
+    } else {
+      raiseData.raiseable = false;
     }
     }
     return raiseData;
@@ -89,10 +91,20 @@ export default class DataFormatter {
     }
   }
   
+  /*
   extractPlayers(playersArray) {
     let players = [];
     playersArray.forEach((player) => {
       players.push(new Player(player.name, player.chips));
+    });
+    return players;
+  } */
+  
+  extractPlayers(chipRoll) {
+    let names = Object.keys(chipRoll);
+    let players = [];
+    names.forEach((name) => {
+      players.push(new Player(name, chipRoll[name]));
     });
     return players;
   }
