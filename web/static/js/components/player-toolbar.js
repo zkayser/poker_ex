@@ -7,7 +7,8 @@ export default class PlayerToolbar {
       message: "add_player",
       params: {
         player: player,
-        room: room
+        room: room,
+        joinAmt: $("#join-amount-input").val()
       }
     };
     this.startBtnOpts = {
@@ -23,6 +24,7 @@ export default class PlayerToolbar {
         room: room
       }
     };
+    this.room = room;
     this.player = player;
     this.channel = channel;
   }
@@ -58,18 +60,33 @@ export default class PlayerToolbar {
   }
   
   setupBtn(btnOpts) {
-    this.renderBtn(btnOpts.name);
-    let btn = document.getElementById(btnOpts.name);
-    console.log("btn");
-    btn.addEventListener('click', () => {
-      console.log(`${btnOpts.name} clicked`);
-      this.channel.push(btnOpts.message, btnOpts.params);
-    });
+    if (btnOpts.name == 'join-btn') {
+      this.renderBtn(btnOpts.name);
+      $("#join-amount-input").off('keyup');
+      $("#join-amount-input").on('keyup', (e) => {
+        if (e.keyCode == 13) {
+          this.join();
+        }
+      $("#join-amount-btn").off('click');
+      $("#join-amount-btn").on('click', (e) => {
+        this.join();
+      });
+      });
+    }
+    else {
+      this.renderBtn(btnOpts.name);
+      let btn = document.getElementById(btnOpts.name);
+      btn.addEventListener('click', () => {
+        console.log(`${btnOpts.name} clicked`);
+        this.channel.push(btnOpts.message, btnOpts.params);
+      }); 
+    }
   }
   
   renderBtn(btnName) {
     if (btnName == "join-btn") {
-      $("#join-quit-item").html(`<a href="#!" class="white-text" id="join-btn">JOIN</a>`);
+      $("#join-quit-item").html(
+        `<a href="#join-modal" class="white-text waves-effect waves-light" id="join-btn">JOIN</a>`);
     } else if (btnName == "start-btn") {
       $("#start-info-item").html(`<a href="#!" class="white-text" id="start-btn">START</a>`);
     } else if (btnName == "leave-btn") {
@@ -77,7 +94,28 @@ export default class PlayerToolbar {
     }
   }
   
+  join() {
+    let val = $("#join-amount-input").val();
+    let max = $("#join-amount-input").data("max");
+    val = parseInt(val, 10);
+    let errorMessage = `You must enter a number no greater than ${max}`;
+    
+    console.log("In join method with val, max: ", val, max);
+    if (typeof(val) == 'number' && val <= max) {
+      // Okay to join
+      this.channel.push("add_player", {player: this.player, room: this.room, amount: val});
+      $("#join-amount-input").val('');
+      $("#close-join").click();
+    } else {
+      $("#join-input-div").append(this.errorMessage(errorMessage));
+    }
+  }
+  
   accountCircle() {
     return `<a href="#player-account-modal" class="white-text waves-effect waves-light"><i class="material-icons">account_circle</i></a>`;
+  }
+  
+  errorMessage(message) {
+    return `<p class="red-text">${message}</p>`;
   }
 }

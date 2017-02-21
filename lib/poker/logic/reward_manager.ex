@@ -1,15 +1,31 @@
 defmodule PokerEx.RewardManager do
 	alias PokerEx.Player
 	alias PokerEx.Events
+	alias PokerEx.Room
 	
 	@type hand_rankings :: [{String.t, pos_integer}]
 	@type paid_in :: [{String.t, pos_integer}]
 	@type rewards :: [{String.t, pos_integer}]
 	
+	@spec manage_rewards(Room.t) :: Room.t
+	def manage_rewards(%Room{stats: stats, paid: paid} = room) do
+		hand_rankings = Enum.sort(stats, fn {_, score1}, {_, score2} -> score1 > score2 end)
+		rewards = manage(hand_rankings, paid)
+		%Room{ room | rewards: rewards }
+	end
+	
 	@spec manage_rewards(hand_rankings, paid_in) :: rewards
 	def manage_rewards(hand_rankings, paid_in) do
 		hand_rankings = Enum.sort(hand_rankings, fn {_, score1}, {_, score2} -> score1 > score2 end)
 		manage(hand_rankings, paid_in)
+	end
+	
+	@spec distribute_rewards(Room.t) :: Room.t
+	def distribute_rewards(%Room{rewards: rewards, chip_roll: chip_roll} = room) do
+		reward_map = Enum.reduce(rewards, %{}, fn ({player, reward}, acc) -> Map.put(acc, player, reward) end)
+		update = Map.merge(chip_roll, reward_map, fn _key, v1, v2 -> v1 + v2 end)
+		Enum.each(rewards, fn {player, amount} -> Events.game_over(room.room_id, player, amount) end)
+		%Room{ room | chip_roll: update }
 	end
 	
 	@spec distribute_rewards(rewards, atom()) :: :ok

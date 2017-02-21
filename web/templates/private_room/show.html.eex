@@ -41,6 +41,7 @@
 <%= render PokerEx.PlayerView, "_account_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, participants: @room.participants %>
+<%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
 
 <script>
   window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";

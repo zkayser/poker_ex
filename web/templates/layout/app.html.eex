@@ -107,5 +107,6 @@
     <script>$("#controls-modal").modal();</script>
     <script>$("#raise-modal").modal();</script>
     <script>$("#chat-box-modal").modal();</script>
+    <script>$("#join-modal").modal();</script>
   </body>
 </html>

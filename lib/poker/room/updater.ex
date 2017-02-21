@@ -69,6 +69,37 @@ defmodule PokerEx.Room.Updater do
     update = Enum.reject(seating, fn {name, _} -> player == name end)
     %Room{ room | seating: update }
    end
+   
+   @doc ~S"""
+   Updates the chip_roll map. If a player is leaving, this function
+   simply drops the "#{player}" key from the map; otherwise, it
+   updates the value for the "#{player}" key to the given amount.
+   
+   ## Examples
+   
+      iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
+      iex> Updater.chip_roll(room, "C", 300)
+      %Room{chip_roll: %{"A" => 20, "B" => 30, "C" => 300}}
+      
+      iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
+      iex> Updater.chip_roll(room, "A", 50)
+      %Room{chip_roll: %{"A" => 20, "B" => 30}}
+      
+      iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
+      iex> Updater.chip_roll(room, "A", :leaving)
+      %Room{chip_roll: %{"B" => 30}}
+   """
+   
+   @spec chip_roll(Room.t, player, pos_integer | :leaving) :: Room.t
+   def chip_roll(%Room{chip_roll: chip_roll} = room, player, :leaving) do
+    PokerEx.Player.update_chips(player, chip_roll[player])
+    update = Map.drop(chip_roll, player)
+    %Room{ room | chip_roll: update }
+   end
+   def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) do
+    update = Map.put(chip_roll, player, amount)
+    %Room{ room | chip_roll: update }
+   end
   
   @doc ~S"""
   Updates the bet required to call or raise. Does nothing if the amount specified is
@@ -577,21 +608,26 @@ defmodule PokerEx.Room.Updater do
       
   """
   @spec remove_players_with_no_chips(Room.t) :: Room.t
-  def remove_players_with_no_chips(%Room{seating: seating} = room) do
+  def remove_players_with_no_chips(%Room{seating: seating, chip_roll: chip_roll} = room) do
     updated_seating =    
       Enum.reject(seating, 
-        fn {player, _seat} ->
-          pl_struct = PokerEx.Repo.get_by(PokerEx.Player, name: player)
-          if pl_struct.chips == 0, do: Events.player_left(room.room_id, player)
-          pl_struct.chips == 0
+        fn {player, _} ->
+          if chip_roll[player] == 0, do: Events.player_left(room.room_id, player)
+          chip_roll[player] == 0
         end)
+    
+      remove_keys = 
+        Enum.filter(seating, fn {player, _} -> chip_roll[player] == 0 end)
+        |> Enum.map(fn {player, _} -> player end)
+      
+      updated_chip_roll = Map.drop(chip_roll, remove_keys)
         
     update =    
       for x <- 0..(length(updated_seating) - 1) do
         {name, _} = Enum.at(updated_seating, x)
         {name, x}
       end
-    %Room{ room | seating: update }
+    %Room{ room | seating: update, chip_roll: updated_chip_roll }
   end
   
   @doc ~S"""
@@ -638,6 +674,20 @@ defmodule PokerEx.Room.Updater do
   """
   @spec reset_table(Room.t) :: Room.t
   def reset_table(room), do: %Room{ room | table: [] }
+  
+  @doc ~S"""
+  Resets the rewards list to an empty list.
+  
+  ## Examples
+  
+      iex> rewards = [{"A", 20}, {"B", 75}]
+      iex> room = %Room{rewards: rewards}
+      iex> room = Updater.reset_rewards
+      iex> [] == room.rewards
+      true
+  """
+  @spec reset_rewards(Room.t) :: Room.t
+  def reset_rewards(room), do: %Room{ room | rewards: [] }
   
   @doc ~S"""
   Resets the deck attribute to store a fresh, shuffled deck.

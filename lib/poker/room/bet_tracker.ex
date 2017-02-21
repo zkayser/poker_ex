@@ -24,7 +24,7 @@ defmodule PokerEx.Room.BetTracker do
       
   """
   @spec post_blind(Room.t, pos_integer, blind) :: Room.t
-  def post_blind(%Room{current_big_blind: bb, current_small_blind: sb, active: active} = room, amount, blind) do
+  def post_blind(%Room{current_big_blind: bb, current_small_blind: sb, active: active, chip_roll: chip_roll} = room, amount, blind) do
     {bb, sb} = 
       if bb > length(active) || sb > length(active) do
         {length(active) - 1, length(active) - 2}
@@ -40,15 +40,17 @@ defmodule PokerEx.Room.BetTracker do
           Enum.find(active, fn {_name, seat} -> seat == sb end)
       end
     
-    case Player.bet(player, amount, room.room_id) do
-      %Player{name: _, chips: _} ->
+    case bet(chip_roll, player, amount) do
+      {:ok, new_amount} ->
         room
+        |> Updater.chip_roll(player, new_amount)
         |> Updater.call_amount(amount)
         |> Updater.paid_in_round(player, amount)
         |> Updater.pot(amount)
         |> Updater.total_paid(player, amount)
       {:insufficient_chips, total} ->
         room
+        |> Updater.chip_roll(player, 0)
         |> Updater.call_amount(amount)
         |> Updater.paid_in_round(player, total)
         |> Updater.pot(total)
@@ -72,14 +74,15 @@ defmodule PokerEx.Room.BetTracker do
       
   """
   @spec raise(Room.t, player, pos_integer) :: Room.t
-  def raise(%Room{to_call: call_amount, round: paid_in_round} = room, player, amount) 
+  def raise(%Room{to_call: call_amount, round: paid_in_round, chip_roll: chip_roll} = room, player, amount) 
   when amount > call_amount do
     paid_in_round = paid_in_round[player] || 0
     bet_amount = amount - paid_in_round
     
-    case Player.bet(player, bet_amount, room.room_id) do
-      %Player{name: _, chips: _} ->
+    case bet(chip_roll, player, bet_amount) do
+      {:ok, new_amount} ->
         room 
+        |> Updater.chip_roll(player, new_amount)
         |> Updater.call_amount(amount)
         |> Updater.paid_in_round(player, bet_amount)
         |> Updater.pot(bet_amount)
@@ -88,6 +91,7 @@ defmodule PokerEx.Room.BetTracker do
         |> Updater.advance_active
       {:insufficient_chips, total} ->
         room
+        |> Updater.chip_roll(player, 0)
         |> Updater.call_amount(total)
         |> Updater.paid_in_round(player, total)
         |> Updater.pot(total)
@@ -109,13 +113,14 @@ defmodule PokerEx.Room.BetTracker do
       
   """
   @spec call(Room.t, player) :: Room.t
-  def call(%Room{to_call: call_amount, round: paid_in_round} = room, player) do
+  def call(%Room{to_call: call_amount, round: paid_in_round, chip_roll: chip_roll} = room, player) do
     paid_in_round = paid_in_round[player] || 0
     bet_amount = call_amount - paid_in_round
     
-    case Player.bet(player, bet_amount, room.room_id) do
-      %Player{name: _, chips: _} ->
+    case bet(chip_roll, player, bet_amount) do
+      {:ok, new_amount} ->
         room
+        |> Updater.chip_roll(player, new_amount)
         |> Updater.paid_in_round(player, bet_amount)
         |> Updater.pot(bet_amount)
         |> Updater.total_paid(player, bet_amount)
@@ -123,6 +128,7 @@ defmodule PokerEx.Room.BetTracker do
         |> Updater.advance_active
       {:insufficient_chips, total} ->
         room
+        |> Updater.chip_roll(player, 0)
         |> Updater.paid_in_round(player, total)
         |> Updater.pot(total)
         |> Updater.total_paid(player, total)
@@ -165,5 +171,14 @@ defmodule PokerEx.Room.BetTracker do
     |> Updater.advance_active 
     |> Updater.active(player)
     |> Updater.folded(player)
+  end
+  
+  @spec bet(map(), player, pos_integer) :: {:ok, non_neg_integer}
+  defp bet(chip_roll, player, bet_amount) do
+    total = chip_roll[player]
+    case total >= bet_amount do
+      true -> {:ok, total - bet_amount}
+      false -> {:insufficient_chips, total}
+    end
   end
 end
