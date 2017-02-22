@@ -114,8 +114,21 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	def handle_in("start_game", %{"room" => roomTitle}, socket) do
-		room = roomTitle |> atomize()
+	def handle_in("remove_player", %{"player" => name, "room" => room}, socket) do
+		# Handle two cases? One where the game ends because there are no more players, another where the game continues?
+		room = Room.leave(room |> atomize(), get_player_by_name(name))
+		case length(room.seating) do
+			x when x <= 1 ->
+				broadcast!(socket, "clear", PokerEx.RoomView.render("room.json", %{room: room}))
+				{:noreply, socket}
+			_ ->
+				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+				{:noreply, socket}
+		end
+	end
+	
+	def handle_in("start_game", %{"room" => room_title}, socket) do
+		room = room_title |> atomize()
 		case length(Room.state(room).seating) > 1 do
 			false -> 
 				# Ignore request if seating <= 1

@@ -301,18 +301,59 @@ defmodule PokerEx.Room do
 			|> Updater.chip_roll(player, :leaving)
 			|> Updater.reset_table_state
 			|> Updater.remove_from_seating(player)
+			|> Updater.reindex_seating
 		{:next_state, :idle, update, [{:reply, from, update}]}
+	end
+	
+	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating} = room) 
+	when length(seating) == 2 and state in [:pre_flop, :flop, :turn, :river] do
+		update =
+			room
+			|> Updater.chip_roll(player, :leaving)
+			# |> Updater.reset_table_state
+			|> Updater.remove_from_seating(player)
+			|> Updater.maybe_advance_active(player)
+			|> Updater.active(player)
+			|> Updater.reindex_seating
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_fold}]}
 	end
 	
 	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 2 do
 		update =
 			room
 			|> Updater.chip_roll(player, :leaving)
-			|> Updater.reset_table_state
+			|> Updater.clear_room
 			|> Updater.remove_from_seating(player)
+			|> Updater.reindex_seating
 		
 		Events.clear_ui(room.room_id)
 		{:next_state, :idle, update, [{:reply, from, update}]}
+	end
+	
+	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating, active: active} = room) 
+	when seating > 2 and state in [:pre_flop, :flop, :turn, :river] do
+		reducer = fn {pl, _} -> pl end
+		active_players = Enum.map(active, reducer)
+		update = 
+			case player in active_players do
+				true ->
+					room
+					|> Updater.chip_roll(player, :leaving)
+					|> Updater.remove_from_seating(player)
+					|> Updater.reindex_seating
+					|> Updater.maybe_advance_active(player)
+					|> Updater.remove_from_active(player)
+				false ->
+					room
+					|> Updater.chip_roll(player, :leaving)
+					|> Updater.remove_from_seating(player)
+					|> Updater.reindex_seating
+			end
+		
+		case update.active == 1 do
+			true -> {:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_fold}]}
+			_ -> {:next_state, state, update, [{:reply, from, update}]}
+		end
 	end
 	
 	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating} = room) do
@@ -325,6 +366,7 @@ defmodule PokerEx.Room do
 					|> Updater.remove_from_seating(player)
 					|> Updater.reindex_seating
 					|> Updater.advance_active
+					|> Updater.remove_from_active(player)
 				_ -> room
 			end
 		{:next_state, state, update, [{:reply, from, update}]}

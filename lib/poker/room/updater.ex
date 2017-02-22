@@ -94,7 +94,7 @@ defmodule PokerEx.Room.Updater do
    @spec chip_roll(Room.t, player, pos_integer | :leaving) :: Room.t
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, :leaving) do
     PokerEx.Player.update_chips(player, chip_roll[player])
-    update = Map.drop(chip_roll, player)
+    update = Map.drop(chip_roll, [player])
     %Room{ room | chip_roll: update }
    end
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) do
@@ -261,6 +261,27 @@ defmodule PokerEx.Room.Updater do
   def active(%Room{seating: seating, active: active} = room) when length(active) == 0 do
     %Room{ room | active: seating }
   end
+  
+  @doc ~S"""
+  Advances the active player if, and only if, the player passed in to
+  the function is the current active player.
+  
+  ## Examples
+      iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}]}
+      iex> room = Updater.maybe_advance_active(room, "B")
+      iex> room.active
+      [{"A", 0}, {"B", 1}, {"C", 2}]
+      
+      iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}]}
+      iex> room = Updater.maybe_advance_active(room, "A")
+      iex> room.active
+      [{"B", 1}, {"C", 2}, {"A", 0}]}
+  """
+  @spec maybe_advance_active(Room.t, player) :: Room.t
+  def maybe_advance_active(%Room{active: [{pl, _}|_tail]} = room, player) when pl == player do
+    advance_active(room)
+  end
+  def maybe_advance_active(room, _player), do: room
   
   @doc ~S"""
   Rotates the active list to keep the head of the list current as the
@@ -763,6 +784,22 @@ defmodule PokerEx.Room.Updater do
   def reset_pot(room), do: %Room{ room | pot: 0 }
   
   @doc ~S"""
+  Removes the player from the list of active players
+  
+  ## Examples
+  
+      iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}]}
+      iex> room = Updater.remove_from_active(room, "A")
+      iex> room.active
+      [{"B", 1}, {"C", 2}]
+  """
+  @spec remove_from_active(Room.t, player) :: Room.t
+  def remove_from_active(%Room{active: active} = room, player) do
+    update = Enum.reject(active, fn {pl, _} -> pl == player end)
+    %Room{ room | active: update }
+  end
+  
+  @doc ~S"""
   Resets the list of all_in players to an empty list.
   
   ## Examples
@@ -775,6 +812,12 @@ defmodule PokerEx.Room.Updater do
   """
   @spec reset_all_in(Room.t) :: Room.t
   def reset_all_in(room), do: %Room{ room | all_in: [] }
+  
+  @spec reset_round(Room.t) :: Room.t
+  def reset_round(room), do: %Room{ room | round: %{} }
+  
+  @spec clear_active(Room.t) :: Room.t
+  def clear_active(room), do: %Room{ room | active: [] }
   
   @spec reset_table_state(Room.t) :: Room.t
   def reset_table_state(room) do
@@ -789,6 +832,14 @@ defmodule PokerEx.Room.Updater do
     |> reset_total_paid
     |> reset_folded
     |> reset_table
+  end
+  
+  @spec clear_room(Room.t) :: Room.t
+  def clear_room(room) do
+    room
+    |> reset_table_state
+    |> reset_round
+    |> clear_active
   end
   
   

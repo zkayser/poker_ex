@@ -36,10 +36,17 @@ export default class Table {
 		this.removeActiveClass();
 		this.updateCards(state.table);
 		this.players = state.players;
+		if (!(this.isEqual(this.seating, state.seating))) {
+			this.seating = state.seating;
+			this.renderPlayers();
+		}
 		this.seating = state.seating;
 		this.to_call = state.to_call;
 		this.cards = state.table;
 		this.updatePot(state.pot);
+		if (state.active) {
+			this.addActiveClass(state.active);
+		}
 		this.addActiveClass(state.active);
 	}
 	
@@ -47,6 +54,22 @@ export default class Table {
 		this.removeCards();
 		this.cards = [];
 		this.pot = 0;
+	}
+	
+	clearWithData(data) {
+		this.removePlayerEmblems(data.seating);
+		this.removeCards();
+		this.cards = [];
+		this.updatePot(data.pot);
+		this.seating = data.seating;
+	}
+	
+	clearPlayers() {
+		console.log('Calling clearPlayers...');
+		let seatClasses = Object.values(SEAT_MAPPING);
+		seatClasses.forEach((klass) => {
+			$(`.${klass}`).remove();
+		});
 	}
 	
 	renderCards() {
@@ -87,7 +110,6 @@ export default class Table {
 	}
 	
 	renderPlayers() {
-		console.log("Rendering players...");
 		let keys = Object.keys(this.seating);
 		keys.forEach((key) => {
 			let cardTable = document.querySelector(".card-table");
@@ -117,19 +139,28 @@ export default class Table {
 		});
 	}
 	
-	clearPlayers() {
-		let seatClasses = Object.values(SEAT_MAPPING);
-		seatClasses.forEach((klass) => {
-			$(`.${klass}`).remove();
-		});
-	}
-	
 	removePlayerEmblem(player) {
 		let cardTable = document.querySelector(".card-table");
 		let position = this.seating[player];
 		let seatClass = SEAT_MAPPING[position];
+		$(`.${seatClass}`).remove();
 		let node = document.getElementsByClassName(seatClass)[0];
 		cardTable.removeChild(node);
+	}
+	
+	removePlayerEmblems(newSeating) {
+		let removeTargets = [];
+		Object.keys(this.seating).forEach((player) => {
+			if (!(Object.keys(newSeating).includes(player))) {
+				removeTargets.push(player);
+			}
+		});
+		console.log('removeTargets now equal: ', removeTargets);
+		removeTargets.forEach((target) => {
+			let position = this.seating[target];
+			let seatClass = SEAT_MAPPING[position];
+			$(`.${seatClass}`).remove();
+		});
 	}
 	
 	addActiveClass(player) {
@@ -140,6 +171,12 @@ export default class Table {
 	
 	removeActiveClass() {
 		$(".active-player").removeClass("active-player");
+	}
+	
+	isEqual(obj1, obj2) {
+		Object.keys(obj1).every((key) => {
+			return obj1[key] == obj2[key];
+		});
 	}
 	
 	markupFor(position) {

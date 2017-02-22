@@ -36,6 +36,9 @@ export default class Dispatcher {
       case "update":
         game.update(payload, channel);
         break;
+      case "clear":
+        game.table.clearWithData(game.dataFormatter.format(payload));
+        break;
       case "game_finished":
         window.Materialize.toast(payload.message, 3000);
         break;

@@ -51,7 +51,8 @@ export default class Game {
       "player_seated",
       "game_finished",
       "winner_message",
-      "new_message"];
+      "new_message",
+      "clear"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
         Dispatcher.dispatch(message, payload, {
@@ -79,7 +80,7 @@ export default class Game {
     this.raiseControl = new RaiseControl(data);
     this.chatComponent = new ChatComponent(this.userName, channel);
     this.playerChipComponent = new PlayerChipComponent(data);
-    Card.renderPlayerCards(data.playerHand);
+    Card.renderPlayerCards(data.playerHand); 
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();

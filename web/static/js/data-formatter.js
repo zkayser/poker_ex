@@ -51,13 +51,15 @@ export default class DataFormatter {
         return true;
       }
     });
-    let chips = data.chip_roll[filtered[0].name];
-    if (chips > toCall) {
-      raiseData.raiseable = true;
-      raiseData.min = toCall;
-      raiseData.max = chips;
-    } else {
-      raiseData.raiseable = false;
+    if (filtered.length > 0) {
+      let chips = data.chip_roll[filtered[0].name];
+      if (chips > toCall) {
+        raiseData.raiseable = true;
+        raiseData.min = toCall;
+        raiseData.max = chips;
+      } else {
+        raiseData.raiseable = false;
+      }
     }
     }
     return raiseData;

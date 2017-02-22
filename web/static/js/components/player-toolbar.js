@@ -72,12 +72,18 @@ export default class PlayerToolbar {
         this.join();
       });
       });
-    }
+    } /* else if (btnOpts.name == 'leave-btn') {
+      this.renderBtn(btnOpts.name);
+      let btn = document.getElementById(btnOpts.name);
+      btn.addEventListener('click', () => {
+        this.channel.push(btnOpts.message, btnOpts.params);
+        this.setupBtn(this.joinBtnOpts);
+      }); 
+    } */
     else {
       this.renderBtn(btnOpts.name);
       let btn = document.getElementById(btnOpts.name);
       btn.addEventListener('click', () => {
-        console.log(`${btnOpts.name} clicked`);
         this.channel.push(btnOpts.message, btnOpts.params);
       }); 
     }

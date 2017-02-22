@@ -76,19 +76,21 @@ export default class Controls {
   }
   
   selectCtrlTypes(state) {
-    let paid = state.round[this.player] || 0;
-    let chips = Player.filterPlayersArrayByName(state, this.player).chips;
-    let ctrls;
-    if (paid < state.to_call && chips > state.to_call) {
-      ctrls = ["raise", "call", "fold"];
-    } else if (paid < state.to_call && chips <= state.to_call) {
-      ctrls = ["call", "fold"];
-    } else if (paid >= state.to_call && chips > state.to_call) {
-      ctrls = ["raise", "check"];
-    } else {
-      ctrls = ["check"];
-    }
-    return ctrls;
+    if (Player.filterPlayersArrayByName(state, this.player)) {
+      let paid = state.round[this.player] || 0;
+      let chips = Player.filterPlayersArrayByName(state, this.player).chips;
+      let ctrls;
+      if (paid < state.to_call && chips > state.to_call) {
+        ctrls = ["raise", "call", "fold"];
+      } else if (paid < state.to_call && chips <= state.to_call) {
+        ctrls = ["call", "fold"];
+      } else if (paid >= state.to_call && chips > state.to_call) {
+        ctrls = ["raise", "check"];
+      } else {
+        ctrls = ["check"];
+      }
+      return ctrls;
+    } 
   }
   
   amountToCall() {
