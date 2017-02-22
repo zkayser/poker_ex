@@ -4,7 +4,6 @@ import Player from '../player';
 export default class Controls {
   
   constructor(data) {
-    console.log('initializing controls with data.to_call and data.round[data.user]: ', data.to_call, data.round[data.user])
     this.player = data.user || null; // string
     this.channel = data.channel || null;
     this.to_call = data.to_call || 0;

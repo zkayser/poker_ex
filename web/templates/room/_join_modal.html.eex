@@ -27,8 +27,8 @@
     </div>
   </div>
   <div class="modal-footer hidden">
-    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat" id="close-join">
-      <i class="material-icons" id="controls-close">close</i>
+    <a href="#" class="modal-action modal-close waves-effect waves-green btn-flat" id="close-join">
+      <i class="material-icons" id="join-close">close</i>
     </a>
   </div>
 </div>

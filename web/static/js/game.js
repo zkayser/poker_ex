@@ -7,6 +7,7 @@ import Controls from './components/controls';
 import RaiseControl from './components/raise-control';
 import PlayerToolbar from './components/player-toolbar';
 import ChatComponent from './components/chat-component';
+import PlayerChipComponent from './components/player-chip-component';
 import SpinnerAnimation from './animations/spinner-animations';
 import DataFormatter from './data-formatter';
 import Dispatcher from './messages/dispatcher';
@@ -77,12 +78,14 @@ export default class Game {
     this.controls = new Controls(data);
     this.raiseControl = new RaiseControl(data);
     this.chatComponent = new ChatComponent(this.userName, channel);
+    this.playerChipComponent = new PlayerChipComponent(data);
     Card.renderPlayerCards(data.playerHand);
     this.table.init(data);
     this.controls.update(data);
     this.raiseControl.init();
     this.raiseControl.update(data);
     this.chatComponent.init();
+    this.playerChipComponent.init();
   }
   
   update(payload, channel) {
@@ -91,6 +94,7 @@ export default class Game {
     this.table.update(data);
     this.controls.update(data);
     this.raiseControl.update(data);
+    this.playerChipComponent.update(data);
   }
   
   addUser(data) {

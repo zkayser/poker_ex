@@ -89,7 +89,7 @@ defmodule PokerEx.Player do
 		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
 		case Repo.update(changeset) do
 			{:ok, struct} ->
-				struct
+				{:ok, struct}
 			{:error, _} -> {:error, "problem updating chips"}
 		end
 	end
@@ -103,7 +103,7 @@ defmodule PokerEx.Player do
 		
 		changeset = chip_changeset(player, %{"chips" => player.chips - amount})
 		case Repo.update(changeset) do
-			{:ok, struct} -> struct
+			{:ok, struct} -> {:ok, struct}
 			{:error, _} -> {:error, "problem updating chips"}
 		end
 	end

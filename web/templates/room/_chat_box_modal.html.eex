@@ -14,9 +14,14 @@
         </div>
         <ul class="collection">
           <li class="collection-item"><h6 class="teal-text">Player</h6><span class="secondary-content" id="chip-title">Chip Count</span></li>
-          <%= for participant <- @participants do %>
-            <li class="collection-item"><%= participant.name %> <span class="secondary-content"><%= participant.chips %></span></li>
+          <div id="participant-info">
+            <%= for participant <- @participants do %>
+            <li class="collection-item" id="<%= participant.name %>-participant-item">
+              <%= participant.name %> <span class="secondary-content" id="<%= participant.name %>-active-chips"><%= participant.chips %>
+              </span>
+            </li>
           <% end %>
+          </div>
         </ul>
         </div>
       </div>

@@ -1,6 +1,7 @@
 defmodule PokerEx.Room.Updater do
   alias PokerEx.Room, as: Room
   alias PokerEx.Deck
+  alias PokerEx.Events
   alias PokerEx.Evaluator
   @moduledoc """
     Provides convenience functions for updating specific attributes of

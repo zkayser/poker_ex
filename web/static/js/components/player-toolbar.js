@@ -100,12 +100,11 @@ export default class PlayerToolbar {
     val = parseInt(val, 10);
     let errorMessage = `You must enter a number no greater than ${max}`;
     
-    console.log("In join method with val, max: ", val, max);
     if (typeof(val) == 'number' && val <= max) {
       // Okay to join
       this.channel.push("add_player", {player: this.player, room: this.room, amount: val});
       $("#join-amount-input").val('');
-      $("#close-join").click();
+      $("#join-close").click();
     } else {
       $("#join-input-div").append(this.errorMessage(errorMessage));
     }
