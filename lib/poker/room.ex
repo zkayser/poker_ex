@@ -1,5 +1,5 @@
 defmodule PokerEx.Room do
-	alias PokerEx.Room, as: Room
+	alias PokerEx.Room
 	alias PokerEx.Player
 	alias PokerEx.Events
 	alias PokerEx.RewardManager
@@ -133,6 +133,10 @@ defmodule PokerEx.Room do
 	
 	def state(room_id) do
 		:gen_statem.call(room_id, :state)
+	end
+	
+	def put_state(room_id, new_state, new_data) do
+		:gen_statem.call(room_id, {:put_state, new_state, new_data})
 	end
 	
 	def which_state(room_id) do
@@ -715,6 +719,10 @@ defmodule PokerEx.Room do
 	
 	def handle_event({:call, from}, :which_state, state, room) do
 		{:next_state, state, room, [{:reply, from, state}]}
+	end
+	
+	def handle_event({:call, from}, {:put_state, new_state, new_data}, _state, _room) do
+		{:next_state, new_state, new_data, [{:reply, from, new_data}]}
 	end
 	
 	# DEBUGGING

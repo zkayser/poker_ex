@@ -2,7 +2,6 @@ import $ from 'jquery';
 
 import {SEAT_MAPPING} from "./seat-mapping";
 import Player from './player';
-import Card from './card';
 
 export default class Table {
 	constructor(data) {

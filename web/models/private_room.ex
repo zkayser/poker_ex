@@ -1,10 +1,13 @@
 defmodule PokerEx.PrivateRoom do
   use PokerEx.Web, :model
   alias PokerEx.Player
+  alias PokerEx.PrivateRoom
   alias PokerEx.Repo
   
   schema "private_rooms" do
     field :title, :string
+    field :room_data, :binary
+    field :room_state, :binary
     belongs_to :owner, PokerEx.Player
     many_to_many :participants, 
                   PokerEx.Player, 
@@ -31,7 +34,7 @@ defmodule PokerEx.PrivateRoom do
     |> changeset(params)
     |> cast_assoc(:owner, required: true)
   end
-  
+
   def update_changeset(model, %{"participants" => _participants, "invitees" => _invitees} = params) do
     model
     |> changeset(params)
@@ -43,6 +46,18 @@ defmodule PokerEx.PrivateRoom do
     model
     |> changeset(params)
     |> do_update_changeset(params)
+  end
+  
+  def store_state(%PrivateRoom{title: _id} = priv_room, binary_room_data) do
+    # Todo, if saving fails, delete the private room and return chips to players.
+    update =
+      priv_room
+      |> cast(%{"room_data" => binary_room_data}, ~w(room_data))
+    
+    case Repo.update(update) do
+      {:ok, _} -> :ok
+      _ -> :error
+    end
   end
   
   def preload(private_room) do
