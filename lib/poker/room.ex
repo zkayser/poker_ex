@@ -183,6 +183,20 @@ defmodule PokerEx.Room do
 	# Callback Functions #
 	######################
 	
+	def terminate(:normal, _state, _data), do: :void
+	def terminate(_reason, _state, %Room{chip_roll: chip_roll}) when is_map(chip_roll) do
+		chip_roll
+		|> Map.keys
+		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
+		:void
+	end
+	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
+		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
+		data = [room_data: :erlang.term_to_binary(room), room_state: :erlang.term_to_binary(state)]
+		PokerEx.PrivateRoom.store_state(priv_room, data)
+		:void
+	end
+	
 	def terminate(_reason, _state, _data) do
 		:void
 	end

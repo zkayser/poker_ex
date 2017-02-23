@@ -48,11 +48,11 @@ defmodule PokerEx.PrivateRoom do
     |> do_update_changeset(params)
   end
   
-  def store_state(%PrivateRoom{title: _id} = priv_room, binary_room_data) do
+  def store_state(%PrivateRoom{title: _id} = priv_room, [room_data: room_data, room_state: room_state] = data) do
     # Todo, if saving fails, delete the private room and return chips to players.
     update =
       priv_room
-      |> cast(%{"room_data" => binary_room_data}, ~w(room_data))
+      |> cast(%{"room_data" => data[:room_data], "room_state" => data[:room_state]}, ~w(room_data, room_state))
     
     case Repo.update(update) do
       {:ok, _} -> :ok

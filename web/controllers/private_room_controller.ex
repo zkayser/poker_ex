@@ -44,6 +44,7 @@ defmodule PokerEx.PrivateRoomController do
   def show(conn, %{"id" => id}) do
     room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) |> PrivateRoom.preload()
     authenticate(conn, room)
+    maybe_restore_state(room.title)
     
     render conn, "show.html", room: room
   end
@@ -54,6 +55,15 @@ defmodule PokerEx.PrivateRoomController do
       conn
       |> put_flash(:error, "Access restricted")
       |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+    end
+  end
+  
+  defp maybe_restore_state(id) do
+    pid = String.to_atom(id)
+    unless Process.alive?(pid) do
+      PokerEx.Room.start_link(pid)
+      priv_room = PokerEx.Repo.get_by(PrivateRoom, title: id)
+      PokerEx.Room.put_state(pid, :erlang.binary_to_term(priv_room.room_state), :erlang.binary_to_term(priv_room.room_data))
     end
   end
 end
