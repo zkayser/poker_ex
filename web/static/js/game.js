@@ -66,7 +66,7 @@ export default class Game {
   // private
   setup(payload, channel) {
     if (this.table) {
-      this.table.clear();
+      this.table.clear(this.dataFormatter.format(this.addUser(payload)));
     }
     delete this.chatComponent;
     delete this.raiseControl;

@@ -23,10 +23,13 @@ export default class Table {
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
 		this.round = data.round || undefined;
+		this.initialRender();
 	}
 	
 	init(state) {
-		this.renderPlayers();
+		this.removePlayerEmblems(state.seating);
+		this.selectiveRender(state.seating);
+		//this.renderPlayers();
 		this.addActiveClass(state.active);
 		this.renderCards();
 		this.updatePot(state.pot);
@@ -35,29 +38,37 @@ export default class Table {
 	update(state) {
 		this.removeActiveClass();
 		this.updateCards(state.table);
+		if (["pre_flop", "idle", "between_rounds"].includes(state.state)) {
+			this.removeCards();
+		}
 		this.players = state.players;
-		if (!(this.isEqual(this.seating, state.seating))) {
+		this.removeExcessEmblems(Object.keys(this.seating).length);
+		if (!(this.isEqual(this.seating, state.seating)) || Object.keys(this.seating).length !== Object.keys(state.seating).length) {
+			let newLength = Object.keys(this.seating).length;
+			this.removeExcessEmblems(newLength);
+			this.removePlayerEmblems(state.seating);
+			this.selectiveRender(state.seating);
 			this.seating = state.seating;
-			this.renderPlayers();
+			this.initialRender();
 		}
 		this.seating = state.seating;
 		this.to_call = state.to_call;
 		this.cards = state.table;
 		this.updatePot(state.pot);
-		if (state.active) {
-			this.addActiveClass(state.active);
-		}
 		this.addActiveClass(state.active);
 	}
 	
-	clear() {
+	clear(data) {
+		console.log('Clearing with data: ', data);
+		//this.removePlayerEmblems(data.seating);
+		this.removeExcessEmblems(Object.keys(this.seating).length);
 		this.removeCards();
 		this.cards = [];
 		this.pot = 0;
 	}
 	
 	clearWithData(data) {
-		this.removePlayerEmblems(data.seating);
+		this.removeExcessEmblems(Object.keys(this.seating).length);
 		this.removeCards();
 		this.cards = [];
 		this.updatePot(data.pot);
@@ -139,6 +150,36 @@ export default class Table {
 		});
 	}
 	
+	initialRender() {
+		Object.keys(this.seating).forEach((player) => {
+			let position = this.seating[player];
+			let klass = SEAT_MAPPING[position];
+			$(".card-table").append(this.playerEmblemMarkup(klass, player));
+			if ($(`.${klass}`).length > 1) {
+				$(`.${klass}`).first().remove();
+			}
+		});
+	}
+	
+	selectiveRender(newSeating) {
+		let renderTargets = [];
+		Object.keys(this.seating).forEach((player) => {
+			if (Object.keys(newSeating).includes(player) && this.seating[player] !== newSeating[player]) {
+				let obj = {name: player, position: newSeating[player]};
+				renderTargets.push(obj);
+			}
+		});
+		renderTargets.forEach((target) => {
+			let targetClass = SEAT_MAPPING[target.position];
+			let markup = $(`<a class="${targetClass}"><div><span>${target.name.charAt(0)}</span></div></a>`);
+			if ($(`.${targetClass}`).length > 0) {
+				$(`.${targetClass}`).replaceWith(markup);
+			} else {
+				$('.card-table').append(markup);	
+			}
+		});
+	}
+	
 	removePlayerEmblem(player) {
 		let cardTable = document.querySelector(".card-table");
 		let position = this.seating[player];
@@ -153,9 +194,10 @@ export default class Table {
 		Object.keys(this.seating).forEach((player) => {
 			if (!(Object.keys(newSeating).includes(player))) {
 				removeTargets.push(player);
+			} else if (this.seating[player] !== newSeating[player]) {
+				removeTargets.push(player);
 			}
 		});
-		console.log('removeTargets now equal: ', removeTargets);
 		removeTargets.forEach((target) => {
 			let position = this.seating[target];
 			let seatClass = SEAT_MAPPING[position];
@@ -173,13 +215,32 @@ export default class Table {
 		$(".active-player").removeClass("active-player");
 	}
 	
+	removeExcessEmblems(length) {
+		console.log('removeExcessEmblems from length: ', length);
+		let position = length;
+		while (position <= Object.keys(SEAT_MAPPING).length) {
+			let el = $(`.${SEAT_MAPPING[position]}`);
+			if (el.length > 0 ) {
+				console.log('removing excess emblems');
+				el.remove();
+			}
+			position++;
+		}
+	}
+	
 	isEqual(obj1, obj2) {
-		Object.keys(obj1).every((key) => {
+		let result;
+		result = Object.keys(obj1).every((key) => {
 			return obj1[key] == obj2[key];
 		});
+		return result;
 	}
 	
 	markupFor(position) {
 		return SEAT_MAPPING[position];
+	}
+	
+	playerEmblemMarkup(klass, name) {
+		return $(`<a class="${klass}"><div><span></span>${name.charAt(0)}</div></a>`);
 	}
 }

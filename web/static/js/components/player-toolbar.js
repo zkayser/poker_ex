@@ -30,7 +30,7 @@ export default class PlayerToolbar {
   }
   
   init(data) {
-    if (data.state == "idle") {
+    if (data.state == "idle" || data.state == "between_rounds") {
       if (Object.keys(data.seating).includes(this.player)) {
         // Player has already joined, but game has not started.
         this.setupBtn(this.startBtnOpts);
@@ -50,7 +50,7 @@ export default class PlayerToolbar {
   update(data) {
     if (!(Object.keys(data.seating).includes(this.player))) {
       this.setupBtn(this.joinBtnOpts);
-    } else if (data.state == "idle") {
+    } else if (data.state == "idle" || data.state == "between_rounds") {
         this.setupBtn(this.startBtnOpts);
         this.setupBtn(this.leaveBtnOpts);
     } else {
@@ -72,14 +72,15 @@ export default class PlayerToolbar {
         this.join();
       });
       });
-    } /* else if (btnOpts.name == 'leave-btn') {
+    }  else if (btnOpts.name == 'leave-btn') {
       this.renderBtn(btnOpts.name);
       let btn = document.getElementById(btnOpts.name);
       btn.addEventListener('click', () => {
         this.channel.push(btnOpts.message, btnOpts.params);
         this.setupBtn(this.joinBtnOpts);
+        $("#start-info-item").html(this.accountCircle());
       }); 
-    } */
+    } 
     else {
       this.renderBtn(btnOpts.name);
       let btn = document.getElementById(btnOpts.name);

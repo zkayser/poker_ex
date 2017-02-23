@@ -13,7 +13,7 @@ export default class Dispatcher {
           console.log("Game currently in state: ", payload.state);
           if (!game.table) {
             game.table = new Table(game.dataFormatter.format(game.addUser(payload)));
-            game.table.renderPlayers();
+            // game.table.renderPlayers();
           }
         } else {
           game.setup(payload, channel);
@@ -23,15 +23,18 @@ export default class Dispatcher {
         game.setup(payload, channel);
         break;
       case "game_started":
-        if (game.controls) {
-          game.controls.clear();
-        }
-        game.table.clear();
+        game.controls.clear();
+        // game.table.clear(); * This is called in an if statement in game.setup if game.table exists;
         game.setup(payload, channel);
         break;
       case "add_player_success":
         game.playerToolbar.update(game.dataFormatter.format(payload));
-        Table.renderPlayers(game.dataFormatter.format(payload).seating);
+        if (!(game.table)) {
+          Table.renderPlayers(game.dataFormatter.format(payload).seating);
+        } else {
+          console.log("add_player_success with formatted payload.seating and table.seating: ", game.dataFormatter.format(payload).seating, game.table.seating);
+          game.table.update(game.dataFormatter.format(payload));
+        }
         break;
       case "update":
         game.update(payload, channel);
