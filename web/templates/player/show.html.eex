@@ -38,10 +38,9 @@
   </div>
   <div class="col s12">
     <div class="card blue">
-      <div class="card-content white-text center-align">
+      <div class="card-content white-text center-align" id="invitations-card">
         <span class="card-title">More Info</span>
         <p>You currently have <%= pluralize(length(@invited), {"invitation", "invitations"}, wrap_number: true) %></p>
-        <%= if length(@invited) > 0 do %>
         <table class="centered responsive-table" id="invitations-table">
           <thead>
             <tr>
@@ -66,7 +65,6 @@
           <% end %>
           </tbody>
         </table>
-        <% end %>
         <hr>
         <p>Invite other players to join</p><br>
         <p><%= button(content_tag(:i, "person_add", class: "material-icons"), to: invitation_path(@conn, :new),

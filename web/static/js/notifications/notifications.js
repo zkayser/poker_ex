@@ -39,7 +39,6 @@ export default class Notifications {
     
     for (let i = 0; i < declineBtns.length; i++) {
       declineBtns[i].addEventListener('click', (e) => {
-        console.log("decline btn pressed: ", e.target.parentElement);
         let id = e.target.parentElement.id;
         id = id.split("-")[1];
         channel.push("decline_invitation", {room: id});
@@ -60,24 +59,59 @@ export default class Notifications {
       window.Materialize.toast(`Failed to decline invitation to ${payload.room}`, 3000, 'red-toast');
     });
     
+    let initInvitationTableMarkup = (title, id, participants, owner) => {
+      return $(`<table class="centered responsive-table" id="invitations-table">
+          <thead>
+            <tr>
+              <th data-field="title">Game</th>
+              <th data-field="participants">Players</th>
+              <th data-field="button">Go</th>
+              <th data-field="decline">Decline</th>
+            </tr>
+          </thead>
+          <tbody id="invitations-table-body">
+            <tr id="row-${id}">
+              <td>${title}</td>
+              <td>${participants}</td>
+              <td><a class="btn-floating green waves-effect" href="/private/rooms/${id}">Go</a></td>
+              <td>
+                <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline-${id}">
+                  <i class="material-icons">clear</i>
+                </button>
+              </td>
+            </tr>
+          </tbody>`);
+    };
+    
     channel.on("invitation_received", ({title, id, participants, owner}) => {
-      if (!($("#invitations-table-body") == undefined)) {
-        let fragment = document.createDocumentFragment();
-        let tr = document.createElement('tr');
-        let td1 = document.createElement('td');
-        td1.innerText = title;
-        let td2 = document.createElement('td');
-        td2.innerText = participants.length;
-        let td3 = document.createElement('td');
-        td3.innerHTML = `<a class="btn-floating green" href="/private/rooms/${id}">Go</a>`;
-        let tds = [td1, td2, td3];
-        tds.forEach(el => {
-          tr.appendChild(el);
+      console.log('invitation_received event received');
+      let appendInvitation = () => {
+        let markup = `<tr id="row-${id}">
+                        <td>${title}</td>
+                        <td>${participants}</td>
+                        <td><a class="btn-floating green waves-effect" href="/private/rooms/${id}">Go</a></td>
+                        <td>
+                          <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline-${id}">
+                            <i class="material-icons">clear</i>
+                          </button>
+                        </td>
+                      </tr>`;
+        $("#invitations-table-body").append(markup);
+        $(`#decline-${id}`).on('click', () => {
+          channel.push('decline_invitation', {room: id});
         });
-        fragment.appendChild(tr);
-        document.querySelector("#invitations-table-body").appendChild(fragment);
+      };
+      if (!($("#invitations-table-body") == undefined)) {
+        appendInvitation();
+      } else {
+        let markup = initInvitationTableMarkup(title, id, participants, owner);
+        console.log('inside else statement with markup: ', markup);
+        $("#invitations-card").append(markup);
+        $(`#decline-${id}`).on('click', () => {
+          channel.push('decline_invitation', {room: id});
+        });
       }
-      window.Materialize.toast(`${owner} has invited you to join ${title}`, 3000);
+      window.Materialize.toast(`${owner} has invited you to ${title}`, 3000, 'green-toast');
     });
   }
 }
