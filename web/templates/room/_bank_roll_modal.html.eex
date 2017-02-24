@@ -1,0 +1,40 @@
+<div id="bank-roll-modal" class="modal bottom-sheet">
+  <div class="modal-content teal">
+    <div class="row">
+      <div class="col s12">
+        <div class="center-align white-text">
+          <h1>Add Chips</h1>
+        </div>
+        <div class="col s8 offset-s2">
+          <div class="card-panel teal">
+            <ul class="collapsible" data-collapsible="accordion">
+              <li>
+                <div class="collapsible-header teal lighten-1 white-text active">
+                  <h5 style="display: inline-block"><%= @current_player.name %>:</h5> <span class="right"><h5><%= @current_player.chips %></h5></span>
+                </div>
+                <div class="collapsible-body teal lighten-3">
+                  <div class="row">
+                    <div class="input-field col s8 offset-s2">
+                      <input style="color: #6200ea" placeholder="Amount" id="bank-input" type="tel">
+                      <label class="pink-text" for="bank-input">Amount</label>
+                    </div>
+                    <div class="col s12 center-align white-text">
+                      <button class="btn waves-effect teal accent-4 disabled" id="bank-roll-submit">
+                        <i class="material-icons right">send</i>OK
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer hidden">
+    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">
+      <i class="material-icons" id="bank-close">close</i>
+    </a>
+  </div>
+</div>

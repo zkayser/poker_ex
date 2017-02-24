@@ -193,7 +193,6 @@ defmodule PokerEx.Room do
 	end
 	def terminate(_reason, state, %Room{type: :private, room_id: id} = room) do
 		Logger.info "Now terminating #{inspect(id)}..."
-		IO.puts "Now terminating #{inspect(id)}..."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
 		room = :erlang.term_to_binary(room)
 		state = :erlang.term_to_binary(state)

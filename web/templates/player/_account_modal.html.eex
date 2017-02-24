@@ -1,6 +1,6 @@
 <div id="player-account-modal" class="modal bottom-sheet">
-  <div class="modal-content">
-    <div class="row">
+  <div class="modal-content blue-grey darken-3">
+    <div class="row white-text">
       <div class="col s12 center-align">
         <h4>Account Info</h4>
       </div>
@@ -22,7 +22,7 @@
     </div>
     </div>
   </div>
-  <div class="modal-footer">
+  <div class="modal-footer blue-grey darken-3">
     <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat"><i class="material-icons">close</i></a>
   </div>
 </div>

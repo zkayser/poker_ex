@@ -45,6 +45,7 @@ defmodule PokerEx.PrivateRoomController do
     room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) |> PrivateRoom.preload()
     authenticate(conn, room)
     case maybe_restore_state(room.title) do
+      :process_alive -> render conn, "show.html", room: room
       :ok -> render conn, "show.html", room: room
       :error -> redirect(conn, to: player_path(conn, :show, conn.assigns[:current_player]))
     end
@@ -64,7 +65,7 @@ defmodule PokerEx.PrivateRoomController do
       id
       |> String.to_atom
       |> Process.whereis
-    unless pid do
+    unless Process.alive?(pid) do
       priv_room = PokerEx.Repo.get_by(PrivateRoom, title: id)
       case {priv_room.room_state, priv_room.room_data} do
         {nil, nil} -> :error
@@ -74,6 +75,8 @@ defmodule PokerEx.PrivateRoomController do
           :ok
         _ -> :error
       end
+    else
+      :process_alive
     end
   end
 end

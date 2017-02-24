@@ -32,7 +32,7 @@
         <a href="#chat-box-modal" class="waves-effect waves-light"><i class="material-icons">room</i></a>
       </li>
       <li id="settings-item">
-        <a class=""><i class="material-icons">attach_money</i></a>
+        <a href="#bank-roll-modal" class="waves-effect waves-light"><i class="material-icons">attach_money</i></a>
       </li>
     </ul>
   </div>
@@ -42,6 +42,7 @@
 <%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, participants: @room.participants %>
 <%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
 
 <script>
   window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";
