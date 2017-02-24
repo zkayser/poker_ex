@@ -44,9 +44,10 @@ defmodule PokerEx.PrivateRoomController do
   def show(conn, %{"id" => id}) do
     room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) |> PrivateRoom.preload()
     authenticate(conn, room)
-    maybe_restore_state(room.title)
-    
-    render conn, "show.html", room: room
+    case maybe_restore_state(room.title) do
+      :ok -> render conn, "show.html", room: room
+      :error -> redirect(conn, to: player_path(conn, :show, conn.assigns[:current_player]))
+    end
   end
   
   defp authenticate(conn, room) do
@@ -59,11 +60,20 @@ defmodule PokerEx.PrivateRoomController do
   end
   
   defp maybe_restore_state(id) do
-    pid = String.to_atom(id)
-    unless Process.alive?(pid) do
-      PokerEx.Room.start_link(pid)
+    pid = 
+      id
+      |> String.to_atom
+      |> Process.whereis
+    unless pid do
       priv_room = PokerEx.Repo.get_by(PrivateRoom, title: id)
-      PokerEx.Room.put_state(pid, :erlang.binary_to_term(priv_room.room_state), :erlang.binary_to_term(priv_room.room_data))
+      case {priv_room.room_state, priv_room.room_data} do
+        {nil, nil} -> :error
+        {state, data} when is_binary(state) and is_binary(data) ->
+          PokerEx.Room.start_link(id |> String.to_atom)
+          PokerEx.Room.put_state((id |> String.to_atom), :erlang.binary_to_term(priv_room.room_state), :erlang.binary_to_term(priv_room.room_data))
+          :ok
+        _ -> :error
+      end
     end
   end
 end

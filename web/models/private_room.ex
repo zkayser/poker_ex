@@ -1,5 +1,6 @@
 defmodule PokerEx.PrivateRoom do
   use PokerEx.Web, :model
+  require Logger
   alias PokerEx.Player
   alias PokerEx.PrivateRoom
   alias PokerEx.Repo
@@ -42,17 +43,11 @@ defmodule PokerEx.PrivateRoom do
     |> cast_assoc(:invitees)
   end
   
-  def update_changeset(model, params \\ %{}) do
-    model
-    |> changeset(params)
-    |> do_update_changeset(params)
-  end
-  
-  def store_state(%PrivateRoom{title: _id} = priv_room, [room_data: room_data, room_state: room_state] = data) do
+  def store_state(%PrivateRoom{title: _id} = priv_room, %{"room_state" => state, "room_data" => room}) do
     # Todo, if saving fails, delete the private room and return chips to players.
     update =
       priv_room
-      |> cast(%{"room_data" => data[:room_data], "room_state" => data[:room_state]}, ~w(room_data, room_state))
+      |> cast(%{room_data: room, room_state: state}, [:room_data, :room_state])
     
     case Repo.update(update) do
       {:ok, _} -> :ok
@@ -106,15 +101,24 @@ defmodule PokerEx.PrivateRoom do
     put_assoc(changeset, :participants, participants)
   end
   
-  defp do_update_changeset(changeset, %{"participants" => _participants, "invitees" => _invitees}) do
-    cast_assoc(changeset, :participants)
-    |> cast_assoc(:invitees)
+  def shutdown_all do
+    alias PokerEx.RoomsSupervisor
+    rooms = Repo.all(PrivateRoom)
+    for room <- rooms do
+      pid =
+        room.title
+        |> String.to_atom
+        |> Process.whereis
+      case pid do
+        nil -> 
+          Logger.info "No running process for #{room.title}\nDeleting #{room.title}"
+          Repo.delete(room)
+        x when is_pid(pid) ->
+          Logger.info "Shutting down room: #{room.title}"
+          Supervisor.terminate_child(RoomsSupervisor, pid)
+        _ ->
+          Logger.debug "An unknown error occurred in shutdown_all function - room.title, pid: #{room.title}, #{inspect(pid)}"
+      end 
+    end
   end
-  defp do_update_changeset(changeset, %{"participants" => _participants}) do
-    cast_assoc(changeset, :participants)
-  end
-  defp do_update_changeset(changeset, %{"invitees" => _invitees}) do
-    cast_assoc(changeset, :invitees)
-  end
-  defp do_update_changeset(changeset, %{}), do: changeset
 end

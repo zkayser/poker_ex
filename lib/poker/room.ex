@@ -1,4 +1,5 @@
 defmodule PokerEx.Room do
+	require Logger
 	alias PokerEx.Room
 	alias PokerEx.Player
 	alias PokerEx.Events
@@ -183,16 +184,20 @@ defmodule PokerEx.Room do
 	# Callback Functions #
 	######################
 	
-	def terminate(:normal, _state, _data), do: :void
-	def terminate(_reason, _state, %Room{chip_roll: chip_roll}) when is_map(chip_roll) do
+	def terminate(:normal, _state, %Room{type: :public}), do: :void
+	def terminate(_reason, _state, %Room{type: :public, chip_roll: chip_roll}) when is_map(chip_roll) do
 		chip_roll
 		|> Map.keys
 		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
 		:void
 	end
-	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
+	def terminate(_reason, state, %Room{type: :private, room_id: id} = room) do
+		Logger.info "Now terminating #{inspect(id)}..."
+		IO.puts "Now terminating #{inspect(id)}..."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
-		data = [room_data: :erlang.term_to_binary(room), room_state: :erlang.term_to_binary(state)]
+		room = :erlang.term_to_binary(room)
+		state = :erlang.term_to_binary(state)
+		data = %{"room_state" => state, "room_data" => room}
 		PokerEx.PrivateRoom.store_state(priv_room, data)
 		:void
 	end
@@ -207,6 +212,7 @@ defmodule PokerEx.Room do
 	
 	def init([]), do: {:ok, :idle, %Room{}}
 	def init([[id, :private]]) do
+		Process.flag(:trap_exit, true)
 		{:ok, :idle, %Room{type: :private, timeout: :infinity, room_id: id}}
 	end
 	def init([pid]) when is_pid(pid) do

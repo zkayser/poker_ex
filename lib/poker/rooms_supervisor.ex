@@ -22,7 +22,7 @@ defmodule PokerEx.RoomsSupervisor do
     end
   end
   
-  def create_room_process(room_id) when is_binary(room_id) or is_atom(room_id) do
+  def create_room_process(room_id) when is_atom(room_id) do
     case Supervisor.start_child(__MODULE__, [room_id]) do
       {:ok, pid} -> 
         Registry.register(@registry, Atom.to_string(room_id), pid)
@@ -44,19 +44,9 @@ defmodule PokerEx.RoomsSupervisor do
   
   def room_process_count, do: Supervisor.which_children(__MODULE__) |> length()
   
-  def room_ids do
-    Supervisor.which_children(__MODULE__)
-    |> Enum.map(
-      fn {_, room_proc_pid, _, _} -> 
-        Registry.keys(@registry, room_proc_pid)
-        |> List.first
-      end)
-    |> Enum.sort
-  end
-  
   def init([]) do
     children = [
-      worker(PokerEx.Room, [], restart: :transient)
+      worker(PokerEx.Room, [], [restart: :transient])
     ]
     
     supervise(children, strategy: :simple_one_for_one)
