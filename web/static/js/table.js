@@ -18,6 +18,7 @@ export default class Table {
 		} else {
 			this.players = [];
 		}
+		this.chipRoll = data.chip_roll || {};
 		this.seating = data.seating || new Object();
 		this.user = data.user || undefined;
 		this.markedToFold = data.markedToFold || [];
@@ -28,7 +29,6 @@ export default class Table {
 	init(state) {
 		this.removePlayerEmblems(state.seating);
 		this.selectiveRender(state.seating);
-		//this.renderPlayers();
 		this.addActiveClass(state.active);
 		this.renderCards();
 		this.updatePot(state.pot);
@@ -54,6 +54,7 @@ export default class Table {
 		this.to_call = state.to_call;
 		this.cards = state.table;
 		this.updatePot(state.pot);
+		this.updatePlayerChipsDisplay(state.chip_roll);
 		this.addActiveClass(state.active);
 	}
 	
@@ -170,7 +171,7 @@ export default class Table {
 		});
 		renderTargets.forEach((target) => {
 			let targetClass = SEAT_MAPPING[target.position];
-			let markup = $(`<a class="${targetClass}"><div><span>${target.name.charAt(0)}</span></div></a>`);
+			let markup = this.playerEmblemMarkup(targetClass, target.name);
 			if ($(`.${targetClass}`).length > 0) {
 				$(`.${targetClass}`).replaceWith(markup);
 			} else {
@@ -240,6 +241,20 @@ export default class Table {
 	}
 	
 	playerEmblemMarkup(klass, name) {
-		return $(`<a class="${klass}"><div><span></span>${name.charAt(0)}</div></a>`);
+		return $(`<a class="${klass}">
+								<div class="center-align">
+									<span>${name.charAt(0)}</span><br/>
+									<span id="${name}-chip-display">${this.chipRoll[name] || '_'}</span>
+								</div>
+							</a>`);
+	}
+	
+	updatePlayerChipsDisplay(chip_roll) {
+		this.players.forEach((player) => {
+			let element = $(`#${player.name}-chip-display`);
+			if (element.text() != chip_roll[player.name]) {
+				element.text(chip_roll[player.name]);
+			}
+		});
 	}
 }
