@@ -48,6 +48,12 @@ export default class Dispatcher {
       case "winner_message":
         window.Materialize.toast(payload.message, 3000);
         break;
+      case "failed_bank_update":
+        window.Materialize.toast('Failed to add chips', 3000, 'red-toast');
+        break;
+      case "update_bank_max":
+        game.bankRollComponent.update(payload.max);
+        break;
       case "new_message":
         if (!(payload.name == game.userName)) {
           window.Materialize.toast(`${payload.name} says: ${payload.text}`, 3000, 'green-toast');

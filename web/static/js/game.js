@@ -8,6 +8,7 @@ import RaiseControl from './components/raise-control';
 import PlayerToolbar from './components/player-toolbar';
 import ChatComponent from './components/chat-component';
 import PlayerChipComponent from './components/player-chip-component';
+import BankRollComponent from './components/bank-roll-component';
 import SpinnerAnimation from './animations/spinner-animations';
 import DataFormatter from './data-formatter';
 import Dispatcher from './messages/dispatcher';
@@ -40,7 +41,9 @@ export default class Game {
     
     this.playerToolbar = new PlayerToolbar(this.userName, this.roomTitle, channel);
     this.chatComponent = new ChatComponent(this.userName, channel);
+    this.bankRollComponent = new BankRollComponent(this.userName, channel);
     this.chatComponent.init();
+    this.bankRollComponent.init();
     
     const MESSAGES = [
       "private_room_join",
@@ -52,7 +55,9 @@ export default class Game {
       "game_finished",
       "winner_message",
       "new_message",
-      "clear"];
+      "clear",
+      "update_bank_max",
+      "failed_bank_update"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
         Dispatcher.dispatch(message, payload, {

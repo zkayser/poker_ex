@@ -91,13 +91,18 @@ defmodule PokerEx.Room.Updater do
       %Room{chip_roll: %{"B" => 30}}
    """
    
-   @spec chip_roll(Room.t, player, pos_integer | :leaving) :: Room.t
+   @spec chip_roll(Room.t, player, pos_integer | :leaving | {:adding, pos_integer}) :: Room.t
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, :leaving) do
     PokerEx.Player.update_chips(player, chip_roll[player])
     update = Map.drop(chip_roll, [player])
     %Room{ room | chip_roll: update }
    end
-   def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) do
+   def chip_roll(%Room{chip_roll: chip_roll} = room, player, {:adding, amount}) when amount > 0 do
+    {_old, update} = Map.get_and_update(chip_roll, player, fn val -> {val, val + amount} end)
+    IO.puts "Updated chip roll with add, update: #{inspect(update)}"
+    %Room{ room | chip_roll: update}
+   end
+   def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) when amount > 0 do
     update = Map.put(chip_roll, player, amount)
     %Room{ room | chip_roll: update }
    end

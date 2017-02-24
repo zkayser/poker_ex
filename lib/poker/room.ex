@@ -136,6 +136,10 @@ defmodule PokerEx.Room do
 		:gen_statem.call(room_id, :state)
 	end
 	
+	def add_chips(room_id, player, amount) when amount > 0 do
+		:gen_statem.call(room_id, {:add_chips, player, amount})
+	end
+	
 	def put_state(room_id, new_state, new_data) do
 		:gen_statem.call(room_id, {:put_state, new_state, new_data})
 	end
@@ -738,6 +742,13 @@ defmodule PokerEx.Room do
 	
 	def handle_event({:call, from}, :which_state, state, room) do
 		{:next_state, state, room, [{:reply, from, state}]}
+	end
+	
+	def handle_event({:call, from}, {:add_chips, player, amount}, state, room) do
+		update = 
+			room
+			|> Updater.chip_roll(player, {:adding, amount})
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:put_state, new_state, new_data}, _state, _room) do

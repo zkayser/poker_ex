@@ -147,6 +147,20 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	def handle_in("request_chips", %{"player" => player, "amount" => amount}, socket) do
+		amount = String.to_integer(amount)
+		case Player.subtract_chips(player, amount) do
+			{:ok, struct} -> 
+				room = 
+					Room.add_chips(atomize(socket.assigns.room), player, amount)
+					push(socket, "update_bank_max", %{max: struct.chips})
+					{:noreply, socket}
+			{:error, _} -> 
+				push(socket, "failed_bank_update", %{})
+				{:noreply, socket}
+		end
+	end
+	
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
 		room = Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)

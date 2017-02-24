@@ -10,7 +10,8 @@
             <ul class="collapsible" data-collapsible="accordion">
               <li>
                 <div class="collapsible-header teal lighten-1 white-text active">
-                  <h5 style="display: inline-block"><%= @current_player.name %>:</h5> <span class="right"><h5><%= @current_player.chips %></h5></span>
+                  <h5 style="display: inline-block"><%= @current_player.name %>:</h5>
+                  <span id="bank-max" class="right"><h5><%= @current_player.chips %></h5></span>
                 </div>
                 <div class="collapsible-body teal lighten-3">
                   <div class="row">
