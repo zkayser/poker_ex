@@ -1,5 +1,7 @@
 import MainView from '../main-view';
 import Online from '../online';
+import PlayerSearchComponent from '../../components/player-search-component';
+
 import $ from 'jquery';
 
 export default class PrivateRoomNewView extends MainView {
@@ -14,7 +16,9 @@ export default class PrivateRoomNewView extends MainView {
     super.mount();
     console.log("PrivateRoomNewView mounted");
     
-    this.SetButtonEvents();
+    this.setButtonEvents();
+    let playerSearch = new PlayerSearchComponent();
+    playerSearch.init();
     
     Online.init();
   }
@@ -25,7 +29,8 @@ export default class PrivateRoomNewView extends MainView {
   }
   
   
-  SetButtonEvents() {
+  setButtonEvents() {
+    $("#invitees").off("click", ".btn-floating")
     $("#invitees").on("click", ".btn-floating", (event) => {
       let id = event.currentTarget.dataset.playerId;
       let clone = $(`#player-list-item-${id}`).clone();
@@ -64,6 +69,4 @@ export default class PrivateRoomNewView extends MainView {
     value: `${id}`
     });
   }
-  
-  
 }

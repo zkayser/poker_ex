@@ -1,0 +1,20 @@
+<ul class="collection with-header" id="search-players-list">
+  <li class="collection-header center-align">
+    <div class="row">
+      <div class="input-field col s8 offset-s2">
+        <i class="material-icons prefix">search</i>
+        <input placeholder="Search" id="players-search" type="text">
+        <label for="players-search">Search</label>
+      </div>
+      <div class="center-align">
+        <button class="blue btn waves-effect white-text" type="button" id="search-btn">
+          <i class="material-icons right">send</i>
+          Search
+        </button>
+      </div>
+      <div id="search-results">
+        
+      </div>
+    </div>
+  </li>
+</ul>

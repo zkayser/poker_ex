@@ -14,30 +14,16 @@
   </div>
   <div class="row">
     <div class="col s12">
-      <ul class="collection with-header left-align player-list">
-        <li class="collection-header center-align"><h4>Invite Players</h4></li>
-        <%= for {list, color} <- Enum.zip(@players, ~w(purple teal red blue yellow green)) do %>
-          <li class="collection-item avatar player-list-item" id="player-list-item-<%= List.first(list) %>" data-player-id="<%= hd(list) %>">
-            <div class="row">
-              <div class="col s12 m2 center-align player-icon">
-                <i class="material-icons medium <%= color %>-text">person</i>
-              </div>
-              <div class="col s12 m6 offset-m1 center-align player-icon">
-                <p class="left user-info">User: <%= Enum.at(list, 1) |> humanize() %></p><br>
-                <p class="left user-info blurb"><%= Enum.at(list, 2) || "" |> humanize() %></p>
-              </div>
-              <div class="col s12 m2 offset-m1 center-align player-icon">
-                <span class="secondary-content center-align">
-                  <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-<%= List.first(list) %>"
-                      data-player-id="<%= hd(list) %>">
-                    <i class="material-icons">plus_one</i>
-                  </button>
-                </span>
-              </div>
-            </div>
-          </li>
-        <% end %>
-      </ul>
+      <div class="card">
+        <div class="card-tabs">
+          <ul class="tabs tabs-fixed-width">
+            <li class="tab"><a class="active" href="#browse-players-list">Browse</a></li>
+            <li class="tab"><a href="#search-players-list">Search</a></li>
+          </ul>
+        </div>
+        <%= render "_browse_list.html", conn: @conn, players: @players %>
+        <%= render "_player-search.html", conn: @conn %>
+      </div>
     </div>
   </div>
   <%= submit "Create room", class: "btn light-blue waves-effect" %>
