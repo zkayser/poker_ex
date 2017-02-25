@@ -30,7 +30,7 @@ export default class PrivateRoomNewView extends MainView {
   
   
   setButtonEvents() {
-    $("#invitees").off("click", ".btn-floating")
+    $("#invitees").off("click", ".btn-floating");
     $("#invitees").on("click", ".btn-floating", (event) => {
       let id = event.currentTarget.dataset.playerId;
       let clone = $(`#player-list-item-${id}`).clone();

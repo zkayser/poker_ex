@@ -34,10 +34,19 @@ defmodule PokerEx.PrivateRoomController do
             |> put_flash(:error, "Could not create room. Please try again.")
             |> redirect(to: private_room_path(conn, :new))
         end
-      {:error, _error_changeset} ->
-        conn
-        |> put_flash(:error, "Something went wrong")
-        |> redirect(to: private_room_path(conn, :new))
+      {:error, error_changeset} ->
+        case hd(error_changeset.errors) do
+          {:title, {"has already been taken", []}} ->
+            IO.inspect(hd(error_changeset.errors))
+            conn
+            |> put_flash(:error, "#{title} has already been taken")
+            |> redirect(to: private_room_path(conn, :new))
+          _ ->
+            IO.inspect(hd(error_changeset.errors))
+            conn
+            |> put_flash(:error, "An unknown error occurred.")
+            |> redirect(to: private_room_path(conn, :new))
+        end
     end
   end
   
