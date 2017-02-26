@@ -27,7 +27,7 @@ config :logger, :console,
 # Configure Mailer module
 config :poker_ex, PokerEx.Mailer,
   adapter: Bamboo.SendgridAdapter,
-  api_key: System.get_env("SENDGRID_API_KEY") |> String.strip()
+  api_key: System.get_env("SENDGRID_API_KEY")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
