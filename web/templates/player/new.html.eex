@@ -25,7 +25,11 @@
       <%= error_tag f, :email %>
     </div>
     <div class="input-field col s12">
-      <%= text_input f, :password, placeholder: "Password" %>
+      <%= textarea f, :blurb, placeholder: "A small message to other players", class: "materialize-textarea"%>
+      <label for="player_blurb">Message</label>
+    </div>
+    <div class="input-field col s12">
+      <%= password_input f, :password, placeholder: "Password" %>
       <%= error_tag f, :password %>
     </div>
     <%= submit "Sign up", class: "waves-effect waves-light btn" %>

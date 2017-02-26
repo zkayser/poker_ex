@@ -108,7 +108,7 @@ defmodule PokerEx.Player do
 		end
 	end
 	
-	def changeset(model, params \\ :empty) do
+	def changeset(model, params \\ %{}) do
 		model
 		|> cast(params, ~w(name first_name last_name email blurb), [])
 		|> put_change(:chips, 1000)
