@@ -26,7 +26,6 @@ export default class Card {
   
   renderWithAnimation(index) {
     let markup = this.render();
-    console.log('markup: ', markup);
     let animation = ANIMATIONS[index];
     markup.className += ` ${animation}`;
     return markup;

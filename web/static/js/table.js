@@ -59,8 +59,6 @@ export default class Table {
 	}
 	
 	clear(data) {
-		console.log('Clearing with data: ', data);
-		//this.removePlayerEmblems(data.seating);
 		this.removeExcessEmblems(Object.keys(this.seating).length);
 		this.removeCards();
 		this.cards = [];
@@ -76,7 +74,6 @@ export default class Table {
 	}
 	
 	clearPlayers() {
-		console.log('Calling clearPlayers...');
 		let seatClasses = Object.values(SEAT_MAPPING);
 		seatClasses.forEach((klass) => {
 			$(`.${klass}`).remove();
@@ -86,18 +83,10 @@ export default class Table {
 	renderCards() {
 		let tableCards = $(".table-cards");
 		for (let i = 0; i < this.cards.length; i++) {
-			console.log('i: ', i);
 			let card = this.cards[i];
 			let markup = card.renderWithAnimation(i);
 			tableCards.append($(markup));
 		}
-		/*
-		this.cards.forEach((card) => {
-			if (!card.rendered) {
-				let markup = card.render();
-				tableCards.append($(markup));
-			}
-		});*/
 	}
 	
 	updateCards(newCards) {
