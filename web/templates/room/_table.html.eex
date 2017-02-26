@@ -12,4 +12,7 @@
 	    <a class="btn-floating btn-large red" id="pot">0</a>
 	  </div>
 	</div>
+	<%= for deg <- ["0", "45", "180", "225", "270", "315"] do %>
+		<a class="deg<%= deg %> active-player"><div class="center-align"><%= deg %></div></a>
+	<% end %>
 </div>
