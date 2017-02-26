@@ -48,7 +48,7 @@
       <li><div class="userView">
         <%= if @current_player do %>
            <div class="background">
-            <img src="<%= static_path(@conn, "/images/office.jpg")%>">
+            <img src="<%= static_path(@conn, "/images/poker.jpg")%>">
           </div>
           <a href="#"><span class="white-text name"><%= @current_player.name %></span></a>
           <a href="#"><span class="white-text email"><%= @current_player.email %></span></a>
