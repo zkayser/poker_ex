@@ -66,7 +66,7 @@ export default class Notifications {
         let markup = `
                       <li class="collection-item blue white-text" id="row-${id}">
                         <span class="left" id="invitation-title">${title}</span>  
-                        <span id="num-players-invitation">PLAYERS: ${title}</span>
+                        <span id="num-players-invitation">PLAYERS: ${participants}</span>
                         <div id="go-decline">
                           <span id="go-btn-span">
                             <a href="/private/rooms/${id}" class="btn-floating green waves-effect">Go</a>

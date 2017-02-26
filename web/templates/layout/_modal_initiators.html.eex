@@ -1,0 +1,7 @@
+<script>$(".menu-dropdown").sideNav();</script>
+<script>$("#player-account-modal").modal();</script>
+<script>$("#controls-modal").modal();</script>
+<script>$("#raise-modal").modal();</script>
+<script>$("#chat-box-modal").modal();</script>
+<script>$("#join-modal").modal();</script>
+<script>$("#bank-roll-modal").modal();</script>
