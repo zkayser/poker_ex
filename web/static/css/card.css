@@ -39,3 +39,73 @@
   margin-top: 2em;
   margin-bottom: 3em;
 }
+
+.card-one {
+  animation: first-card 1s linear;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-two {
+  animation: second-card 1s linear;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-three {
+  animation: third-card 1s linear;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-four {
+  animation: fourth-card 1s linear;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-five {
+  animation: fifth-card 1s linear;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+@keyframes first-card {
+  from {transform: translate(3em, -2em);}
+  to {transform: translate(0, 0);}
+}
+
+@keyframes second-card {
+  from {transform: translate(1.5em, -2em);}
+  to {transform: translate(0, 0);}
+}
+
+@keyframes third-card {
+  from {transform: translate(0, -2em);}
+  to {transform: translate(0, 0);}
+}
+
+@keyframes fourth-card {
+  from {transform: translate(-1.5em, -2em);}
+  to {transform: translate(0, 0);}
+}
+
+@keyframes fifth-card {
+  from {transform: translate(-3em, -2em);}
+  to {transform: translate(0, 0);}
+}

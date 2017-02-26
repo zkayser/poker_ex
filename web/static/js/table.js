@@ -85,18 +85,25 @@ export default class Table {
 	
 	renderCards() {
 		let tableCards = $(".table-cards");
+		for (let i = 0; i < this.cards.length; i++) {
+			console.log('i: ', i);
+			let card = this.cards[i];
+			let markup = card.renderWithAnimation(i);
+			tableCards.append($(markup));
+		}
+		/*
 		this.cards.forEach((card) => {
 			if (!card.rendered) {
 				let markup = card.render();
 				tableCards.append($(markup));
 			}
-		});
+		});*/
 	}
 	
 	updateCards(newCards) {
 		if (this.cards.length == 0) {
 			this.cards = newCards;
-			this.renderCards();	
+			this.renderCards();
 		} else {
 				for (let i = 0; i < newCards.length; i++) {
 				if (this.cards[i] && this.cards[i].rank == newCards[i].rank && this.cards[i].suit == newCards[i].suit) {
@@ -104,7 +111,7 @@ export default class Table {
 				} else {
 					this.cards.push(newCards[i]);
 					let card = newCards[i];
-					let markup = card.render();
+					let markup = card.renderWithAnimation(i);
 					$(".table-cards").append($(markup));
 				}
 			}		

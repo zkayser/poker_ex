@@ -12,7 +12,7 @@
   <div class="table-container" id="offscreen-left">
     <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
   </div>
-  <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+    <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
   </div>
   
   
