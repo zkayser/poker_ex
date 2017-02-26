@@ -14,7 +14,8 @@ defmodule PokerEx.PrivateRoom do
                   PokerEx.Player, 
                   join_through: "participants_private_rooms",
                   join_keys: [private_room_id: :id, participant_id: :id],
-                  on_delete: :delete_all
+                  on_delete: :delete_all,
+                  on_replace: :delete
     many_to_many :invitees, 
                   PokerEx.Player, 
                   join_through: "invitees_private_rooms", 
@@ -53,6 +54,17 @@ defmodule PokerEx.PrivateRoom do
       {:ok, _} -> :ok
       _ -> :error
     end
+  end
+  
+  def delete(priv_room) do
+    priv_room =
+      priv_room
+      |> preload
+      |> cast(%{}, ~w())
+      |> put_assoc(:participants, [])
+      |> put_assoc(:invitees, [])
+      |> Repo.update
+    Repo.delete(priv_room)
   end
   
   def preload(private_room) do

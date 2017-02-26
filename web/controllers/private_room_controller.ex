@@ -56,7 +56,11 @@ defmodule PokerEx.PrivateRoomController do
     case maybe_restore_state(room.title) do
       :process_alive -> render conn, "show.html", room: room
       :ok -> render conn, "show.html", room: room
-      :error -> redirect(conn, to: player_path(conn, :show, conn.assigns[:current_player]))
+      {:error, priv_room} ->
+        PrivateRoom.delete(priv_room)
+        conn
+        |> put_flash(:error, "An error occurred and that room no longer exists.")
+        |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
     end
   end
   
@@ -74,15 +78,15 @@ defmodule PokerEx.PrivateRoomController do
       id
       |> String.to_atom
       |> Process.whereis
-    unless Process.alive?(pid) do
+    unless pid do
       priv_room = PokerEx.Repo.get_by(PrivateRoom, title: id)
       case {priv_room.room_state, priv_room.room_data} do
-        {nil, nil} -> :error
+        {nil, nil} -> {:error, priv_room}
         {state, data} when is_binary(state) and is_binary(data) ->
           PokerEx.Room.start_link(id |> String.to_atom)
           PokerEx.Room.put_state((id |> String.to_atom), :erlang.binary_to_term(priv_room.room_state), :erlang.binary_to_term(priv_room.room_data))
           :ok
-        _ -> :error
+        _ -> {:error, priv_room}
       end
     else
       :process_alive

@@ -8,8 +8,10 @@
   <div class="col s4">
     
   </div>
+  <div class="row">
   <div class="table-container" id="offscreen-left">
     <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
+  </div>
   </div>
     <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
   
