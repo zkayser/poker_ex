@@ -4,7 +4,7 @@ export default class Pagination {
   constructor(opts) {
     this.default = opts.default || 1;
     this.defaultLinks = opts.defaultLinks || [$("#page-1"), $("#page-2"), $("#page-3"), $("#page-4"), $("#page-5")];
-    this.showingPages = opts.showingPages || [1, 2, 3, 4, 5]; 
+    this.showingPages = opts.showingPages || [1]; 
     this.pageBack = opts.pageBack || $("#page-back");
     this.pageAhead = opts.pageAhead || $("#page-ahead");
     this.entryType = opts.entryType || 'gameInfo';

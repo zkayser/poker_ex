@@ -227,6 +227,45 @@ nav.top-nav a.page-title {
 	margin-top: 0.5em !important;
 }
 
+#num-players-invitation {
+	position: relative;
+	transform: translate(-2em);
+	margin-right: 1em;
+}
+
+#go-decline {
+	display: inline-block;
+	position: relative;
+	left: 0%;
+}
+
+#invitation-title {
+	transform: translate(0, 0.7em);
+}
+
+
+@media (max-width: 989px) {
+	#go-decline {
+		left: 15%;
+	}
+}
+
+@media (max-width: 456px) {
+	#invitation-title {
+		transform: translate(-1em, 0.65em);
+	}
+	
+	#go-decline {
+		position: relative;
+		left: 0%;
+		transform: translate(1em);
+	}
+}
+
+#go-btn-span {
+	margin-right: 1em;
+}
+
 ::-webkit-input-placeholder {
    color: darkslategray;
 }

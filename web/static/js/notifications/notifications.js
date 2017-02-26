@@ -39,14 +39,17 @@ export default class Notifications {
     for (let i = 0; i < declineBtns.length; i++) {
       declineBtns[i].addEventListener('click', (e) => {
         let id = e.target.parentElement.id;
-        id = id.split("-")[1];
+        console.log('id: ', id);
+        let regex = /\d+/;
+        let res = id.match(regex);
+        id = res[0];
         channel.push("decline_invitation", {room: id});
       });
     }
     
     channel.on("declined_invitation", (payload) => {
       let id = payload.remove;
-      $(`#${id}`).css('transition', 'background-color 0.75s ease').css('background-color', 'red');
+      $(`#${id}`).css('background-color', 'red !important').css('transition', 'background-color 0.7s ease');
       $(`#${id}`).slideUp('slow');
       
       let current = $("#invitation-number").text();
@@ -60,22 +63,27 @@ export default class Notifications {
     
     channel.on("invitation_received", ({title, id, participants, owner}) => {
       let appendInvitation = () => {
-        let markup = `<tr id="row-${id}">
-                        <td>${title}</td>
-                        <td>${participants}</td>
-                        <td><a class="btn-floating green waves-effect" href="/private/rooms/${id}">Go</a></td>
-                        <td>
-                          <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline-${id}">
-                            <i class="material-icons">clear</i>
-                          </button>
-                        </td>
-                      </tr>`;
-        $("#invitations-table-body").append(markup);
+        let markup = `
+                      <li class="collection-item blue white-text" id="row-${id}">
+                        <span class="left" id="invitation-title">${title}</span>  
+                        <span id="num-players-invitation">PLAYERS: ${title}</span>
+                        <div id="go-decline">
+                          <span id="go-btn-span">
+                            <a href="/private/rooms/${id}" class="btn-floating green waves-effect">Go</a>
+                          </span>
+                          <span id="invitation-decline">
+                            <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline-${id}">
+                              <i class="material-icons">clear</i>
+                            </button>
+                          </span>
+                        </div>
+                    </li>`;
+        $(".invitation-list").append(markup);
         $(`#decline-${id}`).on('click', () => {
           channel.push('decline_invitation', {room: id});
         });
       };
-      if (!($("#invitations-table-body") == undefined)) {
+      if (!($(".invitation-list") == undefined)) {
         appendInvitation();
       }
       window.Materialize.toast(`${owner} has invited you to ${title}`, 3000, 'green-toast');
