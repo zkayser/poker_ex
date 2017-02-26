@@ -12,8 +12,4 @@ defmodule PokerEx.PageController do
       
     render conn, "index.html", # rooms: Map.values(room_states)
   end
-  
-  def home do
-    
-  end
 end
