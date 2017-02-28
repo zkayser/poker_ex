@@ -99,7 +99,7 @@ defmodule PokerEx.PlayerView do
   defp pluralize(1, {singular, _}, opts) do
     if opts[:wrap_number] do
       ~E"""
-      <span id="<%= singular %>-number">1</span> <%= singular %>
+      <span id="<%= singular %>-number">1</span> <span id="<%= singular %>-count"><%= singular %></span>
       """
     else 
       "1 #{singular}"
@@ -108,7 +108,7 @@ defmodule PokerEx.PlayerView do
   defp pluralize(num, {singular, plural}, opts) do
     if opts[:wrap_number] do
       ~E"""
-      <span id="<%= singular %>-number"><%= num %></span> <%= plural %>
+      <span id="<%= singular %>-number"><%= num %></span> <span id="<%= singular %>-count"><%= plural %></span>
       """
     else
         "#{num} #{plural}"

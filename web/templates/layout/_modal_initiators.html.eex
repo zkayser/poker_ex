@@ -1,5 +1,5 @@
 <script>
-  let regex = /(protected|private)\/rooms/;
+  var regex = /(protected|private)\/rooms/;
   if (regex.test(window.location)) {
     $(".menu-dropdown").sideNav();
     $("#player-account-modal").modal();

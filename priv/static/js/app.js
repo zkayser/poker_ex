@@ -14196,7 +14196,11 @@ var Notifications = function () {
 
         var current = (0, _jquery2.default)("#invitation-number").text();
         var update = parseInt(current, 10) - 1;
+        var updateWord = void 0;
+        update == 1 ? updateWord = "invitation" : updateWord = "invitations";
         (0, _jquery2.default)("#invitation-number").text("" + update);
+        (0, _jquery2.default)("#invitation-count").text("" + updateWord);
+        window.Materialize.toast("Declined invitation", 2000, 'green-toast');
       });
 
       channel.on("decline_error", function (payload) {
@@ -14210,7 +14214,7 @@ var Notifications = function () {
             owner = _ref.owner;
 
         var appendInvitation = function appendInvitation() {
-          var markup = "\n                      <li class=\"collection-item blue white-text\" id=\"row-" + id + "\">\n                        <span class=\"left\" id=\"invitation-title\">" + title + "</span>  \n                        <span id=\"num-players-invitation\">PLAYERS: " + participants + "</span>\n                        <div id=\"go-decline\">\n                          <span id=\"go-btn-span\">\n                            <a href=\"/private/rooms/" + id + "\" class=\"btn-floating green waves-effect\">Go</a>\n                          </span>\n                          <span id=\"invitation-decline\">\n                            <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect\" id=\"decline-" + id + "\">\n                              <i class=\"material-icons\">clear</i>\n                            </button>\n                          </span>\n                        </div>\n                    </li>";
+          var markup = "\n                    <div class=\"invitation-row valign-wrapper\" id=\"row-" + id + "\">\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"invitation-title\">" + title + "</span>\n                      </div>\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"num-players-invitation\">Currently playing: \n                          " + participants + "\n                        </span>\n                      </div>\n                      <div class=\"col s4 center-align white-text\">\n                        <span id=\"go-btn-span\">\n                          <a href=\"private/rooms/" + id + "\" class=\"btn-floating green waves-effect left\">Go</a>\n                        </span>\n                        <span id=\"invitation-decline\">\n                          <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect right\" id=\"decline-" + id + "\">\n                            <i class=\"material-icons\">clear</i>\n                          </button>\n                        </span>\n                      </div>\n                    </div>";
           (0, _jquery2.default)(".invitation-list").append(markup);
           (0, _jquery2.default)("#decline-" + id).on('click', function () {
             channel.push('decline_invitation', { room: id });
@@ -14219,6 +14223,12 @@ var Notifications = function () {
         if (!((0, _jquery2.default)(".invitation-list") == undefined)) {
           appendInvitation();
         }
+        var current = (0, _jquery2.default)("#invitation-number").text();
+        var update = parseInt(current, 10) + 1;
+        var updateWord = void 0;
+        update == 1 ? updateWord = "invitation" : updateWord = "invitations";
+        (0, _jquery2.default)("#invitation-number").text("" + update);
+        (0, _jquery2.default)("#invitation-count").text("" + updateWord);
         window.Materialize.toast(owner + " has invited you to " + title, 3000, 'green-toast');
       });
     }

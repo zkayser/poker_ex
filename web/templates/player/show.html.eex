@@ -41,52 +41,30 @@
       <div class="card-content white-text center-align" id="invitations-card">
         <span class="card-title">More Info</span>
         <p>You currently have <%= pluralize(length(@invited), {"invitation", "invitations"}, wrap_number: true) %></p>
-        <ul class="collection blue white-text invitation-list">
+        <div class="row invitation-list">
           <%= for invitation <- @invited do %>
-          <li class="collection-item blue white-text" id="row-<%= invitation.id %>">
-            <span class="left" id="invitation-title"><%= invitation.title %></span>  
-            <span id="num-players-invitation">PLAYERS: <%= invitation |> PokerEx.PrivateRoom.preload() |> Map.get(:participants) |> length %></span>
-            <div id="go-decline">
-            <span id="go-btn-span">
-              <a href="<%= private_room_path(@conn, :show, invitation.id) %>" class="btn-floating green waves-effect">Go</a>
-            </span>
-              <span id="invitation-decline">
-              <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline<%= invitation.id %>">
-                <i class="material-icons">clear</i>
-              </button>
-            </span>
+            <div class="invitation-row valign-wrapper" id="row-<%= invitation.id %>">
+              <div class="col s4 center-align white-text valign">
+                <span id="invitation-title"><%= invitation.title %></span>
+              </div>
+              <div class="col s4 center-align white-text valign">
+                <span id="num-players-invitation">Currently playing: 
+                  <%= invitation |> PokerEx.PrivateRoom.preload() |> Map.get(:participants) |> length() %>
+                </span>
+              </div>
+              <div class="col s4 center-align white-text">
+                <span id="go-btn-span">
+                  <a href="<%= private_room_path(@conn, :show, invitation.id) %>" class="btn-floating green waves-effect left">Go</a>
+                </span>
+                <span id="invitation-decline">
+                  <button type="button" class="btn-floating pink decline-btn waves-effect right" id="decline-<%= invitation.id %>">
+                    <i class="material-icons">clear</i>
+                  </button>
+                </span>
+              </div>
             </div>
-          </li>
           <% end %>
-        </ul>
-        
-        <!-- 
-        <table class="centered responsive-table" id="invitations-table">
-          <thead>
-            <tr>
-              <th data-field="title">Game</th>
-              <th data-field="participants">Players</th>
-              <th data-field="button">Go</th>
-              <th data-field="decline">Decline</th>
-            </tr>
-          </thead>
-          <tbody id="invitations-table-body">
-          <%= for invitation <- @invited  do %>
-            <tr id="row-<%= invitation.id %>">
-              <td><%= invitation.title %></td>
-              <td><%= invitation |> PokerEx.PrivateRoom.preload() |> Map.get(:participants) |> length %></td>
-              <td><%= button("Go", to: private_room_path(@conn, :show, invitation.id), class: "btn-floating green", method: "get") %></td>
-              <td>
-                <button type="button" class="btn-floating pink decline-btn waves-effect" id="decline-<%= invitation.id %>">
-                  <i class="material-icons">clear</i>
-                </button>
-              </td>
-            </tr>
-            
-          <% end %>
-          </tbody>
-        </table>
-        -->
+        </div>
         <hr>
         <p>Invite other players to join</p><br>
         <p><%= button(content_tag(:i, "person_add", class: "material-icons"), to: invitation_path(@conn, :new),

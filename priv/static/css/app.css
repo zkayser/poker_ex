@@ -716,6 +716,12 @@ nav.top-nav a.page-title {
 	transform: translate(0, 0.7em);
 }
 
+.invitation-row {
+	border-top: 1px #bbdefb solid;
+	border-bottom: 1px #bbdefb solid;
+	padding-bottom: 0.5em;
+	padding-top: 0.5em;
+}
 
 @media (max-width: 989px) {
 	#go-decline {

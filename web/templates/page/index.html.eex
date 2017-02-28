@@ -8,6 +8,7 @@
     Not a member yet? <%= button("Sign up here!", to: player_path(@conn, :new), class: "btn teal white-text") %>
     <br/>
     OR
-    <%= button("Log in", to: session_path(@conn, :new), class: "btn blue white-text") %>
+    <br/>
+    <%= link("Log in", to: session_path(@conn, :new), class: "btn blue white-text") %>
   </div>
 </div>
