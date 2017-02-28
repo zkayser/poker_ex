@@ -231,8 +231,12 @@ defmodule PokerEx.PlayersChannel do
 	end
 	defp get_player_by_name(_), do: :error
 	
-	defp handle_update(socket, room) do
+	defp handle_update(socket, %Room{type: :private} = room) do
 		PokerEx.PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+		{:noreply, socket}
+	end
+	defp handle_update(socket, room) do
 		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
