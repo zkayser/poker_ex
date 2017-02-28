@@ -164,16 +164,14 @@ defmodule PokerEx.PlayersChannel do
 	def handle_in("player_raised", %{"amount" => amount, "player" => player}, socket) do
 		{amount, _} = Integer.parse(amount)
 		room = Room.raise(socket.assigns.room |> atomize(), get_player_by_name(player), amount)
-		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
-		{:noreply, socket}
+		handle_update(socket, room)
 	end
 	
 	def handle_in("player_called", %{"player" => player}, socket) do
 		room = Room.call(socket.assigns.room |> atomize(), get_player_by_name(player))
 		case room do
 			%Room{} -> 
-				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
-				{:noreply, socket}
+				handle_update(socket, room)
 			_ ->
 				{:noreply, socket}
 		end
@@ -183,8 +181,7 @@ defmodule PokerEx.PlayersChannel do
 		room = Room.fold(socket.assigns.room |> atomize(), get_player_by_name(player))
 		case room do
 			%Room{} -> 
-				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
-				{:noreply, socket}
+				handle_update(socket, room)
 			_ ->
 				{:noreply, socket}
 		end
@@ -194,8 +191,7 @@ defmodule PokerEx.PlayersChannel do
 		room = Room.check(socket.assigns.room |> atomize(), get_player_by_name(player))
 		case room do
 			%Room{} -> 
-				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
-				{:noreply, socket}
+				handle_update(socket, room)
 			_ ->
 				{:noreply, socket}
 		end
@@ -234,4 +230,10 @@ defmodule PokerEx.PlayersChannel do
 		Repo.get_by(Player, name: name)
 	end
 	defp get_player_by_name(_), do: :error
+	
+	defp handle_update(socket, room) do
+		PokerEx.PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+		{:noreply, socket}
+	end
 end

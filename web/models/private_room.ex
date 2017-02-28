@@ -44,15 +44,28 @@ defmodule PokerEx.PrivateRoom do
     |> cast_assoc(:invitees)
   end
   
-  def store_state(%PrivateRoom{title: _id} = priv_room, %{"room_state" => state, "room_data" => room}) do
-    # Todo, if saving fails, delete the private room and return chips to players.
+  def get_room_and_store_state(title, state, room) when is_atom(title) do
+    title = Atom.to_string(title)
+    state = :erlang.term_to_binary(state)
+    room = :erlang.term_to_binary(room)
+    Task.start(
+      fn -> 
+        Repo.get_by(PrivateRoom, title: title)
+        |> store_state(%{"room_state" => state, "room_data" => room})
+      end)
+  end
+  
+  def store_state(%PrivateRoom{title: id} = priv_room, %{"room_state" => state, "room_data" => room}) do
+    require Logger
     update =
       priv_room
       |> cast(%{room_data: room, room_state: state}, [:room_data, :room_state])
     
     case Repo.update(update) do
       {:ok, _} -> :ok
-      _ -> :error
+      _ -> 
+        Logger.warn "Could not successfully update room: #{id}"
+        :error
     end
   end
   
