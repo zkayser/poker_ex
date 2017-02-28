@@ -51,7 +51,27 @@ defmodule PokerEx.PrivateRoomController do
   end
   
   def show(conn, %{"id" => id}) do
-    room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) |> PrivateRoom.preload()
+    room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id)) 
+    do_show(conn, room)
+  end
+  
+  defp authenticate(conn, room) do
+    player = conn.assigns[:current_player]
+    unless player in room.invitees || player == room.owner || player in room.participants do
+      conn
+      |> put_flash(:error, "Access restricted")
+      |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+    end
+  end
+  
+  defp do_show(conn, nil) do
+    conn
+    |> put_flash(:error, "An error occurred and that room no longer exists") 
+    |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+  end
+  
+  defp do_show(conn, room) do
+    room = PrivateRoom.preload(room)
     authenticate(conn, room)
     case maybe_restore_state(room.title) do
       :process_alive -> render conn, "show.html", room: room
@@ -61,15 +81,6 @@ defmodule PokerEx.PrivateRoomController do
         conn
         |> put_flash(:error, "An error occurred and that room no longer exists.")
         |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
-    end
-  end
-  
-  defp authenticate(conn, room) do
-    player = conn.assigns[:current_player]
-    unless player in room.invitees || player == room.owner || player in room.participants do
-      conn
-      |> put_flash(:error, "Access restricted")
-      |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
     end
   end
   
