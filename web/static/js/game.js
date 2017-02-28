@@ -57,6 +57,7 @@ export default class Game {
       "new_message",
       "clear",
       "update_bank_max",
+      "update_emblem_display",
       "failed_bank_update"];
     MESSAGES.forEach((message) => {
       channel.on(message, (payload) => {
@@ -70,6 +71,7 @@ export default class Game {
   
   // private
   setup(payload, channel) {
+    console.log("IN GAME SETUP...");
     if (this.table) {
       this.table.clear(this.dataFormatter.format(this.addUser(payload)));
     }
@@ -95,6 +97,7 @@ export default class Game {
   }
   
   update(payload, channel) {
+    console.log("IN GAME UPDATE...");
     let data = this.dataFormatter.format(this.addUser(payload));
     data.channel = channel;
     this.table.update(data);

@@ -104,7 +104,7 @@ defmodule PokerEx.PlayersChannel do
 					{:ok, _priv_room} -> 
 						room = title |> atomize() |> Room.join(pl, amount)
 						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
-						push socket, "join_room_success", %{}
+						push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - String.to_integer(amount))}
 					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
 					_ -> push socket, "error_on_room_join", %{}
 				end
@@ -153,6 +153,7 @@ defmodule PokerEx.PlayersChannel do
 			{:ok, struct} -> 
 				room = 
 					Room.add_chips(atomize(socket.assigns.room), player, amount)
+					push(socket, "update_emblem_display", %{name: player, add: amount})
 					push(socket, "update_bank_max", %{max: struct.chips})
 					{:noreply, socket}
 			{:error, _} -> 

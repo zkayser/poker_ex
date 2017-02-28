@@ -33,9 +33,14 @@ export default class PlayerToolbar {
     if (data.state == "idle" || data.state == "between_rounds") {
       if (Object.keys(data.seating).includes(this.player)) {
         // Player has already joined, but game has not started.
+        window.Materialize.toast(`
+          If there are two or more players at the table, you can launch a new game by pressing the 'Start' tab
+          found on your player toolbar.
+        `, 8000, 'cyan-toast');
         this.setupBtn(this.startBtnOpts);
         this.setupBtn(this.leaveBtnOpts);
       } else {
+        this.joinInfo();
         this.setupBtn(this.joinBtnOpts);
         $("#start-info-item").html(this.accountCircle());
       }
@@ -43,6 +48,7 @@ export default class PlayerToolbar {
       this.setupBtn(this.leaveBtnOpts);
       $("#start-info-item").html(this.accountCircle());
     } else {
+      this.joinInfo();
       this.setupBtn(this.joinBtnOpts);
     }
   }
@@ -123,5 +129,12 @@ export default class PlayerToolbar {
   
   errorMessage(message) {
     return `<p class="red-text">${message}</p>`;
+  }
+  
+  joinInfo() {
+    window.Materialize.toast(`
+      To join the table, open your player toolbar by pressing the red button in the bottom right-hand corner.
+      Click on join and enter the number of chips you want to bring to the table when prompted.
+    `, 8000, 'cyan-toast');
   }
 }

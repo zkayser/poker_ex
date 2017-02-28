@@ -17,15 +17,15 @@ export default class Controls {
     this.checkBtn = $(".check-btn");
     this.foldBtn = $(".fold-btn");
     this.shortControls = $(".short-controls");
-    this.update(data);
   }
   
   update(state) {
     this.hideAllAndDetachEvents();
     this.to_call = state.to_call;
     this.round = state.round[this.player] || 0;
-    let ctrls = this.selectCtrlTypes(state);
-    (state.user) == state.active ? this.showAllAndAttachEvents(ctrls) : this.hideAllAndDetachEvents(); 
+    this.selectCtrlTypes(state);
+    console.log("this.currentCtrls in update: ", this.currentCtrls);
+    (state.user) == state.active ? this.showAllAndAttachEvents(this.currentCtrls) : this.hideAllAndDetachEvents(); 
   }
   
   clear() {
@@ -35,7 +35,6 @@ export default class Controls {
   // Private
   
   show(type) {
-    console.log("calling show with type: ", type);
     if (type == 'call') {
       $("#call-amount-info").remove();
       this[`${type}Btn`].append($(`<span id="call-amount-info" class="white-text">${this.amountToCall()}</span>`));
@@ -49,6 +48,7 @@ export default class Controls {
   }
   
   hide(type) {
+    this.btnOpacityToZero(type);
     this[`${type}Div`].fadeOut('slow');
     this[`${type}Btn`].fadeTo('slow', 0);
   }
@@ -70,8 +70,8 @@ export default class Controls {
   showAllAndAttachEvents(ctrls) {
     this.showAll(ctrls);
     this.shortControls.fadeTo('fast', 1);
+    this.attachClickEvents(ctrls);
     this.shortControls.click();
-    this.attachClickEvents();
   }
   
   hideAllAndDetachEvents() {
@@ -98,17 +98,15 @@ export default class Controls {
         ctrls = ["check"];
       }
       this.currentCtrls = ctrls;
-      console.log("current controls: ", this.currentCtrls);
       return ctrls;
     } 
   }
   
   amountToCall() {
-    console.log('Amount to call: ', this.to_call - this.round);
     return this.to_call - this.round;
   }
   
-  attachClickEvents() {
+  attachClickEvents(ctrls) {
     // Remove any lingering click handlers;
     let btns = [$(".call-btn"), $(".check-btn"), $(".fold-btn"), this.shortControls];
     btns.forEach((btn) => {
@@ -132,7 +130,7 @@ export default class Controls {
     });
     this.shortControls.click((e) => {
       console.log('Got click on shortControls...');
-      this.displayOnlyCurrent();
+      this.displayOnlyCurrent(ctrls);
     });
   }
   
@@ -143,20 +141,20 @@ export default class Controls {
     });
   }
   
-  displayOnlyCurrent() {
+  displayOnlyCurrent(ctrls) {
+    console.log("DISPLAY ONLY CURRENT WITH CURRENTCTRLS: ", ctrls);
     let btns = ["call", "raise", "check", "fold"];
     btns.forEach((btn) => {
-      if (!this.currentCtrls.includes(btn)) {
+      if (!ctrls.includes(btn)) {
         this.btnOpacityToZero(btn);
       } else {
+        console.log("SHOWING BTN: ", btn);
         this.btnVisible(btn);
       }
     });
   }
   
   btnOpacityToZero(str) {
-    console.log('In btnOpacityToZero with str: ', str);
-    console.log('this.currentCtrls: ', this.currentCtrls);
     if (str == "raise") {
       $(".raise-control-btn").css("visibility", "hidden");
     } else if (["call", "fold", "check"].includes(str)) {

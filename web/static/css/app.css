@@ -207,6 +207,11 @@ nav.top-nav a.page-title {
 	color: white;
 }
 
+.cyan-toast {
+	background-color: #00838f;
+	color: white;
+}
+
 .active-page {
 	background-color: #69f0ae;
 }

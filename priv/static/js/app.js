@@ -12462,7 +12462,6 @@ var Controls = function () {
     this.checkBtn = (0, _jquery2.default)(".check-btn");
     this.foldBtn = (0, _jquery2.default)(".fold-btn");
     this.shortControls = (0, _jquery2.default)(".short-controls");
-    this.update(data);
   }
 
   _createClass(Controls, [{
@@ -12471,8 +12470,9 @@ var Controls = function () {
       this.hideAllAndDetachEvents();
       this.to_call = state.to_call;
       this.round = state.round[this.player] || 0;
-      var ctrls = this.selectCtrlTypes(state);
-      state.user == state.active ? this.showAllAndAttachEvents(ctrls) : this.hideAllAndDetachEvents();
+      this.selectCtrlTypes(state);
+      console.log("this.currentCtrls in update: ", this.currentCtrls);
+      state.user == state.active ? this.showAllAndAttachEvents(this.currentCtrls) : this.hideAllAndDetachEvents();
     }
   }, {
     key: 'clear',
@@ -12485,7 +12485,6 @@ var Controls = function () {
   }, {
     key: 'show',
     value: function show(type) {
-      console.log("calling show with type: ", type);
       if (type == 'call') {
         (0, _jquery2.default)("#call-amount-info").remove();
         this[type + 'Btn'].append((0, _jquery2.default)('<span id="call-amount-info" class="white-text">' + this.amountToCall() + '</span>'));
@@ -12500,6 +12499,7 @@ var Controls = function () {
   }, {
     key: 'hide',
     value: function hide(type) {
+      this.btnOpacityToZero(type);
       this[type + 'Div'].fadeOut('slow');
       this[type + 'Btn'].fadeTo('slow', 0);
     }
@@ -12528,8 +12528,8 @@ var Controls = function () {
     value: function showAllAndAttachEvents(ctrls) {
       this.showAll(ctrls);
       this.shortControls.fadeTo('fast', 1);
+      this.attachClickEvents(ctrls);
       this.shortControls.click();
-      this.attachClickEvents();
     }
   }, {
     key: 'hideAllAndDetachEvents',
@@ -12559,19 +12559,17 @@ var Controls = function () {
           ctrls = ["check"];
         }
         this.currentCtrls = ctrls;
-        console.log("current controls: ", this.currentCtrls);
         return ctrls;
       }
     }
   }, {
     key: 'amountToCall',
     value: function amountToCall() {
-      console.log('Amount to call: ', this.to_call - this.round);
       return this.to_call - this.round;
     }
   }, {
     key: 'attachClickEvents',
-    value: function attachClickEvents() {
+    value: function attachClickEvents(ctrls) {
       var _this3 = this;
 
       // Remove any lingering click handlers;
@@ -12597,7 +12595,7 @@ var Controls = function () {
       });
       this.shortControls.click(function (e) {
         console.log('Got click on shortControls...');
-        _this3.displayOnlyCurrent();
+        _this3.displayOnlyCurrent(ctrls);
       });
     }
   }, {
@@ -12610,14 +12608,16 @@ var Controls = function () {
     }
   }, {
     key: 'displayOnlyCurrent',
-    value: function displayOnlyCurrent() {
+    value: function displayOnlyCurrent(ctrls) {
       var _this4 = this;
 
+      console.log("DISPLAY ONLY CURRENT WITH CURRENTCTRLS: ", ctrls);
       var btns = ["call", "raise", "check", "fold"];
       btns.forEach(function (btn) {
-        if (!_this4.currentCtrls.includes(btn)) {
+        if (!ctrls.includes(btn)) {
           _this4.btnOpacityToZero(btn);
         } else {
+          console.log("SHOWING BTN: ", btn);
           _this4.btnVisible(btn);
         }
       });
@@ -12625,8 +12625,6 @@ var Controls = function () {
   }, {
     key: 'btnOpacityToZero',
     value: function btnOpacityToZero(str) {
-      console.log('In btnOpacityToZero with str: ', str);
-      console.log('this.currentCtrls: ', this.currentCtrls);
       if (str == "raise") {
         (0, _jquery2.default)(".raise-control-btn").css("visibility", "hidden");
       } else if (["call", "fold", "check"].includes(str)) {
@@ -13155,9 +13153,11 @@ var PlayerToolbar = function () {
       if (data.state == "idle" || data.state == "between_rounds") {
         if (Object.keys(data.seating).includes(this.player)) {
           // Player has already joined, but game has not started.
+          window.Materialize.toast("\n          If there are two or more players at the table, you can launch a new game by pressing the 'Start' tab\n          found on your player toolbar.\n        ", 8000, 'cyan-toast');
           this.setupBtn(this.startBtnOpts);
           this.setupBtn(this.leaveBtnOpts);
         } else {
+          this.joinInfo();
           this.setupBtn(this.joinBtnOpts);
           (0, _jquery2.default)("#start-info-item").html(this.accountCircle());
         }
@@ -13165,6 +13165,7 @@ var PlayerToolbar = function () {
         this.setupBtn(this.leaveBtnOpts);
         (0, _jquery2.default)("#start-info-item").html(this.accountCircle());
       } else {
+        this.joinInfo();
         this.setupBtn(this.joinBtnOpts);
       }
     }
@@ -13251,6 +13252,11 @@ var PlayerToolbar = function () {
     key: "errorMessage",
     value: function errorMessage(message) {
       return "<p class=\"red-text\">" + message + "</p>";
+    }
+  }, {
+    key: "joinInfo",
+    value: function joinInfo() {
+      window.Materialize.toast("\n      To join the table, open your player toolbar by pressing the red button in the bottom right-hand corner.\n      Click on join and enter the number of chips you want to bring to the table when prompted.\n    ", 8000, 'cyan-toast');
     }
   }]);
 
@@ -13751,7 +13757,7 @@ var Game = function () {
       this.chatComponent.init();
       this.bankRollComponent.init();
 
-      var MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated", "game_finished", "winner_message", "new_message", "clear", "update_bank_max", "failed_bank_update"];
+      var MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated", "game_finished", "winner_message", "new_message", "clear", "update_bank_max", "update_emblem_display", "failed_bank_update"];
       MESSAGES.forEach(function (message) {
         channel.on(message, function (payload) {
           _dispatcher2.default.dispatch(message, payload, {
@@ -13767,6 +13773,7 @@ var Game = function () {
   }, {
     key: 'setup',
     value: function setup(payload, channel) {
+      console.log("IN GAME SETUP...");
       if (this.table) {
         this.table.clear(this.dataFormatter.format(this.addUser(payload)));
       }
@@ -13793,6 +13800,7 @@ var Game = function () {
   }, {
     key: 'update',
     value: function update(payload, channel) {
+      console.log("IN GAME UPDATE...");
       var data = this.dataFormatter.format(this.addUser(payload));
       data.channel = channel;
       this.table.update(data);
@@ -13885,7 +13893,6 @@ var Dispatcher = function () {
             console.log("Game currently in state: ", payload.state);
             if (!game.table) {
               game.table = new _table2.default(game.dataFormatter.format(game.addUser(payload)));
-              // game.table.renderPlayers();
             }
           } else {
             game.setup(payload, channel);
@@ -13895,16 +13902,16 @@ var Dispatcher = function () {
           game.setup(payload, channel);
           break;
         case "game_started":
-          game.controls.clear();
-          // game.table.clear(); * This is called in an if statement in game.setup if game.table exists;
+          console.log("GAME_STARTED!");
+          //game.controls.clear();
           game.setup(payload, channel);
+          //game.controls.update(payload);
           break;
         case "add_player_success":
           game.playerToolbar.update(game.dataFormatter.format(payload));
           if (!game.table) {
             _table2.default.renderPlayers(game.dataFormatter.format(payload).seating);
           } else {
-            console.log("add_player_success with formatted payload.seating and table.seating: ", game.dataFormatter.format(payload).seating, game.table.seating);
             game.table.update(game.dataFormatter.format(payload));
           }
           break;
@@ -13912,9 +13919,15 @@ var Dispatcher = function () {
           game.update(payload, channel);
           break;
         case "clear":
+          if (payload.seating.length == 1 && game.controls) {
+            game.controls.clear();
+          }
           game.table.clearWithData(game.dataFormatter.format(payload));
           break;
         case "game_finished":
+          if (game.controls) {
+            game.controls.clear();
+          }
           window.Materialize.toast(payload.message, 3000);
           break;
         case "winner_message":
@@ -13925,6 +13938,10 @@ var Dispatcher = function () {
           break;
         case "update_bank_max":
           game.bankRollComponent.update(payload.max);
+          break;
+        case "update_emblem_display":
+          game.table.updatePlayerEmblem(payload);
+          window.Materialize.toast(payload.name + " added " + payload.add + " chips", 2000, 'cyan-toast');
           break;
         case "new_message":
           if (!(payload.name == game.userName)) {
@@ -14262,7 +14279,7 @@ var Notifications = function () {
             owner = _ref.owner;
 
         var appendInvitation = function appendInvitation() {
-          var markup = "\n                    <div class=\"invitation-row valign-wrapper\" id=\"row-" + id + "\">\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"invitation-title\">" + title + "</span>\n                      </div>\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"num-players-invitation\">Currently playing: \n                          " + participants + "\n                        </span>\n                      </div>\n                      <div class=\"col s4 center-align white-text\">\n                        <span id=\"go-btn-span\">\n                          <a href=\"private/rooms/" + id + "\" class=\"btn-floating green waves-effect left\">Go</a>\n                        </span>\n                        <span id=\"invitation-decline\">\n                          <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect right\" id=\"decline-" + id + "\">\n                            <i class=\"material-icons\">clear</i>\n                          </button>\n                        </span>\n                      </div>\n                    </div>";
+          var markup = "\n                    <div class=\"invitation-row valign-wrapper\" id=\"row-" + id + "\">\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"invitation-title\">" + title + "</span>\n                      </div>\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"num-players-invitation\">Currently playing: \n                          " + participants + "\n                        </span>\n                      </div>\n                      <div class=\"col s4 center-align white-text\">\n                        <span id=\"go-btn-span\">\n                          <a href=\"/private/rooms/" + id + "\" class=\"btn-floating green waves-effect left\">Go</a>\n                        </span>\n                        <span id=\"invitation-decline\">\n                          <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect right\" id=\"decline-" + id + "\">\n                            <i class=\"material-icons\">clear</i>\n                          </button>\n                        </span>\n                      </div>\n                    </div>";
           (0, _jquery2.default)(".invitation-list").append(markup);
           (0, _jquery2.default)("#decline-" + id).on('click', function () {
             channel.push('decline_invitation', { room: id });
@@ -15169,11 +15186,12 @@ var Table = function () {
 	}, {
 		key: 'clearWithData',
 		value: function clearWithData(data) {
+			this.seating = data.seating;
 			this.removeExcessEmblems(Object.keys(this.seating).length);
+			this.initialRender();
 			this.removeCards();
 			this.cards = [];
 			this.updatePot(data.pot);
-			this.seating = data.seating;
 		}
 	}, {
 		key: 'clearPlayers',
@@ -15360,6 +15378,18 @@ var Table = function () {
 					element.text(chip_roll[player.name]);
 				}
 			});
+		}
+	}, {
+		key: 'updatePlayerEmblem',
+		value: function updatePlayerEmblem(_ref) {
+			var name = _ref.name,
+			    add = _ref.add;
+
+			var element = (0, _jquery2.default)('#' + name + '-chip-display');
+			var val = element.text();
+			val = parseInt(val, 10);
+			var newVal = val + add;
+			element.text(newVal);
 		}
 	}], [{
 		key: 'renderPlayers',

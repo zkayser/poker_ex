@@ -79,7 +79,7 @@ export default class Notifications {
                       </div>
                       <div class="col s4 center-align white-text">
                         <span id="go-btn-span">
-                          <a href="private/rooms/${id}" class="btn-floating green waves-effect left">Go</a>
+                          <a href="/private/rooms/${id}" class="btn-floating green waves-effect left">Go</a>
                         </span>
                         <span id="invitation-decline">
                           <button type="button" class="btn-floating pink decline-btn waves-effect right" id="decline-${id}">

@@ -66,11 +66,12 @@ export default class Table {
 	}
 	
 	clearWithData(data) {
+		this.seating = data.seating;
 		this.removeExcessEmblems(Object.keys(this.seating).length);
+		this.initialRender();
 		this.removeCards();
 		this.cards = [];
 		this.updatePot(data.pot);
-		this.seating = data.seating;
 	}
 	
 	clearPlayers() {
@@ -252,5 +253,13 @@ export default class Table {
 				element.text(chip_roll[player.name]);
 			}
 		});
+	}
+	
+	updatePlayerEmblem({name, add}) {
+		let element = $(`#${name}-chip-display`);
+		let val = element.text();
+		val = parseInt(val, 10);
+		let newVal = val + add;
+		element.text(newVal);
 	}
 }

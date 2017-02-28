@@ -13,7 +13,6 @@ export default class Dispatcher {
           console.log("Game currently in state: ", payload.state);
           if (!game.table) {
             game.table = new Table(game.dataFormatter.format(game.addUser(payload)));
-            // game.table.renderPlayers();
           }
         } else {
           game.setup(payload, channel);
@@ -23,16 +22,16 @@ export default class Dispatcher {
         game.setup(payload, channel);
         break;
       case "game_started":
-        game.controls.clear();
-        // game.table.clear(); * This is called in an if statement in game.setup if game.table exists;
+        console.log("GAME_STARTED!");
+        //game.controls.clear();
         game.setup(payload, channel);
+        //game.controls.update(payload);
         break;
       case "add_player_success":
         game.playerToolbar.update(game.dataFormatter.format(payload));
         if (!(game.table)) {
           Table.renderPlayers(game.dataFormatter.format(payload).seating);
         } else {
-          console.log("add_player_success with formatted payload.seating and table.seating: ", game.dataFormatter.format(payload).seating, game.table.seating);
           game.table.update(game.dataFormatter.format(payload));
         }
         break;
@@ -40,9 +39,15 @@ export default class Dispatcher {
         game.update(payload, channel);
         break;
       case "clear":
+        if (payload.seating.length == 1 && game.controls) {
+          game.controls.clear();
+        }
         game.table.clearWithData(game.dataFormatter.format(payload));
         break;
       case "game_finished":
+        if (game.controls) {
+          game.controls.clear();
+        }
         window.Materialize.toast(payload.message, 3000);
         break;
       case "winner_message":
@@ -53,6 +58,10 @@ export default class Dispatcher {
         break;
       case "update_bank_max":
         game.bankRollComponent.update(payload.max);
+        break;
+      case "update_emblem_display":
+        game.table.updatePlayerEmblem(payload);
+        window.Materialize.toast(`${payload.name} added ${payload.add} chips`, 2000, 'cyan-toast');
         break;
       case "new_message":
         if (!(payload.name == game.userName)) {
