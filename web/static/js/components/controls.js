@@ -24,7 +24,6 @@ export default class Controls {
     this.to_call = state.to_call;
     this.round = state.round[this.player] || 0;
     this.selectCtrlTypes(state);
-    console.log("this.currentCtrls in update: ", this.currentCtrls);
     (state.user) == state.active ? this.showAllAndAttachEvents(this.currentCtrls) : this.hideAllAndDetachEvents(); 
   }
   
@@ -129,7 +128,6 @@ export default class Controls {
       $(".fold-btn").off("click");
     });
     this.shortControls.click((e) => {
-      console.log('Got click on shortControls...');
       this.displayOnlyCurrent(ctrls);
     });
   }
@@ -142,13 +140,11 @@ export default class Controls {
   }
   
   displayOnlyCurrent(ctrls) {
-    console.log("DISPLAY ONLY CURRENT WITH CURRENTCTRLS: ", ctrls);
     let btns = ["call", "raise", "check", "fold"];
     btns.forEach((btn) => {
       if (!ctrls.includes(btn)) {
         this.btnOpacityToZero(btn);
       } else {
-        console.log("SHOWING BTN: ", btn);
         this.btnVisible(btn);
       }
     });

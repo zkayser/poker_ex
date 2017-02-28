@@ -22,10 +22,7 @@ export default class Dispatcher {
         game.setup(payload, channel);
         break;
       case "game_started":
-        console.log("GAME_STARTED!");
-        //game.controls.clear();
         game.setup(payload, channel);
-        //game.controls.update(payload);
         break;
       case "add_player_success":
         game.playerToolbar.update(game.dataFormatter.format(payload));

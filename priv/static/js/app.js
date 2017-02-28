@@ -12471,7 +12471,6 @@ var Controls = function () {
       this.to_call = state.to_call;
       this.round = state.round[this.player] || 0;
       this.selectCtrlTypes(state);
-      console.log("this.currentCtrls in update: ", this.currentCtrls);
       state.user == state.active ? this.showAllAndAttachEvents(this.currentCtrls) : this.hideAllAndDetachEvents();
     }
   }, {
@@ -12594,7 +12593,6 @@ var Controls = function () {
         (0, _jquery2.default)(".fold-btn").off("click");
       });
       this.shortControls.click(function (e) {
-        console.log('Got click on shortControls...');
         _this3.displayOnlyCurrent(ctrls);
       });
     }
@@ -12611,13 +12609,11 @@ var Controls = function () {
     value: function displayOnlyCurrent(ctrls) {
       var _this4 = this;
 
-      console.log("DISPLAY ONLY CURRENT WITH CURRENTCTRLS: ", ctrls);
       var btns = ["call", "raise", "check", "fold"];
       btns.forEach(function (btn) {
         if (!ctrls.includes(btn)) {
           _this4.btnOpacityToZero(btn);
         } else {
-          console.log("SHOWING BTN: ", btn);
           _this4.btnVisible(btn);
         }
       });
@@ -13773,7 +13769,6 @@ var Game = function () {
   }, {
     key: 'setup',
     value: function setup(payload, channel) {
-      console.log("IN GAME SETUP...");
       if (this.table) {
         this.table.clear(this.dataFormatter.format(this.addUser(payload)));
       }
@@ -13800,7 +13795,6 @@ var Game = function () {
   }, {
     key: 'update',
     value: function update(payload, channel) {
-      console.log("IN GAME UPDATE...");
       var data = this.dataFormatter.format(this.addUser(payload));
       data.channel = channel;
       this.table.update(data);
@@ -13902,10 +13896,7 @@ var Dispatcher = function () {
           game.setup(payload, channel);
           break;
         case "game_started":
-          console.log("GAME_STARTED!");
-          //game.controls.clear();
           game.setup(payload, channel);
-          //game.controls.update(payload);
           break;
         case "add_player_success":
           game.playerToolbar.update(game.dataFormatter.format(payload));
