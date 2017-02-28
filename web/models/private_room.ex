@@ -57,14 +57,14 @@ defmodule PokerEx.PrivateRoom do
   end
   
   def delete(priv_room) do
-    priv_room =
+    {:ok, priv_room} =
       priv_room
       |> preload
       |> cast(%{}, ~w())
       |> put_assoc(:participants, [])
       |> put_assoc(:invitees, [])
       |> Repo.update
-    Repo.delete(priv_room)
+     Repo.delete(priv_room)
   end
   
   def preload(private_room) do
