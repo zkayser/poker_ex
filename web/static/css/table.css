@@ -292,3 +292,12 @@ div .table-cards {
   animation-iteration-count: infinite;
   -webkit-animation-direction: alternate;
 }
+
+.short-controls {
+	opacity: 0;
+	transform: translateY(-5em);
+}
+
+.short-control-btn {
+	opacity: 0;
+}

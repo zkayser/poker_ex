@@ -15,6 +15,14 @@
     <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
   </div>
   
+  <div class="fixed-action-btn horizontal click-to-toggle short-controls">
+    <a class="btn-floating btn-large green">
+      <i class="material-icons">play_arrow</i>
+    </a>
+    <ul>
+      <%= render PokerEx.RoomView, "_shortcut_controls.html", conn: @conn %>
+    </ul>
+  </div>
   
   <div class="fixed-action-btn toolbar">
     <a class="btn-floating btn-large red controls-btn">

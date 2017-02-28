@@ -12461,6 +12461,8 @@ var Controls = function () {
     this.callBtn = (0, _jquery2.default)(".call-btn");
     this.checkBtn = (0, _jquery2.default)(".check-btn");
     this.foldBtn = (0, _jquery2.default)(".fold-btn");
+    this.shortControls = (0, _jquery2.default)(".short-controls");
+    this.update(data);
   }
 
   _createClass(Controls, [{
@@ -12469,7 +12471,6 @@ var Controls = function () {
       this.hideAllAndDetachEvents();
       this.to_call = state.to_call;
       this.round = state.round[this.player] || 0;
-      console.log('Updating controls to this.to_call, this.round: ', this.to_call, this.round);
       var ctrls = this.selectCtrlTypes(state);
       state.user == state.active ? this.showAllAndAttachEvents(ctrls) : this.hideAllAndDetachEvents();
     }
@@ -12484,13 +12485,17 @@ var Controls = function () {
   }, {
     key: 'show',
     value: function show(type) {
+      console.log("calling show with type: ", type);
       if (type == 'call') {
-        console.log('editing call button');
         (0, _jquery2.default)("#call-amount-info").remove();
         this[type + 'Btn'].append((0, _jquery2.default)('<span id="call-amount-info" class="white-text">' + this.amountToCall() + '</span>'));
       }
+      if (type == 'raise') {
+        (0, _jquery2.default)(".raise-control-btn").css("visibility", "visible");
+      }
       this[type + 'Div'].fadeIn('slow');
       this[type + 'Btn'].fadeTo('slow', 1);
+      (0, _jquery2.default)('.' + type + '-btn').css("visibility", "visible");
     }
   }, {
     key: 'hide',
@@ -12512,6 +12517,7 @@ var Controls = function () {
     value: function hideAll() {
       var _this2 = this;
 
+      this.shortControls.fadeTo('fast', 0);
       var ctrls = this.ctrlTypes();
       ctrls.forEach(function (type) {
         _this2.hide(type);
@@ -12521,6 +12527,8 @@ var Controls = function () {
     key: 'showAllAndAttachEvents',
     value: function showAllAndAttachEvents(ctrls) {
       this.showAll(ctrls);
+      this.shortControls.fadeTo('fast', 1);
+      this.shortControls.click();
       this.attachClickEvents();
     }
   }, {
@@ -12550,6 +12558,8 @@ var Controls = function () {
         } else {
           ctrls = ["check"];
         }
+        this.currentCtrls = ctrls;
+        console.log("current controls: ", this.currentCtrls);
         return ctrls;
       }
     }
@@ -12565,7 +12575,7 @@ var Controls = function () {
       var _this3 = this;
 
       // Remove any lingering click handlers;
-      var btns = [(0, _jquery2.default)(".call-btn"), (0, _jquery2.default)(".check-btn"), (0, _jquery2.default)(".fold-btn")];
+      var btns = [(0, _jquery2.default)(".call-btn"), (0, _jquery2.default)(".check-btn"), (0, _jquery2.default)(".fold-btn"), this.shortControls];
       btns.forEach(function (btn) {
         btn.off("click");
       });
@@ -12585,6 +12595,10 @@ var Controls = function () {
         (0, _jquery2.default)("#controls-close").click();
         (0, _jquery2.default)(".fold-btn").off("click");
       });
+      this.shortControls.click(function (e) {
+        console.log('Got click on shortControls...');
+        _this3.displayOnlyCurrent();
+      });
     }
   }, {
     key: 'detachClickEvents',
@@ -12593,6 +12607,40 @@ var Controls = function () {
       btns.forEach(function (btn) {
         removeEventListener('click', btn);
       });
+    }
+  }, {
+    key: 'displayOnlyCurrent',
+    value: function displayOnlyCurrent() {
+      var _this4 = this;
+
+      var btns = ["call", "raise", "check", "fold"];
+      btns.forEach(function (btn) {
+        if (!_this4.currentCtrls.includes(btn)) {
+          _this4.btnOpacityToZero(btn);
+        } else {
+          _this4.btnVisible(btn);
+        }
+      });
+    }
+  }, {
+    key: 'btnOpacityToZero',
+    value: function btnOpacityToZero(str) {
+      console.log('In btnOpacityToZero with str: ', str);
+      console.log('this.currentCtrls: ', this.currentCtrls);
+      if (str == "raise") {
+        (0, _jquery2.default)(".raise-control-btn").css("visibility", "hidden");
+      } else if (["call", "fold", "check"].includes(str)) {
+        (0, _jquery2.default)('.' + str + '-btn').css("visibility", "hidden");
+      }
+    }
+  }, {
+    key: 'btnVisible',
+    value: function btnVisible(str) {
+      if (str == "raise") {
+        (0, _jquery2.default)(".raise-control-btn").css("visibility", "visible");
+      } else if (["call", "fold", "check"].includes(str)) {
+        (0, _jquery2.default)('.' + str + '-btn').css("visibility", "visible");
+      }
     }
   }]);
 
