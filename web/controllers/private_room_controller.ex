@@ -37,12 +37,10 @@ defmodule PokerEx.PrivateRoomController do
       {:error, error_changeset} ->
         case hd(error_changeset.errors) do
           {:title, {"has already been taken", []}} ->
-            IO.inspect(hd(error_changeset.errors))
             conn
             |> put_flash(:error, "#{title} has already been taken")
             |> redirect(to: private_room_path(conn, :new))
           _ ->
-            IO.inspect(hd(error_changeset.errors))
             conn
             |> put_flash(:error, "An unknown error occurred.")
             |> redirect(to: private_room_path(conn, :new))

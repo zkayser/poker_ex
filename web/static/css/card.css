@@ -42,7 +42,7 @@
 
 .card-one {
   opacity: 0;
-  animation: first-card 0.4s linear 1s;
+  animation: first-card 0.4s linear 1.3s;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
@@ -52,7 +52,7 @@
 
 .card-two {
   opacity: 0;
-  animation: second-card 0.4s linear 1s;
+  animation: second-card 0.4s linear 1.3s;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
@@ -62,7 +62,7 @@
 
 .card-three {
   opacity: 0;
-  animation: third-card 0.4s linear 1s;
+  animation: third-card 0.4s linear 1.3s;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
@@ -72,7 +72,7 @@
 
 .card-four {
   opacity: 0;
-  animation: fourth-card 0.4s linear 1s;
+  animation: fourth-card 0.4s linear 1.3s;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;
@@ -82,7 +82,7 @@
 
 .card-five {
   opacity: 0;
-  animation: fifth-card 0.4s linear 1s;
+  animation: fifth-card 0.4s linear 1.3s;
   -webkit-animation-fill-mode: forwards;
   -moz-animation-fill-mode: forwards;
   -ms-animation-fill-mode: forwards;

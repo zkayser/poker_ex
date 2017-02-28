@@ -117,7 +117,6 @@ defmodule PokerEx.PrivateRoom do
   
   def put_invitee_in_participants(changeset, participants, invitee) do
     participants = participants ++ [invitee]
-    IO.puts "put_invitee_in_participants called with: #{inspect(participants)}"
     put_assoc(changeset, :participants, participants)
   end
   
