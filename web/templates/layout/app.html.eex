@@ -98,15 +98,9 @@
       </div> <!-- /container -->
 
     <script>window.playerToken = "<%= assigns[:player_token] %>"</script>
-     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
-    <script>$(".menu-dropdown").sideNav();</script>
-    <script>$("#player-account-modal").modal();</script>
-    <script>$("#controls-modal").modal();</script>
-    <script>$("#raise-modal").modal();</script>
-    <script>$("#chat-box-modal").modal();</script>
-    <script>$("#join-modal").modal();</script>
-    <script>$("#bank-roll-modal").modal();</script>
+    <%= render "_modal_initiators.html", conn: @conn %>
   </body>
 </html>
