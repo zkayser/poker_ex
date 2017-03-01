@@ -176,9 +176,10 @@ defmodule PokerEx.Room.BetTracker do
   @spec bet(map(), player, pos_integer) :: {:ok, non_neg_integer}
   defp bet(chip_roll, player, bet_amount) do
     total = chip_roll[player]
-    case total >= bet_amount do
+    case total > bet_amount do
       true -> {:ok, total - bet_amount}
-      false -> {:insufficient_chips, total}
+      false -> 
+        {:insufficient_chips, total}
     end
   end
 end

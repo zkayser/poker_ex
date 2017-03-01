@@ -102,7 +102,7 @@ defmodule PokerEx.Room.Updater do
     IO.puts "Updated chip roll with add, update: #{inspect(update)}"
     %Room{ room | chip_roll: update}
    end
-   def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) when amount > 0 do
+   def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) when amount >= 0 do
     update = Map.put(chip_roll, player, amount)
     %Room{ room | chip_roll: update }
    end
