@@ -48,6 +48,10 @@ defmodule PokerEx.Events do
     GameEvents.winner_message(stringify(room_id), message)
   end
   
+  def present_winning_hand(room_id, winning_hand, player, type) do
+    GameEvents.present_winning_hand(stringify(room_id), winning_hand, player, type)
+  end
+  
   def player_left(room_id, player) do
     RoomEvents.player_left(stringify(room_id), player)
   end

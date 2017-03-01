@@ -560,7 +560,7 @@ defmodule PokerEx.Room do
 			
 		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
-		Process.sleep(100)
+		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
@@ -577,7 +577,6 @@ defmodule PokerEx.Room do
 			
 		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
-		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
@@ -594,7 +593,6 @@ defmodule PokerEx.Room do
 			
 		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
-		Process.sleep(100)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
@@ -619,7 +617,7 @@ defmodule PokerEx.Room do
 			
 		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
-		Process.sleep(100)
+		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
@@ -641,7 +639,7 @@ defmodule PokerEx.Room do
 			
 		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round with #{update.winning_hand.type_string}")
-		Process.sleep(100)
+		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	

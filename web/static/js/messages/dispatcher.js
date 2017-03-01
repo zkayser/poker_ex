@@ -1,4 +1,5 @@
 import Table from '../table';
+import WinningHandDisplay from '../components/winning-hand-display';
 
 export default class Dispatcher {
   
@@ -59,6 +60,9 @@ export default class Dispatcher {
       case "update_emblem_display":
         game.table.updatePlayerEmblem(payload);
         window.Materialize.toast(`${payload.name} added ${payload.add} chips`, 2000, 'cyan-toast');
+        break;
+      case "present_winning_hand":
+        new WinningHandDisplay(payload);
         break;
       case "new_message":
         if (!(payload.name == game.userName)) {

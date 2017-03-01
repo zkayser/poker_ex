@@ -49,4 +49,9 @@ defmodule PokerEx.GameEvents do
   def winner_message(room_id, message) do
     Endpoint.broadcast!("players:" <> room_id, "winner_message", %{message: message})
   end
+  
+  def present_winning_hand(room_id, winning_hand, player, type) do
+    cards = Enum.map(winning_hand, fn card -> Map.from_struct(card) end)
+    Endpoint.broadcast!("players:" <> room_id, "present_winning_hand", %{cards: cards, winner: player, type: type})
+  end
 end

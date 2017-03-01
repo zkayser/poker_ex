@@ -31,6 +31,15 @@ export default class Card {
     return markup;
   }
   
+  imageMarkup(id) {
+    let path = CARDS[this.suit.toUpperCase()][this.rank];
+    let src;
+    window.basePath ? src = window.basePath + path : src = "../" + path;
+    return $(`
+            <img src=${src} id="${id}">
+          `);
+  }
+  
   static renderPlayerCards(cards) {
     let imgRight = $(".card-image-right");
     let imgLeft = $(".card-image-left");

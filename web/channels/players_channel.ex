@@ -115,7 +115,6 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	def handle_in("remove_player", %{"player" => name, "room" => room}, socket) do
-		# Handle two cases? One where the game ends because there are no more players, another where the game continues?
 		room = Room.leave(room |> atomize(), get_player_by_name(name))
 		case length(room.seating) do
 			x when x <= 1 ->

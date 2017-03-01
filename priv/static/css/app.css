@@ -40,6 +40,10 @@
   margin-bottom: 3em;
 }
 
+#winning-hand {
+  height: 5em;
+}
+
 .card-one {
   opacity: 0;
   animation: first-card 0.4s linear 1.3s;
@@ -237,6 +241,16 @@
 	align-items: center;
 }
 
+#winning-hand-row {
+	display: none;
+	position: absolute;
+	z-index: 10;
+}
+
+#winning-hand-panel {
+	border-radius: 1em;
+}
+
 #player-card-row {
 	transform: translateX(7.5em);
 }
@@ -378,11 +392,19 @@
 		margin-left: 300px;
 	}
 	
+	#winning-hand-row {
+		transform: translate(20em, 4em);
+	}
+	
 }
 
 @media (max-width: 988px) {
 	.circle-container {
 		margin-left: 8.5em;
+	}
+	
+	#winning-hand-row {
+		transform: translate(7.5em, 4em);
 	}
 	
 	#player-card-row {
@@ -395,6 +417,10 @@
 		margin-left: 3.5em;
 	}
 	
+	#winning-hand-row {
+		transform: translate(2.5em, 4em);
+	}
+	
 	#player-card-row {
 		margin-left: 3.5em;
 	}
@@ -403,6 +429,15 @@
 @media (max-width: 456px) {
 	.circle-container {
 		margin-left: 1.5em;
+	}
+	
+	#winning-hand-row {
+		width: 24em;
+		transform: translate(2em, 4em);
+	}
+	
+	#winning-hand-title {
+		font-size: 3em;
 	}
 	
 	#player-card-row {

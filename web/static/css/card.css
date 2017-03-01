@@ -40,6 +40,10 @@
   margin-bottom: 3em;
 }
 
+#winning-hand {
+  height: 5em;
+}
+
 .card-one {
   opacity: 0;
   animation: first-card 0.4s linear 1.3s;

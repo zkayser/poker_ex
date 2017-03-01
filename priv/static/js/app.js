@@ -12079,6 +12079,14 @@ var Card = function () {
       markup.className += ' ' + animation;
       return markup;
     }
+  }, {
+    key: 'imageMarkup',
+    value: function imageMarkup(id) {
+      var path = _card_codes.CARDS[this.suit.toUpperCase()][this.rank];
+      var src = void 0;
+      window.basePath ? src = window.basePath + path : src = "../" + path;
+      return (0, _jquery2.default)('\n            <img src=' + src + ' id="' + id + '">\n          ');
+    }
   }], [{
     key: 'renderPlayerCards',
     value: function renderPlayerCards(cards) {
@@ -13497,6 +13505,68 @@ var RaiseControl = function () {
 exports.default = RaiseControl;
 });
 
+;require.register("web/static/js/components/winning-hand-display.js", function(exports, require, module) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _card = require('../card');
+
+var _card2 = _interopRequireDefault(_card);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var WinningHandDisplay = function () {
+  function WinningHandDisplay(payload) {
+    var _this = this;
+
+    _classCallCheck(this, WinningHandDisplay);
+
+    this.cards = [];
+    payload.cards.forEach(function (card) {
+      _this.cards.push(new _card2.default(card.rank, card.suit));
+    });
+    this.winner = payload.winner;
+    this.type = payload.type;
+    this.show();
+  }
+
+  _createClass(WinningHandDisplay, [{
+    key: 'show',
+    value: function show() {
+      (0, _jquery2.default)("#winning-hand-row").css("display", "inherit");
+      this.cards.forEach(function (card) {
+        var markup = card.imageMarkup("winning-hand");
+        (0, _jquery2.default)("#winning-hand-images").append(markup);
+      });
+      (0, _jquery2.default)("#winner-span").text(this.winner);
+      (0, _jquery2.default)("#winning-hand-type").text(this.type);
+      (0, _jquery2.default)("#winning-hand-panel").addClass("scale-in");
+      setTimeout(function () {
+        (0, _jquery2.default)("#winning-hand-panel").removeClass("scale-in");
+        (0, _jquery2.default)("#winning-hand-images").empty();
+        (0, _jquery2.default)("#winning-hand-type").text('');
+        (0, _jquery2.default)("#winner-span").text('');
+      }, 5000);
+    }
+  }]);
+
+  return WinningHandDisplay;
+}();
+
+exports.default = WinningHandDisplay;
+});
+
 ;require.register("web/static/js/data-formatter.js", function(exports, require, module) {
 'use strict';
 
@@ -13753,7 +13823,7 @@ var Game = function () {
       this.chatComponent.init();
       this.bankRollComponent.init();
 
-      var MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated", "game_finished", "winner_message", "new_message", "clear", "update_bank_max", "update_emblem_display", "failed_bank_update"];
+      var MESSAGES = ["private_room_join", "started_game", "game_started", "update", "add_player_success", "player_seated", "game_finished", "winner_message", "new_message", "clear", "present_winning_hand", "update_bank_max", "update_emblem_display", "failed_bank_update"];
       MESSAGES.forEach(function (message) {
         channel.on(message, function (payload) {
           _dispatcher2.default.dispatch(message, payload, {
@@ -13853,7 +13923,7 @@ exports.default = MessageBox;
 });
 
 ;require.register("web/static/js/messages/dispatcher.js", function(exports, require, module) {
-"use strict";
+'use strict';
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -13861,9 +13931,13 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _table = require("../table");
+var _table = require('../table');
 
 var _table2 = _interopRequireDefault(_table);
+
+var _winningHandDisplay = require('../components/winning-hand-display');
+
+var _winningHandDisplay2 = _interopRequireDefault(_winningHandDisplay);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13875,7 +13949,7 @@ var Dispatcher = function () {
   }
 
   _createClass(Dispatcher, null, [{
-    key: "dispatch",
+    key: 'dispatch',
     value: function dispatch(message, payload, options) {
       var game = options.game;
       var channel = options.channel;
@@ -13932,11 +14006,14 @@ var Dispatcher = function () {
           break;
         case "update_emblem_display":
           game.table.updatePlayerEmblem(payload);
-          window.Materialize.toast(payload.name + " added " + payload.add + " chips", 2000, 'cyan-toast');
+          window.Materialize.toast(payload.name + ' added ' + payload.add + ' chips', 2000, 'cyan-toast');
+          break;
+        case "present_winning_hand":
+          new _winningHandDisplay2.default(payload);
           break;
         case "new_message":
           if (!(payload.name == game.userName)) {
-            window.Materialize.toast(payload.name + " says: " + payload.text, 3000, 'green-toast');
+            window.Materialize.toast(payload.name + ' says: ' + payload.text, 3000, 'green-toast');
           }
           game.chatComponent.update(payload);
           break;
@@ -15833,8 +15910,8 @@ exports.default = RoomIndexView;
 
 ;require.alias("jquery/dist/jquery.js", "jquery");
 require.alias("process/browser.js", "process");
-require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");
-require.alias("phoenix/priv/static/phoenix.js", "phoenix");process = require('process');require.register("___globals___", function(exports, require, module) {
+require.alias("phoenix/priv/static/phoenix.js", "phoenix");
+require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");process = require('process');require.register("___globals___", function(exports, require, module) {
   
 
 // Auto-loaded modules from config.npm.globals.

@@ -1,11 +1,12 @@
 <!-- cardtable -->
+
 <div class='circle-container card-table'>
 	<div class="circle-center">
 	  <div class="deck">
 	    <img id="deck" src="<%= static_path(@conn, "/images/card-back.svg.png") %>">
 	  </div>
 	  <div class="table-cards">
-
+			
 	  </div>
 	  <div class="pot">
 	    <a class="btn-floating btn-large red" id="pot">0</a>

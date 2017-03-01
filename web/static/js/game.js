@@ -56,6 +56,7 @@ export default class Game {
       "winner_message",
       "new_message",
       "clear",
+      "present_winning_hand",
       "update_bank_max",
       "update_emblem_display",
       "failed_bank_update"];
