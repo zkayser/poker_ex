@@ -48,7 +48,6 @@ defmodule PokerEx.Room do
 							rewards: rewards,
 							winner: String.t | Player.t,
 							winning_hand: Hand.t | nil,
-							parent: pid,
 							timeout: pos_integer
 												}
 	
@@ -74,7 +73,6 @@ defmodule PokerEx.Room do
 						rewards: [],
 						winner: nil,
 						winning_hand: nil,
-						parent: nil,
 						timeout: @timeout
 	
 	def start_link(args) when is_list(args) do
@@ -146,42 +144,6 @@ defmodule PokerEx.Room do
 	
 	def which_state(room_id) do
 		:gen_statem.call(room_id, :which_state)
-	end
-	
-	#############
-	# Test API #
-	############
-	
-	def t_join(player, chip_amount) do
-		:gen_statem.call(:test, {:join, player.name, chip_amount})
-	end
-	
-	def t_call(player) do
-		:gen_statem.call(:test, {:call, player.name})
-	end
-	
-	def t_check(player) do
-		:gen_statem.call(:test, {:check, player.name})
-	end
-	
-	def t_raise(player, amount) do
-		:gen_statem.call(:test, {:raise, player.name, amount})
-	end
-	
-	def t_fold(player) do
-		:gen_statem.call(:test, {:fold, player.name})
-	end
-	
-	def t_ready(player) do
-		:gen_statem.call(:test, {:ready, player.name})
-	end
-	
-	def t_leave(player) do
-		:gen_statem.call(:test, {:leave, player.name})
-	end
-	
-	def t_state do
-		:gen_statem.call(:test, :state)
 	end
 	
 	######################
@@ -359,7 +321,6 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> Updater.chip_roll(player, :leaving)
-			# |> Updater.reset_table_state
 			|> Updater.remove_from_seating(player)
 			|> Updater.maybe_advance_active(player)
 			|> Updater.active(player)
@@ -550,7 +511,6 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
-		if room.parent, do: send(room.parent, :rewarding_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -558,14 +518,12 @@ defmodule PokerEx.Room do
 			|> RewardManager.manage_rewards
 			|> RewardManager.distribute_rewards
 			
-		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, active: active} = room) 
 	when length(all_in) == 0 and length(active) == 1 do
-		if room.parent, do: send(room.parent, :handling_fold_and_marking_winner)
 		{winner, _} = hd(active)
 		update =
 			room
@@ -574,14 +532,12 @@ defmodule PokerEx.Room do
 			|> RewardManager.manage_rewards
 			|> RewardManager.distribute_rewards
 			
-		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, active: active} = room)
 	when length(all_in) == 1 and length(active) == 0 do
-		if room.parent, do: send(room.parent, :handling_fold_and_marking_winner)
 		winner = hd(all_in)
 		update =
 			room
@@ -590,14 +546,12 @@ defmodule PokerEx.Room do
 			|> RewardManager.manage_rewards
 			|> RewardManager.distribute_rewards
 			
-		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.winner_message(room.room_id, "#{update.winner} wins the round on a fold")
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, table: table} = room)
 	when length(all_in) >= 1 and length(table) < 5 do
-		if room.parent, do: send(room.parent, :handling_fold)
 		update =
 			room
 			|> Updater.table
@@ -606,7 +560,6 @@ defmodule PokerEx.Room do
 	
 	def handle_event(:internal, :handle_fold, :game_over, %Room{all_in: all_in, table: table} = room)
 	when length(all_in) >= 1 and length(table) == 5 do
-		if room.parent, do: send(room.parent, :handle_fold_marking_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -614,7 +567,6 @@ defmodule PokerEx.Room do
 			|> RewardManager.manage_rewards
 			|> RewardManager.distribute_rewards
 			
-		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -627,7 +579,6 @@ defmodule PokerEx.Room do
 	end
 	
 	def handle_event(:internal, :handle_all_in, :game_over, %Room{table: table} = room) when length(table) == 5 do
-		if room.parent, do: send(room.parent, :handle_all_in_marking_winner)
 		update = 
 			room
 			|> Updater.stats
@@ -635,7 +586,6 @@ defmodule PokerEx.Room do
 			|> RewardManager.manage_rewards
 			|> RewardManager.distribute_rewards
 			
-		# RewardManager.manage_rewards(update.stats, Map.to_list(update.paid)) |> RewardManager.distribute_rewards(room.room_id)
 		Events.present_winning_hand(room.room_id, update.winning_hand.best_hand, update.winner, update.winning_hand.type_string)
 		{:next_state, :between_rounds, update, [{:next_event, :internal, :set_round}]}
 	end
@@ -773,7 +723,6 @@ defmodule PokerEx.Room do
   defp advance_state(:between_rounds), do: :pre_flop
   
   defp round_transition(room, :pre_flop) do
-  	update = 
   		room
   		|> Updater.reset_advance_event_flag
   		|> Updater.reset_active
@@ -786,7 +735,6 @@ defmodule PokerEx.Room do
   end
   
   defp round_transition(room, :between_rounds) do
-  	update = 
   		room
   		|> Updater.reset_advance_event_flag
   		|> Updater.reset_active
@@ -796,7 +744,6 @@ defmodule PokerEx.Room do
   end
   
   defp round_transition(room, _state) do
-  	update = 
   		room
   		|> Updater.reset_advance_event_flag
   		|> Updater.reset_active
