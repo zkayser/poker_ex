@@ -197,6 +197,22 @@ nav.top-nav a.page-title {
 	top: -1.5em;
 }
 
+#signup-card {
+	width: 24em;
+	height: 24em;
+	border-radius: 2em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+#content-row {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .green-toast {
 	background-color: #1b5e20;
 	color: white;

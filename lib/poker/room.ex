@@ -48,6 +48,7 @@ defmodule PokerEx.Room do
 							rewards: rewards,
 							winner: String.t | Player.t,
 							winning_hand: Hand.t | nil,
+							parent: pid,
 							timeout: pos_integer
 												}
 	
@@ -73,6 +74,7 @@ defmodule PokerEx.Room do
 						rewards: [],
 						winner: nil,
 						winning_hand: nil,
+						parent: nil,
 						timeout: @timeout
 	
 	def start_link(args) when is_list(args) do

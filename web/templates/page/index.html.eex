@@ -1,14 +1,18 @@
-<div class="row">
-  <div class="center-align teal-text">
+<div class="row" id="greeting-row">
+  <div class="center-align teal-text col s12">
     <h1>Welcome to PokerEx!</h1>
   </div>
 </div>
-<div class="row">
+<div class="row" id="content-row">
   <div class="center-align">
-    Not a member yet? <%= button("Sign up here!", to: player_path(@conn, :new), class: "btn teal white-text") %>
-    <br/>
-    OR
-    <br/>
-    <%= link("Log in", to: session_path(@conn, :new), class: "btn blue white-text") %>
+    <div class="col">
+      <div class="card-panel blue lighten-3 white-text z-depth-5" id="signup-card">
+        <h5>Not a member yet?</h5> <%= button("Sign up here!", to: player_path(@conn, :new), class: "btn teal white-text") %>
+        <br/>
+        <h5>OR</h5>
+        <br/>
+        <%= link("Log in", to: session_path(@conn, :new), class: "btn btn-large blue white-text") %>
+      </div>
+    </div>
   </div>
 </div>
