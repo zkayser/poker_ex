@@ -79,16 +79,15 @@ defmodule PokerEx.Room.Updater do
    ## Examples
    
       iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
-      iex> Updater.chip_roll(room, "C", 300)
-      %Room{chip_roll: %{"A" => 20, "B" => 30, "C" => 300}}
+      iex> room = Updater.chip_roll(room, "C", 300)
+      iex> room.chip_roll
+      %{"A" => 20, "B" => 30, "C" => 300}
       
       iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
-      iex> Updater.chip_roll(room, "A", 50)
-      %Room{chip_roll: %{"A" => 20, "B" => 30}}
-      
-      iex> room = %Room{chip_roll: %{"A" => 20, "B" => 30}}
-      iex> Updater.chip_roll(room, "A", :leaving)
-      %Room{chip_roll: %{"B" => 30}}
+      iex> room = Updater.chip_roll(room, "A", 50)
+      iex> room.chip_roll
+      %{"A" => 50, "B" => 30}
+
    """
    
    @spec chip_roll(Room.t, player, pos_integer | :leaving | {:adding, pos_integer}) :: Room.t
@@ -99,7 +98,6 @@ defmodule PokerEx.Room.Updater do
    end
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, {:adding, amount}) when amount > 0 do
     {_old, update} = Map.get_and_update(chip_roll, player, fn val -> {val, val + amount} end)
-    IO.puts "Updated chip roll with add, update: #{inspect(update)}"
     %Room{ room | chip_roll: update}
    end
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, amount) when amount >= 0 do
@@ -280,7 +278,7 @@ defmodule PokerEx.Room.Updater do
       iex> room = %Room{active: [{"A", 0}, {"B", 1}, {"C", 2}]}
       iex> room = Updater.maybe_advance_active(room, "A")
       iex> room.active
-      [{"B", 1}, {"C", 2}, {"A", 0}]}
+      [{"B", 1}, {"C", 2}, {"A", 0}]
   """
   @spec maybe_advance_active(Room.t, player) :: Room.t
   def maybe_advance_active(%Room{active: [{pl, _}|_tail]} = room, player) when pl == player do
@@ -619,16 +617,8 @@ defmodule PokerEx.Room.Updater do
   the list.
   
   ## Examples
-      iex> changeset = PokerEx.Player.registration_changeset(%PokerEx.Player{}, 
-      ...> %{"name" => "Donatello", "email" => "donnie@turtles.com", "password" => "password",
-      ...>  "first_name" => "D", "last_name" => "T"})
-      iex> changeset2 = PokerEx.Player.registration_changeset(%PokerEx.Player{}, 
-      ...> %{"name" => "Michelangelo", "email" => "Mikie@turtles.com", "password" => "password",
-      ...>  "first_name" => "M", "last_name" => "T"})
-      iex> PokerEx.Repo.insert(changeset)
-      iex> PokerEx.Repo.insert(changeset2)
-      iex> PokerEx.Player.bet("Donatello", 1500)
-      iex> room = %Room{seating: [{"Donatello", 0}, {"Michelangelo", 1}]}
+      iex> room = %Room{chip_roll: %{"Donatello" => 0, "Michelangelo" => 2000}}
+      iex> room = %Room{room | seating: [{"Donatello", 0}, {"Michelangelo", 1}]}
       iex> room = Updater.remove_players_with_no_chips(room)
       iex> room.seating
       [{"Michelangelo", 0}]
@@ -709,7 +699,7 @@ defmodule PokerEx.Room.Updater do
   
       iex> rewards = [{"A", 20}, {"B", 75}]
       iex> room = %Room{rewards: rewards}
-      iex> room = Updater.reset_rewards
+      iex> room = Updater.reset_rewards(room)
       iex> [] == room.rewards
       true
   """
