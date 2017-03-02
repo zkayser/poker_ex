@@ -108,6 +108,11 @@ defmodule PokerEx.Player do
 		end
 	end
 	
+	def preload(%Player{} = player) do
+		player
+		|> Repo.preload([:participating_rooms, :invited_rooms, :owned_rooms])
+	end
+	
 	def changeset(model, params \\ %{}) do
 		model
 		|> cast(params, ~w(name first_name last_name email blurb), [])

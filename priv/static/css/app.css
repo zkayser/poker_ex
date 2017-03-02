@@ -724,6 +724,18 @@ nav.top-nav a.page-title {
 	justify-content: center;
 }
 
+#player-home-card {
+	width: 24em;
+	height: 24em;
+	border-radius: 2em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+
+
 #content-row {
 	display: flex;
 	align-items: center;

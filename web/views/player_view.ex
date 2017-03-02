@@ -71,6 +71,20 @@ defmodule PokerEx.PlayerView do
   end
   def full_name(%Player{name: name}), do: "#{String.capitalize(name)}'s Profile"
   
+  def stats(%Player{} = player, opts \\ []) do
+    ~E"""
+      <p id="welcome-back">Welcome back to PokerEx, <%= player.name %>!</p>
+      <div class="center-align">
+        <h3>STATS</h3>
+      </div>
+      <span class="left">Ongoing Games:</span><span class="right"><%= length(player.participating_rooms) %></span><br/>
+      <span class="left">Open Invitations:</span><span class="right"><%= length(player.invited_rooms) %></span><br/>
+      Be sure to check out our <%= link("public rooms", to: room_path(opts[:conn], :index)) %>
+      <br/>
+      <%= link("Go to your profile", to: player_path(opts[:conn], :show, player.id), class: "btn btn-large pink waves-effect") %>
+    """
+  end
+  
   defp to_html_attr(attr) when is_atom(attr) do
     attr
     |> Atom.to_string
@@ -113,6 +127,13 @@ defmodule PokerEx.PlayerView do
     else
         "#{num} #{plural}"
     end
+  end
+  
+  defp pluralize_word(1, {singular, _}) do
+    "#{singular}"
+  end
+  defp pluralize_word(_, {_, plural}) do
+    "#{plural}"
   end
   
   defp paginated_entries(list) when is_list(list) do
