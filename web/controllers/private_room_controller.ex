@@ -7,11 +7,11 @@ defmodule PokerEx.PrivateRoomController do
     query = 
       from p in PokerEx.Player,
         where: p.id != ^conn.assigns[:current_player].id,
-        limit: 25,
         order_by: [asc: :id],
         select: [p.id, p.name, p.blurb]
-    players = PokerEx.Repo.all(query)
-    render conn, "new.html", changeset: changeset, players: players
+    players = Repo.all(query)
+    page = Repo.all(query) |> Repo.paginate()
+    render conn, "new.html", changeset: changeset, players: players, page: page
   end
   
   def create(conn, %{"invitees" => invitees, "private_room" => %{"title" => title, "owner" => owner} = room_params}) do

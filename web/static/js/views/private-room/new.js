@@ -1,6 +1,8 @@
 import MainView from '../main-view';
 import Online from '../online';
 import PlayerSearchComponent from '../../components/player-search-component';
+import PaginationUtils from '../../components/pagination-utils';
+import PlayerListComponent from '../../components/player-list-component';
 
 import $ from 'jquery';
 
@@ -10,6 +12,8 @@ export default class PrivateRoomNewView extends MainView {
     super();
     this.playerList = document.getElementsByClassName('player-list')[0];
     this.invitees = document.getElementById("invitees");
+    this.totalPages = $(".pagination").data("totalPages");
+    this.player = $("#browse-players-list").data("currentPlayer");
   }
   
   mount() {
@@ -19,6 +23,10 @@ export default class PrivateRoomNewView extends MainView {
     this.setButtonEvents();
     let playerSearch = new PlayerSearchComponent();
     playerSearch.init();
+    
+    
+    let playerListComponent = new PlayerListComponent(this.totalPages, this.player);
+    playerListComponent.init();
     
     Online.init();
   }

@@ -75,13 +75,11 @@ export default class Pagination {
   }
   
   isFirstPage(payload) {
-    let bool = payload.current_page == 1 ? true : false;
-    return bool;
+    return payload.current_page == 1;
   }
   
   isLastPage(payload) {
-    let bool = payload.current_page == payload.total ? true : false;
-    return bool;
+    return payload.current_page == payload.total;
   }
   
   removeDisabledClass(payload) {
@@ -130,15 +128,15 @@ export default class Pagination {
   
   makeRangeForNumber(payload) {
     let number = payload.current_page;
-    let remFive = number % 5;
+    let rem = number % this.newLinksOn;
     let start;
-    if (remFive == 0) {
-      start = (number - 4);
+    if (rem == 0) {
+      start = (number - (this.newLinksOn - 1));
     } else {
-      start = (number - remFive) + 1;
+      start = (number - rem) + 1;
     }
     let pageNums = [];
-    while (start <= payload.total && pageNums.length < 5) {
+    while (start <= payload.total && pageNums.length < this.newLinksOn) {
       pageNums.push(start);
       start++;
     }

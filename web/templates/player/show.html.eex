@@ -83,12 +83,6 @@
           <li class="disabled" id="page-back"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
           <div class="page-numbers">
             <li class="page-btn active-page" id="page-1"><a class="white-text" href="#!">1</a></li>
-            <!--
-            <li class="page-btn waves-effect" id="page-2"><a class="white-text" href="#!">2</a></li>
-            <li class="page-btn waves-effect" id="page-3"><a class="white-text" href="#!">3</a></li>
-            <li class="page-btn waves-effect" id="page-4"><a class="white-text" href="#!">4</a></li>
-            <li class="page-btn waves-effect" id="page-5"><a class="white-text" href="#!">5</a></li>
-            -->
           </div>
           <li class="waves-effect" id="page-ahead"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
         </ul>

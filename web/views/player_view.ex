@@ -24,6 +24,16 @@ defmodule PokerEx.PlayerView do
     }
   end
   
+  def render("player_list.json", %{players: players}) do
+    for [id, name, blurb] <- players do
+      %{
+        name: name,
+        id: id,
+        blurb: blurb
+      }
+    end
+  end
+  
   # TODO: Deprecate and remove
   defp player_json(player) do
     %{

@@ -36,7 +36,9 @@ defmodule PokerEx.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", PokerEx do
-  #   pipe_through :api
-  # end
+   scope "/api", PokerEx do
+     pipe_through :api
+     
+     get "/list/:player/:page", PlayerController, :list
+   end
 end

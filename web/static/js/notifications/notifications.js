@@ -39,7 +39,6 @@ export default class Notifications {
     for (let i = 0; i < declineBtns.length; i++) {
       declineBtns[i].addEventListener('click', (e) => {
         let id = e.target.parentElement.id;
-        console.log('id: ', id);
         let regex = /\d+/;
         let res = id.match(regex);
         id = res[0];

@@ -66,6 +66,16 @@ defmodule PokerEx.PlayerController do
     end
   end
   
+  def list(conn, %{"player" => player, "page" => page}) do
+    query = 
+      from p in PokerEx.Player,
+        where: p.name != ^player,
+        order_by: [asc: :id],
+        select: [p.id, p.name, p.blurb]
+    page = Repo.all(query) |> Repo.paginate(%{page: page})
+    render(conn, "player_list.json", players: page.entries, current_page: page.page_number, total: page.total_pages)
+  end
+  
   defp redirect_wrong_user(conn, %{"id" => player_id}) do
     {id, _} = Integer.parse(player_id)
     unless id == conn.assigns.current_player.id do

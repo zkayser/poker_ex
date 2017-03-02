@@ -19,7 +19,7 @@ defmodule PokerEx.Mixfile do
   def application do
     [mod: {PokerEx, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :bamboo, :scrivener]]
+                    :phoenix_ecto, :postgrex, :comeonin, :bamboo, :scrivener, :scrivener_ecto]]
   end
 
   # Specifies which paths to compile per environment.
@@ -44,6 +44,7 @@ defmodule PokerEx.Mixfile do
      {:bamboo, "~> 0.7"},
      {:bamboo_smtp, "~> 1.2.1"},
      {:scrivener, "~> 2.0"},
+     {:scrivener_ecto, "~> 1.0"},
      {:scrivener_list, "~> 1.0"}]
   end
 

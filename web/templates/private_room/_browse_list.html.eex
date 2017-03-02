@@ -1,4 +1,18 @@
-<ul class="collection with-header left-align player-list" id="browse-players-list">
+<%= if length(@page.entries) > 0 do %>
+  <ul class="pagination" data-current-page="<%= @page.page_number %>" data-total-pages="<%= @page.total_pages %>">
+    <li class="disabled" id="page-back"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
+      <div class="page-numbers">
+        <%= for num <- 1..PokerEx.LayoutView.limit_page_tabs(@page.total_pages) do %>
+          <li class="page-btn <%= PokerEx.LayoutView.page_class(@page, num) %>" id="page-<%= num %>">
+            <a class="<%= PokerEx.LayoutView.page_li_text_color(@page, num) %>" href="#!"><%= num %></a>
+          </li>
+        <% end %>
+      </div>
+    <li class="waves-effect" id="page-ahead"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
+  </ul>
+<% end %>
+
+<ul class="collection with-header left-align player-list" id="browse-players-list" data-current-player="<%= @player.name %>">
   <li class="collection-header center-align"><h4>Invite Players</h4></li>
   <%= for {list, color} <- Enum.zip(@players, ~w(purple teal red blue yellow green)) do %>
   <li class="collection-item avatar player-list-item" id="player-list-item-<%= List.first(list) %>" data-player-id="<%= hd(list) %>">

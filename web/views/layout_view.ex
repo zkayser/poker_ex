@@ -1,6 +1,25 @@
 defmodule PokerEx.LayoutView do
   use PokerEx.Web, :view
   
+  def page_class(page, page_num) do
+    if page.page_number == page_num do
+      "active-page"
+    else
+      ""
+    end
+  end
+  
+  def page_li_text_color(page, page_num) do
+    if page.page_number == page_num do
+      "white-text"
+    else
+      "teal-text"
+    end
+  end
+  
+  def limit_page_tabs(total) when total <= 5, do: total
+  def limit_page_tabs(_), do: 5
+  
   @doc """
   Generates the name for the JavaScript view module to
   use for this view/template combination.

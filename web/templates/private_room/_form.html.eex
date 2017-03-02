@@ -21,7 +21,7 @@
             <li class="tab"><a href="#search-players-list">Search</a></li>
           </ul>
         </div>
-        <%= render "_browse_list.html", conn: @conn, players: @players %>
+        <%= render "_browse_list.html", conn: @conn, page: @page, players: @players, player: @player %>
         <%= render "_player-search.html", conn: @conn %>
       </div>
     </div>
