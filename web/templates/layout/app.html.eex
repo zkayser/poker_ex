@@ -18,7 +18,7 @@
       <nav class="top-nav teal darken-4">
         <div class="container">
           <div class="nav-wrapper">
-            <a class="page-title">PokerEx</a>
+            <a href=<%= page_path(@conn, :index) %> class="page-title">PokerEx</a>
             <div class="right">
                <i class="material-icons dp48 white-text menu-dropdown" data-activates="slide-out">reorder</i>
             </div>
