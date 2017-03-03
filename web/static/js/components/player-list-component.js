@@ -1,6 +1,13 @@
 import $ from 'jquery';
 import PaginationBase from './pagination-base';
 
+// TODO: Split this into a component for paginating the player list 
+// inheriting from PaginationBase and a PlayerListComponent that
+// handles only building and rendering the Player LI elements to
+// the screen. 
+// Refactor the logic out of the PrivateRoomView/new.js module for
+// setting the button click events to the new PlayerListComponent.
+
 export default class PlayerListComponent {
   
   constructor(totalPages, player) {

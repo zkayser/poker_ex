@@ -13122,6 +13122,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+// TODO: Split this into a component for paginating the player list 
+// inheriting from PaginationBase and a PlayerListComponent that
+// handles only building and rendering the Player LI elements to
+// the screen. 
+// Refactor the logic out of the PrivateRoomView/new.js module for
+// setting the button click events to the new PlayerListComponent.
+
 var PlayerListComponent = function () {
   function PlayerListComponent(totalPages, player) {
     _classCallCheck(this, PlayerListComponent);
