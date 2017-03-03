@@ -734,12 +734,22 @@ nav.top-nav a.page-title {
 	justify-content: center;
 }
 
-
-
 #content-row {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+#signup-button {
+	margin-bottom: 2em;
+}
+
+#signup-form {
+	border-radius: 2em;
+}
+
+.padding-s {
+	padding: 1em;
 }
 
 .green-toast {
