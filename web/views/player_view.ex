@@ -85,10 +85,8 @@ defmodule PokerEx.PlayerView do
     ~E"""
       <p id="welcome-back">Welcome back to PokerEx, <%= player.name %>!</p>
       <div class="center-align">
-        <h3>STATS</h3>
+        <p>You currently have <%= pluralize(length(player.participating_rooms), {"ongoing game", "ongoing games"}, []) %> </p>
       </div>
-      <span class="left">Ongoing Games:</span><span class="right"><%= length(player.participating_rooms) %></span><br/>
-      <span class="left">Open Invitations:</span><span class="right"><%= length(player.invited_rooms) %></span><br/>
       Be sure to check out our <%= link("public rooms", to: room_path(opts[:conn], :index)) %>
       <br/>
       <%= link("Go to your profile", to: player_path(opts[:conn], :show, player.id), class: "btn btn-large pink waves-effect") %>

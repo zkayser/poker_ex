@@ -10,3 +10,6 @@
   <%= render "_welcome_box.html", conn: @conn %>
   <% end %>
 </div>
+<div class="row">
+  <%= render "_landing.html", conn: @conn %>
+</div>
