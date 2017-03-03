@@ -1,17 +1,17 @@
 import MainView from '../main-view';
 import Game from '../../game';
 
-export default class PrivateRoomShowView extends MainView {
+export default class RoomShowView extends MainView {
   
   mount() {
     super.mount();
-    console.log("PrivateRoomShowView mounted...");
+    console.log("RoomShowView mounted...");
     
     let div = document.getElementById("room-row");
     let roomTitle = div.dataset.roomTitle;
     let player = div.dataset.userName;
     
-    let game = new Game(player, roomTitle, 'private');
+    let game = new Game(player, roomTitle, 'public');
     game.init();
   }
   

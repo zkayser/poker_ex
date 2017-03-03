@@ -1,5 +1,4 @@
 <div class="row">
-  
   <ul class="collection" id="staggered">
     <%= for room <- sort_rooms(@rooms) do %>
       <li class="collection-item avatar" id="staggered-list-item">
@@ -9,7 +8,7 @@
           <span id="<%= (Atom.to_string(room.room_id)) %>">Players: 
             <span id="<%= (Atom.to_string(room.room_id)) %>-players"><%= players_in_room(room) %></span>
           </span><br>
-          <%= link "Join Room", to: "#", class: Atom.to_string(room.room_id) %>
+          <%= link "Join Room", to: "/protected/rooms/#{room.room_id}", class: Atom.to_string(room.room_id) %>
         </p>
       </li>
     <% end %>

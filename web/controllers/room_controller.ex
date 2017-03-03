@@ -1,7 +1,6 @@
 defmodule PokerEx.RoomController do
   use PokerEx.Web, :controller
   alias PokerEx.RoomsSupervisor, as: RoomsSupervisor
-  # alias PokerEx.Inviter
   
   def index(conn, _params) do
     [{pid, _}] = Registry.lookup(PokerEx.RoomRegistry, "room_1")
@@ -22,15 +21,13 @@ defmodule PokerEx.RoomController do
         |> put_flash(:error, "A room with the name #{name} already exists")
         |> redirect(to: player_path(conn, :show, conn.current_player.id))
       _ ->
-        # Implement a PokerEx.Inviter module that invites all of the guests.
-        # RoomsSupervisor.create_private_room(name)
         conn
         |> put_flash(:info, "Room #{name} created!")
         |> redirect(to: room_path(conn, :show, name))
     end
   end
   
-  def show(_conn, %{"id" => _name}) do
-    
+  def show(conn, %{"id" => name}) do
+    render conn, "show.html", room: name, current_player: conn.assigns[:current_player], conn: conn
   end
 end

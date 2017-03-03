@@ -29,7 +29,6 @@ let Connection = {
       SpinnerAnimation.fadeOnSignin();
       LobbyMessages.init(channel);
       channel.push("get_num_players", {});
-      Materialize.toast(`Welcome to PokerEx, ${name}`, 3000, 'rounded');
       this.setRoomsLinks(socket, name, channel);
       RoomsListAnimation.animate();
     });

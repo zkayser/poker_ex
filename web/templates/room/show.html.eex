@@ -1,0 +1,60 @@
+<div class="row" id="room-row" data-room-title="<%= @room %>" data-user-name="<%= @current_player.name %>">
+  <div class="col s4">
+    
+  </div>
+  <div class="col s4">
+    
+  </div>
+  <div class="col s4">
+    
+  </div>
+  <div class="row">
+  <div class="table-container" id="offscreen-left">
+    <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
+  </div>
+    <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+  </div>
+  
+  <div class="fixed-action-btn horizontal click-to-toggle short-controls">
+    <a class="btn-floating btn-large green">
+      <i class="material-icons">play_arrow</i>
+    </a>
+    <ul>
+      <%= render PokerEx.RoomView, "_shortcut_controls.html", conn: @conn %>
+    </ul>
+  </div>
+  
+  <div class="fixed-action-btn toolbar">
+    <a class="btn-floating btn-large red controls-btn">
+      <i class="large material-icons">explore</i>
+    </a>
+    <ul id="player-toolbar" class="white-text">
+      <li class="waves-effect waves-light" id="join-quit-item">
+        
+      </li>
+      <li id="start-info-item">
+        
+      </li>
+      <li id="action-item">
+        <a href="#controls-modal" class="waves-effect waves-light"><i class="material-icons">grade</i></a>
+      </li>
+      <li id="chat-item">
+        <a href="#chat-box-modal" class="waves-effect waves-light"><i class="material-icons">room</i></a>
+      </li>
+      <li id="settings-item">
+        <a href="#bank-roll-modal" class="waves-effect waves-light"><i class="material-icons">attach_money</i></a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<%= render PokerEx.PlayerView, "_account_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, 
+  participants: PokerEx.Room.state(@room |> String.to_atom()).seating |> Enum.map(fn {pl, _} -> pl end) %>
+<%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
+
+<script>
+  window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";
+</script>

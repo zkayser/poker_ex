@@ -15093,7 +15093,6 @@ var Connection = {
       _spinnerAnimations2.default.fadeOnSignin();
       _lobbyMessages2.default.init(channel);
       channel.push("get_num_players", {});
-      Materialize.toast('Welcome to PokerEx, ' + name, 3000, 'rounded');
       _this.setRoomsLinks(socket, name, channel);
       _roomsListAnimation2.default.animate();
     });
@@ -15865,13 +15864,18 @@ var _show3 = require('./private-room/show');
 
 var _show4 = _interopRequireDefault(_show3);
 
+var _show5 = require('./room/show');
+
+var _show6 = _interopRequireDefault(_show5);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var views = {
   RoomIndexView: _index2.default,
   PlayerShowView: _show2.default,
   PrivateRoomNewView: _new2.default,
-  PrivateRoomShowView: _show4.default
+  PrivateRoomShowView: _show4.default,
+  RoomShowView: _show6.default
 };
 
 function loadView(viewName) {
@@ -16207,7 +16211,7 @@ var PrivateRoomShowView = function (_MainView) {
       var roomTitle = div.dataset.roomTitle;
       var player = div.dataset.userName;
 
-      var game = new _game2.default(player, roomTitle);
+      var game = new _game2.default(player, roomTitle, 'private');
       game.init();
     }
   }, {
@@ -16280,6 +16284,68 @@ var RoomIndexView = function (_MainView) {
 }(_mainView2.default);
 
 exports.default = RoomIndexView;
+});
+
+;require.register("web/static/js/views/room/show.js", function(exports, require, module) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _mainView = require('../main-view');
+
+var _mainView2 = _interopRequireDefault(_mainView);
+
+var _game = require('../../game');
+
+var _game2 = _interopRequireDefault(_game);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var RoomShowView = function (_MainView) {
+  _inherits(RoomShowView, _MainView);
+
+  function RoomShowView() {
+    _classCallCheck(this, RoomShowView);
+
+    return _possibleConstructorReturn(this, (RoomShowView.__proto__ || Object.getPrototypeOf(RoomShowView)).apply(this, arguments));
+  }
+
+  _createClass(RoomShowView, [{
+    key: 'mount',
+    value: function mount() {
+      _get(RoomShowView.prototype.__proto__ || Object.getPrototypeOf(RoomShowView.prototype), 'mount', this).call(this);
+      console.log("RoomShowView mounted...");
+
+      var div = document.getElementById("room-row");
+      var roomTitle = div.dataset.roomTitle;
+      var player = div.dataset.userName;
+
+      var game = new _game2.default(player, roomTitle, 'public');
+      game.init();
+    }
+  }, {
+    key: 'unmount',
+    value: function unmount() {
+      _get(RoomShowView.prototype.__proto__ || Object.getPrototypeOf(RoomShowView.prototype), 'unmount', this).call(this);
+    }
+  }]);
+
+  return RoomShowView;
+}(_mainView2.default);
+
+exports.default = RoomShowView;
 });
 
 ;require.alias("jquery/dist/jquery.js", "jquery");

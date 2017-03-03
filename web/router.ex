@@ -25,7 +25,7 @@ defmodule PokerEx.Router do
   scope "/protected", PokerEx do
     pipe_through [:browser, :authenticate_player]
     
-    resources "/rooms", RoomController, only: [:index]
+    resources "/rooms", RoomController, only: [:index, :show]
   end
   
   scope "/private", PokerEx do
