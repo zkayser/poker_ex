@@ -1,6 +1,6 @@
 import $ from 'jquery';
 
-export default class PaginationUtils {
+export default class PaginationBase {
   
   constructor(opts) {
     this.currentPage = opts.currentPage || 1;
@@ -41,6 +41,11 @@ export default class PaginationUtils {
       }
     }
     return elems;
+  }
+  
+  // Abstract methods
+  setEventListeners() {
+    throw new this.NotImplementedException('setEventListeners');
   }
   
   // Private
@@ -121,4 +126,9 @@ export default class PaginationUtils {
     }
   }
   
+  NotImplementedException(method) {
+    return function NotImplementedException(method) {
+      this.message = `${method} has not been implemented.`;
+    };
+  }
 }

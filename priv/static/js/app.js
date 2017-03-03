@@ -12652,7 +12652,7 @@ var Controls = function () {
 exports.default = Controls;
 });
 
-;require.register("web/static/js/components/pagination-utils.js", function(exports, require, module) {
+;require.register("web/static/js/components/pagination-base.js", function(exports, require, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12669,9 +12669,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var PaginationUtils = function () {
-  function PaginationUtils(opts) {
-    _classCallCheck(this, PaginationUtils);
+var PaginationBase = function () {
+  function PaginationBase(opts) {
+    _classCallCheck(this, PaginationBase);
 
     this.currentPage = opts.currentPage || 1;
     this.lowPage = 1;
@@ -12685,7 +12685,7 @@ var PaginationUtils = function () {
     this.liTextColor = opts.liTextColor || 'teal-text';
   }
 
-  _createClass(PaginationUtils, [{
+  _createClass(PaginationBase, [{
     key: 'update',
     value: function update(newPage, component) {
       var page = parseInt(newPage, 10);
@@ -12714,6 +12714,14 @@ var PaginationUtils = function () {
         }
       }
       return elems;
+    }
+
+    // Abstract methods
+
+  }, {
+    key: 'setEventListeners',
+    value: function setEventListeners() {
+      throw new this.NotImplementedException('setEventListeners');
     }
 
     // Private
@@ -12802,12 +12810,19 @@ var PaginationUtils = function () {
         (0, _jquery2.default)(".page-numbers").append(listElems[i]);
       }
     }
+  }, {
+    key: 'NotImplementedException',
+    value: function NotImplementedException(method) {
+      return function NotImplementedException(method) {
+        this.message = method + ' has not been implemented.';
+      };
+    }
   }]);
 
-  return PaginationUtils;
+  return PaginationBase;
 }();
 
-exports.default = PaginationUtils;
+exports.default = PaginationBase;
 });
 
 ;require.register("web/static/js/components/pagination.js", function(exports, require, module) {
@@ -13099,9 +13114,9 @@ var _jquery = require('jquery');
 
 var _jquery2 = _interopRequireDefault(_jquery);
 
-var _paginationUtils = require('./pagination-utils');
+var _paginationBase = require('./pagination-base');
 
-var _paginationUtils2 = _interopRequireDefault(_paginationUtils);
+var _paginationBase2 = _interopRequireDefault(_paginationBase);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -13111,7 +13126,7 @@ var PlayerListComponent = function () {
   function PlayerListComponent(totalPages, player) {
     _classCallCheck(this, PlayerListComponent);
 
-    this.paginationUtils = new _paginationUtils2.default({ totalPages: totalPages });
+    this.pagination = new _paginationBase2.default({ totalPages: totalPages });
     this.player = player;
   }
 
@@ -13133,7 +13148,8 @@ var PlayerListComponent = function () {
       var colors = this.colors();
       for (var i = 0; i < players.length; i++) {
         var colorIndex = void 0;
-        i < colors.length ? colorIndex = i : colorIndex = players.length % colors.length;
+        i < colors.length - 1 ? colorIndex = i : colorIndex = i % colors.length;
+        console.log('colorIndex: ', colorIndex);
         var element = this.buildListMarkup(players[i], colors[colorIndex]);
         this.appendToList(element);
       }
@@ -13164,11 +13180,11 @@ var PlayerListComponent = function () {
     value: function setEventListeners() {
       var _this2 = this;
 
-      var current = this.paginationUtils.currentPage;
-      var total = this.paginationUtils.totalPages;
+      var current = this.pagination.currentPage;
+      var total = this.pagination.totalPages;
       var pageUp = current + 1;
       var pageBack = current - 1;
-      var elems = this.paginationUtils.getPageElements();
+      var elems = this.pagination.getPageElements();
       (0, _jquery2.default)("#page-ahead").on('click', function (e) {
         if (current < total) {
           _this2.getCallBack(pageUp);
@@ -13197,7 +13213,7 @@ var PlayerListComponent = function () {
     value: function getCallBack(pageNum) {
       this.getPage({ pageNum: pageNum, player: this.player });
       this.detachEventListeners();
-      this.paginationUtils.update(pageNum, this);
+      this.pagination.update(pageNum, this);
     }
   }, {
     key: 'colors',
@@ -16032,9 +16048,9 @@ var _playerSearchComponent = require('../../components/player-search-component')
 
 var _playerSearchComponent2 = _interopRequireDefault(_playerSearchComponent);
 
-var _paginationUtils = require('../../components/pagination-utils');
+var _paginationBase = require('../../components/pagination-base');
 
-var _paginationUtils2 = _interopRequireDefault(_paginationUtils);
+var _paginationBase2 = _interopRequireDefault(_paginationBase);
 
 var _playerListComponent = require('../../components/player-list-component');
 
@@ -16100,17 +16116,24 @@ var PrivateRoomNewView = function (_MainView) {
         (0, _jquery2.default)('#player-list-item-' + id).remove();
         clone.appendTo(".player-list");
         clone.children('secondary-content').remove();
-        clone.append('<span class="secondary-content">\n              <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-list-' + id + '"\n                      data-player-id="' + id + '">\n                <i class="material-icons">plus_one</i>\n              </button>\n            </span>');
+        clone.append('<span class="secondary-content">\n        <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-list-' + id + '"\n          data-player-id="' + id + '">\n          <i class="material-icons">plus_one</i>\n        </button>\n        </span>');
         (0, _jquery2.default)('input[name=\'invitees[' + id + ']\']').remove();
+        _this2.invited ? _this2.invited-- : _this2.invited = 0;
       });
       (0, _jquery2.default)(".player-list").on("click", ".btn-floating", function (event) {
-        var id = event.currentTarget.dataset.playerId;
-        var clone = (0, _jquery2.default)('#player-list-item-' + id).clone();
-        (0, _jquery2.default)('#player-list-item-' + id).remove();
-        clone.appendTo("#invitees");
-        clone.children('.secondary-content').remove();
-        clone.append('<span class="secondary-content">\n              <button class="btn-floating red waves-effect waves-light player-btn" type="button" id="player-list-' + id + '"\n                      data-player-id="' + id + '">\n                <i class="material-icons">clear</i>\n              </button>\n            </span>');
-        _this2.buildInput(id).appendTo('form');
+        _this2.invited ? _this2.invited : _this2.invited = 1;
+        if (_this2.invited <= 6) {
+          var id = event.currentTarget.dataset.playerId;
+          var clone = (0, _jquery2.default)('#player-list-item-' + id).clone();
+          (0, _jquery2.default)('#player-list-item-' + id).remove();
+          clone.appendTo("#invitees");
+          clone.children('.secondary-content').remove();
+          clone.append('<span class="secondary-content">\n            <button class="btn-floating red waves-effect waves-light player-btn" type="button" id="player-list-' + id + '"\n                data-player-id="' + id + '">\n              <i class="material-icons">clear</i>\n            </button>\n          </span>');
+          _this2.buildInput(id).appendTo('form');
+          _this2.invited++;
+        } else {
+          window.Materialize.toast('You can only add up to 6 invitees', 3000, 'red-toast');
+        }
       });
     }
   }, {

@@ -1,7 +1,7 @@
 import MainView from '../main-view';
 import Online from '../online';
 import PlayerSearchComponent from '../../components/player-search-component';
-import PaginationUtils from '../../components/pagination-utils';
+import PaginationBase from '../../components/pagination-base';
 import PlayerListComponent from '../../components/player-list-component';
 
 import $ from 'jquery';
@@ -36,7 +36,6 @@ export default class PrivateRoomNewView extends MainView {
     console.log("PrivateRoomNewView unmounting...");
   }
   
-  
   setButtonEvents() {
     $("#invitees").off("click", ".btn-floating");
     $("#invitees").on("click", ".btn-floating", (event) => {
@@ -46,26 +45,33 @@ export default class PrivateRoomNewView extends MainView {
       clone.appendTo(".player-list");
       clone.children('secondary-content').remove();
       clone.append(`<span class="secondary-content">
-              <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-list-${id}"
-                      data-player-id="${id}">
-                <i class="material-icons">plus_one</i>
-              </button>
-            </span>`);
+        <button class="btn-floating green lighten-2 waves-effect waves-light player-btn" type="button" id="player-list-${id}"
+          data-player-id="${id}">
+          <i class="material-icons">plus_one</i>
+        </button>
+        </span>`);
       $(`input[name='invitees[${id}]']`).remove();
+      this.invited ? this.invited-- : this.invited = 0; 
     });
     $(".player-list").on("click", ".btn-floating", (event) => {
-      let id = event.currentTarget.dataset.playerId;
-      let clone = $(`#player-list-item-${id}`).clone();
-      $(`#player-list-item-${id}`).remove();
-      clone.appendTo("#invitees");
-      clone.children('.secondary-content').remove();
-      clone.append(`<span class="secondary-content">
-              <button class="btn-floating red waves-effect waves-light player-btn" type="button" id="player-list-${id}"
-                      data-player-id="${id}">
-                <i class="material-icons">clear</i>
-              </button>
-            </span>`);
-      this.buildInput(id).appendTo('form');
+      this.invited ? this.invited : this.invited = 1;
+      if (this.invited <= 6) {
+        let id = event.currentTarget.dataset.playerId;
+        let clone = $(`#player-list-item-${id}`).clone();
+        $(`#player-list-item-${id}`).remove();
+        clone.appendTo("#invitees");
+        clone.children('.secondary-content').remove();
+        clone.append(`<span class="secondary-content">
+            <button class="btn-floating red waves-effect waves-light player-btn" type="button" id="player-list-${id}"
+                data-player-id="${id}">
+              <i class="material-icons">clear</i>
+            </button>
+          </span>`);
+        this.buildInput(id).appendTo('form');
+        this.invited++;  
+      } else {
+        window.Materialize.toast('You can only add up to 6 invitees', 3000, 'red-toast'); 
+      }
     });
   }
   

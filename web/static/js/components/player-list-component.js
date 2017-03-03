@@ -1,10 +1,10 @@
 import $ from 'jquery';
-import PaginationUtils from './pagination-utils';
+import PaginationBase from './pagination-base';
 
 export default class PlayerListComponent {
   
   constructor(totalPages, player) {
-    this.paginationUtils = new PaginationUtils({totalPages: totalPages});
+    this.pagination = new PaginationBase({totalPages: totalPages});
     this.player = player;
   }
   
@@ -22,7 +22,8 @@ export default class PlayerListComponent {
     const colors = this.colors();
     for (let i = 0; i < players.length; i++) {
       let colorIndex;
-      i < colors.length ? colorIndex = i : colorIndex = players.length % colors.length;
+      i < (colors.length - 1) ? colorIndex = i : colorIndex = i % colors.length;
+      console.log('colorIndex: ', colorIndex);
       let element = this.buildListMarkup(players[i], colors[colorIndex]);
       this.appendToList(element);
     }
@@ -44,11 +45,11 @@ export default class PlayerListComponent {
   }
   
   setEventListeners() {
-    let current = this.paginationUtils.currentPage;
-    let total = this.paginationUtils.totalPages;
+    let current = this.pagination.currentPage;
+    let total = this.pagination.totalPages;
     let pageUp = current + 1;
     let pageBack = current - 1;
-    let elems = this.paginationUtils.getPageElements();
+    let elems = this.pagination.getPageElements();
     $("#page-ahead").on('click', (e) => {
       if (current < total) {
         this.getCallBack(pageUp);
@@ -75,7 +76,7 @@ export default class PlayerListComponent {
   getCallBack(pageNum) {
     this.getPage({pageNum: pageNum, player: this.player});
     this.detachEventListeners();
-    this.paginationUtils.update(pageNum, this);
+    this.pagination.update(pageNum, this);
   }
   
   colors() {
