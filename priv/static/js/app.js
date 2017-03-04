@@ -13860,6 +13860,80 @@ var RaiseControl = function () {
 exports.default = RaiseControl;
 });
 
+;require.register("web/static/js/components/room-monitor.js", function(exports, require, module) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _phoenix = require('phoenix');
+
+var _roomsListAnimation = require('../animations/rooms-list-animation');
+
+var _roomsListAnimation2 = _interopRequireDefault(_roomsListAnimation);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RoomMonitor = function () {
+  function RoomMonitor() {
+    _classCallCheck(this, RoomMonitor);
+  }
+
+  _createClass(RoomMonitor, [{
+    key: 'init',
+    value: function init() {
+      var _this = this;
+
+      var socket = new _phoenix.Socket('/socket', { params: { token: window.playerToken }
+      });
+
+      socket.connect();
+      var channel = socket.channel("players:lobby", {});
+
+      channel.join().receive("ok", function () {
+        channel.push("get_num_players", {});
+        _roomsListAnimation2.default.animate();
+      });
+
+      channel.on("update_num_players", function (payload) {
+        var message = _this.message(payload.length);
+        (0, _jquery2.default)('#' + payload.room + '-players').text(message);
+      });
+
+      setInterval(function () {
+        console.log('getting update...');
+        channel.push("get_num_players", {});
+      }, 5000);
+    }
+  }, {
+    key: 'message',
+    value: function message(length) {
+      switch (length) {
+        case 0:
+          return "There are no players currently at this table.";
+        case 1:
+          return "There is 1 player waiting at this table.";
+        default:
+          return 'There are ' + length + ' players at the table.';
+      }
+    }
+  }]);
+
+  return RoomMonitor;
+}();
+
+exports.default = RoomMonitor;
+});
+
 ;require.register("web/static/js/components/winning-hand-display.js", function(exports, require, module) {
 'use strict';
 
@@ -16243,6 +16317,10 @@ var _mainView = require('../main-view');
 
 var _mainView2 = _interopRequireDefault(_mainView);
 
+var _roomMonitor = require('../../components/room-monitor');
+
+var _roomMonitor2 = _interopRequireDefault(_roomMonitor);
+
 var _socket = require('../../socket');
 
 var _socket2 = _interopRequireDefault(_socket);
@@ -16270,7 +16348,9 @@ var RoomIndexView = function (_MainView) {
       _get(RoomIndexView.prototype.__proto__ || Object.getPrototypeOf(RoomIndexView.prototype), 'mount', this).call(this);
       console.log("RoomIndexView mounted");
 
-      _socket2.default.init();
+      var monitor = new _roomMonitor2.default();
+      monitor.init();
+      // Connection.init();
     }
   }, {
     key: 'unmount',
