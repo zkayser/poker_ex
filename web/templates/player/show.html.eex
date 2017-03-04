@@ -66,7 +66,7 @@
           <% end %>
         </div>
         <hr>
-        <p>Invite other players to join</p><br>
+        <p>Invite friends to join</p><br>
         <p><%= button(content_tag(:i, "person_add", class: "material-icons"), to: invitation_path(@conn, :new),
             method: "get", class: "btn-floating green waves-effect") %></p>
       </div>
@@ -82,7 +82,13 @@
         <ul class="pagination" data-current-page="1">
           <li class="disabled" id="page-back"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
           <div class="page-numbers">
-            <li class="page-btn active-page" id="page-1"><a class="white-text" href="#!">1</a></li>
+            <%= for num <- 1..limit_pages(@participating) do %>
+              <%= if num == 1 do %>
+                <li class="page-btn active-page" id="page-1"><a class="white-text" href="#!">1</a></li>
+              <% else %>
+                <li class="page-btn" id="page-<%= num %>"><a href="#1"><%= num %></a></li>
+              <% end %>
+            <% end %>
           </div>
           <li class="waves-effect" id="page-ahead"><a href="#!"><i class="material-icons">chevron_right</i></a></li>
         </ul>

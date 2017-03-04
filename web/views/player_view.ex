@@ -147,4 +147,11 @@ defmodule PokerEx.PlayerView do
   defp paginated_entries(list) when is_list(list) do
     Scrivener.paginate(list, page_number: 1, page_size: 10).entries
   end
+  
+  def limit_pages(list) when is_list(list) do
+    case Scrivener.paginate(list, page_number: 1, page_size: 10).total_pages do
+      x when x < 5 -> x
+      _ -> 5
+    end
+  end
 end

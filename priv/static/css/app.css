@@ -787,6 +787,12 @@ nav.top-nav a.page-title {
 	margin-top: 0.5em !important;
 }
 
+@media (max-width: 456px) {
+	.top-toast {
+		
+	}
+}
+
 #num-players-invitation {
 	position: relative;
 	transform: translate(-2em);

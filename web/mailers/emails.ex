@@ -29,8 +29,19 @@ defmodule PokerEx.Emails do
   end
   
   defp invitation_html(options) do
-    "<h3><strong>Greetings from #{options["user"].first_name} and PokerEx!</strong></h3><p>#{options["message"]}</p>
-     <p>You can find #{options["user"].first_name} on PokerEx by searching for #{options["user"].name} from your account page.</p>
+    "
+      <h3>
+        <strong>
+          Hey there, #{options["user"].first_name} has invited you to join PokerEx for and
+          friendly game of Texas Hold 'Em. 
+        </strong>
+      </h3>
+      <p>#{options["message"]}</p>
+      
+      <p>
+        Come join PokerEx and enjoy some good 'ole poker with friends by visiting us. 
+        <a href=#{"https://ancient-forest-15148.herokuapp.com"}>Take me to PokerEx!</a>
+      </p>
     "
   end
   
