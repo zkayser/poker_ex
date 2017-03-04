@@ -185,10 +185,11 @@ defmodule PokerEx.PlayersChannel do
 			_ ->
 				room_id = socket.assigns[:room]
 				player = Repo.get(Player, socket.assigns[:player_id])
-				room_id
-					|> atomize()
-					|> Room.leave(player)
-				broadcast! socket, "player_left", %{body: player.name}
+				room =
+					room_id
+						|> atomize()
+						|> Room.leave(player)
+				broadcast! socket, "update", PokerEx.RoomView.render("room.json", %{room: room}) 
 				{:shutdown, :left}	
 		end
 	end

@@ -14165,7 +14165,6 @@ var Game = function () {
       });
 
       socket.connect();
-      console.log('Connecting with type: ', this.type);
       var channel = socket.channel('players:' + this.roomTitle, { type: this.type });
 
       channel.join().receive("ok", function () {

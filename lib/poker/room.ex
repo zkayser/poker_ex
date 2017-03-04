@@ -239,7 +239,7 @@ defmodule PokerEx.Room do
 			
 			Events.game_started(room.room_id, update)
 			
-		{:next_state, :pre_flop, update, [{:reply, from, update}]}
+		{:next_state, :pre_flop, update, [{:reply, from, update}, update.timeout]}
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room) 
@@ -269,7 +269,7 @@ defmodule PokerEx.Room do
 			
 			Events.game_started(room.room_id, update)
 			
-		{:next_state, :pre_flop, update, [{:reply, from, update}]}
+		{:next_state, :pre_flop, update, [{:reply, from, update}, update.timeout]}
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
@@ -723,11 +723,7 @@ defmodule PokerEx.Room do
   
   defp round_transition(room, :pre_flop) do
   		room
-  		|> Updater.reset_advance_event_flag
-  		|> Updater.reset_active
-  		|> Updater.reset_paid_in_round
-  		|> Updater.reset_call_amount
-  		|> Updater.reset_called
+  		|> transition
   		|> Updater.table
   		|> Updater.table
   		|> Updater.table
@@ -735,20 +731,21 @@ defmodule PokerEx.Room do
   
   defp round_transition(room, :between_rounds) do
   		room
-  		|> Updater.reset_advance_event_flag
-  		|> Updater.reset_active
-  		|> Updater.reset_paid_in_round
-  		|> Updater.reset_call_amount
-  		|> Updater.reset_called
+  		|> transition
   end
   
   defp round_transition(room, _state) do
   		room
-  		|> Updater.reset_advance_event_flag
-  		|> Updater.reset_active
-  		|> Updater.reset_paid_in_round
-  		|> Updater.reset_call_amount
-  		|> Updater.reset_called
+  		|> transition
   		|> Updater.table
+  end
+  
+  defp transition(room) do
+  	room
+  	|> Updater.reset_advance_event_flag
+  	|> Updater.reset_active
+  	|> Updater.reset_paid_in_round
+  	|> Updater.reset_call_amount
+  	|> Updater.reset_called
   end
 end

@@ -30,7 +30,6 @@ export default class Game {
       });
       
     socket.connect();
-    console.log('Connecting with type: ', this.type);
     let channel = socket.channel(`players:${this.roomTitle}`, {type: this.type});
     
     channel.join()
