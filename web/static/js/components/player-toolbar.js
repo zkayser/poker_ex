@@ -111,14 +111,15 @@ export default class PlayerToolbar {
     let val = $("#join-amount-input").val();
     let max = $("#join-amount-input").data("max");
     val = parseInt(val, 10);
-    let errorMessage = `You must enter a number no greater than ${max}`;
+    let errorMessage = `You must enter a number that is at least 100 and no more than ${max}`;
     
-    if (typeof(val) == 'number' && val <= max) {
+    if (typeof(val) == 'number' && val <= max && val >= 100) {
       // Okay to join
       this.channel.push("add_player", {player: this.player, room: this.room, amount: val});
       $("#join-amount-input").val('');
       $("#join-close").click();
     } else {
+      $("#join-error").text("");
       $("#join-input-div").append(this.errorMessage(errorMessage));
     }
   }
@@ -128,7 +129,7 @@ export default class PlayerToolbar {
   }
   
   errorMessage(message) {
-    return `<p class="red-text">${message}</p>`;
+    return `<p class="red-text" id="join-error">${message}</p>`;
   }
   
   joinInfo() {

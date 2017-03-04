@@ -13591,14 +13591,15 @@ var PlayerToolbar = function () {
       var val = (0, _jquery2.default)("#join-amount-input").val();
       var max = (0, _jquery2.default)("#join-amount-input").data("max");
       val = parseInt(val, 10);
-      var errorMessage = "You must enter a number no greater than " + max;
+      var errorMessage = "You must enter a number that is at least 100 and no more than " + max;
 
-      if (typeof val == 'number' && val <= max) {
+      if (typeof val == 'number' && val <= max && val >= 100) {
         // Okay to join
         this.channel.push("add_player", { player: this.player, room: this.room, amount: val });
         (0, _jquery2.default)("#join-amount-input").val('');
         (0, _jquery2.default)("#join-close").click();
       } else {
+        (0, _jquery2.default)("#join-error").text("");
         (0, _jquery2.default)("#join-input-div").append(this.errorMessage(errorMessage));
       }
     }
@@ -13610,7 +13611,7 @@ var PlayerToolbar = function () {
   }, {
     key: "errorMessage",
     value: function errorMessage(message) {
-      return "<p class=\"red-text\">" + message + "</p>";
+      return "<p class=\"red-text\" id=\"join-error\">" + message + "</p>";
     }
   }, {
     key: "joinInfo",
