@@ -25,7 +25,6 @@ export default class RoomMonitor {
     });
     
     setInterval(() => {
-      console.log('getting update...');
       channel.push("get_num_players", {});
     }, 5000);
   }

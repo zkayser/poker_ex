@@ -15,7 +15,6 @@ export default class LobbyMessages {
       } else {
         string = `${number} players currently at table`; 
       }
-      console.log("Updating room players message with string: ", string);
       $(`#${room}-players`).empty().text(string);
     });
   }

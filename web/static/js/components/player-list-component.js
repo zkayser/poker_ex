@@ -30,7 +30,6 @@ export default class PlayerListComponent {
     for (let i = 0; i < players.length; i++) {
       let colorIndex;
       i < (colors.length - 1) ? colorIndex = i : colorIndex = i % colors.length;
-      console.log('colorIndex: ', colorIndex);
       let element = this.buildListMarkup(players[i], colors[colorIndex]);
       this.appendToList(element);
     }

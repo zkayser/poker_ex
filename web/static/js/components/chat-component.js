@@ -22,7 +22,6 @@ export default class ChatComponent {
   
   update(message) {
     let markup = this.chatMessage(message.name, message.text);
-    console.log("markup: ", markup);
     markup.prependTo(this.chatCollection);
   }
   

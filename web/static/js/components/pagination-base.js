@@ -17,7 +17,6 @@ export default class PaginationBase {
   
   update(newPage, component) {
     let page = parseInt(newPage, 10);
-    console.log("page: ", page);
     this.currentPage = page;
     let range = this.makeRange();
     let listElems = this.buildPageNumListElems(range);
@@ -31,7 +30,6 @@ export default class PaginationBase {
   getPageElements() {
     let elems = [];
     let num = this.lowPage;
-    console.log("highpage: ", this.highPage);
     if (num == this.highPage) {
       elems.push($(`#page-${num}`));
     } else {
@@ -89,7 +87,6 @@ export default class PaginationBase {
   makeRange() {
     let number = this.currentPage;
     let rem = number % this.newLinksOn;
-    console.log("number and rem: ", number, rem);
     let start;
     if (rem == 0) {
       start = (number - (this.newLinksOn - 1));
@@ -104,7 +101,6 @@ export default class PaginationBase {
     }
     this.lowPage = pageNums[0];
     this.highPage = pageNums[pageNums.length - 1];
-    console.log("returning pageNums: ", pageNums);
     return pageNums;
   }
   
@@ -119,7 +115,6 @@ export default class PaginationBase {
   }
   
   appendPageNumHeadings(listElems) {
-    console.log("appendingHeadings:", listElems);
     $(".page-numbers").empty();
     for (let i = 0; i < listElems.length; i++) {
       $(".page-numbers").append(listElems[i]);

@@ -9,7 +9,6 @@ export default class RoomMessages {
     });
     
     channel.on("winner_message", payload => {
-      console.log("winner_message received with payload: ", payload);
       Materialize.toast(`${payload.message}`, 2000);
     });
     

@@ -15,7 +15,6 @@ export default class SpinnerAnimation {
   } 
   
   static onJoinRoom() {
-    console.log("onJoinRoom function called");
     $(".collection").fadeOut(400, () => {
         $(".card-table").addClass("slide-onscreen-right");
         $(".player-controls").addClass("slide-onscreen-right");
@@ -25,7 +24,6 @@ export default class SpinnerAnimation {
   }
   
   static onJoinPrivateRoom() {
-    console.log("onJoinPrivateRoom function called");
     $(".card-table").addClass("slide-onscreen-right");
     $(".player-controls").addClass("slide-onscreen-right");
     $(".table-container").css("display", "inline-block");

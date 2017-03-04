@@ -202,6 +202,13 @@ defmodule PokerEx.EvaluatorTest do
 			p2_score = Evaluator.evaluate_hand(player_two, table).score
 			assert p1_score > p2_score
 		end
+		
+		test "no bogus straight on A A K Q 2" do
+			player_one = set_player_hand(:ace_of_clubs, :ace_of_spades)
+			table = set_table(:king_of_spades, :queen_of_spades, :jack_of_spades, :four_of_hearts, :five_of_diamonds)
+			hand = Evaluator.evaluate_hand(player_one, table)
+			refute hand.hand_type == :straight
+		end
 	end
 	
 	defp set_player_hand(card_one, card_two) do

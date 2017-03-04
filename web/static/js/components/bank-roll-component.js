@@ -11,7 +11,6 @@ export default class BankRollComponent {
   
   init() {
     let inputHandler = (e) => {
-      console.log('in inputHandler');
       let val = this.input.val();
       if (this.inputValid(val)) {
         this.submitBtn.hasClass('disabled') ? this.submitBtn.removeClass('disabled') : console.log('submitBtn active');
@@ -39,14 +38,12 @@ export default class BankRollComponent {
   
   inputValid(str) {
     let notStartingWithZero = /^(?!0.)\d+$/;
-    console.log('str vs max: ', str, this.max);
     return notStartingWithZero.test(str) && parseInt(str, 10) < this.max;
   }
   
   submitHandler() {
     let value = this.input.val();
     if (this.inputValid(value)) {
-      console.log('pushing to channel...');
       this.channel.push('request_chips', {player: this.player, amount: value});
       this.input.val('');
       this.submitBtn.addClass('disabled');

@@ -38,8 +38,6 @@ export default class PlayerUpdates {
       $(form).submit((e) => {
         e.preventDefault();
         
-        console.log("form submit: ", e);
-        
         // Return if the input field has not been touched
         if (!(dirtyFields.includes(form.replace("-form", "").replace("#", "")))) {
           return;
@@ -65,7 +63,6 @@ export default class PlayerUpdates {
     });
     
     $("#chip-edit").click(() => {
-      console.log("#chip-edit button pressed");
       channel.push("player_update", {chips: 1000})
       .receive("ok", (player) => {
         PlayerUpdates.updatePlayerInfo(player);

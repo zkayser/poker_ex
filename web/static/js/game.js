@@ -25,9 +25,8 @@ export default class Game {
   init() {
     SpinnerAnimation.onJoinPrivateRoom();
     let socket = new Socket('/socket', {params: 
-      {token: window.playerToken},
-      logger: (kind, msg, data) => {console.log(`${kind}:${msg}`, data)}
-      });
+      {token: window.playerToken}
+    });
       
     socket.connect();
     let channel = socket.channel(`players:${this.roomTitle}`, {type: this.type});

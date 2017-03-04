@@ -22,7 +22,6 @@ export default class PlayerSearchComponent {
   }
   
   setEventListeners() {
-    console.log('attaching event listeners');
     this.submitBtn.on('click', (e) => {
       this.submitHandler();
     });

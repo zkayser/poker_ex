@@ -87,7 +87,7 @@ defmodule PokerEx.PlayersChannel do
 	def handle_in("add_player", %{"player" => name, "room" => title, "amount" => amount} = params, socket) when amount >= 100 do
 		if socket.assigns.room_type == :private, do: private_add_player(params, socket), else: public_add_player(params, socket)
 	end
-	def handle_in("add_player", _params, _socket), do: {:noreply, socket}
+	def handle_in("add_player", _params, socket), do: {:noreply, socket}
 	
 	def handle_in("remove_player", %{"player" => name, "room" => room}, socket) do
 		room = Room.leave(room |> atomize(), get_player_by_name(name))

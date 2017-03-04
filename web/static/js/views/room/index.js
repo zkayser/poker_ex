@@ -1,6 +1,5 @@
 import MainView from '../main-view';
 import RoomMonitor from '../../components/room-monitor';
-import Connection from '../../socket';
 
 export default class RoomIndexView extends MainView {
   mount() {
@@ -9,7 +8,6 @@ export default class RoomIndexView extends MainView {
     
     let monitor = new RoomMonitor();
     monitor.init();
-    // Connection.init();
   }
   
   unmount() {

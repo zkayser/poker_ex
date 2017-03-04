@@ -11943,7 +11943,6 @@ var SpinnerAnimation = function () {
   }, {
     key: "onJoinRoom",
     value: function onJoinRoom() {
-      console.log("onJoinRoom function called");
       (0, _jquery2.default)(".collection").fadeOut(400, function () {
         (0, _jquery2.default)(".card-table").addClass("slide-onscreen-right");
         (0, _jquery2.default)(".player-controls").addClass("slide-onscreen-right");
@@ -11954,7 +11953,6 @@ var SpinnerAnimation = function () {
   }, {
     key: "onJoinPrivateRoom",
     value: function onJoinPrivateRoom() {
-      console.log("onJoinPrivateRoom function called");
       (0, _jquery2.default)(".card-table").addClass("slide-onscreen-right");
       (0, _jquery2.default)(".player-controls").addClass("slide-onscreen-right");
       (0, _jquery2.default)(".table-container").css("display", "inline-block");
@@ -12298,7 +12296,6 @@ var BankRollComponent = function () {
       var _this = this;
 
       var inputHandler = function inputHandler(e) {
-        console.log('in inputHandler');
         var val = _this.input.val();
         if (_this.inputValid(val)) {
           _this.submitBtn.hasClass('disabled') ? _this.submitBtn.removeClass('disabled') : console.log('submitBtn active');
@@ -12328,7 +12325,6 @@ var BankRollComponent = function () {
     key: "inputValid",
     value: function inputValid(str) {
       var notStartingWithZero = /^(?!0.)\d+$/;
-      console.log('str vs max: ', str, this.max);
       return notStartingWithZero.test(str) && parseInt(str, 10) < this.max;
     }
   }, {
@@ -12336,7 +12332,6 @@ var BankRollComponent = function () {
     value: function submitHandler() {
       var value = this.input.val();
       if (this.inputValid(value)) {
-        console.log('pushing to channel...');
         this.channel.push('request_chips', { player: this.player, amount: value });
         this.input.val('');
         this.submitBtn.addClass('disabled');
@@ -12397,7 +12392,6 @@ var ChatComponent = function () {
     key: "update",
     value: function update(message) {
       var markup = this.chatMessage(message.name, message.text);
-      console.log("markup: ", markup);
       markup.prependTo(this.chatCollection);
     }
   }, {
@@ -12689,7 +12683,6 @@ var PaginationBase = function () {
     key: 'update',
     value: function update(newPage, component) {
       var page = parseInt(newPage, 10);
-      console.log("page: ", page);
       this.currentPage = page;
       var range = this.makeRange();
       var listElems = this.buildPageNumListElems(range);
@@ -12704,7 +12697,6 @@ var PaginationBase = function () {
     value: function getPageElements() {
       var elems = [];
       var num = this.lowPage;
-      console.log("highpage: ", this.highPage);
       if (num == this.highPage) {
         elems.push((0, _jquery2.default)('#page-' + num));
       } else {
@@ -12772,7 +12764,6 @@ var PaginationBase = function () {
     value: function makeRange() {
       var number = this.currentPage;
       var rem = number % this.newLinksOn;
-      console.log("number and rem: ", number, rem);
       var start = void 0;
       if (rem == 0) {
         start = number - (this.newLinksOn - 1);
@@ -12787,7 +12778,6 @@ var PaginationBase = function () {
       }
       this.lowPage = pageNums[0];
       this.highPage = pageNums[pageNums.length - 1];
-      console.log("returning pageNums: ", pageNums);
       return pageNums;
     }
   }, {
@@ -12804,7 +12794,6 @@ var PaginationBase = function () {
   }, {
     key: 'appendPageNumHeadings',
     value: function appendPageNumHeadings(listElems) {
-      console.log("appendingHeadings:", listElems);
       (0, _jquery2.default)(".page-numbers").empty();
       for (var i = 0; i < listElems.length; i++) {
         (0, _jquery2.default)(".page-numbers").append(listElems[i]);
@@ -13156,7 +13145,6 @@ var PlayerListComponent = function () {
       for (var i = 0; i < players.length; i++) {
         var colorIndex = void 0;
         i < colors.length - 1 ? colorIndex = i : colorIndex = i % colors.length;
-        console.log('colorIndex: ', colorIndex);
         var element = this.buildListMarkup(players[i], colors[colorIndex]);
         this.appendToList(element);
       }
@@ -13334,7 +13322,6 @@ var PlayerSearchComponent = function () {
     value: function setEventListeners() {
       var _this = this;
 
-      console.log('attaching event listeners');
       this.submitBtn.on('click', function (e) {
         _this.submitHandler();
       });
@@ -13911,7 +13898,6 @@ var RoomMonitor = function () {
       });
 
       setInterval(function () {
-        console.log('getting update...');
         channel.push("get_num_players", {});
       }, 5000);
     }
@@ -14233,10 +14219,7 @@ var Game = function () {
       var _this = this;
 
       _spinnerAnimations2.default.onJoinPrivateRoom();
-      var socket = new _phoenix.Socket('/socket', { params: { token: window.playerToken },
-        logger: function logger(kind, msg, data) {
-          console.log(kind + ':' + msg, data);
-        }
+      var socket = new _phoenix.Socket('/socket', { params: { token: window.playerToken }
       });
 
       socket.connect();
@@ -14315,42 +14298,6 @@ var Game = function () {
 }();
 
 exports.default = Game;
-});
-
-;require.register("web/static/js/message-box.js", function(exports, require, module) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _jquery = require("jquery");
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var MessageBox = function () {
-  function MessageBox() {
-    _classCallCheck(this, MessageBox);
-  }
-
-  _createClass(MessageBox, null, [{
-    key: "appendAndScroll",
-    value: function appendAndScroll(element) {
-      (0, _jquery2.default)("#messages").append(element);
-      (0, _jquery2.default)("#messages").scrollTop(0);
-    }
-  }]);
-
-  return MessageBox;
-}();
-
-exports.default = MessageBox;
 });
 
 ;require.register("web/static/js/messages/dispatcher.js", function(exports, require, module) {
@@ -14471,217 +14418,7 @@ var GAMEMESSAGES = ['player_seated', 'started_game', 'game_started', 'card_dealt
 exports.default = GAMEMESSAGES;
 });
 
-require.register("web/static/js/messages/lobby-messages.js", function(exports, require, module) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _jquery = require("jquery");
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var LobbyMessages = function () {
-  function LobbyMessages() {
-    _classCallCheck(this, LobbyMessages);
-  }
-
-  _createClass(LobbyMessages, null, [{
-    key: "init",
-    value: function init(channel) {
-
-      channel.on("update_num_players", function (_ref) {
-        var room = _ref.room,
-            number = _ref.number;
-
-        var string = "";
-        if (number == 1) {
-          string = "1 player currently at table";
-        } else if (number == 0 || number == null) {
-          string = "There are no players currently at table";
-        } else {
-          string = number + " players currently at table";
-        }
-        console.log("Updating room players message with string: ", string);
-        (0, _jquery2.default)("#" + room + "-players").empty().text(string);
-      });
-    }
-  }]);
-
-  return LobbyMessages;
-}();
-
-exports.default = LobbyMessages;
-});
-
-;require.register("web/static/js/messages/player-messages.js", function(exports, require, module) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _player = require('../player');
-
-var _player2 = _interopRequireDefault(_player);
-
-var _card = require('../card');
-
-var _card2 = _interopRequireDefault(_card);
-
-var _messageBox = require('../message-box');
-
-var _messageBox2 = _interopRequireDefault(_messageBox);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var PlayerMessages = function () {
-  function PlayerMessages() {
-    _classCallCheck(this, PlayerMessages);
-
-    this.player = undefined;
-  }
-
-  _createClass(PlayerMessages, null, [{
-    key: 'init',
-    value: function init(channel, name) {
-      var _this = this;
-
-      (0, _jquery2.default)(".raise-btn").click(function () {
-        var raiseAmount = document.getElementById("raise-amount");
-        var amount = raiseAmount.value;
-        raiseAmount.value = "";
-        if (amount.length > 0) {
-          _player2.default.raise(name, amount, channel);
-        }
-      });
-
-      (0, _jquery2.default)(".call-btn").click(function () {
-        _player2.default.call(name, channel);
-      });
-
-      (0, _jquery2.default)(".check-btn").click(function () {
-        _player2.default.check(name, channel);
-      });
-
-      (0, _jquery2.default)(".fold-btn").click(function () {
-        _player2.default.fold(name, channel);
-      });
-
-      channel.on("room_joined", function (_ref) {
-        var player = _ref.player;
-
-
-        var p = new _player2.default(player.name, player.chips);
-        if (p.name == name) {
-          _this.player = p;
-        }
-        var msg = _player2.default.addToList(player);
-        _messageBox2.default.appendAndScroll(msg);
-      });
-
-      channel.on("chip_update", function (payload) {
-        if (name == payload.player && _this.player == undefined) {
-          if (_this.player == undefined) {
-            _this.player = new _player2.default(payload.player, payload.chips);
-          }
-          _this.player.chips = payload.chips;
-          (0, _jquery2.default)("#player-chips").text(payload.chips);
-        } else if (name == payload.player) {
-          _this.player.chips = payload.chips;
-          (0, _jquery2.default)("#player-chips").text(payload.chips);
-        }
-      });
-
-      channel.on("game_started", function (payload) {
-        (0, _jquery2.default)("#offscreen-left").addClass("slide-onscreen-right");
-        payload.hands.forEach(function (obj) {
-          if (obj.player == name) {
-            _card2.default.renderPlayerCards(obj.hand);
-          }
-        });
-      });
-    }
-  }]);
-
-  return PlayerMessages;
-}();
-
-exports.default = PlayerMessages;
-});
-
-;require.register("web/static/js/messages/room-messages.js", function(exports, require, module) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var RoomMessages = function () {
-  function RoomMessages() {
-    _classCallCheck(this, RoomMessages);
-  }
-
-  _createClass(RoomMessages, null, [{
-    key: "init",
-    value: function init(channel) {
-      var Materialize = window.Materialize;
-
-      channel.on("new_msg", function (payload) {
-        Materialize.toast(payload.body + " joined the lobby", 3000, 'rounded');
-      });
-
-      channel.on("winner_message", function (payload) {
-        console.log("winner_message received with payload: ", payload);
-        Materialize.toast("" + payload.message, 2000);
-      });
-
-      channel.on("welcome_player", function (payload) {
-        Materialize.toast("Welcome to the lobby.", 2000);
-      });
-
-      channel.on("game_finished", function (payload) {
-        setTimeout(function () {
-          Materialize.toast("" + payload.message, 2000);
-        }, 1000);
-      });
-
-      channel.on("player_left", function (payload) {
-        Materialize.toast(payload.body.name + " left", 3000, 'rounded');
-      });
-
-      channel.on("player_got_up", function (payload) {
-        Materialize.toast(payload.player + " left", 3000, 'rounded');
-      });
-    }
-  }]);
-
-  return RoomMessages;
-}();
-
-exports.default = RoomMessages;
-});
-
-;require.register("web/static/js/notifications/notifications.js", function(exports, require, module) {
+require.register("web/static/js/notifications/notifications.js", function(exports, require, module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14861,8 +14598,6 @@ var PlayerUpdates = function () {
         (0, _jquery2.default)(form).submit(function (e) {
           e.preventDefault();
 
-          console.log("form submit: ", e);
-
           // Return if the input field has not been touched
           if (!dirtyFields.includes(form.replace("-form", "").replace("#", ""))) {
             return;
@@ -14886,7 +14621,6 @@ var PlayerUpdates = function () {
       });
 
       (0, _jquery2.default)("#chip-edit").click(function () {
-        console.log("#chip-edit button pressed");
         channel.push("player_update", { chips: 1000 }).receive("ok", function (player) {
           PlayerUpdates.updatePlayerInfo(player);
           (0, _jquery2.default)("#chip-edit").remove();
@@ -15109,488 +14843,12 @@ var SEAT_MAPPING = exports.SEAT_MAPPING = {
 });
 
 require.register("web/static/js/socket.js", function(exports, require, module) {
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
+var _phoenix = require("phoenix");
 });
 
-var _phoenix = require('phoenix');
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _playerMessages = require('./messages/player-messages');
-
-var _playerMessages2 = _interopRequireDefault(_playerMessages);
-
-var _tableConcerns = require('./table-concerns');
-
-var _tableConcerns2 = _interopRequireDefault(_tableConcerns);
-
-var _roomMessages = require('./messages/room-messages');
-
-var _roomMessages2 = _interopRequireDefault(_roomMessages);
-
-var _lobbyMessages = require('./messages/lobby-messages');
-
-var _lobbyMessages2 = _interopRequireDefault(_lobbyMessages);
-
-var _spinnerAnimations = require('./animations/spinner-animations');
-
-var _spinnerAnimations2 = _interopRequireDefault(_spinnerAnimations);
-
-var _roomsListAnimation = require('./animations/rooms-list-animation');
-
-var _roomsListAnimation2 = _interopRequireDefault(_roomsListAnimation);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Connection = {
-  init: function init() {
-    var _this = this;
-
-    var Materialize = window.Materialize;
-
-    var socket = new _phoenix.Socket('/socket', { params: { token: window.playerToken },
-      logger: function logger(kind, msg, data) {
-        console.log(kind + ':' + msg, data);
-      }
-    });
-
-    socket.connect();
-    var channel = socket.channel("players:lobby", {});
-
-    channel.join().receive("ok", function (_ref) {
-      var name = _ref.name;
-
-      console.log("Joined players lobby: ", name);
-      _spinnerAnimations2.default.fadeOnSignin();
-      _lobbyMessages2.default.init(channel);
-      channel.push("get_num_players", {});
-      _this.setRoomsLinks(socket, name, channel);
-      _roomsListAnimation2.default.animate();
-    });
-  },
-  setRoomsLinks: function setRoomsLinks(socket, name, lobby) {
-    var links = document.getElementsByTagName('a');
-    var classArray = [];
-    var roomRegEx = new RegExp("room_");
-
-    for (var i = 0; i < links.length; i++) {
-      if (roomRegEx.test(links[i].className)) {
-        classArray.push(links[i].className);
-      }
-    }
-
-    classArray.forEach(function (klass) {
-      (0, _jquery2.default)('a.' + klass).click(function () {
-        _spinnerAnimations2.default.initiateSpinnerOnElement((0, _jquery2.default)(".join-spinner"), (0, _jquery2.default)(".collection"));
-        _spinnerAnimations2.default.onJoinRoom();
-
-        var room = klass;
-        var roomChan = socket.channel('players:' + room, { player: name });
-        roomChan.join().receive("ok", function (_ref2) {
-          var players = _ref2.players;
-
-          _tableConcerns2.default.init(roomChan, name, players, {});
-          _playerMessages2.default.init(roomChan, name);
-          _roomMessages2.default.init(roomChan);
-        });
-      });
-    });
-  }
-};
-
-exports.default = Connection;
-});
-
-require.register("web/static/js/table-concerns.js", function(exports, require, module) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
-
-var _table = require('./table');
-
-var _table2 = _interopRequireDefault(_table);
-
-var _card = require('./card');
-
-var _card2 = _interopRequireDefault(_card);
-
-var _player = require('./player');
-
-var _player2 = _interopRequireDefault(_player);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var TableConcerns = function () {
-  function TableConcerns(table) {
-    _classCallCheck(this, TableConcerns);
-
-    this.table = table;
-  }
-
-  _createClass(TableConcerns, [{
-    key: 'init',
-    value: function init(channel) {
-      var _this = this;
-
-      console.log("tableConcern instance initiated");
-      this.table.renderCards();
-      this.table.renderPlayers();
-
-      channel.on("player_seated", function (_ref) {
-        var position = _ref.position,
-            player = _ref.player;
-
-        _this.table.seating[player] = position;
-        _this.table.renderNewPlayer(player, position);
-      });
-
-      channel.on("game_started", function (payload) {
-        payload.players.forEach(function (player) {
-          _this.table.players.push(new _player2.default(player.name, player.chips));
-        });
-        _this.table.addActiveClass(payload.active);
-      });
-
-      channel.on("pot_update", function (_ref2) {
-        var amount = _ref2.amount;
-
-        _this.table.pot += amount;
-        (0, _jquery2.default)("#pot").text(_this.table.pot);
-      });
-
-      channel.on("flop_dealt", function (_ref3) {
-        var cards = _ref3.cards;
-
-        if (_this.table) {
-          cards.forEach(function (card) {
-            var c = new _card2.default(card.rank, card.suit);
-            _this.table.cards.push(c);
-          });
-          _this.table.renderCards();
-        }
-      });
-
-      channel.on("card_dealt", function (_ref4) {
-        var card = _ref4.card;
-
-        card.forEach(function (c) {
-          var newCard = new _card2.default(c.rank, c.suit);
-          _this.table.cards.push(newCard);
-        });
-        _this.table.renderCards();
-      });
-
-      channel.on("game_finished", function (payload) {
-        _this.table.pot = 0;
-        _this.table.cards = [];
-        _this.table.removeCards();
-        _this.table.players = [];
-      });
-
-      channel.on("clear_table", function (payload) {
-        if (payload.player == _this.table.user) {
-          _this.table.removeCards();
-          _this.table = null;
-        }
-      });
-
-      channel.on("advance", function (_ref5) {
-        var player = _ref5.player;
-
-        _this.table.removeActiveClass();
-        _this.table.addActiveClass(player);
-        var p = null;
-        _this.table.players.forEach(function (pl) {
-          if (pl.name === player) {
-            p = pl;
-          }
-        });
-        if (player === _this.table.user) {
-          // Handles the situation before the game_started event completes
-          // and the table.players array is empty. This is just a temporary hack
-          if (p) {
-            p.renderPlayerControls(_this.table.callAmount, _this.table.paidInRound[player] || 0);
-          } else {
-            _player2.default.renderPlayerControls(_this.table.callAmount, _this.table.paidInRound[player]);
-          }
-        } else {
-          _player2.default.hidePlayerControls();
-        }
-
-        if (player == _this.table.user) {
-          var amountToCall = _this.table.callAmount - _this.table.paidInRound[player];
-          if (amountToCall > 0) {
-            window.Materialize.toast(amountToCall + ' to call.', 2000);
-          }
-        }
-      });
-
-      channel.on("call_amount_update", function (_ref6) {
-        var amount = _ref6.amount;
-
-        _this.table.callAmount = amount;
-      });
-
-      channel.on("paid_in_round_update", function (payload) {
-        _this.table.paidInRound = payload;
-      });
-
-      channel.on("player_joined", function (payload) {
-        console.log("player_joined called with payload: ", payload);
-        if (payload.seating.length > 0) {
-          payload.seating.forEach(function (seat) {
-            _this.table.seating[seat.name] = seat.position;
-          });
-        }
-        _table2.default.renderPlayers(_this.table.seating);
-      });
-
-      channel.on("update_seating", function (payload) {
-        _this.table.clearPlayers();
-        _this.table.seating = payload;
-        _table2.default.renderPlayers(_this.table.seating);
-      });
-
-      channel.on("player_got_up", function (payload) {
-        _this.table.removePlayerEmblem(payload.player);
-        // markedToFold deprecated...
-        _this.table.markedToFold.push(payload.player);
-
-        if (_this.table.user == payload.player) {
-          channel.leave();
-        }
-
-        var messages = document.getElementById("messages");
-        for (var i = 0; i < messages.children.length; i++) {
-          if (messages.children[i].innerText == payload.player) {
-            messages.removeChild(messages.children[i]);
-          }
-        }
-      });
-
-      channel.on("player_left", function (payload) {
-        var names = _this.table.players.map(function (player) {
-          player.name;
-        });
-
-        var index = names.indexOf(payload.body.name);
-        if (!index === -1) {
-          var p = _this.table.players.splice(index, 1);
-          _this.table.markedToFold.push(p[0]);
-        }
-
-        delete _this.table.seating[payload.body.name];
-
-        var messages = document.getElementById("messages");
-        for (var i = 0; i < messages.children.length; i++) {
-          if (messages.children[i].innerText == payload.body.name) {
-            messages.removeChild(messages.children[i]);
-          }
-        }
-      });
-    }
-  }], [{
-    key: 'init',
-    value: function init(channel, name, initialPlayers, tableData) {
-      var Materialize = window.Materialize;
-
-      var table = new _table2.default(tableData);
-      console.log("new table initiated from TableConcerns class with table and tableData: ", table, tableData);
-      table.user = name;
-      var earlierPlayersSeen = false;
-      // Initializes the table cards for private
-      // visitors returning to a table
-      if (table.type == "private") {
-        table.renderCards();
-      }
-
-      channel.on("player_seated", function (_ref7) {
-        var position = _ref7.position,
-            player = _ref7.player;
-
-        table.seating[player] = position;
-        _table2.default.renderNewPlayer(player, position);
-      });
-
-      channel.on("game_started", function (payload) {
-        payload.players.forEach(function (player) {
-          table.players.push(new _player2.default(player.name, player.chips));
-        });
-        table.addActiveClass(payload.active);
-      });
-
-      channel.on("pot_update", function (_ref8) {
-        var amount = _ref8.amount;
-
-        table.pot += amount;
-        (0, _jquery2.default)("#pot").text(table.pot);
-      });
-
-      channel.on("flop_dealt", function (_ref9) {
-        var cards = _ref9.cards;
-
-        if (table) {
-          cards.forEach(function (card) {
-            var c = new _card2.default(card.rank, card.suit);
-            table.cards.push(c);
-          });
-          table.renderCards();
-        }
-      });
-
-      channel.on("card_dealt", function (_ref10) {
-        var card = _ref10.card;
-
-        card.forEach(function (c) {
-          var newCard = new _card2.default(c.rank, c.suit);
-          table.cards.push(newCard);
-        });
-        table.renderCards();
-      });
-
-      channel.on("game_finished", function (payload) {
-        table.pot = 0;
-        table.cards = [];
-        table.removeCards();
-        table.players = [];
-      });
-
-      // untested; keep an eye on any issues;
-      channel.on("clear_ui", function (payload) {
-        table.pot = 0;
-        table.cards = [];
-        table.removeCards();
-        table.players = [];
-      });
-
-      channel.on("clear_table", function (payload) {
-        if (payload.player == table.user) {
-          table.removeCards();
-          table = null;
-        }
-      });
-
-      channel.on("advance", function (_ref11) {
-        var player = _ref11.player;
-
-        table.removeActiveClass();
-        table.addActiveClass(player);
-        var p = null;
-        table.players.forEach(function (pl) {
-          if (pl.name === player) {
-            p = pl;
-          }
-        });
-        if (player === table.user) {
-          // Handles the situation before the game_started event completes
-          // and the table.players array is empty. This is just a temporary hack
-          if (p) {
-            p.renderPlayerControls(table.callAmount, table.paidInRound[player] || 0);
-          } else {
-            _player2.default.renderPlayerControls(table.callAmount, table.paidInRound[player]);
-          }
-        } else {
-          _player2.default.hidePlayerControls();
-        }
-
-        if (player == table.user) {
-          var amountToCall = table.callAmount - table.paidInRound[player];
-          if (amountToCall > 0) {
-            Materialize.toast(amountToCall + ' to call.', 2000);
-          }
-        }
-      });
-
-      channel.on("call_amount_update", function (_ref12) {
-        var amount = _ref12.amount;
-
-        table.callAmount = amount;
-      });
-
-      channel.on("paid_in_round_update", function (payload) {
-        table.paidInRound = payload;
-      });
-
-      channel.on("player_joined", function (payload) {
-        if (!earlierPlayersSeen) {
-          if (payload.seating.length > 0) {
-            payload.seating.forEach(function (seat) {
-              table.seating[seat.name] = seat.position;
-            });
-          }
-          _table2.default.renderPlayers(table.seating);
-          earlierPlayersSeen = true;
-        }
-      });
-
-      channel.on("update_seating", function (payload) {
-        table.clearPlayers();
-        table.seating = payload;
-        _table2.default.renderPlayers(table.seating);
-      });
-
-      channel.on("player_got_up", function (payload) {
-        table.removePlayerEmblem(payload.player);
-        // markedToFold deprecated...
-        table.markedToFold.push(payload.player);
-
-        if (table.user == payload.player) {
-          channel.leave();
-        }
-
-        var messages = document.getElementById("messages");
-        for (var i = 0; i < messages.children.length; i++) {
-          if (messages.children[i].innerText == payload.player) {
-            messages.removeChild(messages.children[i]);
-          }
-        }
-      });
-
-      channel.on("player_left", function (payload) {
-        var names = table.players.map(function (player) {
-          player.name;
-        });
-
-        var index = names.indexOf(payload.body.name);
-        if (!index === -1) {
-          var p = table.players.splice(index, 1);
-          table.markedToFold.push(p[0]);
-        }
-
-        delete table.seating[payload.body.name];
-
-        var messages = document.getElementById("messages");
-        for (var i = 0; i < messages.children.length; i++) {
-          if (messages.children[i].innerText == payload.body.name) {
-            messages.removeChild(messages.children[i]);
-          }
-        }
-      });
-    }
-  }]);
-
-  return TableConcerns;
-}();
-
-exports.default = TableConcerns;
-});
-
-;require.register("web/static/js/table.js", function(exports, require, module) {
+require.register("web/static/js/table.js", function(exports, require, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15836,12 +15094,10 @@ var Table = function () {
 	}, {
 		key: 'removeExcessEmblems',
 		value: function removeExcessEmblems(length) {
-			console.log('removeExcessEmblems from length: ', length);
 			var position = length;
 			while (position <= Object.keys(_seatMapping.SEAT_MAPPING).length) {
 				var el = (0, _jquery2.default)('.' + _seatMapping.SEAT_MAPPING[position]);
 				if (el.length > 0) {
-					console.log('removing excess emblems');
 					el.remove();
 				}
 				position++;
@@ -16322,10 +15578,6 @@ var _roomMonitor = require('../../components/room-monitor');
 
 var _roomMonitor2 = _interopRequireDefault(_roomMonitor);
 
-var _socket = require('../../socket');
-
-var _socket2 = _interopRequireDefault(_socket);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16351,7 +15603,6 @@ var RoomIndexView = function (_MainView) {
 
       var monitor = new _roomMonitor2.default();
       monitor.init();
-      // Connection.init();
     }
   }, {
     key: 'unmount',

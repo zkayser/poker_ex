@@ -213,12 +213,10 @@ export default class Table {
 	}
 	
 	removeExcessEmblems(length) {
-		console.log('removeExcessEmblems from length: ', length);
 		let position = length;
 		while (position <= Object.keys(SEAT_MAPPING).length) {
 			let el = $(`.${SEAT_MAPPING[position]}`);
 			if (el.length > 0 ) {
-				console.log('removing excess emblems');
 				el.remove();
 			}
 			position++;
