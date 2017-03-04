@@ -15,9 +15,10 @@ import Dispatcher from './messages/dispatcher';
 
 export default class Game {
   
-  constructor(userName, roomTitle) {
+  constructor(userName, roomTitle, type) {
     this.userName = userName;
     this.roomTitle = roomTitle;
+    this.type = type;
     this.dataFormatter = new DataFormatter("game");
   }
   
@@ -29,7 +30,8 @@ export default class Game {
       });
       
     socket.connect();
-    let channel = socket.channel(`players:${this.roomTitle}`, {type: "private"});
+    console.log('Connecting with type: ', this.type);
+    let channel = socket.channel(`players:${this.roomTitle}`, {type: this.type});
     
     channel.join()
     .receive("ok", () => {

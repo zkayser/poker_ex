@@ -12,9 +12,19 @@ defmodule PokerEx.PlayersChannel do
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
 		{:ok, %{name: player_name}, socket}
 	end
+	def join("players:" <> room_id, %{"type" => "public"}, socket) do
+		send(self(), {:after_join_room, room_id})
+		socket = 
+			socket 
+			|> assign(:room_type, :public)
+		players = room_id |> atomize() |> Room.player_list()
+		{:ok, %{players: players}, socket}
+	end
 	def join("players:" <> room_id, %{"type" => "private"}, socket) do
 		send(self(), {:after_join_private_room, room_id})
-		socket = assign(socket, :room_type, :private)
+		socket = 
+			socket
+			|> assign(:room_type, :private)
 		players = room_id |> atomize() |> Room.player_list()
 		{:ok, %{players: players}, socket}
 	end
@@ -31,31 +41,13 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	def handle_info({:after_join_room, room_id, _params}, socket) do
+	def handle_info({:after_join_room, room_id}, socket) do
 		socket = assign(socket, :room, room_id)
 		player = Repo.get(Player, socket.assigns[:player_id])
+		socket = assign(socket, :player_name, player.name)
+		room = Room.state(room_id |> atomize())
 		
-		room_id
-		|> atomize()
-		|> Room.join(player)
-		
-		players = 
-			room_id 
-			|> atomize() 
-			|> Room.player_list()
-		
-		seating = 
-			case Room.state(room_id |> atomize()).seating do
-				s when is_list(s) -> Enum.map(s, fn {name, pos} -> %{name: name, position: pos} end)
-				[] -> nil
-				{name, pos} -> %{name: name, position: pos} 
-			end
-		
-		broadcast! socket, "room_joined", 
-			%{player: PlayerView.render("show.json", %{player: player}), room_id: room_id}
-			|> Map.merge(PlayerView.render("index.json", %{players: players}))
-		broadcast! socket, "player_joined", %{player: player.name, seating: seating}
-
+		push(socket, "private_room_join", PokerEx.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 	
@@ -93,25 +85,7 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	def handle_in("add_player", %{"player" => name, "room" => title, "amount" => amount} = params, socket) do
-		case Repo.get_by(Player, name: name) do
-			%Player{} = pl -> 
-				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
-				changeset = 
-					PokerEx.PrivateRoom.changeset(private_room)
-					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
-					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
-				case Repo.update(changeset) do
-					{:ok, _priv_room} -> 
-						room = title |> atomize() |> Room.join(pl, amount)
-						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
-						push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - String.to_integer(amount))}
-					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
-					_ -> push socket, "error_on_room_join", %{}
-				end
-			{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
-			_ -> push socket, "error_on_room_join", %{}
-		end
-		{:noreply, socket}
+		if socket.assigns.room_type == :private, do: private_add_player(params, socket), else: public_add_player(params, socket)
 	end
 	
 	def handle_in("remove_player", %{"player" => name, "room" => room}, socket) do
@@ -238,6 +212,39 @@ defmodule PokerEx.PlayersChannel do
 	end
 	defp handle_update(socket, room) do
 		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+		{:noreply, socket}
+	end
+	
+	defp private_add_player(%{"player" => name, "room" => title, "amount" => amount} = params, socket) do
+		case Repo.get_by(Player, name: name) do
+			%Player{} = pl -> 
+				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
+				changeset = 
+					PokerEx.PrivateRoom.changeset(private_room)
+					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
+					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
+				case Repo.update(changeset) do
+					{:ok, _priv_room} -> 
+						room = title |> atomize() |> Room.join(pl, amount)
+						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
+						push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - String.to_integer(amount))}
+					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
+					_ -> push socket, "error_on_room_join", %{}
+				end
+			{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
+			_ -> push socket, "error_on_room_join", %{}
+		end
+		{:noreply, socket}
+	end
+	
+	defp public_add_player(%{"player" => name, "room" => room_id, "amount" => amount} = params, socket) do
+		case Repo.get_by(Player, name: name) do
+			%Player{} = pl ->
+				room = room_id |> atomize() |> Room.join(pl, amount)
+				broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
+				push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - amount)}
+			{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
+		end
 		{:noreply, socket}
 	end
 end

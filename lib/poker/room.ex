@@ -15,6 +15,7 @@ defmodule PokerEx.Room do
 	@timeout 30000
 	@non_terminal_states [:pre_flop, :flop, :turn] 
 	@seating_capacity 7
+	@minimum_buy_in 100
 	
 	@type chip_tracker :: %{(String.t | PokerEx.Player.t) => non_neg_integer} | %{}
 	@type player_tracker :: [String.t | PokerEx.Player.t] | []
@@ -197,7 +198,8 @@ defmodule PokerEx.Room do
 	# State Functions #
 	###################
 	
-	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room) when length(seating) <= @seating_capacity do
+	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room) 
+	when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update = 
 			room
@@ -206,7 +208,8 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) when length(seating) < 1 do
+	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) 
+	when length(seating) < 1 and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
@@ -215,21 +218,23 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
+	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room) 
+	when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> Updater.seating(player)
 			|> Updater.chip_roll(player, chip_amount)
-			|> Updater.blinds
-			|> Updater.set_active
-			|> Updater.player_hands
-			|> BetTracker.post_blind(@small_blind, :small_blind)
-			|> BetTracker.post_blind(@big_blind, :big_blind)
+			
+			#|> Updater.blinds
+			#|> Updater.set_active
+			#|> Updater.player_hands
+			#|> BetTracker.post_blind(@small_blind, :small_blind)
+			#|> BetTracker.post_blind(@big_blind, :big_blind)
 		
-			Events.game_started(room.room_id, update)
+		#	Events.game_started(room.room_id, update)
 		
-		{:next_state, :pre_flop, update, [{:reply, from, update}]}
+		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, :start, :idle, room) do
@@ -246,7 +251,8 @@ defmodule PokerEx.Room do
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 	
-	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room) when length(seating) == 1 do
+	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room) 
+	when length(seating) == 1 and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room

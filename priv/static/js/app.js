@@ -14143,11 +14143,12 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Game = function () {
-  function Game(userName, roomTitle) {
+  function Game(userName, roomTitle, type) {
     _classCallCheck(this, Game);
 
     this.userName = userName;
     this.roomTitle = roomTitle;
+    this.type = type;
     this.dataFormatter = new _dataFormatter2.default("game");
   }
 
@@ -14164,7 +14165,8 @@ var Game = function () {
       });
 
       socket.connect();
-      var channel = socket.channel('players:' + this.roomTitle, { type: "private" });
+      console.log('Connecting with type: ', this.type);
+      var channel = socket.channel('players:' + this.roomTitle, { type: this.type });
 
       channel.join().receive("ok", function () {
         console.log("joined");

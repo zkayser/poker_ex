@@ -1,4 +1,4 @@
-<div class="row" id="room-row" data-room-title="<%= @room %>" data-user-name="<%= @current_player.name %>">
+<div class="row" id="room-row" data-room-title="<%= @room.room_id %>" data-user-name="<%= @current_player.name %>">
   <div class="col s4">
     
   </div>
@@ -50,8 +50,8 @@
 
 <%= render PokerEx.PlayerView, "_account_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
-<%= render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, 
-  participants: PokerEx.Room.state(@room |> String.to_atom()).seating |> Enum.map(fn {pl, _} -> pl end) %>
+<%=# render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, 
+ # participants: PokerEx.Room.state(@room.seating |> Enum.map(fn {pl, _} -> pl end)) %>
 <%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
 
