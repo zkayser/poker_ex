@@ -20,7 +20,7 @@
           <div class="nav-wrapper">
             <a href=<%= page_path(@conn, :index) %> class="page-title">PokerEx</a>
             <div class="right">
-               <i class="material-icons dp48 white-text menu-dropdown" data-activates="slide-out">reorder</i>
+               <i class="material-icons dp48 white-text menu-dropdown" id="mobile-nav-btn" data-activates="slide-out">reorder</i>
             </div>
           </div>
         </div>
@@ -103,5 +103,6 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
     <%= render "_modal_initiators.html", conn: @conn %>
+    <script>$("#mobile-nav-btn").sideNav();</script> 
   </body>
 </html>

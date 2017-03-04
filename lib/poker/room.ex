@@ -225,15 +225,6 @@ defmodule PokerEx.Room do
 			room
 			|> Updater.seating(player)
 			|> Updater.chip_roll(player, chip_amount)
-			
-			#|> Updater.blinds
-			#|> Updater.set_active
-			#|> Updater.player_hands
-			#|> BetTracker.post_blind(@small_blind, :small_blind)
-			#|> BetTracker.post_blind(@big_blind, :big_blind)
-		
-		#	Events.game_started(room.room_id, update)
-		
 		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 	
