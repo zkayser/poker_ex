@@ -71,6 +71,15 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
+	def handle_info(:save_state, socket) do
+		room = socket.assigns["room"]
+		priv_room = Repo.get_by(PrivateRoom, title: room)
+		room_state = Room.which_state(room |> atomize())
+		room_data = Room.state(room |> atomize())
+		PrivateRoom.store_state(priv_room, %{"room_state" => :erlang.term_to_binary(room_state), "room_data" =>:erlang.term_to_binary(room_data)})
+		{:noreply, socket}
+	end
+	
 	#####################
 	# INCOMING MESSAGES #
 	#####################
@@ -129,6 +138,7 @@ defmodule PokerEx.PlayersChannel do
 					Room.add_chips(atomize(socket.assigns.room), player, amount)
 					push(socket, "update_emblem_display", %{name: player, add: amount})
 					push(socket, "update_bank_max", %{max: struct.chips})
+					send(:self, :save_state)
 					{:noreply, socket}
 			{:error, _} -> 
 				push(socket, "failed_bank_update", %{})
@@ -200,6 +210,7 @@ defmodule PokerEx.PlayersChannel do
 	#####################
 	
 	defp atomize(str) when is_binary(str), do: String.to_atom(str)
+	defp atomize(atom) when is_atom(atom), do: atom
 	defp atomize(_), do: :error
 	
 	defp get_player_by_name(name) when is_binary(name) do
