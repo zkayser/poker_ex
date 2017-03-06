@@ -28,41 +28,7 @@ defmodule PokerEx.Player do
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
 	
-	# No longer have any use for this function after shifting to Ecto-backed model
-	@spec new(String.t, pos_integer) :: Player.t
-	def new(name, chips \\ 1000) do
-		%Player{name: name, chips: chips}
-	end
 	
-	# This is going to have side effects and should ideally be moved into a different module
-	@spec bet(String.t, non_neg_integer, atom()) :: Player.t | {:insufficient_chips, non_neg_integer}
-	def bet(name, amount, room_id \\ nil) do
-	
-		player = case Repo.one from(p in Player, where: p.name == ^name) do
-			nil -> :player_not_found
-			player -> player
-		end
-		
-		cond do
-			player.chips > amount ->
-				changeset = chip_changeset(player, %{"chips" => player.chips - amount})
-				case Repo.update(changeset) do
-					{:ok, player_struct} -> 
-						player_struct
-					{:error, _} ->
-						{:error, "could not update chips"}
-				end
-			true ->
-				total = player.chips
-				changeset = chip_changeset(player, %{"chips" => 0})
-				case Repo.update(changeset) do
-					{:ok, _} ->
-						{:insufficient_chips, total}
-				end
-		end
-	end
-	
-	# Same as above
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
 	def reward(name, amount, room_id) do
 	
