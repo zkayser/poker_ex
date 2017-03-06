@@ -11,6 +11,7 @@ export default class Notifications {
     let profile = document.getElementById("player-profile");
     let playerId = profile.getAttribute("data-player-id");
     let declineBtns = document.getElementsByClassName("decline-btn");
+    let declineOwnBtns = document.getElementsByClassName("owned-decline-btn");
     
     let socket = new Socket('/socket', {params: {
      token: window.playerToken
@@ -46,9 +47,20 @@ export default class Notifications {
       });
     }
     
+    for (let i = 0; i < declineOwnBtns.length; i++) {
+      declineOwnBtns[i].addEventListener('click', (e) => {
+        let rowElement = e.target.parentElement.parentElement.parentElement;
+        let id = rowElement.id;
+        let regex = /\d+/;
+        let res = id.match(regex);
+        id = res[0];
+        channel.push("decline_own", {room: id});
+      });
+    }
+    
     channel.on("declined_invitation", (payload) => {
       let id = payload.remove;
-      $(`#${id}`).css('background-color', 'red !important').css('transition', 'background-color 0.7s ease');
+      $(`#${id}`).css('transition', 'background-color 0.7s ease').css('background-color', 'red !important');
       $(`#${id}`).slideUp('slow');
       
       let current = $("#invitation-number").text();
@@ -58,6 +70,13 @@ export default class Notifications {
       $("#invitation-number").text(`${update}`);
       $("#invitation-count").text(`${updateWord}`);
       window.Materialize.toast(`Declined invitation`, 2000, 'green-toast');
+    });
+    
+    channel.on("room_terminated", (payload) => {
+      let id = payload.remove;
+      $(`#${id}`).css('transition', 'background-color 0.7s ease').css('background-color', 'red');
+      $(`#${id}`).slideUp('slow');
+      window.Materialize.toast(`Room terminated`, 2000, 'green-toast');
     });
     
     channel.on("decline_error", (payload) => {

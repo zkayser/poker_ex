@@ -14456,6 +14456,7 @@ var Notifications = function () {
       var profile = document.getElementById("player-profile");
       var playerId = profile.getAttribute("data-player-id");
       var declineBtns = document.getElementsByClassName("decline-btn");
+      var declineOwnBtns = document.getElementsByClassName("owned-decline-btn");
 
       var socket = new _phoenix.Socket('/socket', { params: {
           token: window.playerToken
@@ -14489,9 +14490,20 @@ var Notifications = function () {
         });
       }
 
+      for (var _i = 0; _i < declineOwnBtns.length; _i++) {
+        declineOwnBtns[_i].addEventListener('click', function (e) {
+          var rowElement = e.target.parentElement.parentElement.parentElement;
+          var id = rowElement.id;
+          var regex = /\d+/;
+          var res = id.match(regex);
+          id = res[0];
+          channel.push("decline_own", { room: id });
+        });
+      }
+
       channel.on("declined_invitation", function (payload) {
         var id = payload.remove;
-        (0, _jquery2.default)("#" + id).css('background-color', 'red !important').css('transition', 'background-color 0.7s ease');
+        (0, _jquery2.default)("#" + id).css('transition', 'background-color 0.7s ease').css('background-color', 'red !important');
         (0, _jquery2.default)("#" + id).slideUp('slow');
 
         var current = (0, _jquery2.default)("#invitation-number").text();
@@ -14501,6 +14513,13 @@ var Notifications = function () {
         (0, _jquery2.default)("#invitation-number").text("" + update);
         (0, _jquery2.default)("#invitation-count").text("" + updateWord);
         window.Materialize.toast("Declined invitation", 2000, 'green-toast');
+      });
+
+      channel.on("room_terminated", function (payload) {
+        var id = payload.remove;
+        (0, _jquery2.default)("#" + id).css('transition', 'background-color 0.7s ease').css('background-color', 'red');
+        (0, _jquery2.default)("#" + id).slideUp('slow');
+        window.Materialize.toast("Room terminated", 2000, 'green-toast');
       });
 
       channel.on("decline_error", function (payload) {

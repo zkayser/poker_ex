@@ -3,6 +3,7 @@ defmodule PokerEx.PrivateRoom do
   require Logger
   alias PokerEx.Player
   alias PokerEx.PrivateRoom
+  alias PokerEx.RoomsSupervisor, as: RoomSup
   alias PokerEx.Repo
   
   schema "private_rooms" do
@@ -67,6 +68,12 @@ defmodule PokerEx.PrivateRoom do
         Logger.warn "Could not successfully update room: #{id}"
         :error
     end
+  end
+  
+  def stop_and_delete(%PrivateRoom{title: title} = priv_room) do
+    title = String.to_atom(title)
+    if RoomSup.room_process_exists?(title), do: :gen_statem.stop(title)
+    delete(priv_room)
   end
   
   def delete(priv_room) do

@@ -160,6 +160,13 @@ defmodule PokerEx.Room do
 		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
 		:void
 	end
+	def terminate(:manual, state, %Room{chip_roll: chip_roll} = room) when is_map(chip_roll) do
+		Logger.info "Manually terminating #{room.room_id}"
+		chip_roll
+			|> Map.keys()
+			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
+		:void
+	end
 	def terminate(_reason, state, %Room{type: :private, room_id: id} = room) do
 		Logger.info "Now terminating #{inspect(id)}..."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))

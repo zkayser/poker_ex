@@ -7,4 +7,5 @@
   <%= render "_edit.html", conn: @conn, player: @player %>
   <%= render "_invitee_panel.html", conn: @conn, invited: @invited %> 
   <%= render "_current_panel.html", conn: @conn, participating: @participating %>
+  <%= render "_owned_panel.html", conn: @conn, owned: @owned %>
 </div>

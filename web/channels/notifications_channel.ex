@@ -98,6 +98,18 @@ defmodule PokerEx.NotificationsChannel do
     end
   end
   
+  def handle_in("decline_own", %{"room" => id}, player, socket) do
+    private_room = Repo.get(PrivateRoom, id)
+    case PrivateRoom.stop_and_delete(private_room) do
+      {:ok, _} ->
+        push(socket, "room_terminated", %{remove: "owned-#{id}"})
+        {:noreply, socket}
+      _ ->
+        push(socket, "room_terminate_error", %{room: "#{private_room.title}"})
+        {:noreply, socket}
+    end
+  end
+  
   def handle_in("player_update", %{"first_name" => first}, player, socket) do
     changeset = Player.update_changeset(player, %{first_name: first})
     handle_player_update_response(changeset, "first_name", socket)
