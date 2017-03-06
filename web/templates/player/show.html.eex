@@ -8,4 +8,7 @@
   <%= render "_invitee_panel.html", conn: @conn, invited: @invited %> 
   <%= render "_current_panel.html", conn: @conn, participating: @participating %>
   <%= render "_owned_panel.html", conn: @conn, owned: @owned %>
+  <div class="center-align">
+    <%= button("Join a Public Room", to: room_path(@conn, :index), method: :get, class: "btn large white-text green accent-3") %>
+  </div>
 </div>
