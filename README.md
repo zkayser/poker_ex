@@ -1,5 +1,7 @@
 # PokerEx
 
+[Visit the App now](https://ancient-forest-15148.herokuapp.com/)
+
 PokerEx is a basic Texas Hold 'Em system implemented in Elixir that takes
 advantage of the Phoenix Framework and Phoenix Channel module to deliver
 real-time features. 
