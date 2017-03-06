@@ -98,7 +98,10 @@
       <main role="main">
         <%= render @view_module, @view_template, assigns %>
       </main>
-      </div> <!-- /container -->
+    </div> <!-- /container -->
+    <%= if @conn.request_path == "/" do %>
+      <%= render "_footer.html", conn: @conn %>
+    <% end %>
 
     <script>window.playerToken = "<%= assigns[:player_token] %>"</script>
     <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
