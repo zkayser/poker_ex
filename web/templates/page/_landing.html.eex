@@ -3,7 +3,9 @@
       <div class="card-content white-text">
         <span class="card-title">Create your own Poker Rooms</span>
         <p>Sign up to create your own private Poker rooms. Invite friends
-           or send invitations to other PokerEx players.</p>
+           or send invitations to other PokerEx players. Once you make a private
+           game, your game and table state will be kept alive until you explicitly
+           leave or shutdown the room.</p>
       </div>
     </div>
   </div>
@@ -11,9 +13,11 @@
     <div class="card indigo darken-4">
       <div class="card-content white-text">
         <span class="card-title">Play in our Public Rooms</span>
-        <p>Once you join, you can sit down and play at any of our public rooms.
-           Just signup and click on the link. See how many players are at
-           a table in real time.</p>
+        <p>
+          Once you join, you can sit down and play at any of our public rooms.
+          Public rooms are a perfect fit if you are just looking to play a short
+          round or two and get on your way. 
+        </p>
       </div>
     </div>
   </div>
