@@ -84,7 +84,6 @@ defmodule PokerEx.Player do
 		|> cast(params, ~w(name first_name last_name email blurb), [])
 		|> put_change(:chips, 1000)
 		|> validate_length(:name, min: 1, max: 20)
-		|> validate_length(:blurb, max: 150)
 		|> unique_constraint(:name)
 		|> unique_constraint(:email)
 	end
