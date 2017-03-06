@@ -52,7 +52,7 @@ export default class DataFormatter {
       }
     });
     if (filtered.length > 0) {
-      let chips = data.chip_roll[filtered[0].name];
+      let chips = data.chip_roll[filtered[0].name] + (data.round[data.user] || 0);
       if (chips > toCall) {
         raiseData.raiseable = true;
         raiseData.min = toCall;
@@ -92,15 +92,6 @@ export default class DataFormatter {
       return cards;
     }
   }
-  
-  /*
-  extractPlayers(playersArray) {
-    let players = [];
-    playersArray.forEach((player) => {
-      players.push(new Player(player.name, player.chips));
-    });
-    return players;
-  } */
   
   extractPlayers(chipRoll) {
     let names = Object.keys(chipRoll);

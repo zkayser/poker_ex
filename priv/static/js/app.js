@@ -14064,7 +14064,7 @@ var DataFormatter = function () {
           }
         });
         if (filtered.length > 0) {
-          var chips = data.chip_roll[filtered[0].name];
+          var chips = data.chip_roll[filtered[0].name] + (data.round[data.user] || 0);
           if (chips > toCall) {
             raiseData.raiseable = true;
             raiseData.min = toCall;
@@ -14112,16 +14112,6 @@ var DataFormatter = function () {
         if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
       }
     }
-
-    /*
-    extractPlayers(playersArray) {
-      let players = [];
-      playersArray.forEach((player) => {
-        players.push(new Player(player.name, player.chips));
-      });
-      return players;
-    } */
-
   }, {
     key: 'extractPlayers',
     value: function extractPlayers(chipRoll) {
