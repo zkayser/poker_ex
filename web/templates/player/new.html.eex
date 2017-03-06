@@ -15,27 +15,32 @@
       <div class="input-field col s12">
       <%= text_input f, :name, placeholder: "Username", class: "form-control" %>
       <%= error_tag f, :name %>
+      <label for="player_name">Username</label>
     </div>
     <div class="input-field col s6">
       <%= text_input f, :first_name, placeholder: "First name" %>
       <%= error_tag f, :first_name %>
+      <label for="player_first_name">First Name</label>
     </div>
     <div class="input-field col s6">
       <%= text_input f, :last_name, placeholder: "Last name" %>
       <%= error_tag f, :last_name %>
+      <label for="player_last_name">Last Name</label>
     </div>
     <div class="input-field col s12">
       <%= text_input f, :email, placeholder: "Email address" %>
       <%= error_tag f, :email %>
+      <label for="player_email">Email</label>
     </div>
     <div class="input-field col s12">
       <%= textarea f, :blurb, placeholder: "A short message to other players", class: "materialize-textarea"%>
       <%= error_tag f, :blurb %>
-      <label for="player_blurb">Message</label>
+      <label for="player_blurb">Message <span class="red-text">*REQUIRED</span></label>
     </div>
     <div class="input-field col s12">
       <%= password_input f, :password, placeholder: "Password" %>
       <%= error_tag f, :password %>
+      <label for="player_password">Password</label>
     </div>
     <div class="center-align">
       <%= submit "Sign up", class: "waves-effect waves-light btn btn-large blue", id: "signup-button" %>

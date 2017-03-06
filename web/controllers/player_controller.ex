@@ -46,7 +46,7 @@ defmodule PokerEx.PlayerController do
         conn
         |> PokerEx.Auth.login(player)
         |> put_flash(:info, "#{player.name} created!")
-        |> redirect(to: room_path(conn, :index))
+        |> redirect(to: player_path(conn, :show, player.id))
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
