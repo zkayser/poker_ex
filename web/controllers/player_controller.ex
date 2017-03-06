@@ -39,6 +39,12 @@ defmodule PokerEx.PlayerController do
   
   def create(conn, %{"player" => player_params}) do
     player_params = Map.put(player_params, "chips", "1000")
+    player_params = 
+      if player_params["blurb"] == "" do
+        Map.put(player_params, "blurb", " ")
+      else
+        player_params
+      end
     changeset = Player.registration_changeset(%Player{}, player_params)
     
     case Repo.insert(changeset) do
