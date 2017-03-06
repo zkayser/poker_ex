@@ -1,7 +1,7 @@
 <div class="center-align">
   <div class="col">
     <div class="card-panel blue lighten-3 white-text z-depth-5" id="signup-card">
-      <h5>Not a member yet?</h5> <%= button("Sign up here!", to: player_path(@conn, :new), class: "btn teal white-text") %>
+      <h5>Not a member yet?</h5> <%= button("Sign up here!", to: player_path(@conn, :new), class: "btn teal white-text", method: :get) %>
       <br/>
       <h5>OR</h5>
       <br/>
