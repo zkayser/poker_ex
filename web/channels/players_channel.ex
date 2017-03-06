@@ -1,4 +1,5 @@
 defmodule PokerEx.PlayersChannel do
+	require Logger
 	use Phoenix.Channel
 	alias PokerEx.Player
 	alias PokerEx.Room
@@ -134,11 +135,11 @@ defmodule PokerEx.PlayersChannel do
 		amount = String.to_integer(amount)
 		case Player.subtract_chips(player, amount) do
 			{:ok, struct} -> 
-				room = 
-					Room.add_chips(atomize(socket.assigns.room), player, amount)
+				room_title = socket.assigns.room |> atomize()
+					Room.add_chips(room_title, player, amount)
 					push(socket, "update_emblem_display", %{name: player, add: amount})
 					push(socket, "update_bank_max", %{max: struct.chips})
-					send(:self, :save_state)
+					if Room.state(room_title).type == :private, do: send(:self, :save_state)
 					{:noreply, socket}
 			{:error, _} -> 
 				push(socket, "failed_bank_update", %{})

@@ -29,6 +29,6 @@ defmodule PokerEx.RoomController do
   
   def show(conn, %{"id" => name}) do
     room = PokerEx.Room.state(name |> String.to_atom)
-    render conn, "show.html", [room: room, current_player: conn.assigns[:current_player], conn: conn]
+    render conn, "show.html", room: room, current_player: conn.assigns[:current_player], conn: conn
   end
 end

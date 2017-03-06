@@ -76,7 +76,8 @@ defmodule PokerEx.Room do
 						winner: nil,
 						winning_hand: nil,
 						parent: nil,
-						timeout: @timeout
+						timeout: @timeout,
+						timer: nil
 	
 	def start_link(args) when is_list(args) do
 		id = List.first(args)
@@ -241,12 +242,13 @@ defmodule PokerEx.Room do
 			|> Updater.blinds
 			|> Updater.set_active
 			|> Updater.player_hands
+			|> Updater.timer(@timeout)
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
 			Events.game_started(room.room_id, update)
 			
-		{:next_state, :pre_flop, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, :pre_flop, update, [{:reply, from, update}]} 
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room) 
@@ -271,12 +273,13 @@ defmodule PokerEx.Room do
 			|> Updater.blinds
 			|> Updater.set_active
 			|> Updater.player_hands
+			|> Updater.timer(@timeout)
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
 			
 			Events.game_started(room.room_id, update)
 			
-		{:next_state, :pre_flop, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:join, player, chip_amount}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
@@ -393,7 +396,7 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> BetTracker.call(player)
-		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:call, player}, state, %Room{all_in: all_in, folded: folded, seating: seating} = room) 
@@ -418,7 +421,7 @@ defmodule PokerEx.Room do
 			true ->
 				{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
 			_ ->
-				{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
+				{:next_state, advance_state(state), update, [{:reply, from, update}]}
 		end
 	end
 	
@@ -443,14 +446,14 @@ defmodule PokerEx.Room do
 			room
 			|> BetTracker.fold(player)
 			|> round_transition(state)
-		{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
+		{:next_state, advance_state(state), update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:fold, player}, state, room) do
 		update = 
 			room
 			|> BetTracker.fold(player)
-		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
@@ -463,7 +466,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, all_in: all_in, active: active} = room) 
@@ -493,7 +496,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, advance_state(state), update, [{:reply, from, update}, update.timeout]}
+		{:next_state, advance_state(state), update, [{:reply, from, update}]}
 	end
 	
 	def handle_event({:call, from}, {:check, player}, :river, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
@@ -513,7 +516,7 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> BetTracker.raise(player, amount)
-		{:next_state, state, update, [{:reply, from, update}, update.timeout]}
+		{:next_state, state, update, [{:reply, from, update}]}
 	end
 	
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
@@ -666,9 +669,8 @@ defmodule PokerEx.Room do
 		{:next_state, :between_rounds, update}
 	end
 	
-	def handle_event(:timeout, 30000, state, %Room{active: active} = room) 
+	def handle_event(:info, {:timeout, tref, :auto_fold}, state, %Room{active: active} = room)
 	when state in [:pre_flop, :flop, :turn, :river] and length(active) > 1 do
-	
 		{current_player, _} = hd(active)
 		update =
 			room
@@ -677,9 +679,16 @@ defmodule PokerEx.Room do
 			x when length(x) > 1 ->
 				Events.state_updated(room.room_id, update)
 				{:next_state, state, update}
-			_ -> 
+			_ ->
 				{:next_state, :game_over, update, [{:next_event, :internal, :handle_fold}]}
 		end
+	end
+	
+	def handle_event(:info, {:timeout, tref, :auto_fold}, state, room) do
+		update =
+			room
+			|> Updater.clear_timer
+		{:next_state, state, update}
 	end
 	
 	def handle_event({:call, from}, :player_count, state, %Room{seating: seating} = room) do
@@ -754,5 +763,6 @@ defmodule PokerEx.Room do
   	|> Updater.reset_paid_in_round
   	|> Updater.reset_call_amount
   	|> Updater.reset_called
+  	|> Updater.timer(@timeout)
   end
 end

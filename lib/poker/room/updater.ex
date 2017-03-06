@@ -382,6 +382,24 @@ defmodule PokerEx.Room.Updater do
     %Room{ room | player_hands: evaluated, stats: stats}
   end
   
+  @spec timer(Room.t, pos_integer) :: Room.t
+  def timer(%Room{timer: nil, type: :public} = room, time) do
+    tref = :erlang.start_timer(time, self(), :auto_fold)
+    %Room{ room | timer: tref }
+  end
+  def timer(%Room{timer: timer, type: :public} = room, time) do
+    :erlang.cancel_timer(timer)
+    tref = :erlang.start_timer(time, self(), :auto_fold)
+    %Room{ room | timer: tref}
+  end
+  def timer(room, _), do: room
+  
+  @spec clear_timer(Room.t) :: Room.t
+  def clear_timer(%Room{timer: timer, type: :public} = room) do
+    %Room{ room | timer: nil }
+  end
+  def clear_timer(room), do: room
+  
   @doc ~S"""
   Allows you to insert an arbitrary score for a given player in the
   list of stats. 

@@ -14290,6 +14290,42 @@ var Game = function () {
 exports.default = Game;
 });
 
+;require.register("web/static/js/message-box.js", function(exports, require, module) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require("jquery");
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var MessageBox = function () {
+  function MessageBox() {
+    _classCallCheck(this, MessageBox);
+  }
+
+  _createClass(MessageBox, null, [{
+    key: "appendAndScroll",
+    value: function appendAndScroll(element) {
+      (0, _jquery2.default)("#messages").append(element);
+      (0, _jquery2.default)("#messages").scrollTop(0);
+    }
+  }]);
+
+  return MessageBox;
+}();
+
+exports.default = MessageBox;
+});
+
 ;require.register("web/static/js/messages/dispatcher.js", function(exports, require, module) {
 'use strict';
 
@@ -14408,7 +14444,215 @@ var GAMEMESSAGES = ['player_seated', 'started_game', 'game_started', 'card_dealt
 exports.default = GAMEMESSAGES;
 });
 
-require.register("web/static/js/notifications/notifications.js", function(exports, require, module) {
+require.register("web/static/js/messages/lobby-messages.js", function(exports, require, module) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require("jquery");
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LobbyMessages = function () {
+  function LobbyMessages() {
+    _classCallCheck(this, LobbyMessages);
+  }
+
+  _createClass(LobbyMessages, null, [{
+    key: "init",
+    value: function init(channel) {
+
+      channel.on("update_num_players", function (_ref) {
+        var room = _ref.room,
+            number = _ref.number;
+
+        var string = "";
+        if (number == 1) {
+          string = "1 player currently at table";
+        } else if (number == 0 || number == null) {
+          string = "There are no players currently at table";
+        } else {
+          string = number + " players currently at table";
+        }
+        (0, _jquery2.default)("#" + room + "-players").empty().text(string);
+      });
+    }
+  }]);
+
+  return LobbyMessages;
+}();
+
+exports.default = LobbyMessages;
+});
+
+;require.register("web/static/js/messages/player-messages.js", function(exports, require, module) {
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _player = require('../player');
+
+var _player2 = _interopRequireDefault(_player);
+
+var _card = require('../card');
+
+var _card2 = _interopRequireDefault(_card);
+
+var _messageBox = require('../message-box');
+
+var _messageBox2 = _interopRequireDefault(_messageBox);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var PlayerMessages = function () {
+  function PlayerMessages() {
+    _classCallCheck(this, PlayerMessages);
+
+    this.player = undefined;
+  }
+
+  _createClass(PlayerMessages, null, [{
+    key: 'init',
+    value: function init(channel, name) {
+      var _this = this;
+
+      (0, _jquery2.default)(".raise-btn").click(function () {
+        var raiseAmount = document.getElementById("raise-amount");
+        var amount = raiseAmount.value;
+        raiseAmount.value = "";
+        if (amount.length > 0) {
+          _player2.default.raise(name, amount, channel);
+        }
+      });
+
+      (0, _jquery2.default)(".call-btn").click(function () {
+        _player2.default.call(name, channel);
+      });
+
+      (0, _jquery2.default)(".check-btn").click(function () {
+        _player2.default.check(name, channel);
+      });
+
+      (0, _jquery2.default)(".fold-btn").click(function () {
+        _player2.default.fold(name, channel);
+      });
+
+      channel.on("room_joined", function (_ref) {
+        var player = _ref.player;
+
+
+        var p = new _player2.default(player.name, player.chips);
+        if (p.name == name) {
+          _this.player = p;
+        }
+        var msg = _player2.default.addToList(player);
+        _messageBox2.default.appendAndScroll(msg);
+      });
+
+      channel.on("chip_update", function (payload) {
+        if (name == payload.player && _this.player == undefined) {
+          if (_this.player == undefined) {
+            _this.player = new _player2.default(payload.player, payload.chips);
+          }
+          _this.player.chips = payload.chips;
+          (0, _jquery2.default)("#player-chips").text(payload.chips);
+        } else if (name == payload.player) {
+          _this.player.chips = payload.chips;
+          (0, _jquery2.default)("#player-chips").text(payload.chips);
+        }
+      });
+
+      channel.on("game_started", function (payload) {
+        (0, _jquery2.default)("#offscreen-left").addClass("slide-onscreen-right");
+        payload.hands.forEach(function (obj) {
+          if (obj.player == name) {
+            _card2.default.renderPlayerCards(obj.hand);
+          }
+        });
+      });
+    }
+  }]);
+
+  return PlayerMessages;
+}();
+
+exports.default = PlayerMessages;
+});
+
+;require.register("web/static/js/messages/room-messages.js", function(exports, require, module) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var RoomMessages = function () {
+  function RoomMessages() {
+    _classCallCheck(this, RoomMessages);
+  }
+
+  _createClass(RoomMessages, null, [{
+    key: "init",
+    value: function init(channel) {
+      var Materialize = window.Materialize;
+
+      channel.on("new_msg", function (payload) {
+        Materialize.toast(payload.body + " joined the lobby", 3000, 'rounded');
+      });
+
+      channel.on("winner_message", function (payload) {
+        Materialize.toast("" + payload.message, 2000);
+      });
+
+      channel.on("welcome_player", function (payload) {
+        Materialize.toast("Welcome to the lobby.", 2000);
+      });
+
+      channel.on("game_finished", function (payload) {
+        setTimeout(function () {
+          Materialize.toast("" + payload.message, 2000);
+        }, 1000);
+      });
+
+      channel.on("player_left", function (payload) {
+        Materialize.toast(payload.body.name + " left", 3000, 'rounded');
+      });
+
+      channel.on("player_got_up", function (payload) {
+        Materialize.toast(payload.player + " left", 3000, 'rounded');
+      });
+    }
+  }]);
+
+  return RoomMessages;
+}();
+
+exports.default = RoomMessages;
+});
+
+;require.register("web/static/js/notifications/notifications.js", function(exports, require, module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
