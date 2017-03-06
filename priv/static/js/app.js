@@ -15264,7 +15264,7 @@ var MainView = function () {
 exports.default = MainView;
 });
 
-;require.register("web/static/js/views/online.js", function(exports, require, module) {
+;require.register("web/static/js/views/online-view.js", function(exports, require, module) {
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -15273,38 +15273,76 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
 var _phoenix = require('phoenix');
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _mainView = require('./main-view');
+
+var _mainView2 = _interopRequireDefault(_mainView);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Online = function () {
-  function Online() {
-    _classCallCheck(this, Online);
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var OnlineView = function (_MainView) {
+  _inherits(OnlineView, _MainView);
+
+  function OnlineView() {
+    _classCallCheck(this, OnlineView);
+
+    return _possibleConstructorReturn(this, (OnlineView.__proto__ || Object.getPrototypeOf(OnlineView)).apply(this, arguments));
   }
 
-  _createClass(Online, null, [{
-    key: 'init',
-    value: function init() {
+  _createClass(OnlineView, [{
+    key: 'mount',
+    value: function mount() {
+      _get(OnlineView.prototype.__proto__ || Object.getPrototypeOf(OnlineView.prototype), 'mount', this).call(this);
+      console.log("Mounting OnlineView");
+
+      var playerID = (0, _jquery2.default)("meta[name='player-id']").attr("content");
+
       var socket = new _phoenix.Socket('/socket', { params: {
           token: window.playerToken
         } });
 
       socket.connect();
 
-      var channel = socket.channel("online:lobby");
+      var notifications = socket.channel('notifications:' + playerID);
 
-      channel.join().receive("ok", function (resp) {
-        console.log("joined online:lobby channel");
+      notifications.join().receive("ok", function (resp) {
+        console.log("Awaiting notifications...");
       }).receive("error", function (resp) {
-        console.log("something went wrong connecting");
+        console.log("Could not connect to notifications channel");
       });
+
+      notifications.on("invitation_received", function (_ref) {
+        var title = _ref.title,
+            owner = _ref.owner;
+
+        window.Materialize.toast(owner + ' has invited you to join ' + title, 3000, 'blue-toast');
+      });
+    }
+  }, {
+    key: 'unmount',
+    value: function unmount() {
+      _get(OnlineView.prototype.__proto__ || Object.getPrototypeOf(OnlineView.prototype), 'unmount', this).call(this);
+      console.log("Unmounting online-view");
     }
   }]);
 
-  return Online;
-}();
+  return OnlineView;
+}(_mainView2.default);
 
-exports.default = Online;
+exports.default = OnlineView;
 });
 
 ;require.register("web/static/js/views/player/show.js", function(exports, require, module) {
@@ -15383,9 +15421,9 @@ var _mainView = require('../main-view');
 
 var _mainView2 = _interopRequireDefault(_mainView);
 
-var _online = require('../online');
+var _onlineView = require('../online-view');
 
-var _online2 = _interopRequireDefault(_online);
+var _onlineView2 = _interopRequireDefault(_onlineView);
 
 var _playerSearchComponent = require('../../components/player-search-component');
 
@@ -15411,8 +15449,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var PrivateRoomNewView = function (_MainView) {
-  _inherits(PrivateRoomNewView, _MainView);
+var PrivateRoomNewView = function (_OnlineView) {
+  _inherits(PrivateRoomNewView, _OnlineView);
 
   function PrivateRoomNewView() {
     _classCallCheck(this, PrivateRoomNewView);
@@ -15438,8 +15476,6 @@ var PrivateRoomNewView = function (_MainView) {
 
       var playerListComponent = new _playerListComponent2.default(this.totalPages, this.player);
       playerListComponent.init();
-
-      _online2.default.init();
     }
   }, {
     key: 'unmount',
@@ -15492,7 +15528,7 @@ var PrivateRoomNewView = function (_MainView) {
   }]);
 
   return PrivateRoomNewView;
-}(_mainView2.default);
+}(_onlineView2.default);
 
 exports.default = PrivateRoomNewView;
 });
@@ -15512,6 +15548,10 @@ var _mainView = require('../main-view');
 
 var _mainView2 = _interopRequireDefault(_mainView);
 
+var _onlineView = require('../online-view');
+
+var _onlineView2 = _interopRequireDefault(_onlineView);
+
 var _game = require('../../game');
 
 var _game2 = _interopRequireDefault(_game);
@@ -15524,8 +15564,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var PrivateRoomShowView = function (_MainView) {
-  _inherits(PrivateRoomShowView, _MainView);
+var PrivateRoomShowView = function (_OnlineView) {
+  _inherits(PrivateRoomShowView, _OnlineView);
 
   function PrivateRoomShowView() {
     _classCallCheck(this, PrivateRoomShowView);
@@ -15554,7 +15594,7 @@ var PrivateRoomShowView = function (_MainView) {
   }]);
 
   return PrivateRoomShowView;
-}(_mainView2.default);
+}(_onlineView2.default);
 
 exports.default = PrivateRoomShowView;
 });
@@ -15574,6 +15614,10 @@ var _mainView = require('../main-view');
 
 var _mainView2 = _interopRequireDefault(_mainView);
 
+var _onlineView = require('../online-view');
+
+var _onlineView2 = _interopRequireDefault(_onlineView);
+
 var _roomMonitor = require('../../components/room-monitor');
 
 var _roomMonitor2 = _interopRequireDefault(_roomMonitor);
@@ -15586,8 +15630,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var RoomIndexView = function (_MainView) {
-  _inherits(RoomIndexView, _MainView);
+var RoomIndexView = function (_OnlineView) {
+  _inherits(RoomIndexView, _OnlineView);
 
   function RoomIndexView() {
     _classCallCheck(this, RoomIndexView);
@@ -15614,7 +15658,7 @@ var RoomIndexView = function (_MainView) {
   }]);
 
   return RoomIndexView;
-}(_mainView2.default);
+}(_onlineView2.default);
 
 exports.default = RoomIndexView;
 });
@@ -15634,6 +15678,10 @@ var _mainView = require('../main-view');
 
 var _mainView2 = _interopRequireDefault(_mainView);
 
+var _onlineView = require('../online-view');
+
+var _onlineView2 = _interopRequireDefault(_onlineView);
+
 var _game = require('../../game');
 
 var _game2 = _interopRequireDefault(_game);
@@ -15646,8 +15694,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var RoomShowView = function (_MainView) {
-  _inherits(RoomShowView, _MainView);
+var RoomShowView = function (_OnlineView) {
+  _inherits(RoomShowView, _OnlineView);
 
   function RoomShowView() {
     _classCallCheck(this, RoomShowView);
@@ -15676,7 +15724,7 @@ var RoomShowView = function (_MainView) {
   }]);
 
   return RoomShowView;
-}(_mainView2.default);
+}(_onlineView2.default);
 
 exports.default = RoomShowView;
 });

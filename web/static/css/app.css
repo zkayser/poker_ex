@@ -240,6 +240,11 @@ nav.top-nav a.page-title {
 	color: white;
 }
 
+.blue-toast {
+	background-color: #64b5f6;
+	color: white;
+}
+
 .red-toast {
 	background-color: #f44336;
 	color: white;

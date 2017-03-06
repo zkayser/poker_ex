@@ -1,12 +1,12 @@
 import MainView from '../main-view';
-import Online from '../online';
+import OnlineView from '../online-view';
 import PlayerSearchComponent from '../../components/player-search-component';
 import PaginationBase from '../../components/pagination-base';
 import PlayerListComponent from '../../components/player-list-component';
 
 import $ from 'jquery';
 
-export default class PrivateRoomNewView extends MainView {
+export default class PrivateRoomNewView extends OnlineView {
   
   constructor() {
     super();
@@ -28,7 +28,6 @@ export default class PrivateRoomNewView extends MainView {
     let playerListComponent = new PlayerListComponent(this.totalPages, this.player);
     playerListComponent.init();
     
-    Online.init();
   }
   
   unmount() {

@@ -1,7 +1,8 @@
 import MainView from '../main-view';
+import OnlineView from '../online-view'
 import RoomMonitor from '../../components/room-monitor';
 
-export default class RoomIndexView extends MainView {
+export default class RoomIndexView extends OnlineView {
   mount() {
     super.mount();
     console.log("RoomIndexView mounted");

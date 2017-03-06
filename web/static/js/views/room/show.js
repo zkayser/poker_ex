@@ -1,7 +1,8 @@
 import MainView from '../main-view';
+import OnlineView from '../online-view';
 import Game from '../../game';
 
-export default class RoomShowView extends MainView {
+export default class RoomShowView extends OnlineView {
   
   mount() {
     super.mount();

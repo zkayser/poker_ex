@@ -9,10 +9,12 @@
     
   </div>
   <div class="row">
-  <div class="table-container" id="offscreen-left">
-    <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
-  </div>
-    <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+    <div class="table-wrapper">
+      <div class="table-container" id="offscreen-left">
+        <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
+      </div>
+      <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+    </div>
   </div>
   
   <div class="fixed-action-btn horizontal click-to-toggle short-controls">
