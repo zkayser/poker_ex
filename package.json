@@ -2,8 +2,7 @@
   "repository": {},
   "license": "MIT",
   "scripts": {
-    "deploy": "brunch build --production",
-    "watch": "brunch watch --stdin"
+    "test": "mocha --compilers js:babel-register test/js/**/*.js"
   },
   "dependencies": {
     "jquery": ">= 2.1",
@@ -13,10 +12,13 @@
   },
   "devDependencies": {
     "babel-brunch": "~6.0.0",
+    "babel-register": "^6.23.0",
     "brunch": "2.7.4",
     "clean-css-brunch": "~2.0.0",
     "css-brunch": "~2.0.0",
     "javascript-brunch": "~2.0.0",
+    "mocha": "^3.2.0",
+    "should": "^11.2.0",
     "uglify-js-brunch": "~2.0.1"
   }
 }

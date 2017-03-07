@@ -53,7 +53,7 @@ export default class DataFormatter {
     });
     if (filtered.length > 0) {
       let chips = data.chip_roll[filtered[0].name] + (data.round[data.user] || 0);
-      if (chips > toCall) {
+      if (chips > data.to_call) {
         raiseData.raiseable = true;
         raiseData.min = toCall;
         raiseData.max = chips;
