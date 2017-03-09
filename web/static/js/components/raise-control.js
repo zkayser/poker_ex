@@ -137,12 +137,16 @@ export default class RaiseControl {
   updateRaiseValDisplay(btnType, value) {
     let currentVal = parseInt(this.raiseValDisplay.text(), 10);
     if (btnType == 'inc') {
-      this.raiseValDisplay.text(`${this.keepInRange(currentVal + value)}`);
-      this.raiseValMobile.text(`${this.keepInRange(currentVal + value)}`);
+      this.setDisplayText([this.raiseValDisplay, this.raiseValMobile], `${this.keepInRange(currentVal + value)}`);
     } else {
-      this.raiseValDisplay.text(`${this.keepInRange(currentVal - value)}`);
-      this.raiseValMobile.text(`${this.keepInRange(currentVal - value)}`);
+      this.setDisplayText([this.raiseValDisplay, this.raiseValMobile], `${this.keepInRange(currentVal - value)}`);
     }
+  }
+  
+  setDisplayText(elements, val) {
+    elements.forEach((el) => {
+      el.text(val);
+    });
   }
   
   setCursorOnIncDecBtns() {

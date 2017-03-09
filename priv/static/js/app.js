@@ -13795,12 +13795,17 @@ var RaiseControl = function () {
     value: function updateRaiseValDisplay(btnType, value) {
       var currentVal = parseInt(this.raiseValDisplay.text(), 10);
       if (btnType == 'inc') {
-        this.raiseValDisplay.text('' + this.keepInRange(currentVal + value));
-        this.raiseValMobile.text('' + this.keepInRange(currentVal + value));
+        this.setDisplayText([this.raiseValDisplay, this.raiseValMobile], '' + this.keepInRange(currentVal + value));
       } else {
-        this.raiseValDisplay.text('' + this.keepInRange(currentVal - value));
-        this.raiseValMobile.text('' + this.keepInRange(currentVal - value));
+        this.setDisplayText([this.raiseValDisplay, this.raiseValMobile], '' + this.keepInRange(currentVal - value));
       }
+    }
+  }, {
+    key: 'setDisplayText',
+    value: function setDisplayText(elements, val) {
+      elements.forEach(function (el) {
+        el.text(val);
+      });
     }
   }, {
     key: 'setCursorOnIncDecBtns',
