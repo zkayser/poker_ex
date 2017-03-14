@@ -26,6 +26,7 @@ defmodule PokerEx.ConnCase do
       import Ecto.Query
 
       import PokerEx.Router.Helpers
+      import PokerEx.TestHelpers
 
       # The default endpoint for testing
       @endpoint PokerEx.Endpoint

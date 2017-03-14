@@ -18,7 +18,6 @@ defmodule PokerEx.PlayerController do
     {id, _} = Integer.parse(player_id)
     redirect_wrong_user(conn, params)
     
-    # player = Repo.get(Player, id)
     player = Repo.one(
       from p in Player, 
       where: p.id == ^id,
@@ -30,8 +29,9 @@ defmodule PokerEx.PlayerController do
       invited: player.invited_rooms
   end
   
-  def edit(conn, %{"id" => player_id}) do
+  def edit(conn, %{"id" => player_id} = _params) do
     {id, _} = Integer.parse(player_id)
+    
     player = Repo.get(Player, id)
     changeset = Player.update_changeset(player)
     render conn, "edit.html", changeset: changeset, player: player
