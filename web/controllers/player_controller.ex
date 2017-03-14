@@ -16,17 +16,12 @@ defmodule PokerEx.PlayerController do
   
   def show(conn, %{"id" => player_id} = params) do
     {id, _} = Integer.parse(player_id)
-    redirect_wrong_user(conn, params)
     
-    player = Repo.one(
-      from p in Player, 
-      where: p.id == ^id,
-      preload: [:owned_rooms, :received_invitations, :participating_rooms, :invited_rooms]
-    )
-    
-    render conn, "show.html", player: player, owned: player.owned_rooms, 
-      invitations: player.received_invitations, participating: player.participating_rooms,
-      invited: player.invited_rooms
+    if id == conn.assigns.current_player.id do
+      handle_show(conn, id)
+    else
+      redirect_wrong_user(conn, params)
+    end
   end
   
   def edit(conn, %{"id" => player_id} = _params) do
@@ -84,10 +79,26 @@ defmodule PokerEx.PlayerController do
   
   defp redirect_wrong_user(conn, %{"id" => player_id}) do
     {id, _} = Integer.parse(player_id)
-    unless id == conn.assigns.current_player.id do
+    if conn.assigns.current_player do
       conn
       |> put_flash(:error, "Access restricted")
       |> redirect(to: player_path(conn, :show, conn.assigns.current_player.id))
+    else
+      conn
+      |> put_flash(:error, "You must be logged in")
+      |> redirect(to: page_path(conn, :index))
     end
+  end
+  
+  defp handle_show(conn, id) do
+    player = Repo.one(
+      from p in Player, 
+      where: p.id == ^id,
+      preload: [:owned_rooms, :received_invitations, :participating_rooms, :invited_rooms]
+    )
+    
+    render conn, "show.html", player: player, owned: player.owned_rooms, 
+      invitations: player.received_invitations, participating: player.participating_rooms,
+      invited: player.invited_rooms
   end
 end
