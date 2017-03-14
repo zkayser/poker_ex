@@ -2,6 +2,11 @@ defmodule PokerEx.Endpoint do
   use Phoenix.Endpoint, otp_app: :poker_ex
 
   socket "/socket", PokerEx.UserSocket
+  
+  # Enable concurrent testing
+  if Application.get_env(:poker_ex, :sql_sandbox) do
+    plug Phoenix.Ecto.SQL.Sandbox
+  end
 
   # Serve at "/" the static files from "priv/static" directory.
   #

@@ -193,7 +193,7 @@ defmodule PokerEx.PlayersChannel do
 				broadcast!(socket, "clear_table", %{player: Repo.get(Player, socket.assigns[:player_id]).name})
 				{:shutdown, :left}
 			_ ->
-				room_id = socket.assigns[:room]
+				room_id = socket.assigns.room
 				player = Repo.get(Player, socket.assigns[:player_id])
 				room =
 					room_id
