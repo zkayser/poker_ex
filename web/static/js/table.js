@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import sinon from 'sinon';
 
 import {SEAT_MAPPING} from "./seat-mapping";
 import Player from './player';

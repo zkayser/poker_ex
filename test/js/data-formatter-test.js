@@ -14,8 +14,8 @@ describe("DataFormatter('game')", () => {
   
   describe(".format(data)", () => {
     describe("with one player in idle state", () => {
-      let onePlayer = new GameDataFactory({active: null}).onePlayer();
-      let res = dataFormatter.format(onePlayer);
+      const onePlayer = new GameDataFactory({}).onePlayer();
+      const res = dataFormatter.format(onePlayer);
     
       it("should return data with a blank playerHand, not raiseable, and not have min or max properties", () => {
         should.not.exist(res.playerHand);
@@ -27,8 +27,8 @@ describe("DataFormatter('game')", () => {
     });
     
     describe("with two players when a game is not idle", () => {
-      let gameData = new GameDataFactory({});
-      let res = dataFormatter.format(gameData);
+      const gameData = new GameDataFactory({});
+      const res = dataFormatter.format(gameData);
       
       it("should return results", () => {
         should.exist(res);
@@ -64,7 +64,7 @@ describe("DataFormatter('game')", () => {
       });
       
       it("should return an object with all of the required properties", () => {
-        let props = ['user', 'state', 'active', 'paid', 'round', 'seating', 'to_call', 'player_hands', 'pot', 'table', 'players', 'chip_roll',
+        const props = ['user', 'state', 'active', 'paid', 'round', 'seating', 'to_call', 'player_hands', 'pot', 'table', 'players', 'chip_roll',
                      'playerHand', 'min', 'max', 'raiseable'
                     ];
         props.forEach((prop) => {
@@ -73,8 +73,8 @@ describe("DataFormatter('game')", () => {
       });
     
       it("should return an array of length 3 populated with Card instances when the state is flop", () => {
-        let flopData = new GameDataFactory({}).flopTable();
-        let flopRes = dataFormatter.format(flopData);
+        const flopData = new GameDataFactory({}).flopTable();
+        const flopRes = dataFormatter.format(flopData);
       
         flopRes.table.should.be.instanceof(Array);
         flopRes.table.length.should.eql(3);
@@ -83,8 +83,8 @@ describe("DataFormatter('game')", () => {
     });
     
     describe("when a player does not have enough chips to call", () => {
-      let insufficientChips = new GameDataFactory({}).insufficientChips();
-      let results = dataFormatter.format(insufficientChips);
+      const insufficientChips = new GameDataFactory({}).insufficientChips();
+      const results = dataFormatter.format(insufficientChips);
       
       it("should not be raiseable", () => {
         results.raiseable.should.be.false(`results: ${results.min}`);
@@ -102,18 +102,18 @@ describe("DataFormatter('game')", () => {
   
   describe(".formatSeating()", () => {
     it("should not change the seating received if the seating is an object with names as keys and positions as values", () => {
-      let result = dataFormatter.formatSeating(OBJ_SEATING);
+      const result = dataFormatter.formatSeating(OBJ_SEATING);
       should.deepEqual(result, OBJ_SEATING);
     });
     
     it("should format seating received as an array properly", () => {
-      let result = dataFormatter.formatSeating(ARRAY_SEATING);
+      const result = dataFormatter.formatSeating(ARRAY_SEATING);
       should.deepEqual(result, OBJ_SEATING);
     });
     
     it("should return the same result whether given an object or array, provided same values", () => {
-      let arrResult = dataFormatter.formatSeating(ARRAY_SEATING);
-      let objResult = dataFormatter.formatSeating(OBJ_SEATING);
+      const arrResult = dataFormatter.formatSeating(ARRAY_SEATING);
+      const objResult = dataFormatter.formatSeating(OBJ_SEATING);
       should.deepEqual(arrResult, objResult);
     });
   });

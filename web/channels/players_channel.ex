@@ -183,8 +183,6 @@ defmodule PokerEx.PlayersChannel do
 		end
 	end
 	
-	# TODO: Implement "remove_player" message
-	
 	#############
 	# Terminate #
 	#############
