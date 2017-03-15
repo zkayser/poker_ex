@@ -3,9 +3,8 @@ defmodule LoginTest do
   hound_session()
   
   setup _tags do
-    player = insert_user()
     navigate_to("/sessions/new")
-    %{player: player}
+    :ok
   end
   
   test "non-existent users cannot login" do
@@ -14,7 +13,8 @@ defmodule LoginTest do
     assert_alert()
   end
   
-  test "A user can log in with a registered name and correct password", %{player: player} do
+  test "A user can log in with a registered name and correct password" do
+    player = insert_user()
     login(player.name, "secretpassword")
     
     assert_welcome()
@@ -26,7 +26,8 @@ defmodule LoginTest do
     assert_alert()
   end
   
-  test "Cannot login with a blank password", %{player: player} do
+  test "Cannot login with a blank password" do
+    player = insert_user()
     login(player.name, "")
     
     assert_alert()

@@ -1,34 +1,5 @@
 defmodule PokerEx.RoomTest do
-  use ExUnit.Case
-  alias PokerEx.Room
-  alias PokerEx.Player
-  alias PokerEx.Repo
-  alias PokerEx.RoomsSupervisor, as: RoomSup
-  
-  setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
-    Ecto.Adapters.SQL.Sandbox.mode(Repo, {:shared, self()})
-    RoomSup.create_private_room("test")
-    
-    [p1, p2, p3, p4] = 
-      for x <- 1..4 do
-        changeset = Player.registration_changeset(%Player{}, 
-          %{
-            "name" => "Player #{x}", 
-            "email" => "email#{x}@mail.com",
-            "password" => "password",
-            "blurb" => "blablablabla",
-            "first_name" => "#{x}",
-            "last_name" => "#{x}"
-          })
-        Repo.insert(changeset)
-      end
-    |> Enum.map(fn {:ok, player} -> player end)
-    
-    on_exit fn -> Process.exit(Process.whereis(:test), :kill) end
-    
-    [room: :test, p1: p1, p2: p2, p3: p3, p4: p4]
-  end
+  use PokerEx.RoomCase
   
   test "the room starts" do
     assert is_pid(Process.whereis(:test))

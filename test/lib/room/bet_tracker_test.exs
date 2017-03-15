@@ -5,8 +5,8 @@ defmodule PokerEx.BetTrackerTest do
   alias PokerEx.Player
   
   setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
-    Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
+    #:ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
+    #Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
     
     a = Player.registration_changeset(%Player{}, %{
       "name" => "A",
