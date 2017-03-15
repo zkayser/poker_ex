@@ -12,6 +12,11 @@ config :poker_ex, :sql_sandbox, true
 # Save screenshot on failed Integration tests
 config :wallaby, screenshot_on_failure: true
 
+# Easy # of password hashing rounds on :comeonin
+# to speed up tests
+config :comeonin, :bcrypt_log_rounds, 4
+config :comeonin, :pbkdf2_rounds, 1
+
 # Print only warnings and errors during test
 config :logger, level: :warn
 
