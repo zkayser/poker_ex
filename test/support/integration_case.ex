@@ -3,7 +3,8 @@ defmodule PokerEx.IntegrationCase do
   
   using do
     quote do
-      use Wallaby.DSL
+      # use Wallaby.DSL
+      use Hound.Helpers
       
       alias PokerEx.Repo
       import Ecto
@@ -16,14 +17,6 @@ defmodule PokerEx.IntegrationCase do
   end
   
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
-    
-    unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
-    end
-    
-    metadata = Phoenix.Ecto.SQL.Sandbox.metadata_for(PokerEx.Repo, self())
-    {:ok, session} = Wallaby.start_session(metadata: metadata)
-    {:ok, session: session}
+   :ok
   end
 end

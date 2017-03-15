@@ -46,7 +46,8 @@ defmodule PokerEx.Mixfile do
      {:scrivener, "~> 2.0"},
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_list, "~> 1.0"},
-     {:wallaby, "~> 0.16.1"}]
+     {:wallaby, "~> 0.16.1"},
+     {:hound, "~> 1.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

@@ -1,5 +1,5 @@
 defmodule PokerEx.TestHelpers do
-  use Wallaby.DSL
+  use Hound.Helpers
   alias PokerEx.Repo
   
   def insert_user(attrs \\ %{}) do
@@ -17,7 +17,7 @@ defmodule PokerEx.TestHelpers do
     |> Repo.insert!()
   end
   
-  def get_text(session, selector) do
-    session |> find(Wallaby.Query.css(selector)) |> Element.text()
+  def get_text(strategy, selector) do
+    find_element(strategy, selector) |> inner_text()
   end
 end
