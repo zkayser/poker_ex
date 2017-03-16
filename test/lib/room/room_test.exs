@@ -1,5 +1,5 @@
 defmodule PokerEx.RoomTest do
-  use PokerEx.RoomCase
+  use PokerEx.RoomCase, async: false
   
   test "the room starts" do
     assert is_pid(Process.whereis(:test))

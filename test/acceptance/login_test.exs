@@ -33,7 +33,9 @@ defmodule LoginTest do
     assert_alert()
   end
   
-  ## Helpers
+  ###########
+  # Helpers #
+  ###########
   
   defp assert_text(strategy, selector, expected) do
     actual = get_text(strategy, selector)

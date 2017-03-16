@@ -14,7 +14,16 @@ defmodule PokerEx.RoomCase do
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
     Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
-    PokerEx.RoomsSupervisor.create_private_room("test")
+    
+    try do
+      PokerEx.RoomsSupervisor.create_private_room("test")
+    catch
+      _, _ ->
+        PokerEx.stop([])
+        Application.ensure_all_started(PokerEx)
+        PokerEx.start(:normal, [])
+        PokerEx.RoomsSupervisor.create_private_room("test")
+    end
     
     [p1, p2, p3, p4] = 
       for x <- 1..4 do
@@ -24,6 +33,6 @@ defmodule PokerEx.RoomCase do
     
     on_exit fn -> Process.exit(Process.whereis(:test), :kill) end
     
-    [room: :test, p1: p1, p2: p2, p3: p3, p4: p4]
+    [p1: p1, p2: p2, p3: p3, p4: p4]
   end
 end
