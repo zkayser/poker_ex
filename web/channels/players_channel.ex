@@ -124,7 +124,7 @@ defmodule PokerEx.PlayersChannel do
 		end
 	end
 	
-	def handle_in("chat_message", %{"input" => ""}, socket), do: {:noreply, socket} # Temporarily hack to get around disconnect/reconnects
+	def handle_in("chat_message", %{"input" => ""}, socket), do: {:noreply, socket}
 	
 	def handle_in("chat_message", %{"input" => input}, socket) do
 		broadcast!(socket, "new_message", %{name: socket.assigns[:player_name], text: input})
