@@ -231,11 +231,7 @@ defmodule PokerEx.PlayersChannel do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl -> 
 				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
-				changeset = 
-					PokerEx.PrivateRoom.changeset(private_room)
-					|> PokerEx.PrivateRoom.remove_invitee(private_room.invitees, pl)
-					|> PokerEx.PrivateRoom.put_invitee_in_participants(private_room.participants, pl)
-				case Repo.update(changeset) do
+				case PokerEx.PrivateRoom.move_invitee_to_participants(private_room, pl) do
 					{:ok, _priv_room} -> 
 						room = title |> atomize() |> Room.join(pl, amount)
 						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))

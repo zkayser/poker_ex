@@ -45,6 +45,15 @@ defmodule PokerEx.PrivateRoom do
     |> cast_assoc(:invitees)
   end
   
+  def move_invitee_to_participants(private_room, player) do
+    changeset = 
+      private_room
+      |> changeset()
+      |> remove_invitee(private_room.invitees, player)
+      |> put_invitee_in_participants(private_room.participants, player)
+    Repo.update(changeset)
+  end
+  
   def get_room_and_store_state(title, state, room) when is_atom(title) do
     title = Atom.to_string(title)
     state = :erlang.term_to_binary(state)
