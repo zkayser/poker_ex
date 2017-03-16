@@ -49,7 +49,9 @@ defmodule PokerEx.PlayerController do
         |> put_flash(:info, "#{player.name} created!")
         |> redirect(to: player_path(conn, :show, player.id))
       {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        conn
+        |> put_flash(:error, "Oops, something went wrong! Please check the errors below.")
+        |> redirect(to: player_path(conn, :new))
     end
   end
   

@@ -11,7 +11,12 @@ defmodule PokerEx.UserSocket do
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,
-            timeout: 45_000, check_origin: ["https://phoenix-experiment-zkayser.c9users.io", "//ancient-forest-15148.herokuapp.com/"]
+            timeout: 45_000, 
+            check_origin: [
+              "http://localhost:4001",
+              "https://phoenix-experiment-zkayser.c9users.io",
+              "//ancient-forest-15148.herokuapp.com/",
+              ]
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can

@@ -6,8 +6,8 @@ defmodule PokerEx.TestHelpers do
     changes = Dict.merge(%{
       first_name: "User",
       last_name: "Person",
-      name: "user#{Base.encode16(:crypto.rand_bytes(8))}",
-      email: "email#{Base.encode16(:crypto.rand_bytes(8))}",
+      name: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}",
+      email: "email#{Base.encode16(:crypto.strong_rand_bytes(8))}",
       blurb: " ",
       password: "secretpassword"
     }, attrs)
