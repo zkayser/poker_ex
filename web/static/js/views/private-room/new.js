@@ -1,4 +1,3 @@
-import MainView from '../main-view';
 import OnlineView from '../online-view';
 import PlayerSearchComponent from '../../components/player-search-component';
 import PaginationBase from '../../components/pagination-base';

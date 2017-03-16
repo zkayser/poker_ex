@@ -21638,18 +21638,7 @@ var Dispatcher = function () {
 exports.default = Dispatcher;
 });
 
-;require.register("web/static/js/messages/game-messages.js", function(exports, require, module) {
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-var GAMEMESSAGES = ['player_seated', 'started_game', 'game_started', 'card_dealt', 'game_finished', 'clear_table', 'advance', 'player_joined', 'update_seating', 'player_got_up', 'player_left', 'update_num_players', 'room_joined', 'winner_message', 'welcome_player'];
-
-exports.default = GAMEMESSAGES;
-});
-
-require.register("web/static/js/messages/lobby-messages.js", function(exports, require, module) {
+;require.register("web/static/js/messages/lobby-messages.js", function(exports, require, module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -22879,10 +22868,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _mainView = require('../main-view');
-
-var _mainView2 = _interopRequireDefault(_mainView);
-
 var _onlineView = require('../online-view');
 
 var _onlineView2 = _interopRequireDefault(_onlineView);
@@ -23072,10 +23057,6 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _mainView = require('../main-view');
-
-var _mainView2 = _interopRequireDefault(_mainView);
-
 var _onlineView = require('../online-view');
 
 var _onlineView2 = _interopRequireDefault(_onlineView);
@@ -23135,10 +23116,6 @@ Object.defineProperty(exports, "__esModule", {
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _mainView = require('../main-view');
-
-var _mainView2 = _interopRequireDefault(_mainView);
 
 var _onlineView = require('../online-view');
 

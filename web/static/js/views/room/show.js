@@ -1,4 +1,3 @@
-import MainView from '../main-view';
 import OnlineView from '../online-view';
 import Game from '../../game';
 
