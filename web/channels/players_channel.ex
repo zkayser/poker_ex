@@ -9,7 +9,6 @@ defmodule PokerEx.PlayersChannel do
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
 	def join("players:lobby", message, socket) do
-		send(self(), {:after_join, message})
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
 		{:ok, %{name: player_name}, socket}
 	end
@@ -22,25 +21,17 @@ defmodule PokerEx.PlayersChannel do
 		{:ok, %{players: players}, socket}
 	end
 	def join("players:" <> room_id, %{"type" => "private"}, socket) do
-		send(self(), {:after_join_private_room, room_id})
+		send(self(), {:after_join_room, room_id})
 		socket = 
 			socket
 			|> assign(:room_type, :private)
 		players = room_id |> atomize() |> Room.player_list()
 		{:ok, %{players: players}, socket}
 	end
-	def join("players:" <> room_id, params, socket) do
-		send(self(), {:after_join_room, room_id, params})
-		players = room_id |> atomize() |> Room.player_list()
-		{:ok, %{players: players}, socket}
-	end
 	
-	def handle_info({:after_join, _message}, socket) do
-		player = Repo.get(Player, socket.assigns[:player_id]).name
-		broadcast! socket, "welcome_player", %{player: player}
-		
-		{:noreply, socket}
-	end
+	######################
+	# SELF-SENT MESSAGES #
+	######################
 	
 	def handle_info({:after_join_room, room_id}, socket) do
 		socket = assign(socket, :room, room_id)
@@ -48,16 +39,6 @@ defmodule PokerEx.PlayersChannel do
 		socket = assign(socket, :player_name, player.name)
 		room = Room.state(room_id |> atomize())
 		
-		push(socket, "private_room_join", PokerEx.RoomView.render("room.json", %{room: room}))
-		{:noreply, socket}
-	end
-	
-	def handle_info({:after_join_private_room, room_id}, socket) do
-		socket = assign(socket, :room, room_id)
-		player = Repo.get(Player, socket.assigns[:player_id])
-		socket = assign(socket, :player_name, player.name)
-		room = Room.state(room_id |> atomize())
-	
 		push(socket, "private_room_join", PokerEx.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
@@ -74,7 +55,7 @@ defmodule PokerEx.PlayersChannel do
 	
 	def handle_info(:save_state, socket) do
 		room = socket.assigns["room"]
-		priv_room = Repo.get_by(PrivateRoom, title: room)
+		priv_room = Repo.get_by(PokerEx.PrivateRoom, title: room)
 		room_state = Room.which_state(room |> atomize())
 		room_data = Room.state(room |> atomize())
 		PrivateRoom.store_state(priv_room, %{"room_state" => :erlang.term_to_binary(room_state), "room_data" =>:erlang.term_to_binary(room_data)})
@@ -184,7 +165,7 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	#############
-	# Terminate #
+	# TERMINATE #
 	#############
 	
 	def terminate(_message, socket) do
@@ -205,7 +186,7 @@ defmodule PokerEx.PlayersChannel do
 	end
 	
 	#####################
-	# Utility functions #
+	# UTILITY FUNCTIONS #
 	#####################
 	
 	defp atomize(str) when is_binary(str), do: String.to_atom(str)
