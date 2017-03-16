@@ -5,10 +5,9 @@ defmodule PokerEx.PlayersChannel do
 	alias PokerEx.Room
 	alias PokerEx.Endpoint
 	alias PokerEx.Repo
-	alias PokerEx.PlayerView
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 	
-	def join("players:lobby", message, socket) do
+	def join("players:lobby", _message, socket) do
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
 		{:ok, %{name: player_name}, socket}
 	end
@@ -58,7 +57,7 @@ defmodule PokerEx.PlayersChannel do
 		priv_room = Repo.get_by(PokerEx.PrivateRoom, title: room)
 		room_state = Room.which_state(room |> atomize())
 		room_data = Room.state(room |> atomize())
-		PrivateRoom.store_state(priv_room, %{"room_state" => :erlang.term_to_binary(room_state), "room_data" =>:erlang.term_to_binary(room_data)})
+		PokerEx.PrivateRoom.store_state(priv_room, %{"room_state" => :erlang.term_to_binary(room_state), "room_data" =>:erlang.term_to_binary(room_data)})
 		{:noreply, socket}
 	end
 	
@@ -75,7 +74,7 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	def handle_in("add_player", %{"player" => name, "room" => title, "amount" => amount} = params, socket) when amount >= 100 do
+	def handle_in("add_player", %{"room" => title, "amount" => amount} = params, socket) when amount >= 100 do
 		if socket.assigns.room_type == :private, do: private_add_player(params, socket), else: public_add_player(params, socket)
 	end
 	def handle_in("add_player", _params, socket), do: {:noreply, socket}
@@ -208,7 +207,7 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	defp private_add_player(%{"player" => name, "room" => title, "amount" => amount} = params, socket) do
+	defp private_add_player(%{"player" => name, "room" => title, "amount" => amount}, socket) do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl -> 
 				private_room = Repo.get_by(PokerEx.PrivateRoom, title: title) |> PokerEx.PrivateRoom.preload()
@@ -226,7 +225,7 @@ defmodule PokerEx.PlayersChannel do
 		{:noreply, socket}
 	end
 	
-	defp public_add_player(%{"player" => name, "room" => room_id, "amount" => amount} = params, socket) do
+	defp public_add_player(%{"player" => name, "room" => room_id, "amount" => amount}, socket) do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl ->
 				room = room_id |> atomize() |> Room.join(pl, amount)

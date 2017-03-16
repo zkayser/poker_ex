@@ -395,7 +395,7 @@ defmodule PokerEx.Room.Updater do
   def timer(room, _), do: room
   
   @spec clear_timer(Room.t) :: Room.t
-  def clear_timer(%Room{timer: timer, type: :public} = room) do
+  def clear_timer(%Room{timer: _timer, type: :public} = room) do
     %Room{ room | timer: nil }
   end
   def clear_timer(room), do: room

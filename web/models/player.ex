@@ -30,7 +30,7 @@ defmodule PokerEx.Player do
 	
 	
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
-	def reward(name, amount, room_id) do
+	def reward(name, amount, _) do
 	
 		player = case Repo.one from(p in Player, where: p.name == ^name) do
 			nil -> :player_not_found

@@ -2,7 +2,6 @@ defmodule PokerEx.UpdaterTest do
   use ExUnit.Case
   alias PokerEx.Room.Updater
   alias PokerEx.Room
-  alias PokerEx.Player
   
   setup do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)

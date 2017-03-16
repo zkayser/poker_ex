@@ -153,7 +153,7 @@ defmodule PokerEx.PrivateRoom do
         nil -> 
           Logger.info "No running process for #{room.title}\nDeleting #{room.title}"
           Repo.delete(room)
-        x when is_pid(pid) ->
+        _ when is_pid(pid) ->
           Logger.info "Shutting down room: #{room.title}"
           Supervisor.terminate_child(RoomsSupervisor, pid)
         _ ->

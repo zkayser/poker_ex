@@ -104,7 +104,7 @@ defmodule PokerEx.RoomTest do
     end
     
     test "the game should end when all but one player folds", context do
-      [p1, p2, p3, p4] = players(context)
+      [p1, p2, p3, _p4] = players(context)
       simulate_pre_flop_betting(context)
       initial_state = Room.which_state(:test)
       Room.raise(:test, p3, 20)
@@ -147,7 +147,7 @@ defmodule PokerEx.RoomTest do
     setup [:initialize_multiplayer]
     
     test "auto-complete kicks in when all players go all_in during pre-flop", context do
-      players = [p1, p2, p3, p4] = players(context)
+      [p1, p2, p3, p4] = players(context)
       Room.raise(:test, p3, 1200)
       Room.call(:test, p4)
       Room.call(:test, p1)
@@ -159,7 +159,7 @@ defmodule PokerEx.RoomTest do
     end
     
     test "auto-complete kicks in when a player folds and the others go all_in during pre-flop", context do
-      players = [p1, p2, p3, p4] = players(context)
+      [p1, p2, p3, p4] = players(context)
       startP1 = Room.state(:test).chip_roll[p1.name]
       Room.raise(:test, p3, 1200)
       Room.call(:test, p4)
@@ -174,7 +174,7 @@ defmodule PokerEx.RoomTest do
     end
     
     test "auto-complete kicks in when all players go all_in in later rounds", context do
-      players = [p1, p2, p3, p4] = players(context)
+      [p1, p2, p3, p4] = players(context)
       simulate_pre_flop_betting(context)
       Room.raise(:test, p3, 1200)
       Room.call(:test, p4)
@@ -234,7 +234,7 @@ defmodule PokerEx.RoomTest do
   end
   
   defp initialize_multiplayer(context) do
-    players = [p1, p2, _p3, _p4] = players(context)
+    players = players(context)
     for player <- players, do: Room.join(:test, player, 200)
     
     Room.start(:test)

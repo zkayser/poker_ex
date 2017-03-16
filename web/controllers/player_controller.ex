@@ -48,7 +48,7 @@ defmodule PokerEx.PlayerController do
         |> PokerEx.Auth.login(player)
         |> put_flash(:info, "#{player.name} created!")
         |> redirect(to: player_path(conn, :show, player.id))
-      {:error, changeset} ->
+      {:error, _changeset} ->
         conn
         |> put_flash(:error, "Oops, something went wrong! Please check the errors below.")
         |> redirect(to: player_path(conn, :new))
@@ -79,8 +79,7 @@ defmodule PokerEx.PlayerController do
     render(conn, "player_list.json", players: page.entries, current_page: page.page_number, total: page.total_pages)
   end
   
-  defp redirect_wrong_user(conn, %{"id" => player_id}) do
-    {id, _} = Integer.parse(player_id)
+  defp redirect_wrong_user(conn, %{"id" => _player_id}) do
     if conn.assigns.current_player do
       conn
       |> put_flash(:error, "Access restricted")
