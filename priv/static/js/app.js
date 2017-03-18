@@ -23170,15 +23170,15 @@ exports.default = RoomShowView;
 
 ;require.alias("jquery/dist/jquery.js", "jquery");
 require.alias("process/browser.js", "process");
-require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");
-require.alias("phoenix/priv/static/phoenix.js", "phoenix");
 require.alias("sinon/lib/sinon.js", "sinon");
+require.alias("phoenix/priv/static/phoenix.js", "phoenix");
+require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");
 require.alias("util/support/isBufferBrowser.js", "util/support/isBuffer");
 require.alias("util/support/isBufferBrowser.js", "util/support/isBuffer.js");
 require.alias("util/util.js", "util");
 require.alias("formatio/lib/formatio.js", "formatio");
-require.alias("util/node_modules/inherits/inherits_browser.js", "util/node_modules/inherits");
 require.alias("lolex/src/lolex.js", "lolex");
+require.alias("util/node_modules/inherits/inherits_browser.js", "util/node_modules/inherits");
 require.alias("samsam/lib/samsam.js", "samsam");
 require.alias("util/util.js", "sys");process = require('process');require.register("___globals___", function(exports, require, module) {
   

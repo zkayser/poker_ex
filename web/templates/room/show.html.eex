@@ -58,5 +58,5 @@
 <%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
 
 <script>
-  window.basePath = "https://phoenix-experiment-zkayser.c9users.io/";
+  window.basePath = <%= System.get_env("STATIC_PATH") %>
 </script>
