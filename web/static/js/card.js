@@ -9,6 +9,7 @@ export default class Card {
   }
   
   render() {
+    console.log("Render being called with basePath: ", window.basePath);
     let path = CARDS[this.suit.toUpperCase()][this.rank];
     let image = document.createElement('img');
     if (window.basePath) {

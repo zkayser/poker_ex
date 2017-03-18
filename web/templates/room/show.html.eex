@@ -56,7 +56,3 @@
  # participants: PokerEx.Room.state(@room.seating |> Enum.map(fn {pl, _} -> pl end)) %>
 <%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
 <%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
-
-<script>
-  window.basePath = <%= System.get_env("STATIC_PATH") %>
-</script>
