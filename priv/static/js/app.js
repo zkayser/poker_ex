@@ -19263,7 +19263,6 @@ var Card = function () {
   _createClass(Card, [{
     key: 'render',
     value: function render() {
-      console.log("Render being called with basePath: ", window.basePath);
       var path = _card_codes.CARDS[this.suit.toUpperCase()][this.rank];
       var image = document.createElement('img');
       if (window.basePath) {
