@@ -15,4 +15,9 @@ library for sending emails through Sendgrid. If you want to use the same
 setup, you will need to get an API key from Sendgrid and setup
 a SENDGRID_API_KEY environment variable or the system will not start. The
 configuration can be found in the /config/config.exs file. Feel free to
-remove the dependency or use another service as well.
+remove the dependency or use another service as well. 
+
+**UPDATE:** The app now uses Ueberauth with the Ueberauth Facebook strategy
+to provide an extra option for registration and login. The config for ueberauth
+specifies three environment variables: FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, and
+FACEBOOK_REDIRECT_URI

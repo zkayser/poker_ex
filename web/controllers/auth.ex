@@ -3,7 +3,8 @@ defmodule PokerEx.Auth do
   import Phoenix.Controller
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
   alias PokerEx.Router.Helpers
-  
+  require Logger
+
   def init(opts) do
     Keyword.fetch!(opts, :repo)
   end

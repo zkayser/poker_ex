@@ -13,6 +13,17 @@ defmodule PokerEx.Router do
   pipeline :api do
     plug :accepts, ["json"]
   end
+  
+  scope "/auth", PokerEx do
+    pipe_through :browser
+    
+    get "/:provider", AuthController, :request
+    get "/:provider/callback", AuthController, :callback
+  end
+  
+  #if Mix.env == :dev do
+  #  forward "/sent_emails", Bamboo.EmailPreviewPlug
+  #end
 
   scope "/", PokerEx do
     pipe_through :browser # Use the default browser stack

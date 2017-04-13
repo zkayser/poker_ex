@@ -19,7 +19,8 @@ defmodule PokerEx.Mixfile do
   def application do
     [mod: {PokerEx, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :comeonin, :bamboo, :scrivener, :scrivener_ecto]]
+                    :phoenix_ecto, :postgrex, :comeonin, :bamboo, :scrivener, :scrivener_ecto,
+                    :oauth, :ueberauth_facebook]]
   end
 
   # Specifies which paths to compile per environment.
@@ -47,7 +48,10 @@ defmodule PokerEx.Mixfile do
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_list, "~> 1.0"},
      {:wallaby, "~> 0.16.1"},
-     {:hound, "~> 1.0"}]
+     {:hound, "~> 1.0"},
+     {:ueberauth, "~> 0.4"},
+     {:oauth, github: "tim/erlang-oauth"},
+     {:ueberauth_facebook, "~> 0.6"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

@@ -29,6 +29,17 @@ config :poker_ex, PokerEx.Mailer,
   adapter: Bamboo.SendgridAdapter,
   api_key: System.get_env("SENDGRID_API_KEY")
   
+# Ueberauth config
+config :ueberauth, Ueberauth,
+  providers: [
+    facebook: { Ueberauth.Strategy.Facebook, [profile_fields: "name,email,first_name,last_name"] }
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+  client_id: System.get_env("FACEBOOK_APP_ID"),
+  client_secret: System.get_env("FACEBOOK_APP_SECRET"),
+  redirect_uri: System.get_env("FACEBOOK_REDIRECT_URI")
+  
 # Configure Hound's webdriver
 config :hound, driver: "phantomjs"
 

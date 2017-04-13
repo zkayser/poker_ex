@@ -25,6 +25,9 @@ config :poker_ex, PokerEx.Endpoint,
       ~r{web/templates/.*(eex)$}
     ]
   ]
+  
+#config :poker_ex, PokerEx.Mailer,
+#  adapter: Bamboo.LocalAdapter
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

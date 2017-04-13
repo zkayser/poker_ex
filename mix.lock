@@ -21,6 +21,8 @@
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mime": {:hex, :mime, "1.0.1", "05c393850524767d13a53627df71beeebb016205eb43bfbd92d14d24ec7a1b51", [:mix], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},
+  "oauth": {:git, "https://github.com/tim/erlang-oauth.git", "bd19896e31125f99ff45bb5850b1c0e74b996743", []},
+  "oauth2": {:hex, :oauth2, "0.8.3", "080ea0bf2f7060ddb66204ed756b8363d8c34f20fc5684183a16f19fc5d3ad97", [:mix], [{:hackney, "~> 1.6", [hex: :hackney, optional: false]}]},
   "phoenix": {:hex, :phoenix, "1.2.1", "6dc592249ab73c67575769765b66ad164ad25d83defa3492dc6ae269bd2a68ab", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}, {:phoenix_pubsub, "~> 1.0", [hex: :phoenix_pubsub, optional: false]}, {:plug, "~> 1.1", [hex: :plug, optional: false]}, {:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: false]}]},
   "phoenix_ecto": {:hex, :phoenix_ecto, "3.0.1", "42eb486ef732cf209d0a353e791806721f33ff40beab0a86f02070a5649ed00a", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, optional: false]}, {:phoenix_html, "~> 2.6", [hex: :phoenix_html, optional: true]}, {:plug, "~> 1.0", [hex: :plug, optional: false]}]},
   "phoenix_html": {:hex, :phoenix_html, "2.8.0", "777598a4b6609ad6ab8b180f7b25c9af2904644e488922bb9b9b03ce988d20b1", [:mix], [{:plug, "~> 1.0", [hex: :plug, optional: false]}]},
@@ -35,4 +37,6 @@
   "scrivener_ecto": {:hex, :scrivener_ecto, "1.1.3", "f5615f67964e43e8c9958263939bc365c4783cac652dc282784bbd32bb14723f", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, optional: false]}, {:postgrex, "~> 0.11.0 or ~> 0.12.0 or ~> 0.13.0", [hex: :postgrex, optional: true]}, {:scrivener, "~> 2.0", [hex: :scrivener, optional: false]}]},
   "scrivener_list": {:hex, :scrivener_list, "1.0.0", "ed5ad30f4f8a2573eb7264fa156939138dfa5d101461d6bb7011a7c7e884d802", [:mix], [{:scrivener_ecto, "~> 1.0", [hex: :scrivener_ecto, optional: false]}]},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
+  "ueberauth": {:hex, :ueberauth, "0.4.0", "bc72d5e5a7bdcbfcf28a756e34630816edabc926303bdce7e171f7ac7ffa4f91", [:mix], [{:plug, "~> 1.2", [hex: :plug, optional: false]}]},
+  "ueberauth_facebook": {:hex, :ueberauth_facebook, "0.6.0", "51006ed2b8adac923ff1820f7357647f39832408a9a327a939bcfc736c1630de", [:mix], [{:oauth2, "~> 0.8.0", [hex: :oauth2, optional: false]}, {:ueberauth, "~> 0.4", [hex: :ueberauth, optional: false]}]},
   "wallaby": {:hex, :wallaby, "0.16.1", "29bf72d80bb41992cd27dceb9bec8206255f58bb152d38716589769c722d1bf0", [:mix], [{:httpoison, "~> 0.11.0", [hex: :httpoison, optional: false]}, {:poison, ">= 1.4.0", [hex: :poison, optional: false]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}]}}
