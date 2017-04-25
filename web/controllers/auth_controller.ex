@@ -37,11 +37,11 @@ defmodule PokerEx.AuthController do
   
   defp player_params(user_info) do
     %{"name" => user_info["name"], "email" => user_info["email"], "first_name" => user_info["first_name"],
-      "last_name" => user_info["last_name"], "blurb" => " "}
+      "last_name" => user_info["last_name"], "blurb" => " ", "facebook_id" => user_info["id"]}
   end
   
   defp maybe_insert_player(conn, user_info) do
-    changeset = PokerEx.Player.changeset(%PokerEx.Player{}, player_params(user_info))
+    changeset = PokerEx.Player.facebook_reg_changeset(%PokerEx.Player{}, player_params(user_info))
     case Repo.insert(changeset) do
       {:ok, player} ->
         login_and_redirect(%{conn: conn, message: "Welcome to PokerEx, #{player.name}", player: player})

@@ -12,6 +12,7 @@ defmodule PokerEx.Player do
 		field :password, :string, virtual: true
 		field :password_hash, :string
 		field :blurb, :string
+		field :facebook_id, :string
 		has_many :invitations,  PokerEx.Invitation, foreign_key: :sender_id
 		has_many :owned_rooms, PokerEx.PrivateRoom, foreign_key: :owner_id
 		has_many :received_invitations, PokerEx.Invitation, foreign_key: :recipient_id
@@ -100,6 +101,12 @@ defmodule PokerEx.Player do
 		|> cast(params, ~w(password), [])
 		|> validate_length(:password, min: 6, max: 100)
 		|> put_pass_hash()
+	end
+	
+	def facebook_reg_changeset(model, params) do
+		model
+		|> changeset(params)
+		|> cast(params, ~w(facebook_id), [])
 	end
 	
 	def update_changeset(model, params \\ %{}) do
