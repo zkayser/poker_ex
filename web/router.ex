@@ -5,9 +5,12 @@ defmodule PokerEx.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_flash
-    plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug PokerEx.Auth, repo: PokerEx.Repo
+  end
+  
+  pipeline :csrf do
+    plug :protect_from_forgery
   end
 
   pipeline :api do
@@ -15,7 +18,7 @@ defmodule PokerEx.Router do
   end
   
   scope "/auth", PokerEx do
-    pipe_through :browser
+    pipe_through [:browser, :csrf]
     
     get "/:provider", AuthController, :request
     get "/:provider/callback", AuthController, :callback
@@ -26,7 +29,7 @@ defmodule PokerEx.Router do
   #end
 
   scope "/", PokerEx do
-    pipe_through :browser # Use the default browser stack
+    pipe_through [:browser, :csrf] # Use the default browser stack
 
     get "/", PageController, :index
     resources "/players", PlayerController, except: [:index, :delete, :edit]
@@ -44,6 +47,12 @@ defmodule PokerEx.Router do
     
     resources "/invitations", InvitationController, only: [:new, :create]
     resources "/rooms", PrivateRoomController, except: [:index]
+  end
+  
+  scope "/facebook", PokerEx do
+    pipe_through :browser
+    
+    post "/redirect", FacebookController, :fb_redirect
   end
 
   # Other scopes may use custom stacks.

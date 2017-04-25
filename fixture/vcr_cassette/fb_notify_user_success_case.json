@@ -11,23 +11,22 @@
       "url": "https://graph.facebook.com/v2.9//101994257035674/notifications"
     },
     "response": {
-      "body": "{\"error\":{\"message\":\"(#200) Only web canvas apps can send app notifications\",\"type\":\"OAuthException\",\"code\":200,\"fbtrace_id\":\"EqKnlGOVSc6\"}}",
+      "body": "{\"success\":true}",
       "headers": {
-        "WWW-Authenticate": "OAuth \"Facebook Platform\" \"insufficient_scope\" \"(#200) Only web canvas apps can send app notifications\"",
         "Access-Control-Allow-Origin": "*",
         "Pragma": "no-cache",
-        "Cache-Control": "no-store",
-        "x-fb-rev": "2979269",
+        "Cache-Control": "private, no-cache, no-store, must-revalidate",
+        "x-fb-rev": "2980367",
         "Content-Type": "text/javascript; charset=UTF-8",
-        "x-fb-trace-id": "EqKnlGOVSc6",
+        "x-fb-trace-id": "E9HCaaUZfYk",
         "facebook-api-version": "v2.9",
         "Expires": "Sat, 01 Jan 2000 00:00:00 GMT",
-        "X-FB-Debug": "6pEspJXOk2hdIzBk/JdYjlik12RIlDXNSycP+i/6Qa+ETdhenCrWz2A/9RrYddj7YdKr1/5LpcBXQgkcjx9WBg==",
-        "Date": "Tue, 25 Apr 2017 15:48:42 GMT",
+        "X-FB-Debug": "Kj8GiCtppE8Q5w9Pz4RdIJzdXCuMc/Hpqya3n/xM0KxaDe33pMUh9dEvGMTQKGX2F9gkkKg5oum8n54EKWlQ2g==",
+        "Date": "Tue, 25 Apr 2017 23:40:49 GMT",
         "Connection": "keep-alive",
-        "Content-Length": "140"
+        "Content-Length": "16"
       },
-      "status_code": 403,
+      "status_code": 200,
       "type": "ok"
     }
   }
