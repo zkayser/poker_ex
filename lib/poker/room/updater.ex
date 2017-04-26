@@ -298,12 +298,12 @@ defmodule PokerEx.Room.Updater do
       
   """
   @spec advance_active(Room.t) :: Room.t
-  def advance_active(%Room{active: active, skip_advance?: true} = room) when is_list(active) and length(active) > 1 do
+  def advance_active(%Room{active: active, type: private} = room) when is_list(active) and length(active) > 1 do
     current = hd(active)
     update = Enum.drop(active, 1) ++ [current]
+    maybe_send_facebook_notification(hd(update), room.room_id)
     %Room{ room | active: update}
   end
-  def advance_active(%Room{skip_advance?: true} = room), do: room
   def advance_active(%Room{active: active} = room) when is_list(active) and length(active) > 1 do
     current = hd(active)
     update = Enum.drop(active, 1) ++ [current]
@@ -866,4 +866,29 @@ defmodule PokerEx.Room.Updater do
 		deal(players -- [player], remaining, updated ++ [{player, hand}], number)
 	end
 	defp deal(_, deck, updated, _), do: {deck, updated}
+	defp maybe_send_facebook_notification({user_name, _}, room_id) do
+	  user = PokerEx.Repo.get_by(PokerEx.Player, name: user_name)
+	  if user, do: send_notification(user, room_id)
+	end
+	
+	def send_notification(user, room_id) do
+	  case user.facebook_id do
+	    nil -> :ok
+	    id when is_binary(id) ->
+	      Task.start(fn ->
+	        PokerEx.Services.Facebook.notify_user(
+	          %{user_id: id,
+	            template: template(user.name), 
+	            return_url: form_url(room_id)})
+	      end)
+	  end
+	end
+	
+	defp template(user_name) do
+	  "#{user_name}, it looks like its your turn to make a move in PokerEx!"
+	end
+	
+	defp form_url(room_id) do
+	  "private/rooms/#{room_id}"
+	end
 end
