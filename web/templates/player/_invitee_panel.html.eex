@@ -30,7 +30,18 @@
       <hr>
       <p>Invite friends to join</p><br>
       <p><%= button(content_tag(:i, "person_add", class: "material-icons"), to: invitation_path(@conn, :new),
-            method: "get", class: "btn-floating green waves-effect") %></p>
+            method: "get", class: "btn-floating green waves-effect") %></p><br/>
+      <%= if @conn.assigns.current_player.facebook_id do %>
+      <p>
+        <button class="btn light-blue waves-effect" id="fb-invite-btn">
+          Invite Facebook Friends
+        </button>
+      </p>
+      <% else %>
+        <p class="white-text">
+          Or sign in with your Facebook account to invite Facebook friends.
+        </p>
+      <% end %>
     </div>
   </div>
 </div>

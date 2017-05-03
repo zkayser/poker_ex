@@ -22815,6 +22815,10 @@ var _notifications = require('../../notifications/notifications');
 
 var _notifications2 = _interopRequireDefault(_notifications);
 
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -22841,6 +22845,18 @@ var PlayerShowView = function (_MainView) {
       // Connect to a socket and subscribe to notifications to the 
       // player model, invites to games, and messages.
       _notifications2.default.init();
+      setTimeout(function () {
+        if (window.FB) {
+          var FB = window.FB;
+          (0, _jquery2.default)("#fb-invite-btn").click(function () {
+            FB.ui({ method: 'apprequests',
+              message: "Join me for a game of Poker on PokerEX!"
+            }, function (response) {
+              console.log(response);
+            });
+          });
+        }
+      }, 500);
     }
   }, {
     key: 'unmount',

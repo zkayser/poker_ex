@@ -11,4 +11,5 @@
   <div class="center-align">
     <%= button("Join a Public Room", to: room_path(@conn, :index), method: :get, class: "btn large white-text green accent-3") %>
   </div>
+  <%= render "_facebook_sdk.html", conn: @conn %>
 </div>

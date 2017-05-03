@@ -37,13 +37,13 @@ defmodule PokerEx.Router do
   end
   
   scope "/protected", PokerEx do
-    pipe_through [:browser, :authenticate_player]
+    pipe_through [:browser, :csrf, :authenticate_player]
     
     resources "/rooms", RoomController, only: [:index, :show]
   end
   
   scope "/private", PokerEx do
-    pipe_through [:browser, :authenticate_player]
+    pipe_through [:browser, :csrf, :authenticate_player]
     
     resources "/invitations", InvitationController, only: [:new, :create]
     resources "/rooms", PrivateRoomController, except: [:index]

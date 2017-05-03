@@ -866,6 +866,7 @@ defmodule PokerEx.Room.Updater do
 		deal(players -- [player], remaining, updated ++ [{player, hand}], number)
 	end
 	defp deal(_, deck, updated, _), do: {deck, updated}
+	
 	defp maybe_send_facebook_notification({user_name, _}, room_id) do
 	  user = PokerEx.Repo.get_by(PokerEx.Player, name: user_name)
 	  if user, do: send_notification(user, room_id)
@@ -881,6 +882,7 @@ defmodule PokerEx.Room.Updater do
 	            template: template(user.name), 
 	            return_url: form_url(room_id)})
 	      end)
+	     _ -> :ok
 	  end
 	end
 	
