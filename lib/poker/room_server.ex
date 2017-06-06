@@ -1,10 +1,10 @@
 defmodule PokerEx.RoomServer do
   use GenServer
-  
+
   def start_link(initial_rooms) do
     GenServer.start_link(__MODULE__, initial_rooms, name: __MODULE__)
   end
-  
+
   def init(rooms \\ 1) do
     send(self(), {:start_rooms, rooms})
     {:ok, %{}}
@@ -18,7 +18,7 @@ defmodule PokerEx.RoomServer do
     end
     {:noreply, state}
   end
-  
+
   def handle_info(msg, state) do
     IO.puts "RoomServer - Unknown message received: #{inspect(msg)}"
     {:noreply, state}

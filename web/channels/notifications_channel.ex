@@ -61,8 +61,7 @@ defmodule PokerEx.NotificationsChannel do
     end
   end
 
-  def handle_in("new_page", %{"get" => page_num} = params, player, socket) do
-    IO.puts "Got params: #{inspect(params)}"
+  def handle_in("new_page", %{"get" => page_num}, player, socket) do
     player = player |> Repo.preload(:participating_rooms)
     page_num = String.to_integer(page_num)
     pagination = Scrivener.paginate(player.participating_rooms, %Scrivener.Config{page_number: page_num, page_size: 10})
