@@ -1,13 +1,12 @@
 import $ from "jquery";
 
 export default class PlayerUpdates {
-  constructor() {
-    
-  }
-  
-  static init(channel) {
+  constructor() {}
+
+  static init(socket) {
+    let profile = document.getElementById("player-profile");
+    let playerId = profile.getAttribute("data-player-id");
     let forms = ["#name-form", "#first-name-form", "#last-name-form", "#email-form", "#blurb-form"];
-    
     let inputIdToBtn = {
       "name": "#name-edit",
       "first-name": "#first-name-edit",
@@ -15,7 +14,6 @@ export default class PlayerUpdates {
       "email": "#email-edit",
       "blurb": "#blurb-edit"
     };
-    
     let inputIdToServAttr = {
       "#name": "name",
       "#first-name": "first_name",
@@ -23,9 +21,17 @@ export default class PlayerUpdates {
       "#email": "email",
       "#blurb": "blurb"
     };
-    
     let dirtyFields = [];
-    
+
+    let channel = socket.channel(`player_updates:${playerId}`);
+    channel.join()
+    .receive("ok", resp => {
+      console.log("Successfully connected to player_updates channel for player with ID: ", playerId);
+    })
+    .receive("error", reason => {
+      console.log("Could not join player_updates channel for reason:\n ", reason);
+    });
+
     document.addEventListener("input", (e) => {
       if (!(Object.keys(inputIdToBtn).includes(e.target.id))) {return}
       else {
@@ -33,21 +39,21 @@ export default class PlayerUpdates {
         dirtyFields.push(e.target.id);
       }
     });
-    
+
     forms.forEach((form) => {
       $(form).submit((e) => {
         e.preventDefault();
-        
+
         // Return if the input field has not been touched
         if (!(dirtyFields.includes(form.replace("-form", "").replace("#", "")))) {
           return;
         }
-        
+
         let btn = form.replace("-form", "-edit");
         let inputId = form.replace("-form", "");
         let value = $(inputId)[0].value;
         let pushParams = new Object();
-        
+
         pushParams[inputIdToServAttr[inputId]] = value;
         channel.push("player_update", pushParams)
         .receive("ok", (player) => {
@@ -61,7 +67,7 @@ export default class PlayerUpdates {
         });
       });
     });
-    
+
     $("#chip-edit").click(() => {
       channel.push("player_update", {chips: 1000})
       .receive("ok", (player) => {
@@ -74,39 +80,39 @@ export default class PlayerUpdates {
       });
     });
   }
-  
+
   static updatePlayerInfo(player) {
-    const userName = $("#player-name-info");
-    const firstName = $("#player-first-name-info");
-    const lastName = $("#player-last-name-info");
-    const email = $("#player-email-info");
-    const chips = $("#player-chips-info");
-    const blurb = $("#player-blurb-info");
-    
+    const USERNAME = $("#player-name-info");
+    const FIRST_NAME = $("#player-first-name-info");
+    const LAST_NAME = $("#player-last-name-info");
+    const EMAIL = $("#player-email-info");
+    const CHIPS = $("#player-chips-info");
+    const BLURB = $("#player-blurb-info");
+
     switch (player.update_type) {
-      case "name": 
-        PlayerUpdates.updateEl(userName, player.name, "#name");
+      case "name":
+        PlayerUpdates.updateEl(USERNAME, player.name, "#name");
         break;
       case "first_name":
-        PlayerUpdates.updateEl(firstName, player.first_name, "#first-name");
+        PlayerUpdates.updateEl(FIRST_NAME, player.first_name, "#first-name");
         break;
-      case "last_name": 
-        PlayerUpdates.updateEl(lastName, player.last_name, "#last-name");
+      case "last_name":
+        PlayerUpdates.updateEl(LAST_NAME, player.last_name, "#last-name");
         break;
       case "email":
-        PlayerUpdates.updateEl(email, player.email, "#email");
+        PlayerUpdates.updateEl(EMAIL, player.email, "#email");
         break;
       case "blurb":
-        PlayerUpdates.updateEl(blurb, player.blurb, "#blurb");
+        PlayerUpdates.updateEl(BLURB, player.blurb, "#blurb");
         break;
       case "chips":
-        PlayerUpdates.updateEl(chips, player.chips, "#chips");
+        PlayerUpdates.updateEl(CHIPS, player.chips, "#chips");
         break;
       default:
         break;
     }
   }
-  
+
   static updateEl(el, text, prefix) {
     el.empty().text(text);
     $(`${prefix}-header`).click();

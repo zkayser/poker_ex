@@ -21895,7 +21895,7 @@ var Notifications = function () {
       var channel = socket.channel("notifications:" + playerId);
 
       channel.join().receive("ok", function (resp) {
-        _playerUpdates2.default.init(channel);
+        _playerUpdates2.default.init(socket);
         console.log("successfully joined notifications channel for player: ", playerId);
       }).receive("error", function (reason) {
         console.log("joining notifications channel failed for reason: ", reason);
@@ -21961,7 +21961,7 @@ var Notifications = function () {
             owner = _ref.owner;
 
         var appendInvitation = function appendInvitation() {
-          var markup = "\n                    <div class=\"invitation-row valign-wrapper\" id=\"row-" + id + "\">\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"invitation-title\">" + title + "</span>\n                      </div>\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"num-players-invitation\">Currently playing: \n                          " + participants + "\n                        </span>\n                      </div>\n                      <div class=\"col s4 center-align white-text\">\n                        <span id=\"go-btn-span\">\n                          <a href=\"/private/rooms/" + id + "\" class=\"btn-floating green waves-effect left\">Go</a>\n                        </span>\n                        <span id=\"invitation-decline\">\n                          <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect right\" id=\"decline-" + id + "\">\n                            <i class=\"material-icons\">clear</i>\n                          </button>\n                        </span>\n                      </div>\n                    </div>";
+          var markup = "\n                    <div class=\"invitation-row valign-wrapper\" id=\"row-" + id + "\">\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"invitation-title\">" + title + "</span>\n                      </div>\n                      <div class=\"col s4 center-align white-text valign\">\n                        <span id=\"num-players-invitation\">Currently playing:\n                          " + participants + "\n                        </span>\n                      </div>\n                      <div class=\"col s4 center-align white-text\">\n                        <span id=\"go-btn-span\">\n                          <a href=\"/private/rooms/" + id + "\" class=\"btn-floating green waves-effect left\">Go</a>\n                        </span>\n                        <span id=\"invitation-decline\">\n                          <button type=\"button\" class=\"btn-floating pink decline-btn waves-effect right\" id=\"decline-" + id + "\">\n                            <i class=\"material-icons\">clear</i>\n                          </button>\n                        </span>\n                      </div>\n                    </div>";
           (0, _jquery2.default)(".invitation-list").append(markup);
           (0, _jquery2.default)("#decline-" + id).on('click', function () {
             channel.push('decline_invitation', { room: id });
@@ -22011,9 +22011,10 @@ var PlayerUpdates = function () {
 
   _createClass(PlayerUpdates, null, [{
     key: "init",
-    value: function init(channel) {
+    value: function init(socket) {
+      var profile = document.getElementById("player-profile");
+      var playerId = profile.getAttribute("data-player-id");
       var forms = ["#name-form", "#first-name-form", "#last-name-form", "#email-form", "#blurb-form"];
-
       var inputIdToBtn = {
         "name": "#name-edit",
         "first-name": "#first-name-edit",
@@ -22021,7 +22022,6 @@ var PlayerUpdates = function () {
         "email": "#email-edit",
         "blurb": "#blurb-edit"
       };
-
       var inputIdToServAttr = {
         "#name": "name",
         "#first-name": "first_name",
@@ -22029,8 +22029,14 @@ var PlayerUpdates = function () {
         "#email": "email",
         "#blurb": "blurb"
       };
-
       var dirtyFields = [];
+
+      var channel = socket.channel("player_updates:" + playerId);
+      channel.join().receive("ok", function (resp) {
+        console.log("Successfully connected to player_updates channel for player with ID: ", playerId);
+      }).receive("error", function (reason) {
+        console.log("Could not join player_updates channel for reason:\n ", reason);
+      });
 
       document.addEventListener("input", function (e) {
         if (!Object.keys(inputIdToBtn).includes(e.target.id)) {
@@ -22080,31 +22086,31 @@ var PlayerUpdates = function () {
   }, {
     key: "updatePlayerInfo",
     value: function updatePlayerInfo(player) {
-      var userName = (0, _jquery2.default)("#player-name-info");
-      var firstName = (0, _jquery2.default)("#player-first-name-info");
-      var lastName = (0, _jquery2.default)("#player-last-name-info");
-      var email = (0, _jquery2.default)("#player-email-info");
-      var chips = (0, _jquery2.default)("#player-chips-info");
-      var blurb = (0, _jquery2.default)("#player-blurb-info");
+      var USERNAME = (0, _jquery2.default)("#player-name-info");
+      var FIRST_NAME = (0, _jquery2.default)("#player-first-name-info");
+      var LAST_NAME = (0, _jquery2.default)("#player-last-name-info");
+      var EMAIL = (0, _jquery2.default)("#player-email-info");
+      var CHIPS = (0, _jquery2.default)("#player-chips-info");
+      var BLURB = (0, _jquery2.default)("#player-blurb-info");
 
       switch (player.update_type) {
         case "name":
-          PlayerUpdates.updateEl(userName, player.name, "#name");
+          PlayerUpdates.updateEl(USERNAME, player.name, "#name");
           break;
         case "first_name":
-          PlayerUpdates.updateEl(firstName, player.first_name, "#first-name");
+          PlayerUpdates.updateEl(FIRST_NAME, player.first_name, "#first-name");
           break;
         case "last_name":
-          PlayerUpdates.updateEl(lastName, player.last_name, "#last-name");
+          PlayerUpdates.updateEl(LAST_NAME, player.last_name, "#last-name");
           break;
         case "email":
-          PlayerUpdates.updateEl(email, player.email, "#email");
+          PlayerUpdates.updateEl(EMAIL, player.email, "#email");
           break;
         case "blurb":
-          PlayerUpdates.updateEl(blurb, player.blurb, "#blurb");
+          PlayerUpdates.updateEl(BLURB, player.blurb, "#blurb");
           break;
         case "chips":
-          PlayerUpdates.updateEl(chips, player.chips, "#chips");
+          PlayerUpdates.updateEl(CHIPS, player.chips, "#chips");
           break;
         default:
           break;
@@ -23186,8 +23192,8 @@ exports.default = RoomShowView;
 
 ;require.alias("jquery/dist/jquery.js", "jquery");
 require.alias("process/browser.js", "process");
-require.alias("sinon/lib/sinon.js", "sinon");
 require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");
+require.alias("sinon/lib/sinon.js", "sinon");
 require.alias("phoenix/priv/static/phoenix.js", "phoenix");
 require.alias("util/support/isBufferBrowser.js", "util/support/isBuffer");
 require.alias("util/support/isBufferBrowser.js", "util/support/isBuffer.js");

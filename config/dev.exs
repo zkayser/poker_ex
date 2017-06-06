@@ -25,7 +25,7 @@ config :poker_ex, PokerEx.Endpoint,
       ~r{web/templates/.*(eex)$}
     ]
   ]
-  
+
 #config :poker_ex, PokerEx.Mailer,
 #  adapter: Bamboo.LocalAdapter
 

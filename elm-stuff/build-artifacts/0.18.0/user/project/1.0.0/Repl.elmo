@@ -1,21 +1,2 @@
 var _user$project$Repl$t_s_o_l = {ctor: '_Tuple0'};
-var _user$project$Repl$d_e_l_t_r_o_n_3_0_3_0 = A2(
-	_elm_lang$core$List$filter,
-	function (n) {
-		return _elm_lang$core$Native_Utils.eq(
-			A2(_elm_lang$core$Basics_ops['%'], n, 2),
-			0);
-	},
-	{
-		ctor: '::',
-		_0: 1,
-		_1: {
-			ctor: '::',
-			_0: 2,
-			_1: {
-				ctor: '::',
-				_0: 3,
-				_1: {ctor: '[]'}
-			}
-		}
-	});
+var _user$project$Repl$d_e_l_t_r_o_n_3_0_3_0 = _elm_lang$core$String$reverse('stressed');

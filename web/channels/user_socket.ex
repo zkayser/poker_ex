@@ -6,14 +6,16 @@ defmodule PokerEx.UserSocket do
   # channel "room:*", PokerEx.RoomChannel
   channel "players:*", PokerEx.PlayersChannel
   channel "notifications:*", PokerEx.NotificationsChannel
+  channel "player_updates:*", PokerEx.PlayerUpdatesChannel
   channel "online:lobby", PokerEx.OnlineChannel
   channel "online:search", PokerEx.OnlineChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,
-            timeout: 45_000, 
+            timeout: 45_000,
             check_origin: [
               "http://localhost:4001",
+              "http://localhost:8080",
               "https://phoenix-experiment-zkayser.c9users.io",
               "//ancient-forest-15148.herokuapp.com/",
               ]
@@ -34,14 +36,14 @@ defmodule PokerEx.UserSocket do
     socket = assign(socket, :player_name, name)
     {:ok, socket}
   end
-  
+
   def connect(%{"token" => token}, socket) do
     case Phoenix.Token.verify(socket, "user socket", token, max_age: @max_age) do
       {:ok, player_id} -> {:ok, assign(socket, :player_id, player_id)}
       {:error, _reason} -> :error
     end
-  end 
-  
+  end
+
   def connect(_params, _socket), do: :error
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
