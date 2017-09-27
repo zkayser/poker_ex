@@ -39,8 +39,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :poker_ex, PokerEx.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
+  username: "zkayser",
+  password: System.get_env("POSTGRES"),
   database: "poker_ex_dev",
   hostname: "localhost",
   template: "template0",

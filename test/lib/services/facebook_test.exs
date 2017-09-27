@@ -5,7 +5,7 @@ defmodule PokerEx.Services.FacebookTest do
   
   @app_id System.get_env("FB_TEST_APP_ID")
   @app_secret System.get_env("FB_TEST_APP_SEC")
-  @valid_id "101994257035674"
+  @valid_id "114171069145279"
   @invalid_id "101085637123100"
   @template "Test template"
   @url "/"
