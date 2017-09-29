@@ -7,7 +7,7 @@ use Mix.Config
 # watchers to your application. For example, we use it
 # with brunch.io to recompile .js and .css sources.
 config :poker_ex, PokerEx.Endpoint,
-  http: [port: 8080],
+  http: [port: 3000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

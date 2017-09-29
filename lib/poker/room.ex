@@ -156,20 +156,20 @@ defmodule PokerEx.Room do
 
 	def terminate(:normal, _state, %Room{type: :public}), do: :void
 	def terminate(_reason, _state, %Room{type: :public, chip_roll: chip_roll}) when is_map(chip_roll) do
+		Logger.warn "Terminating public room and restoring chips to players."
 		chip_roll
 		|> Map.keys
 		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
 		:void
 	end
 	def terminate(:manual, state, %Room{chip_roll: chip_roll} = room) when is_map(chip_roll) do
-		Logger.info "Manually terminating #{room.room_id}"
 		chip_roll
 			|> Map.keys()
 			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
 		:void
 	end
-	def terminate(_reason, state, %Room{type: :private, room_id: id} = room) do
-		Logger.info "Now terminating #{inspect(id)}..."
+	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
+		Logger.error "Now terminating #{inspect(id)} for reason: #{reason}...\nThis terminate call will attempt to store game state to the database."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
 		room = :erlang.term_to_binary(room)
 		state = :erlang.term_to_binary(state)
@@ -293,7 +293,8 @@ defmodule PokerEx.Room do
 
 	def handle_event({:call, from}, {:join, _player}, state, room), do: {:next_state, state, room, [{:reply, from, room}]}
 
-	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 1 do
+	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating, active: active} = room)
+	when length(seating) == 1 and length(active) <= 1 do
 		update =
 			room
 			|> Updater.chip_roll(player, :leaving)

@@ -14,6 +14,7 @@ defmodule PokerEx.UserSocket do
   transport :websocket, Phoenix.Transports.WebSocket,
             timeout: 45_000,
             check_origin: [
+              "http://localhost:3000",
               "http://localhost:4001",
               "http://localhost:8080",
               "https://phoenix-experiment-zkayser.c9users.io",

@@ -5,7 +5,7 @@ use Mix.Config
 config :poker_ex, PokerEx.Endpoint,
   http: [port: 4001],
   server: true
-  
+
 # Set up SQL Sandbox for Wallaby Integration tests
 config :poker_ex, :sql_sandbox, true
 
@@ -25,7 +25,6 @@ config :poker_ex, PokerEx.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "zkayser",
   password: System.get_env("POSTGRES"),
-  loggers: [{Ecto.LogEntry, :log, [:debug]}],
   database: "poker_ex_test",
   hostname: "localhost",
   template: "template0",

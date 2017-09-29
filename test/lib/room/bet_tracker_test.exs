@@ -3,11 +3,11 @@ defmodule PokerEx.BetTrackerTest do
   alias PokerEx.Room
   alias PokerEx.Room.BetTracker
   alias PokerEx.Player
-  
+
   setup do
-    #:ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
-    #Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
-    
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
+    Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
+
     a = Player.registration_changeset(%Player{}, %{
       "name" => "A",
       "password" => "password",
@@ -16,7 +16,7 @@ defmodule PokerEx.BetTrackerTest do
       "last_name" => "B"
     })
     PokerEx.Repo.insert(a)
-    
+
     b = Player.registration_changeset(%Player{}, %{
       "name" => "B",
       "password" => "password",
@@ -27,6 +27,6 @@ defmodule PokerEx.BetTrackerTest do
     PokerEx.Repo.insert(b)
     :ok
   end
-  
+
   doctest BetTracker
 end
