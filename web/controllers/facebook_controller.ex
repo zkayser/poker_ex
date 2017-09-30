@@ -1,8 +1,8 @@
 defmodule PokerEx.FacebookController do
-  use PokerEx.Web, :controller
-  
+  use PokerExWeb, :controller
+
   def fb_redirect(conn, _params) do
     conn
-    |> redirect(to: "/")
+    |> redirect(to: "/protected/rooms")
   end
 end

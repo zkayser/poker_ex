@@ -1,4 +1,4 @@
-defmodule PokerEx.ConnCase do
+defmodule PokerExWeb.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -25,11 +25,11 @@ defmodule PokerEx.ConnCase do
       import Ecto.Changeset
       import Ecto.Query
 
-      import PokerEx.Router.Helpers
+      import PokerExWeb.Router.Helpers
       import PokerEx.TestHelpers
 
       # The default endpoint for testing
-      @endpoint PokerEx.Endpoint
+      @endpoint PokerExWeb.Endpoint
     end
   end
 

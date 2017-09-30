@@ -1,0 +1,334 @@
+@keyframes slide-in {
+	from {left: 150em;}
+	to {left: 0;}
+}
+
+@keyframes flash {
+	from {
+		background-color: black;
+		border-color: black;
+	}
+	to {
+		background-color: #00bcd4;
+		border-color: #00bcd4;
+		color: white;
+	}
+}
+
+.slide-onscreen-right {
+	animation: slide-in 1s;
+	-webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+#offscreen-left {
+	left: 150em;
+}
+
+.table-container {
+	display: none;
+}
+
+.circle-container {
+	position: relative;
+	width: 30em;
+	height: 30em;
+	padding: 2.8em; /*= 2em * 1.4 (2em = half the width of an img, 1.4 = sqrt(2))*/
+	border: solid 5px black;
+	background-color: darkgreen;
+	border-radius: 50%;
+	margin: 1.75em auto 0;
+	left: 150em;
+}
+
+.circle-container a {
+	/*display: block;*/
+	overflow: hidden;
+	position: absolute;
+	top: 50%; left: 50%;
+	width: 4em; height: 4em;
+	margin: -2em; /* 2em = 4em/2 */ /* half the width */
+	display: flex;
+	border: 1px solid black;
+	border-radius: 50%;
+	background-color: black;
+	align-items: center;
+}
+
+#winning-hand-row {
+	display: none;
+	position: absolute;
+	z-index: 10;
+}
+
+#winning-hand-panel {
+	border-radius: 1em;
+}
+
+#player-card-row {
+	transform: translateX(7.5em);
+}
+
+@media (min-width: 1056px) {
+	
+	.deg0 { transform: translate(12.3em); }
+	.deg45 { transform: rotate(45deg) translate(11.5em) rotate(-45deg); }
+	.deg90 { transform: rotate(90deg) translate(10.9em) rotate(-90deg); }
+	.deg135 { transform: rotate(135deg) translate(11.5em) rotate(-135deg); }
+	.deg180 { transform: translate(-12.3em); }
+	.deg225 { transform: rotate(225deg) translate(11.5em) rotate(-225deg); }
+	.deg270 { transform: rotate(270deg) translate(10.9em) rotate(-270deg); }
+	.deg315 { transform: rotate(315deg) translate(11.5em) rotate(-315deg); }
+	
+	.circle-center {
+		height: 15em;
+		transform: translateY(-2.5em);
+	}
+	
+	.table-cards {
+		transform: translateY(1em);
+	}
+	
+	#deck-red-suit {
+		width: 1.5em;
+		height: 1.75em;
+	}
+	
+	#deck-black-suit {
+		width: 1.5em;
+		height: 1.75em;
+	}
+	
+	#deck { 
+		left: 50%;
+		top: 50%;
+		width: 1.25em;
+		height: 1.75em;
+		transform: translateX(-0.88em) translateY(-3.5em);
+	}
+	
+	#pot {
+		transform: translateX(-2em) translateY(2em);
+	}
+}
+
+@media (max-width: 1055px) {
+	
+	.deg0 { transform: translate(12.3em); }
+	.deg45 { transform: rotate(45deg) translate(11.8em) rotate(-45deg); }
+	.deg90 { transform: rotate(90deg) translate(11.55em) rotate(-90deg); }
+	.deg135 { transform: rotate(135deg) translate(11.8em) rotate(-135deg); }
+	.deg180 { transform: translate(-12.3em); }
+	.deg225 { transform: rotate(225deg) translate(11.8em) rotate(-225deg); }
+	.deg270 { transform: rotate(270deg) translate(11.55em) rotate(-270deg); }
+	.deg315 { transform: rotate(315deg) translate(11.8em) rotate(-315deg); }
+	
+	.circle-center {
+		height: 15em;
+		padding-top: 1em;
+		transform: translateY(-2em);
+	}
+	
+	.table-cards {
+		padding-left: 1.35em;
+	}
+	
+	#deck-red-suit {
+		width: 1.25em;
+		height: 1.5em;
+	}
+	
+	#deck-black-suit {
+		width: 1.25em;
+		height: 1.5em;
+	}
+	
+	#deck { 
+		left: 50%;
+		top: 50%;
+		width: 1.05em;
+		height: 1.5em;
+		transform: translateX(-0.7em) translateY(-3.75em);
+	}
+	
+	#pot {
+		transform: translateX(-2em) translateY(1em);
+	}
+}
+
+@media (max-width: 456px) {
+	.circle-container { 
+		width: 26em; 
+		height: 26em;
+		margin-left: 2em;
+	}
+	
+	.deg0 { transform: translate(10.3em); }
+	.deg45 { transform: rotate(45deg) translate(10.9em) rotate(-45deg); }
+	.deg90 { transform: rotate(90deg) translate(11.6em) rotate(-90deg); }
+	.deg135 { transform: rotate(135deg) translate(10.9em) rotate(-135deg); }
+	.deg180 { transform: translate(-10.3em); }
+	.deg225 { transform: rotate(225deg) translate(10.9em) rotate(-225deg); }
+	.deg270 { transform: rotate(270deg) translate(11.6em) rotate(-270deg); }
+	.deg315 { transform: rotate(315deg) translate(10.9em) rotate(-315deg); }
+	
+	#deck { 
+		left: 50%;
+		top: 50%;
+		height: 1.5em;
+		width: 1em;
+		transform: translateX(-1em) translateY(-3.5em);
+	}
+	
+	.table-cards {
+		padding-left: 0;
+		transform: translateX(-0.5em);
+	}
+	
+	#deck-black-suit {
+		width: 1.5em;
+	}
+	
+	#deck-red-suit {
+		width: 1.5em;
+	}
+	
+	#pot {
+		left: 50%;
+		top: 50%;
+		width: 4em;
+		transform: translateX(-2.5em) translateY(0.5em);
+	}
+}
+
+@media (min-width: 989px) {
+	#player-toolbar {
+		margin-left: 300px;
+	}
+	
+	#winning-hand-row {
+		transform: translate(20em, 4em);
+	}
+	
+}
+
+@media (max-width: 988px) {
+	.circle-container {
+		margin-left: 8.5em;
+	}
+	
+	#winning-hand-row {
+		transform: translate(7.5em, 4em);
+	}
+	
+	#player-card-row {
+		margin-left: 8.5em;
+	}
+}
+
+@media (max-width: 570px) {
+	.circle-container {
+		margin-left: 3.5em;
+	}
+	
+	#winning-hand-row {
+		transform: translate(2.5em, 4em);
+	}
+	
+	#player-card-row {
+		margin-left: 3.5em;
+	}
+}
+
+@media (max-width: 456px) {
+	.circle-container {
+		margin-left: 1.5em;
+	}
+	
+	#winning-hand-row {
+		width: 24em;
+		transform: translate(2em, 4em);
+	}
+	
+	#winning-hand-title {
+		font-size: 3em;
+	}
+	
+	#player-card-row {
+		margin-left: 0;
+	}
+}
+
+.circle-container div { display: block; width: 100%; }
+
+.circle-center {
+  position: absolute;
+  overflow: hidden;
+  height: 15em;
+  top: 43.75%;
+  margin: -2em;
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  left: 30%;
+}
+
+.circle-container div .deck {
+  display: flex;
+  justify-content: center;
+}
+
+div .table-cards {
+  justify-content: space-around;
+  position: initial;
+  height: 3em;
+  margin-top: 0.5em;
+}
+
+.circle-container div {
+  width: 16em;
+}
+
+.deck {
+	position: initial;
+	height: 3em;
+}
+
+.pot {
+	display: flex;
+	justify-content: center;
+	position: initial;
+	height: 3em;
+}
+
+#pot {
+	position: relative;
+	height: 3em;
+	top: 80%;
+	left: 60%;
+	display: flex;
+	justify-content: center;
+}
+
+.circle-container .active-player {
+	animation: flash 2s ease-out reverse; 
+	-webkit-animation-iteration-count: infinite;
+  -moz-animation-iteration-count: infinite;
+  -ms-animation-iteration-count: infinite;
+  -o-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+  -webkit-animation-direction: alternate;
+}
+
+.short-controls {
+	opacity: 0;
+	transform: translateY(-5em);
+}
+
+.short-control-btn {
+	opacity: 0;
+}

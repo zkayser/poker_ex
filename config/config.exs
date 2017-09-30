@@ -10,10 +10,10 @@ config :poker_ex,
   ecto_repos: [PokerEx.Repo]
 
 # Configures the endpoint
-config :poker_ex, PokerEx.Endpoint,
+config :poker_ex, PokerExWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "VOA984IYsUk+9lwEAQpMEanCWfYyNlcIOy7Buu+KXSzbu0BY7BCbdo1kmrVVEFbK",
-  render_errors: [view: PokerEx.ErrorView, accepts: ~w(html json)],
+  render_errors: [view: PokerExWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: PokerEx.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
@@ -23,12 +23,12 @@ config :logger, :console,
   metadata: [:request_id],
   backends: [:console],
   compile_time_purge_level: :warn
-  
+
 # Configure Mailer module
 config :poker_ex, PokerEx.Mailer,
   adapter: Bamboo.SendgridAdapter,
   api_key: System.get_env("SENDGRID_API_KEY")
-  
+
 # Ueberauth config
 config :ueberauth, Ueberauth,
   providers: [
@@ -39,7 +39,7 @@ config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
   client_id: System.get_env("FACEBOOK_APP_ID"),
   client_secret: System.get_env("FACEBOOK_APP_SECRET"),
   redirect_uri: System.get_env("FACEBOOK_REDIRECT_URI")
-  
+
 # Configure Hound's webdriver
 config :hound, driver: "phantomjs"
 

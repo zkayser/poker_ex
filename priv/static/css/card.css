@@ -1,0 +1,152 @@
+#deck {
+  width: 1em;
+  font-size: 2em;
+  padding: 0;
+  margin: 0;
+  color: darkred;
+  border: 0;
+  z-index: 0;
+  position: absolute;
+  left: 40%;
+}
+
+#deck-black-suit {
+  width: 3rem;
+  height: 3rem;
+  font-size: 2em;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  z-index: 0;
+}
+
+#deck-red-suit {
+  height: 3rem;
+  width: 3rem;
+  font-size: 2em;
+  padding: 0;
+  margin: 0;
+  color: darkred;
+  border: 0;
+  z-index: 0;
+}
+
+#player-card-image {
+  height: 10em;
+}
+
+#player-card-row {
+  margin-top: 2em;
+  margin-bottom: 3em;
+}
+
+#winning-hand {
+  height: 5em;
+}
+
+.card-one {
+  opacity: 0;
+  animation: first-card 0.4s linear 1.3s;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-two {
+  opacity: 0;
+  animation: second-card 0.4s linear 1.3s;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-three {
+  opacity: 0;
+  animation: third-card 0.4s linear 1.3s;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-four {
+  opacity: 0;
+  animation: fourth-card 0.4s linear 1.3s;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+.card-five {
+  opacity: 0;
+  animation: fifth-card 0.4s linear 1.3s;
+  -webkit-animation-fill-mode: forwards;
+  -moz-animation-fill-mode: forwards;
+  -ms-animation-fill-mode: forwards;
+  -o-animation-fill-mode: forwards;
+  animation-fill-mode: forwards;
+}
+
+@keyframes first-card {
+  from {
+    opacity: 1;
+    transform: translate(3em, -2em);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes second-card {
+  from {
+    opacity: 1;
+    transform: translate(1.5em, -2em);
+    
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes third-card {
+  from {
+    opacity: 1;
+    transform: translate(0, -2em);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes fourth-card {
+  from {
+    opacity: 1;
+    transform: translate(-1.5em, -2em);
+    
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes fifth-card {
+  from {
+    opacity: 1;
+    transform: translate(-3em, -2em);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}

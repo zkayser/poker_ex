@@ -26,7 +26,7 @@ PokerEx.Gettext.html
 PokerEx.Hand.html
 PokerEx.HandServer.html
 PokerEx.LayoutView.html
-PokerEx.PageController.html
+PokerExWeb.PageController.html
 PokerEx.PageView.html
 PokerEx.Player.html
 PokerEx.PlayerEvents.html
@@ -47,4 +47,4 @@ PokerEx.TableEvents.html
 PokerEx.TableManager.html
 PokerEx.TableState.html
 PokerEx.UserSocket.html
-PokerEx.Web.html
+PokerExWeb.html

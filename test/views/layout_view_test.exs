@@ -1,3 +1,3 @@
 defmodule PokerEx.LayoutViewTest do
-  use PokerEx.ConnCase, async: true
+  use PokerExWeb.ConnCase, async: true
 end
