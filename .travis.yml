@@ -12,7 +12,9 @@ services:
 
 before_script:
   - rm -rf config/test.exs
+  - rm -rf config/dev.exs
   - cp config/travis.exs config/test.exs
+  - cp config/travis.exs config/dev.exs
   - mix ecto.create
   - mix ecto.migrate
   - phantomjs --wd
