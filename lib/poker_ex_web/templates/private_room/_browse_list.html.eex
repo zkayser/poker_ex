@@ -2,9 +2,9 @@
   <ul class="pagination" data-current-page="<%= @page.page_number %>" data-total-pages="<%= @page.total_pages %>">
     <li class="disabled" id="page-back"><a href="#!"><i class="material-icons">chevron_left</i></a></li>
       <div class="page-numbers">
-        <%= for num <- 1..PokerEx.LayoutView.limit_page_tabs(@page.total_pages) do %>
-          <li class="page-btn <%= PokerEx.LayoutView.page_class(@page, num) %>" id="page-<%= num %>">
-            <a class="<%= PokerEx.LayoutView.page_li_text_color(@page, num) %>" href="#!"><%= num %></a>
+        <%= for num <- 1..PokerExWeb.LayoutView.limit_page_tabs(@page.total_pages) do %>
+          <li class="page-btn <%= PokerExWeb.LayoutView.page_class(@page, num) %>" id="page-<%= num %>">
+            <a class="<%= PokerExWeb.LayoutView.page_li_text_color(@page, num) %>" href="#!"><%= num %></a>
           </li>
         <% end %>
       </div>
@@ -14,7 +14,7 @@
 
 <ul class="collection with-header left-align player-list" id="browse-players-list" data-current-player="<%= @player.name %>">
   <li class="collection-header center-align"><h4>Invite Players</h4></li>
-  <%= for {color, list} <- PokerEx.PrivateRoomView.zip_list(@players) do %>
+  <%= for {color, list} <- PokerExWeb.PrivateRoomView.zip_list(@players) do %>
   <li class="collection-item avatar player-list-item" id="player-list-item-<%= List.first(list) %>" data-player-id="<%= hd(list) %>">
     <div class="row">
       <div class="col s12 m2 center-align player-icon">

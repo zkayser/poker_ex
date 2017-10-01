@@ -2,7 +2,7 @@ defmodule PokerExWeb.PlayerView do
   use PokerExWeb, :view
   alias PokerEx.Player
 
-  # You can just use Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json")
+  # You can just use Phoenix.View.render_many(players, PokerExWeb.PlayerView, "player.json")
   def render("index.json", %{players: players}) do
     %{
       players: Enum.map(players, &player_json/1)
@@ -135,13 +135,6 @@ defmodule PokerExWeb.PlayerView do
     else
         "#{num} #{plural}"
     end
-  end
-
-  defp pluralize_word(1, {singular, _}) do
-    "#{singular}"
-  end
-  defp pluralize_word(_, {_, plural}) do
-    "#{plural}"
   end
 
   defp paginated_entries(list) when is_list(list) do

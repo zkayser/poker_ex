@@ -20,14 +20,14 @@ defmodule PokerEx.RoomCase do
       PokerEx.RoomsSupervisor.create_private_room(test_room)
     catch
       _, _ ->
-        PokerEx.stop([])
+        PokerEx.Application.stop([])
         Application.ensure_all_started(PokerEx)
-        PokerEx.start(:normal, [])
+        PokerEx.Application.start(:normal, [])
         PokerEx.RoomsSupervisor.create_private_room("test")
     end
 
     [p1, p2, p3, p4] =
-      for x <- 1..4 do
+      for _ <- 1..4 do
         PokerEx.TestHelpers.insert_user()
       end
     |> Enum.map(fn player -> player end)

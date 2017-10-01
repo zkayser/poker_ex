@@ -84,7 +84,7 @@ defmodule PokerEx.Room do
 		:gen_statem.start_link({:local, id}, __MODULE__, [args], [])
 	end
 
-	def start_link(args \\ []) do
+	def start_link(args) do
 		room_id = :"#{args}"
 		:gen_statem.start_link({:local, room_id}, __MODULE__, [args], [])
 		# {:debug, [:trace, :log]}
@@ -162,7 +162,7 @@ defmodule PokerEx.Room do
 		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
 		:void
 	end
-	def terminate(:manual, state, %Room{chip_roll: chip_roll} = room) when is_map(chip_roll) do
+	def terminate(:manual, _state, %Room{chip_roll: chip_roll}) when is_map(chip_roll) do
 		chip_roll
 			|> Map.keys()
 			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
@@ -670,7 +670,7 @@ defmodule PokerEx.Room do
 		{:next_state, :between_rounds, update}
 	end
 
-	def handle_event(:info, {:timeout, tref, :auto_fold}, state, %Room{active: active} = room)
+	def handle_event(:info, {:timeout, _tref, :auto_fold}, state, %Room{active: active} = room)
 	when state in [:pre_flop, :flop, :turn, :river] and length(active) > 1 do
 		{current_player, _} = hd(active)
 		update =
@@ -685,7 +685,7 @@ defmodule PokerEx.Room do
 		end
 	end
 
-	def handle_event(:info, {:timeout, tref, :auto_fold}, state, room) do
+	def handle_event(:info, {:timeout, _tref, :auto_fold}, state, room) do
 		update =
 			room
 			|> Updater.clear_timer

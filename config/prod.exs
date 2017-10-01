@@ -32,7 +32,7 @@ config :poker_ex, PokerEx.Repo,
 # To get SSL working, you will need to add the `https` key
 # to the previous section and set your `:url` port to 443:
 #
-#    config :poker_ex, PokerEx.Endpoint,
+#    config :poker_ex, PokerExWeb.Endpoint,
 #       ...
 #      url: [scheme: "https", host: "https://ancient-forest-15148.herokuapp.com/", port: 443],
 #      force_ssl: [rewrite_on: [:x_forwarded_proto]],
@@ -47,7 +47,7 @@ config :poker_ex, PokerEx.Repo,
 # We also recommend setting `force_ssl`, ensuring no data is
 # ever sent via http, always redirecting to https:
 #
-#     config :poker_ex, PokerEx.Endpoint,
+#     config :poker_ex, PokerExWeb.Endpoint,
 #       force_ssl: [hsts: true]
 #
 # Check `Plug.SSL` for all available options in `force_ssl`.
@@ -62,7 +62,7 @@ config :poker_ex, PokerEx.Repo,
 # Alternatively, you can configure exactly which server to
 # start per endpoint:
 #
-#     config :poker_ex, PokerEx.Endpoint, server: true
+#     config :poker_ex, PokerExWeb.Endpoint, server: true
 #
 
 # Finally import the config/prod.secret.exs

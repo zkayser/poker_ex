@@ -55,7 +55,7 @@ defmodule PokerExWeb.UserSocket do
   # Would allow you to broadcast a "disconnect" event and terminate
   # all active sockets and channels for a given user:
   #
-  #     PokerEx.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
+  #     PokerExWeb.Endpoint.broadcast("users_socket:#{user.id}", "disconnect", %{})
   #
   # Returning `nil` makes this socket anonymous.
   def id(socket), do: "users_socket:#{socket.assigns.player_id}"

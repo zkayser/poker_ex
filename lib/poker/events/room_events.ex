@@ -1,5 +1,5 @@
 defmodule PokerEx.RoomEvents do
-  alias PokerEx.Endpoint
+  alias PokerExWeb.Endpoint
   
   
   # Position denotes the player's seating position at the table

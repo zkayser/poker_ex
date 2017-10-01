@@ -3,7 +3,7 @@ defmodule PokerExWeb.PlayersChannel do
 	use Phoenix.Channel
 	alias PokerEx.Player
 	alias PokerEx.Room
-	alias PokerEx.Endpoint
+	alias PokerExWeb.Endpoint
 	alias PokerEx.Repo
 	# alias PokerEx.Presence  -> Implement presence tracking logic later
 
@@ -39,7 +39,7 @@ defmodule PokerExWeb.PlayersChannel do
 		socket = assign(socket, :player_name, player.name)
 		room = Room.state(room_id |> atomize())
 
-		push(socket, "private_room_join", PokerEx.RoomView.render("room.json", %{room: room}))
+		push(socket, "private_room_join", PokerExWeb.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 
@@ -75,7 +75,7 @@ defmodule PokerExWeb.PlayersChannel do
 		{:noreply, socket}
 	end
 
-	def handle_in("add_player", %{"room" => title, "amount" => amount} = params, socket) when amount >= 100 do
+	def handle_in("add_player", %{"room" => _title, "amount" => amount} = params, socket) when amount >= 100 do
 		if socket.assigns.room_type == :private, do: private_add_player(params, socket), else: public_add_player(params, socket)
 	end
 	def handle_in("add_player", _params, socket), do: {:noreply, socket}
@@ -84,10 +84,10 @@ defmodule PokerExWeb.PlayersChannel do
 		room = Room.leave(room |> atomize(), get_player_by_name(name))
 		case length(room.seating) do
 			x when x <= 1 ->
-				broadcast!(socket, "clear", PokerEx.RoomView.render("room.json", %{room: room}))
+				broadcast!(socket, "clear", PokerExWeb.RoomView.render("room.json", %{room: room}))
 				{:noreply, socket}
 			_ ->
-				broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 				{:noreply, socket}
 		end
 	end
@@ -100,7 +100,7 @@ defmodule PokerExWeb.PlayersChannel do
 				{:noreply, socket}
 			true ->
 				room = Room.start(room)
-				broadcast!(socket, "started_game", PokerEx.RoomView.render("room.json", %{room: room}))
+				broadcast!(socket, "started_game", PokerExWeb.RoomView.render("room.json", %{room: room}))
 				{:noreply, socket}
 		end
 	end
@@ -180,7 +180,7 @@ defmodule PokerExWeb.PlayersChannel do
 					room_id
 						|> atomize()
 						|> Room.leave(player)
-				broadcast! socket, "update", PokerEx.RoomView.render("room.json", %{room: room})
+				broadcast! socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room})
 				{:shutdown, :left}
 		end
 	end
@@ -200,11 +200,11 @@ defmodule PokerExWeb.PlayersChannel do
 
 	defp handle_update(socket, %Room{type: :private} = room) do
 		PokerEx.PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
-		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 	defp handle_update(socket, room) do
-		broadcast!(socket, "update", PokerEx.RoomView.render("room.json", %{room: room}))
+		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 
@@ -215,7 +215,7 @@ defmodule PokerExWeb.PlayersChannel do
 				case PokerEx.PrivateRoom.move_invitee_to_participants(private_room, pl) do
 					{:ok, _priv_room} ->
 						room = title |> atomize() |> Room.join(pl, amount)
-						broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
+						broadcast!(socket, "add_player_success", PokerExWeb.RoomView.render("room.json", %{room: room}))
 						push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - String.to_integer(amount))}
 					{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
 					_ -> push socket, "error_on_room_join", %{}
@@ -230,7 +230,7 @@ defmodule PokerExWeb.PlayersChannel do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl ->
 				room = room_id |> atomize() |> Room.join(pl, amount)
-				broadcast!(socket, "add_player_success", PokerEx.RoomView.render("room.json", %{room: room}))
+				broadcast!(socket, "add_player_success", PokerExWeb.RoomView.render("room.json", %{room: room}))
 				push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - amount)}
 			{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
 		end

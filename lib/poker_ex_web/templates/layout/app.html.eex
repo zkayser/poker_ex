@@ -37,7 +37,7 @@
         <%= if @current_player do %>
           <li><%= @current_player.name %></li>
           <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
-          <li class="bold"><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li> 
+          <li class="bold"><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li>
           <li class="bold"><%= link "Public Games", to: room_path(@conn, :index) %></li>
         <% else %>
           <li><%= link "Register", to: player_path(@conn, :new) %></li>
@@ -60,14 +60,14 @@
         <%= if @current_player do %>
           <li><%= @current_player.name %></li>
           <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
-          <li><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li> 
+          <li><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li>
           <li><%= link "Public Games", to: room_path(@conn, :index) %></li>
         <% else %>
           <li><%= link "Register", to: player_path(@conn, :new) %></li>
           <li><%= link "Log in", to: session_path(@conn, :new) %></li>
         <% end %>
       </ul>
-    </header>    
+    </header>
 
 
       <div class="container">
@@ -109,6 +109,6 @@
     <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.0/js/materialize.min.js"></script>
     <%= render "_modal_initiators.html", conn: @conn %>
-    <script>$("#mobile-nav-btn").sideNav();</script> 
+    <script>$("#mobile-nav-btn").sideNav();</script>
   </body>
 </html>

@@ -1,5 +1,5 @@
 defmodule PokerEx.TableEvents do
-  alias PokerEx.Endpoint
+  alias PokerExWeb.Endpoint
   
   def card_dealt(room_id, card) when is_list(card) do
     card = Enum.map(card, fn c -> Map.from_struct(c) end)

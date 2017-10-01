@@ -1,41 +1,41 @@
 <div class="row" id="room-row" data-room-title="<%= @room.room_id %>" data-user-name="<%= @current_player.name %>">
   <div class="col s4">
-    
+
   </div>
   <div class="col s4">
-    
+
   </div>
   <div class="col s4">
-    
+
   </div>
   <div class="row">
     <div class="table-wrapper">
       <div class="table-container" id="offscreen-left">
-        <%= render PokerEx.RoomView, "_table.html", conn: @conn %>
+        <%= render PokerExWeb.RoomView, "_table.html", conn: @conn %>
       </div>
-      <%= render PokerEx.PlayerView, "_card_row.html", conn: @conn %>
+      <%= render PokerExWeb.PlayerView, "_card_row.html", conn: @conn %>
     </div>
   </div>
-  
+
   <div class="fixed-action-btn horizontal click-to-toggle short-controls">
     <a class="btn-floating btn-large green">
       <i class="material-icons">play_arrow</i>
     </a>
     <ul>
-      <%= render PokerEx.RoomView, "_shortcut_controls.html", conn: @conn %>
+      <%= render PokerExWeb.RoomView, "_shortcut_controls.html", conn: @conn %>
     </ul>
   </div>
-  
+
   <div class="fixed-action-btn toolbar">
     <a class="btn-floating btn-large red controls-btn">
       <i class="large material-icons">explore</i>
     </a>
     <ul id="player-toolbar" class="white-text">
       <li class="waves-effect waves-light" id="join-quit-item">
-        
+
       </li>
       <li id="start-info-item">
-        
+
       </li>
       <li id="action-item">
         <a href="#controls-modal" class="waves-effect waves-light"><i class="material-icons">grade</i></a>
@@ -51,8 +51,8 @@
 </div>
 
 <%= render PokerEx.PlayerView, "_account_modal.html", conn: @conn, current_player: @current_player %>
-<%= render PokerEx.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
-<%=# render PokerEx.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player, 
+<%= render PokerExWeb.RoomView, "_controls_modal.html", conn: @conn, current_player: @current_player %>
+<%=# render PokerExWeb.RoomView, "_chat_box_modal.html", conn: @conn, current_player: @current_player,
  # participants: PokerEx.Room.state(@room.seating |> Enum.map(fn {pl, _} -> pl end)) %>
-<%= render PokerEx.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
-<%= render PokerEx.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerExWeb.RoomView, "_join_modal.html", conn: @conn, current_player: @current_player %>
+<%= render PokerExWeb.RoomView, "_bank_roll_modal.html", conn: @conn, current_player: @current_player %>

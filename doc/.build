@@ -16,7 +16,7 @@ PokerEx.BetHistory.html
 PokerEx.BetServer.html
 PokerEx.Card.html
 PokerEx.Deck.html
-PokerEx.Endpoint.html
+PokerExWeb.Endpoint.html
 PokerEx.ErrorHelpers.html
 PokerEx.ErrorView.html
 PokerEx.Evaluator.html

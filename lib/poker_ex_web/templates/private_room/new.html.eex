@@ -4,6 +4,6 @@
       <h3>Create a Room</h3>
       <ul class="collection">
     </div>
-    <%= render PokerEx.PrivateRoomView, "_form.html", changeset: @changeset, player: @current_player, page: @page, players: @players, conn: @conn %>
+    <%= render PokerExWeb.PrivateRoomView, "_form.html", changeset: @changeset, player: @current_player, page: @page, players: @players, conn: @conn %>
   </div>
 </div>

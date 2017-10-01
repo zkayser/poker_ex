@@ -28,7 +28,7 @@ defmodule PokerExWeb.Router do
   #  forward "/sent_emails", Bamboo.EmailPreviewPlug
   #end
 
-  scope "/", PokerEx do
+  scope "/", PokerExWeb do
     pipe_through [:browser, :csrf] # Use the default browser stack
 
     get "/", PageController, :index
@@ -36,20 +36,20 @@ defmodule PokerExWeb.Router do
     resources "/sessions", SessionController, only: [:new, :create, :delete]
   end
 
-  scope "/protected", PokerEx do
+  scope "/protected", PokerExWeb do
     pipe_through [:browser, :csrf, :authenticate_player]
 
     resources "/rooms", RoomController, only: [:index, :show]
   end
 
-  scope "/private", PokerEx do
+  scope "/private", PokerExWeb do
     pipe_through [:browser, :csrf, :authenticate_player]
 
     resources "/invitations", InvitationController, only: [:new, :create]
     resources "/rooms", PrivateRoomController, except: [:index]
   end
 
-  scope "/facebook", PokerEx do
+  scope "/facebook", PokerExWeb do
     pipe_through :browser
 
     post "/redirect", FacebookController, :fb_redirect

@@ -1,5 +1,5 @@
 defmodule PokerEx.Notifications do
-  alias PokerEx.Endpoint
+  alias PokerExWeb.Endpoint
   
   def notify_invitees(room) do
     room = PokerEx.PrivateRoom.preload(room)

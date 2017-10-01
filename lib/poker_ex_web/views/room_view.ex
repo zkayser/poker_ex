@@ -21,7 +21,7 @@ defmodule PokerExWeb.RoomView do
       state: Room.which_state(room.room_id),
       paid: room.paid || %{},
       to_call: room.to_call || 0,
-      players: Phoenix.View.render_many(players, PokerEx.PlayerView, "player.json"),
+      players: Phoenix.View.render_many(players, PokerExWeb.PlayerView, "player.json"),
       chip_roll: room.chip_roll,
       type: Atom.to_string(room.type),
       seating: Phoenix.View.render_many(room.seating, __MODULE__, "seating.json", as: :seating),

@@ -2,7 +2,7 @@ defmodule PokerExWeb.Auth do
   import Plug.Conn
   import Phoenix.Controller
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
-  alias PokerEx.Router.Helpers
+  alias PokerExWeb.Router.Helpers
   require Logger
 
   def init(opts) do
