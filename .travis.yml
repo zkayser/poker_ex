@@ -10,5 +10,12 @@ addons:
 services:
   - postgresql
 
+before_script:
+  - rm -rf config/test.exs
+  - cp config/travis.exs config/test.exs
+  - mix ecto.create
+  - mix ecto.migrate
+  - phantomjs --wd
+
 script:
-  - phantomjs --wd && cp config/travis.exs config/test.exs && mix ecto.create && mix ecto.migrate && mix test --trace
+  - mix test --trace
