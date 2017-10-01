@@ -11,10 +11,7 @@ services:
   - postgresql
 
 before_script:
-  - cp config/travis.exs config/test.exs
-  - mix ecto.create
-  - mix ecto.migrate
   - phantomjs --wd
 
 script:
-  - mix test --trace
+  - cp config/travis.exs config/test.exs && mix ecto.create && mix ecto.migrate && mix test --trace
