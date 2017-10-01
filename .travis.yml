@@ -14,6 +14,7 @@ before_script:
   - mix ecto.create
   - mix ecto.migrate
   - mix phx.server
+  - phantomjs --wd &
 
 script:
-  - WEBDRIVER=phantomjs mix test --trace
+  - mix test --trace
