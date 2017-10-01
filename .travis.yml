@@ -1,3 +1,17 @@
 language: elixir
 elixir:
-  1.5.1
+  - 1.5.1
+
+addons:
+  - postgresql: '9.4'
+
+services:
+  - postgresql
+
+before_script:
+  - cp config/travis.exs config/test.exs
+  - mix do ecto.create, ecto.migrate
+  - phantomjs --wd
+
+script:
+  - mix test --trace
