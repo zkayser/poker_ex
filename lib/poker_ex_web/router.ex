@@ -14,10 +14,16 @@ defmodule PokerExWeb.Router do
   end
 
   pipeline :api do
+    plug :fetch_session
     plug :accepts, ["json"]
   end
 
-  scope "/auth", PokerEx do
+  pipeline :api_auth do
+    plug Guardian.Plug.VerifyHeader, realm: "Bearer"
+    plug Guardian.Plug.LoadResource
+  end
+
+  scope "/auth", PokerExWeb do
     pipe_through [:browser, :csrf]
 
     get "/:provider", AuthController, :request
@@ -57,9 +63,10 @@ defmodule PokerExWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-   scope "/api", PokerEx do
+   scope "/api", PokerExWeb do
      pipe_through :api
 
+     resources "/sessions", SessionController, only: [:create]
      get "/list/:player/:page", PlayerController, :list
    end
 end

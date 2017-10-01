@@ -40,6 +40,13 @@ config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
   client_secret: System.get_env("FACEBOOK_APP_SECRET"),
   redirect_uri: System.get_env("FACEBOOK_REDIRECT_URI")
 
+  config :guardian, Guardian,
+    allowed_algos: ["HS512"],
+    secret_key: System.get_env("SB_SECRET"),
+    issuer: "PokerEx",
+    ttl: { 30, :days },
+    serializer: PokerEx.GuardianSerializer
+
 # Configure Hound's webdriver
 config :hound, driver: "phantomjs"
 

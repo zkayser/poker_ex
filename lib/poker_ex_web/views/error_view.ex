@@ -1,6 +1,10 @@
 defmodule PokerExWeb.ErrorView do
   use PokerExWeb, :view
 
+  def render("401.json", _assigns) do
+    %{"error" => "Unauthenticated"}
+  end
+
   def render("404.html", _assigns) do
     "Page not found"
   end

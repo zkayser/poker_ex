@@ -42,6 +42,7 @@ defmodule PokerEx.Mixfile do
      {:cowboy, "~> 1.0"},
      {:ex_doc, "~> 0.12"},
      {:gen_fsm, "~> 0.1.0"},
+     {:guardian, "~> 0.14.5"},
      {:comeonin, "~> 2.0"},
      {:bamboo, "~> 0.7"},
      {:bamboo_smtp, "~> 1.2.1"},
