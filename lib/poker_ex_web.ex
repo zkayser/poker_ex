@@ -34,6 +34,8 @@ defmodule PokerExWeb do
       import Ecto
       import Ecto.Query
 
+      import PokerExWeb.Support.ApiHelpers
+
       import PokerExWeb.Router.Helpers
       import PokerExWeb.Gettext
       import PokerExWeb.Auth, only: [authenticate_player: 2]

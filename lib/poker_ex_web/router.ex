@@ -67,6 +67,7 @@ defmodule PokerExWeb.Router do
      pipe_through :api
 
      resources "/sessions", SessionController, only: [:create]
+     resources "/registration", RegistrationController, only: [:create]
      get "/list/:player/:page", PlayerController, :list
    end
 end
