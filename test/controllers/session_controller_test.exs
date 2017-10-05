@@ -9,18 +9,24 @@ defmodule PokerExWeb.SessionControllerTest do
 
   test "renders SessionView's login.json with a 200 response when credentials are correct", context do
     conn = post(context.conn, session_path(context.conn, :create,
-                %{"username" => context.player.name,
-                  "password" => "secretpassword"
+                %{"player" =>
+                  %{
+                    "username" => context.player.name,
+                    "password" => "secretpassword"
+                   }
                  }))
 
     assert json_response(conn, 200)
-    assert String.starts_with?(conn.resp_body, "{\"jwt\":\"")
+    assert String.contains?(conn.resp_body, "{\"player\":{")
   end
 
   test "renders error status when a user tries to log in with bad credentials", context do
     conn = post(context.conn, session_path(context.conn, :create,
-                %{"username" => context.player.name,
-                  "password" => "not my password"
+                %{"player" =>
+                  %{
+                    "username" => context.player.name,
+                    "password" => "not my password"
+                  }
                  }))
 
     assert conn.status == 401
