@@ -13,6 +13,7 @@ defmodule PokerEx.Player do
 		field :password_hash, :string
 		field :blurb, :string
 		field :facebook_id, :string
+		field :jwt, :string, virtual: true
 		has_many :invitations,  PokerEx.Invitation, foreign_key: :sender_id
 		has_many :owned_rooms, PokerEx.PrivateRoom, foreign_key: :owner_id
 		has_many :received_invitations, PokerEx.Invitation, foreign_key: :recipient_id

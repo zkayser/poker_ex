@@ -27,6 +27,8 @@ defmodule PokerExWeb.Endpoint do
   plug Plug.RequestId
   plug Plug.Logger
 
+  plug CORSPlug, origin: "http://localhost:4000"
+
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],

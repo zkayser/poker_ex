@@ -21,7 +21,7 @@ defmodule PokerExWeb.SessionController do
   end
 
   # API sign-ins
-  def create(conn, %{"username" => username, "password" => pass}) do
+  def create(conn, %{"player" => %{"username" => username, "password" => pass}}) do
     with {:ok, conn} <- PokerExWeb.Auth.login_by_username_and_pass(conn, username, pass, repo: Repo) do
       new_conn = Guardian.Plug.api_sign_in(conn, conn.assigns[:current_player])
       jwt = Guardian.Plug.current_token(new_conn)

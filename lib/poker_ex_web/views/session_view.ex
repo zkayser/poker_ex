@@ -3,7 +3,14 @@ defmodule PokerExWeb.SessionView do
 
   def render("login.json", %{jwt: jwt}) do
     {:ok, %{"aud" => user}} = Guardian.decode_and_verify(jwt)
-    %{jwt: jwt, id: getId(user)}
+    player = PokerEx.Repo.get(PokerEx.Player, getId(user))
+    %{player:
+      %{
+        email: player.email,
+        token: jwt,
+        username: player.name
+       }
+     }
   end
 
   defp getId(user_string) when is_binary user_string do

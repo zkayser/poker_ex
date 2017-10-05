@@ -41,6 +41,7 @@ defmodule PokerEx.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:ex_doc, "~> 0.12"},
+     {:cors_plug, "~> 1.2"},
      {:gen_fsm, "~> 0.1.0"},
      {:guardian, "~> 0.14.5"},
      {:comeonin, "~> 2.0"},
