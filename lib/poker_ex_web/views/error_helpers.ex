@@ -32,9 +32,9 @@ defmodule PokerExWeb.ErrorHelpers do
     #     dgettext "errors", "is invalid"
     #
     if count = opts[:count] do
-      Gettext.dngettext(PokerEx.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(PokerExWeb.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(PokerEx.Gettext, "errors", msg, opts)
+      Gettext.dgettext(PokerExWeb.Gettext, "errors", msg, opts)
     end
   end
 end

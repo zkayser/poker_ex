@@ -22,7 +22,7 @@ PokerEx.ErrorView.html
 PokerEx.Evaluator.html
 PokerEx.Events.html
 PokerEx.GameEvents.html
-PokerEx.Gettext.html
+PokerExWeb.Gettext.html
 PokerEx.Hand.html
 PokerEx.HandServer.html
 PokerEx.LayoutView.html

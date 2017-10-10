@@ -150,26 +150,23 @@ defmodule PokerEx.Room do
 		:gen_statem.call(room_id, :which_state)
 	end
 
-	######################
-	# Callback Functions #
-	######################
+	####################################
+	# State Machine Callback Functions #
+	####################################
 
 	def terminate(:normal, _state, %Room{type: :public}), do: :void
 	def terminate(_reason, _state, %Room{type: :public, chip_roll: chip_roll}) when is_map(chip_roll) do
 		Logger.warn "Terminating public room and restoring chips to players."
-		chip_roll
-		|> Map.keys
-		|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
+		restore_chips_to_players(chip_roll)
 		:void
 	end
 	def terminate(:manual, _state, %Room{chip_roll: chip_roll}) when is_map(chip_roll) do
-		chip_roll
-			|> Map.keys()
-			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
+		restore_chips_to_players(chip_roll)
 		:void
 	end
 	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
-		Logger.error "Now terminating #{inspect(id)} for reason: #{reason}...\nThis terminate call will attempt to store game state to the database."
+		Logger.error "Now terminating #{inspect(id)} for reason: #{reason}."
+		Logger.error "Storing game state..."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
 		room = :erlang.term_to_binary(room)
 		state = :erlang.term_to_binary(state)
@@ -205,6 +202,10 @@ defmodule PokerEx.Room do
 	###################
 	# State Functions #
 	###################
+
+	###############
+	#  Idle State #
+	###############
 
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room)
 	when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
@@ -251,6 +252,10 @@ defmodule PokerEx.Room do
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 
+	########################
+	# Between Rounds State #
+	########################
+
 	def handle_event({:call, from}, {:join, player, chip_amount}, :between_rounds, %Room{seating: seating} = room)
 	when length(seating) == 1 and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
@@ -282,6 +287,10 @@ defmodule PokerEx.Room do
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
 
+	####################################
+	# Player join callbacks, any state #
+	####################################
+
 	def handle_event({:call, from}, {:join, player, chip_amount}, state, %Room{seating: seating} = room) when length(seating) <= @seating_capacity do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
@@ -292,6 +301,10 @@ defmodule PokerEx.Room do
 	end
 
 	def handle_event({:call, from}, {:join, _player}, state, room), do: {:next_state, state, room, [{:reply, from, room}]}
+
+	#####################################
+	# Player leave callbacks, any state #
+	#####################################
 
 	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating, active: active} = room)
 	when length(seating) == 1 and length(active) <= 1 do
@@ -392,6 +405,10 @@ defmodule PokerEx.Room do
 		{:next_state, state, update, [{:reply, from, update}]}
 	end
 
+	##########################################
+	# Callbacks for (Poker) calls, any state #
+	##########################################
+
 	def handle_event({:call, from}, {:call, player}, state, %Room{called: called, active: active} = room)
 	when length(called) < length(active) - 1 do
 		update =
@@ -433,6 +450,10 @@ defmodule PokerEx.Room do
 		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}
 	end
 
+	#########################################
+	# Callbacks for fold actions, any state #
+	#########################################
+
 	def handle_event({:call, from}, {:fold, player}, state, %Room{active: active, all_in: all_in} = room)
 	when length(active) == 2 or length(all_in) >= 1 and length(active) == 1 do
 		update =
@@ -456,6 +477,10 @@ defmodule PokerEx.Room do
 			|> BetTracker.fold(player)
 		{:next_state, state, update, [{:reply, from, update}]}
 	end
+
+	##########################################
+	# Callbacks for check actions, any state #
+	##########################################
 
 	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
 	when length(called) < length(active) - 1 do
@@ -513,12 +538,20 @@ defmodule PokerEx.Room do
 		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}
 	end
 
+	##################
+	# Raise callback #
+	##################
+
 	def handle_event({:call, from}, {:raise, player, amount}, state, %Room{to_call: call_amount} = room) when amount > call_amount do
 		update =
 			room
 			|> BetTracker.raise(player, amount)
 		{:next_state, state, update, [{:reply, from, update}]}
 	end
+
+	#################################
+	# Callbacks for internal events #
+	#################################
 
 	def handle_event(:internal, :reward_winner, :game_over, %Room{winner: nil} = room) do
 		update =
@@ -670,6 +703,10 @@ defmodule PokerEx.Room do
 		{:next_state, :between_rounds, update}
 	end
 
+	############################
+	# Player timeout callbacks #
+	############################
+
 	def handle_event(:info, {:timeout, _tref, :auto_fold}, state, %Room{active: active} = room)
 	when state in [:pre_flop, :flop, :turn, :river] and length(active) > 1 do
 		{current_player, _} = hd(active)
@@ -691,6 +728,10 @@ defmodule PokerEx.Room do
 			|> Updater.clear_timer
 		{:next_state, state, update}
 	end
+
+	####################################
+	# Callbacks for debugging purposes #
+	####################################
 
 	def handle_event({:call, from}, :player_count, state, %Room{seating: seating} = room) do
 		{:next_state, state, room, [{:reply, from, length(seating)}]}
@@ -721,9 +762,9 @@ defmodule PokerEx.Room do
 		{:next_state, state, room, [{:reply, from, room}]}
 	end
 
-	# CATCH ALL
+	# CATCH ALL CALLBACK
 	def handle_event(event_type, event_content, state, data) do
-		IO.puts "\nUnknown event: #{inspect(event_type)} with content: #{inspect(event_content)} in state: #{inspect(state)}\n"
+		Logger.warn "Unknown event: #{inspect(event_type)} with content: #{inspect(event_content)} in state: #{inspect(state)}"
 		{:next_state, state, data}
 	end
 
@@ -765,5 +806,11 @@ defmodule PokerEx.Room do
   	|> Updater.reset_call_amount
   	|> Updater.reset_called
   	|> Updater.timer(@timeout)
+  end
+
+  defp restore_chips_to_players(chip_roll) do
+  	chip_roll
+			|> Map.keys
+			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
   end
 end

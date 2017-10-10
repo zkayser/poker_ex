@@ -1,5 +1,6 @@
 defmodule PokerExWeb.RegistrationController do
   use PokerExWeb, :controller
+  require Logger
 
   action_fallback PokerExWeb.FallbackController
 
@@ -15,6 +16,13 @@ defmodule PokerExWeb.RegistrationController do
 
       with {:ok, player} <- PokerEx.Repo.insert(changeset) do
         api_sign_in(conn, registration_params["name"], registration_params["password"])
+      else
+        _ ->
+          Logger.warn "Failed with #{inspect registration_params}"
+          Logger.warn "Changeset: #{inspect changeset}"
+          conn
+          |> put_status(:unprocessable_entity)
+          |> render(PokerExWeb.ErrorView, "422.json")
       end
   end
 end

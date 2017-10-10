@@ -5,6 +5,10 @@ defmodule PokerExWeb.ErrorView do
     %{"error" => "Unauthenticated"}
   end
 
+  def render("422.json", _assigns) do
+    %{"error" => "Unprocessable entity"}
+  end
+
   def render("404.html", _assigns) do
     "Page not found"
   end
