@@ -14,7 +14,7 @@ defmodule PokerExWeb.AuthController do
   end
 
   def callback(%{assigns: %{ueberauth_failure: fail}} = conn, params) do
-    Logger.info "Auth callback received with conn:\n#{inspect(fail)}\nand params: #{inspect(params)}"
+    Logger.warn "Auth callback received with conn:\n#{inspect(fail)}\nand params: #{inspect(params)}"
     redirect(conn, to: "/")
   end
 
