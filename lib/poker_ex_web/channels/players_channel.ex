@@ -29,9 +29,9 @@ defmodule PokerExWeb.PlayersChannel do
 		{:ok, %{players: players}, socket}
 	end
 
-	######################
-	# SELF-SENT MESSAGES #
-	######################
+	#####################
+	# INTERNAL MESSAGES #
+	#####################
 
 	def handle_info({:after_join_room, room_id}, socket) do
 		socket = assign(socket, :room, room_id)

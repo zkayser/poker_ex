@@ -1,14 +1,15 @@
 defmodule PokerExWeb.UserSocket do
   use Phoenix.Socket
+  require Logger
   @max_age 2 * 7 * 24 * 60 * 60
 
   ## Channels
   # channel "room:*", PokerEx.RoomChannel
-  channel "players:*", PokerEx.PlayersChannel
-  channel "notifications:*", PokerEx.NotificationsChannel
-  channel "player_updates:*", PokerEx.PlayerUpdatesChannel
-  channel "online:lobby", PokerEx.OnlineChannel
-  channel "online:search", PokerEx.OnlineChannel
+  channel "players:*", PokerExWeb.PlayersChannel
+  channel "notifications:*", PokerExWeb.NotificationsChannel
+  channel "player_updates:*", PokerExWeb.PlayerUpdatesChannel
+  channel "online:lobby", PokerExWeb.OnlineChannel
+  channel "online:search", PokerExWeb.OnlineChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,
@@ -16,8 +17,9 @@ defmodule PokerExWeb.UserSocket do
             check_origin: [
               "http://localhost:3000",
               "http://localhost:4001",
+              "http://localhost:4000",
+              "http://localhost:4000/",
               "http://localhost:8080",
-              "http://d4e8557b.ngrok.io/players/15#_=_",
               "https://phoenix-experiment-zkayser.c9users.io",
               "//ancient-forest-15148.herokuapp.com/",
               ]
@@ -35,13 +37,28 @@ defmodule PokerExWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"name" => name}, socket) do
+    Logger.debug "Attempting connect..."
     socket = assign(socket, :player_name, name)
     {:ok, socket}
   end
 
   def connect(%{"token" => token}, socket) do
+    Logger.debug "You need a token to connect to the socket..."
     case Phoenix.Token.verify(socket, "user socket", token, max_age: @max_age) do
       {:ok, player_id} -> {:ok, assign(socket, :player_id, player_id)}
+      {:error, _reason} -> :error
+    end
+  end
+
+  def connect(%{"guardian_token" => token}, socket) do
+    case Guardian.decode_and_verify(token) do
+      {:ok, claims} ->
+        Logger.debug "Succesfully authenticated"
+        id = 
+          Regex.named_captures(~r/:(?<id>\d+)/, claims["aud"])
+          |> Map.get("id")
+          |> String.to_integer
+        {:ok, assign(socket, :player_id, id)}
       {:error, _reason} -> :error
     end
   end

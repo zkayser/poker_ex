@@ -36,7 +36,7 @@
           </div>
         <%= if @current_player do %>
           <li><%= @current_player.name %></li>
-          <li><%= link "Log out", to: session_path(@conn, :delete, @current_player), method: "delete" %></li>
+          <li><%= link("Log out", to: session_path(@conn, :delete, @current_player), method: :delete) %></li>
           <li class="bold"><%= link "Account", to: player_path(@conn, :show, @current_player.id) %></li>
           <li class="bold"><%= link "Public Games", to: room_path(@conn, :index) %></li>
         <% else %>
