@@ -14,17 +14,13 @@ defmodule PokerExWeb.PlayersChannel do
 	end
 	def join("players:" <> room_id, %{"type" => "public"}, socket) do
 		send(self(), {:after_join_room, room_id})
-		socket =
-			socket
-			|> assign(:room_type, :public)
+		socket = assign(socket, :room_type, :public)
 		players = room_id |> atomize() |> Room.player_list()
 		{:ok, %{players: players}, socket}
 	end
 	def join("players:" <> room_id, %{"type" => "private"}, socket) do
 		send(self(), {:after_join_room, room_id})
-		socket =
-			socket
-			|> assign(:room_type, :private)
+		socket = assign(socket, :room_type, :private)
 		players = room_id |> atomize() |> Room.player_list()
 		{:ok, %{players: players}, socket}
 	end
@@ -168,12 +164,12 @@ defmodule PokerExWeb.PlayersChannel do
 	# TERMINATE #
 	#############
 
-	def terminate(_message, socket) do
+	def terminate(message, socket) do
 		case socket.assigns[:room_type] do
 			:private ->
 				broadcast!(socket, "clear_table", %{player: Repo.get(Player, socket.assigns[:player_id]).name})
 				{:shutdown, :left}
-			_ ->
+			:public ->
 				room_id = socket.assigns.room
 				player = Repo.get(Player, socket.assigns[:player_id])
 				room =
@@ -181,6 +177,9 @@ defmodule PokerExWeb.PlayersChannel do
 						|> atomize()
 						|> Room.leave(player)
 				broadcast! socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room})
+				{:shutdown, :left}
+			_ ->
+				Logger.error "Shutting down for unknown reason. Received message: #{inspect message}"
 				{:shutdown, :left}
 		end
 	end
