@@ -9,7 +9,6 @@ defmodule PokerExWeb.PlayersChannel do
 
 	def join("players:lobby", _message, socket) do
 		player_name = Repo.get(Player, socket.assigns[:player_id]).name
-		Logger.debug "#{player_name} has joined the lobby."
 		{:ok, %{name: player_name}, socket}
 	end
 	def join("players:" <> room_id, %{"type" => "public"}, socket) do
