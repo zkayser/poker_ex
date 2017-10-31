@@ -8,7 +8,8 @@ defmodule PokerExWeb.SessionView do
       %{
         email: player.email,
         token: jwt,
-        username: player.name
+        username: player.name,
+        chips: player.chips
        }
      }
   end

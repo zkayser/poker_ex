@@ -228,6 +228,7 @@ defmodule PokerExWeb.PlayersChannel do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = pl ->
 				room = room_id |> atomize() |> Room.join(pl, amount)
+				Logger.debug "Broadcasting room: #{inspect room}"
 				broadcast!(socket, "add_player_success", PokerExWeb.RoomView.render("room.json", %{room: room}))
 				push socket, "join_room_success", %{name: pl.name, chips: (pl.chips - amount)}
 			{:error, reason} -> push socket, "error_on_room_join", %{reason: reason}
