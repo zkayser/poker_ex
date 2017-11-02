@@ -118,12 +118,14 @@ defmodule PokerEx.RoomTest do
 
     test "the active list should be updated properly when a player folds", context do
       [p1, p2, p3, p4] = players(context)
+      
       simulate_pre_flop_betting(context)
-      Room.raise(context[:test_room], p3, 20)
-      data = Room.fold(context[:test_room], p4)
+      
+      Room.raise(context[:test_room], p4, 20)
+      data = Room.fold(context[:test_room], p1)
 
-      assert hd(data.active) == {p1.name, 0}
-      assert data.active == [{p1.name, 0}, {p2.name, 1}, {p3.name, 2}]
+      assert hd(data.active) == {p2.name, 1}
+      assert data.active == [{p2.name, 1}, {p3.name, 2}, {p4.name, 3}]
     end
   end
 
@@ -132,19 +134,14 @@ defmodule PokerEx.RoomTest do
 
     test "auto-complete should kick in when both players go all_in head-to-head", context do
       [p1, p2, _, _] = players(context)
+      start_sum = Enum.sum(context[:init].chip_roll |> Map.values())
       startP1 = context[:init].chip_roll[p1.name]
-      startP2 = context[:init].chip_roll[p2.name]
       Room.raise(context[:test_room], p1, startP1 + 5)
       Room.call(context[:test_room], p2)
 
-      finish = Room.state(context[:test_room])
+      finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values())
       assert Room.which_state(context[:test_room]) == :pre_flop
-      assert(finish.chip_roll[p1.name] <= startP1 - 190 || finish.chip_roll[p2.name] <= startP2 - 190,
-             "Something weird occurred with the chip count.\n"
-             <> "Finished with: #{inspect finish.chip_roll}\n"
-             <> "P1 started with: #{inspect startP1}\n"
-             <> "P2 started with: #{inspect startP2}"
-            )
+      assert_in_delta(finish_sum, start_sum, 15)
     end
   end
 
@@ -153,46 +150,51 @@ defmodule PokerEx.RoomTest do
 
     test "auto-complete kicks in when all players go all_in during pre-flop", context do
       [p1, p2, p3, p4] = players(context)
-      Room.raise(context[:test_room], p3, 1200)
-      Room.call(context[:test_room], p4)
+      Room.raise(context[:test_room], p4, 1200)
       Room.call(context[:test_room], p1)
       Room.call(context[:test_room], p2)
+      Room.call(context[:test_room], p3)
+      
+      start_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
 
-      finish = Room.state(context[:test_room]).chip_roll
-      assert finish[p1.name] >= 400 || finish[p2.name] >= 400 || finish[p3.name] >= 400 || finish[p4.name] >= 400
+      finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
+    
+      assert_in_delta(finish_sum, start_sum, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle
     end
 
     test "auto-complete kicks in when a player folds and the others go all_in during pre-flop", context do
       [p1, p2, p3, p4] = players(context)
       start = Room.state(context[:test_room]).chip_roll
-      startP1 = Room.state(context[:test_room]).chip_roll[p1.name]
-      Room.raise(context[:test_room], p3, 1200)
-      Room.call(context[:test_room], p4)
-      Room.fold(context[:test_room], p1)
-      Room.call(context[:test_room], p2)
+      startP2 = Room.state(context[:test_room]).chip_roll[p2.name]
+      Room.raise(context[:test_room], p4, 1200)
+      Room.call(context[:test_room], p1)
+      Room.fold(context[:test_room], p2)
+      Room.call(context[:test_room], p3)
+
+      sum_beginning_chips = Enum.sum(Map.values(start))
 
       finish = Room.state(context[:test_room]).chip_roll
+      
+      sum_finish_chips = Enum.sum(Map.values(finish))
 
-      assert startP1 <= finish[p1.name]
-      assert(finish[p3.name] >= 400 || finish[p4.name] >= 400 || finish[p2.name] >= 400,
-            "\nSomething weird occured with the final chip count.\n"
-            <> "The chip roll started with: #{inspect start}\n"
-            <> "The finishing chip count was: #{inspect finish}\n"
-            )
+      assert_in_delta(startP2, finish[p2.name], 11)
+      assert_in_delta(sum_beginning_chips, sum_finish_chips, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop
     end
 
     test "auto-complete kicks in when all players go all_in in later rounds", context do
       [p1, p2, p3, p4] = players(context)
+      start = Enum.sum(Map.values(Room.state(context[:test_room]).chip_roll))
       simulate_pre_flop_betting(context)
       Room.raise(context[:test_room], p3, 1200)
       Room.call(context[:test_room], p4)
       Room.call(context[:test_room], p1)
       Room.call(context[:test_room], p2)
-
+      
       finish = Room.state(context[:test_room]).chip_roll
-      assert finish[p3.name] >= 400 || finish[p4.name] >= 400 || finish[p1.name] >= 400 || finish[p2.name] >= 400
+      
+      assert_in_delta(Enum.sum(Map.values(finish)), start, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle || :between_rounds
     end
   end
@@ -214,11 +216,11 @@ defmodule PokerEx.RoomTest do
     setup [:initialize_multiplayer]
 
     test "the active list gets updated properly when a player checks", context do
-      [_, _, p3, p4] = players(context)
+      [p1, _, _, p4] = players(context)
       simulate_pre_flop_betting(context)
-      data = Room.check(context[:test_room], p3)
+      data = Room.check(context[:test_room], p4)
 
-      assert hd(data.active) == {p4.name, 3}
+      assert hd(data.active) == {p1.name, 0}
     end
   end
 
@@ -227,7 +229,6 @@ defmodule PokerEx.RoomTest do
     p2 = context[:p2]
     Room.join(context[:test_room], p1, 200)
     Room.join(context[:test_room], p2, 200)
-    Room.start(context[:test_room])
   end
 
   defp init(context) do
@@ -235,7 +236,6 @@ defmodule PokerEx.RoomTest do
     p2 = context[:p2]
     Room.join(context[:test_room], p1, 200)
     Room.join(context[:test_room], p2, 200)
-    Room.start(context[:test_room])
     [init: Room.state(context[:test_room])]
   end
 
@@ -247,7 +247,8 @@ defmodule PokerEx.RoomTest do
     players = players(context)
     for player <- players, do: Room.join(context[:test_room], player, 200)
 
-    Room.start(context[:test_room])
+    Room.start_new_round(context[:test_room])
+    
     [init: Room.state(context[:test_room])]
   end
 

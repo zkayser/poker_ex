@@ -33,7 +33,7 @@ defmodule PokerEx.RewardManagerTest do
 	test "creates the proper rewards list when there is a tie with multi-players and some all-in" do
 		hand_rankings = [{"2", 215}, {"3", 215}, {"1", 120}, {"4", 5}]
 		paid_in = [{"2", 100}, {"3", 200}, {"1", 200}, {"4", 50}]
-		expected = [{"2", 175}, {"3", 375}]
+		expected = [{"2", 225}, {"3", 325}]
 		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
 	end
 	
@@ -62,6 +62,13 @@ defmodule PokerEx.RewardManagerTest do
 		hand_rankings = [{"a", 300}, {"b", 200}, {"c", 100}, {"d", 50}]
 		paid_in = [{"a", 50}, {"b", 100}, {"c", 300}, {"d", 75}]
 		expected = [{"a", 200}, {"b", 125},{"c", 200}]
+		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
+	end
+	
+	test "creates the proper reward list when two losing players tie on an all-in with one paying in the most" do
+		hand_rankings = [{"a", 136}, {"b", 133}, {"c", 133}]
+		paid_in = %{"a" => 195, "b" => 200, "c" => 10, "d" => 5}
+		expected = [{"a", 405}, {"b", 5}]
 		assert Manager.manage_rewards(hand_rankings, paid_in) == expected
 	end
 end

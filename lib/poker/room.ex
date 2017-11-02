@@ -145,6 +145,10 @@ defmodule PokerEx.Room do
 	def put_state(room_id, new_state, new_data) do
 		:gen_statem.call(room_id, {:put_state, new_state, new_data})
 	end
+	
+	def start_new_round(room_id) do
+		:gen_statem.call(room_id, :start_new_round)
+	end
 
 	def which_state(room_id) do
 		:gen_statem.call(room_id, :which_state)
@@ -165,7 +169,7 @@ defmodule PokerEx.Room do
 		:void
 	end
 	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
-		Logger.error "Now terminating #{inspect(id)} for reason: #{reason}."
+		Logger.error "Now terminating #{inspect(id)} for reason: #{inspect reason}."
 		Logger.error "Storing game state..."
 		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
 		room = :erlang.term_to_binary(room)
@@ -206,16 +210,16 @@ defmodule PokerEx.Room do
 	###############
 	#  Idle State #
 	###############
-
-	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room)
-	when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
-		{:ok, _} = Player.subtract_chips(player, chip_amount)
-		update =
-			room
-			|> Updater.seating(player)
-			|> Updater.chip_roll(player, chip_amount)
-		{:next_state, :idle, update, [{:reply, from, update}]}
-	end
+	# Why do you need this??? It is the same as the :public room join aside from the pattern match...
+	# def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room)
+	# when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
+	# 	{:ok, _} = Player.subtract_chips(player, chip_amount)
+	# 	update =
+	# 		room
+	# 		|> Updater.seating(player)
+	# 		|> Updater.chip_roll(player, chip_amount)
+	# 	{:next_state, :idle, update, [{:reply, from, update}]}
+	# end
 
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room)
 	when length(seating) < 1 and chip_amount >= @minimum_buy_in do
@@ -228,29 +232,39 @@ defmodule PokerEx.Room do
 	end
 
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room)
-	when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
+	when length(seating) >= 1 and chip_amount >= @minimum_buy_in do
 		{:ok, _} = Player.subtract_chips(player, chip_amount)
 		update =
 			room
 			|> Updater.seating(player)
 			|> Updater.chip_roll(player, chip_amount)
-		{:next_state, :idle, update, [{:reply, from, update}]}
-	end
-
-	def handle_event({:call, from}, :start, :idle, room) do
-		update =
-			room
 			|> Updater.blinds
 			|> Updater.set_active
 			|> Updater.player_hands
 			|> Updater.timer(@timeout)
 			|> BetTracker.post_blind(@small_blind, :small_blind)
 			|> BetTracker.post_blind(@big_blind, :big_blind)
-
+			
 			Events.game_started(room.room_id, update)
-
+			
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
+
+	# The above function should handle the transition to pre_flop state.
+	# def handle_event({:call, from}, :start, :idle, room) do
+	# 	update =
+	# 		room
+	# 		|> Updater.blinds
+	# 		|> Updater.set_active
+	# 		|> Updater.player_hands
+	# 		|> Updater.timer(@timeout)
+	# 		|> BetTracker.post_blind(@small_blind, :small_blind)
+	# 		|> BetTracker.post_blind(@big_blind, :big_blind)
+
+	# 		Events.game_started(room.room_id, update)
+
+	# 	{:next_state, :pre_flop, update, [{:reply, from, update}]}
+	# end
 
 	########################
 	# Between Rounds State #
@@ -684,22 +698,7 @@ defmodule PokerEx.Room do
 	end
 
 	def handle_event(:internal, :set_round, :between_rounds, room) do
-		update =
-			room
-			|> round_transition(:between_rounds)
-			|> Updater.reset_table_state
-			|> Updater.remove_players_with_no_chips
-			|> Updater.reset_total_paid
-			|> Updater.reset_table
-			|> Updater.reset_folded
-			|> Updater.reset_player_hands
-			|> Updater.reset_deck
-			|> Updater.reset_stats
-			|> Updater.reset_rewards
-			|> Updater.reset_winner
-			|> Updater.reset_winning_hand
-			|> Updater.reset_pot
-			|> Updater.reset_all_in
+		update = reset_all(room)
 		{:next_state, :between_rounds, update}
 	end
 
@@ -755,6 +754,10 @@ defmodule PokerEx.Room do
 
 	def handle_event({:call, from}, {:put_state, new_state, new_data}, _state, _room) do
 		{:next_state, new_state, new_data, [{:reply, from, new_data}]}
+	end
+	
+	def handle_event({:call, from}, :start_new_round, _state, room) do
+		new_round(room, from)
 	end
 
 	# DEBUGGING
@@ -812,5 +815,50 @@ defmodule PokerEx.Room do
   	chip_roll
 			|> Map.keys
 			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
+  end
+  
+  defp reset_all(room) do
+			room
+			|> round_transition(:between_rounds)
+			|> Updater.reset_table_state
+			|> Updater.remove_players_with_no_chips
+			|> Updater.reset_total_paid
+			|> Updater.reset_table
+			|> Updater.reset_folded
+			|> Updater.reset_player_hands
+			|> Updater.reset_deck
+			|> Updater.reset_stats
+			|> Updater.reset_rewards
+			|> Updater.reset_winner
+			|> Updater.reset_winning_hand
+			|> Updater.reset_pot
+			|> Updater.reset_all_in
+  end
+  
+  defp new_round(room, from_pid) do
+  		update =
+				room
+				|> round_transition(:between_rounds)
+				|> Updater.reset_total_paid
+				|> Updater.reset_table
+				|> Updater.reset_folded
+				|> Updater.reset_player_hands
+				|> Updater.reset_deck
+				|> Updater.reset_stats
+				|> Updater.reset_rewards
+				|> Updater.reset_winner
+				|> Updater.reset_winning_hand
+				|> Updater.reset_pot
+				|> Updater.reset_all_in
+				|> Updater.blinds
+				|> Updater.set_active
+				|> Updater.player_hands
+				|> Updater.timer(@timeout)
+				|> BetTracker.post_blind(@small_blind, :small_blind)
+				|> BetTracker.post_blind(@big_blind, :big_blind)
+
+			Events.game_started(room.room_id, update)
+
+		{:next_state, :pre_flop, update, [{:reply, from_pid, update}]}
   end
 end

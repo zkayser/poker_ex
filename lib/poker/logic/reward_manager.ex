@@ -17,7 +17,7 @@ defmodule PokerEx.RewardManager do
 	@spec manage_rewards(hand_rankings, paid_in) :: rewards
 	def manage_rewards(hand_rankings, paid_in) do
 		hand_rankings = Enum.sort(hand_rankings, fn {_, score1}, {_, score2} -> score1 > score2 end)
-		manage(hand_rankings, paid_in)
+		manage(hand_rankings, Enum.into(paid_in, %{}))
 	end
 	
 	@spec distribute_rewards(Room.t) :: Room.t
@@ -43,159 +43,88 @@ defmodule PokerEx.RewardManager do
 		Player.reward(player, amount, room_id)
 	end
 	
-	defp manage(hand_rankings, paid_in) when length(hand_rankings) > 0 do
-		indexed = Enum.with_index(hand_rankings)
-		results = Enum.take_while(indexed, 
-			fn {{_name, score}, index} ->
-				unless index == 0 do
-					{{_, score2}, _} = Enum.find(indexed, fn {{_n, _sc}, i} -> i == index - 1 end)
-					score == score2
-				else
-					true
-				end
-			end)
-		winner_rankings = Enum.map(results, fn {{name, score}, _} -> {name, score} end)
-		# The entire above can be replaced with the private function below.
-		calculate_rewards_per_winner(winner_rankings, paid_in, %{}, hand_rankings)
+	defp manage(rankings, paid_in) do
+		grouped_rankings = group_rankings(rankings)
+		distribute_rewards_by_group([], grouped_rankings, paid_in)
 	end
 	
-	defp find_winner_rankings(rankings, _paid_in) do
-		indexed = Enum.with_index(rankings)
-		results = Enum.take_while(indexed, 
-			fn {{_name, score}, index} ->
-				unless index == 0 do
-					{{_, score2}, _} = Enum.find(indexed, fn {{_n, _sc}, i} -> i == index - 1 end)
-					score == score2
-				else
-					true
-				end
-			end)
-		Enum.map(results, fn {{name, score}, _} -> {name, score} end)
-	end
-	
-	defp find_paid_by_winners(winner_rankings, paid_in) do
-		Enum.map(winner_rankings, 
-			fn {name, _} ->
-				{_, paid} = Enum.find(paid_in, fn {n, _} -> name == n end)
-				{name, paid}
+	defp group_rankings(rankings) do
+		Enum.reduce(rankings, %{}, 
+			fn {player, ranking}, acc ->
+				Map.update(acc, ranking, [player], fn list -> list ++ [player] end)			
 			end)
 	end
 	
-	defp sort_paid_by_winners(paid) do
-		Enum.sort(paid, fn {_, x}, {_, x1} -> x < x1 end)
-	end
-	
-	defp isolate_winners(winner_list), do: Enum.map(winner_list, fn {winner, _} -> winner end)
-	
-	defp remove_winners(paid_in, winners) do
-		Enum.reject(paid_in, fn {player, _} -> player in winners end)
-	end
-	
-	defp partition_above_min_winner(paid_in, min) do
-		Enum.split_with(paid_in, fn {_, paid} -> paid <= min end)
-	end
-	
-	defp credit_this_round(below_min_list, num_winners, min) do
-		case length(below_min_list) do
-			0 -> min
-			_ -> 
-				list_values = Enum.map(below_min_list, fn {_, credit} -> div(credit, num_winners) end)
-				sum = Enum.sum(list_values)
-				sum + min
-		end
-	end
-	
-	# Needs to return a list of tuples with elements of the form {String.t, pos_integer}
-	def calculate_rewards_per_winner(winner_rankings, paid_in, overall_rewards, hand_rankings) do
-		winners = isolate_winners(winner_rankings)
-	
-		winners_paid = 
-			winner_rankings
-				|> find_paid_by_winners(paid_in)
-				|> sort_paid_by_winners
-				
-		number_winners = length(winner_rankings)
-		
-		{_, min} = Enum.min_by(winners_paid, fn {_, paid} -> paid end)
-		
-		{below_min, above_min} =
-			paid_in
-				|> remove_winners(winners)
-				|> partition_above_min_winner(min)
-		
-		adjust_above_min_to_min = Enum.map(above_min, fn {name, _} -> {name, min} end)
-		
-		credit_this_round = credit_this_round((below_min ++ adjust_above_min_to_min), number_winners, min)
-		# sum below_min and divide by number_winners, credit each winner with min plus this number
-		
-			overall_rewards = Enum.reduce(winners_paid, overall_rewards, 
-				fn {winner, _}, acc -> 
-					Map.update(acc, winner, credit_this_round, &(&1 + credit_this_round)) 
-				end)
-		
-		# Get rid of winners where paid == min, keep those above.
-		# Eliminate below_min; pass above_min on to next iteration of function, subtracting min from each entry
-		# Subtract min from each entry in winners_paid being passed on to next iteration of function
-			update_above_min = Enum.map(above_min, fn {name, number} -> {name, number - min} end)
-			winners_remaining = Enum.reject(winners_paid, fn {_, paid} -> paid <= min end)
-			winners_remaining = 
-				case winners_remaining do
-					[] -> []
-					_ -> Enum.map(winners_remaining, fn {winner, paid} -> {winner, paid - min} end)
-				end
-		
-		# Check if there is leftover money remaining in the update_above_min paid_in list and whether the
-		# winners_remaining list is empty. If it is, filter the hand_rankings where the winners are, then
-		# send in the filtered list with the update_above_min list
-		winners_remaining = 
-			case length(winners_remaining) == 0 && length(update_above_min) > 0 do
-				true ->
-					Enum.reject(hand_rankings, fn {name, _} -> name in winners end)
-					|> find_winner_rankings(update_above_min)
-					|> find_paid_by_winners(update_above_min)
-					|> sort_paid_by_winners
-				_ -> winners_remaining
+	defp distribute_rewards_by_group(acc, %{} = rankings, _) when map_size(rankings) == 0, do:	acc
+	defp distribute_rewards_by_group(acc, ranking_map, paid_in) do
+		paid_in = Enum.into(paid_in, %{})
+		highest_ranked = Map.get(ranking_map, Map.keys(ranking_map) |> Enum.max)
+		new_highest_ranked = Map.drop(ranking_map, [Map.keys(ranking_map) |> Enum.max])
+		paid_by_highest = Enum.map(highest_ranked, fn player -> {player, paid_in[player]} end)
+		{results, new_paid_in} = divy_paid_in(paid_by_highest, paid_in)
+
+		new_eligible_winners =
+			case new_highest_ranked do
+				%{} = map when map_size(map) == 0 ->
+					%{}
+				map when is_map(map) -> 
+					possible_winners = Map.get(new_highest_ranked, Map.keys(new_highest_ranked) |> Enum.max)
+						Map.update(new_highest_ranked, Map.keys(new_highest_ranked) |> Enum.max, possible_winners,
+							fn list ->
+								Enum.reject(list, fn potential_winner -> potential_winner not in Map.keys(new_paid_in) end)
+							end)
+				_ -> :error
 			end
-	
-			_calculate_rewards_per_winner(winners_remaining, update_above_min, overall_rewards)
+		formatted_results = Enum.map(results, fn {player, amount} -> {player, amount} end)
+		
+		distribute_rewards_by_group(acc ++ formatted_results, new_eligible_winners, new_paid_in)
 	end
 	
-	def _calculate_rewards_per_winner(_, [], overall_rewards), do: Map.to_list(overall_rewards)
-	
-	def _calculate_rewards_per_winner([], paid_in, overall_rewards) do
-		map = Enum.reduce(paid_in, %{}, fn {name, amount}, acc -> Map.update(acc, name, amount, &(&1 + amount)) end)
-		overall_rewards = Map.merge(overall_rewards, map, fn _key, v1, v2 -> v1 + v2 end)
-		_calculate_rewards_per_winner([], [], overall_rewards)
+	defp divy_paid_in([], _), do: {%{}, %{}}
+	defp divy_paid_in(winners_paid, paid_in) do
+		winners = Enum.map(winners_paid, fn {player, _amount} -> player end)
+		redeem_from = Enum.filter(paid_in, fn {player, _amount} -> player not in winners end)
+		{_, minimum_paid_by_winners} = Enum.min_by(winners_paid, fn {_player, amount} -> amount end)
+		create_partial_reward_list(%{}, winners_paid, redeem_from, minimum_paid_by_winners)
 	end
 	
-	def _calculate_rewards_per_winner(winners_remaining, paid_in, overall_rewards) do
-		winners = isolate_winners(winners_remaining)
+	defp create_partial_reward_list(acc, %{}, redeem_from, _), do: {acc, redeem_from}
+	defp create_partial_reward_list(acc, _, %{} = redeem_from, _), do: {acc, redeem_from}
+	defp create_partial_reward_list(_acc, winners_paid, redeem_from, minimum) do
+		winners_paid = Enum.into(winners_paid, %{})
 		
-		{_, min} = Enum.min_by(winners_remaining, fn {_, paid} -> paid end)
+		losers_will_pay = Enum.reduce(redeem_from, %{},
+			fn {player, amount}, sub_acc -> 
+				if amount >= minimum * length(Map.keys(winners_paid)) do
+					Map.put(sub_acc, player, minimum * length(Map.keys(winners_paid)))
+				else
+					Map.put(sub_acc, player, amount)
+				end
+			end)
+
+		new_redeem_from = Enum.map(redeem_from, fn {player, amount} -> {player, amount - losers_will_pay[player]} end) |> Enum.into(%{})
+		new_redeem_from = Enum.reject(new_redeem_from, fn {_player, amount} -> amount <= 0 end) |> Enum.into(%{})
 		
-		number_winners = length(winners_remaining)
-		
-		{below_min, above_min} = 
-			paid_in
-				|> remove_winners(winners)
-				|> partition_above_min_winner(min)
-				
-		adjust_above_min_to_min = Enum.map(above_min, fn {name, _} -> {name, min} end)
+		sum_paid = Enum.sum(Map.values(losers_will_pay))
+		added_rewards =
+			for {player, _} <- winners_paid do
+				{player, div(sum_paid, length(Map.keys(winners_paid)))}
+			end
 			
-		credit_this_round = credit_this_round(below_min ++ adjust_above_min_to_min, number_winners, min)
-		
-		overall_rewards = Enum.reduce(winners_remaining, overall_rewards,
-			fn {winner, _}, acc ->
-				Map.update(acc, winner, credit_this_round, &(&1 + credit_this_round))
+		rewards = Enum.reduce(added_rewards, winners_paid,
+			fn {player, amount_earned}, sub_acc ->
+				Map.update(sub_acc, player, amount_earned, fn old_amount -> old_amount + amount_earned end)
 			end)
-		
-		update_above_min = Enum.map(above_min, fn {name, number} -> {name, number - min} end)
-		winners_remaining = Enum.reject(winners_remaining, fn {_, paid} -> paid <= min end)
-		winners_remaining = 
-			case winners_remaining do
-				[] -> []
-				_ -> Enum.map(winners_remaining, fn {winner, paid} -> {winner, paid - min} end)
+			
+		new_winners_paid = Enum.reject(winners_paid, fn {_, amount} -> amount == minimum end)
+
+		new_min =
+			if length(new_winners_paid) > 1 do
+				Enum.min_by(new_winners_paid, fn {_, amount} -> amount end)
+			else
+				0
 			end
-		_calculate_rewards_per_winner(winners_remaining, update_above_min, overall_rewards)
+
+		create_partial_reward_list(rewards, new_winners_paid, new_redeem_from, new_min)
 	end
 end

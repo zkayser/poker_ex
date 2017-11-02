@@ -17,7 +17,7 @@ defmodule PokerExWeb.RoomsChannel do
 		{:ok, %{name: socket.assigns.player.name}, socket}
 	end
 
-	def handle_info({:after_join, room_type}, %{assigns: assigns} = socket) do
+	def handle_info({:after_join, _room_type}, %{assigns: assigns} = socket) do
 		Room.join(assigns.room, assigns.player, assigns.join_amount)
 		{:noreply, socket}
 	end
