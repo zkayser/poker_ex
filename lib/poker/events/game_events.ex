@@ -8,7 +8,7 @@ defmodule PokerEx.GameEvents do
       room
       |> game_map()
       |> Map.merge(%{table: []})
-    Endpoint.broadcast!("players:" <> room_id, "game_started", map)
+    Endpoint.broadcast!("rooms:" <> room_id, "game_started", map)
   end
 
   def state_updated(room_id, update) do
@@ -20,11 +20,11 @@ defmodule PokerEx.GameEvents do
 
   def game_over(room_id, winner, reward) do
     message = "#{winner} wins #{reward} chips"
-    Endpoint.broadcast!("players:" <> room_id, "game_finished", %{message: message})
+    Endpoint.broadcast!("rooms:" <> room_id, "game_finished", %{message: message})
   end
 
   def winner_message(room_id, message) do
-    Endpoint.broadcast!("players:" <> room_id, "winner_message", %{message: message})
+    Endpoint.broadcast!("rooms:" <> room_id, "winner_message", %{message: message})
   end
 
   def present_winning_hand(room_id, winning_hand, player, type) do

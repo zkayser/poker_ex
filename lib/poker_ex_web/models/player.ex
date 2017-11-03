@@ -30,6 +30,16 @@ defmodule PokerEx.Player do
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
 
+	@spec all() :: list(Player.t)
+	def all, do: Repo.all(Player)
+	
+	@spec by_name(String.t) :: Player.t | {:error, :player_not_found}
+	def by_name(name) do
+		case Repo.get_by(Player, name: name) do
+			%Player{} = player -> player
+			_ -> {:error, :player_not_found}
+		end
+	end
 
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
 	def reward(name, amount, _) do

@@ -149,6 +149,10 @@ defmodule PokerEx.Room do
 	def start_new_round(room_id) do
 		:gen_statem.call(room_id, :start_new_round)
 	end
+	
+	def which_state(room_id) when is_binary(room_id) do
+		:gen_statem.call(String.to_atom(room_id), :which_state)
+	end
 
 	def which_state(room_id) do
 		:gen_statem.call(room_id, :which_state)
@@ -210,16 +214,6 @@ defmodule PokerEx.Room do
 	###############
 	#  Idle State #
 	###############
-	# Why do you need this??? It is the same as the :public room join aside from the pattern match...
-	# def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{type: :private, seating: seating} = room)
-	# when length(seating) <= @seating_capacity and chip_amount >= @minimum_buy_in do
-	# 	{:ok, _} = Player.subtract_chips(player, chip_amount)
-	# 	update =
-	# 		room
-	# 		|> Updater.seating(player)
-	# 		|> Updater.chip_roll(player, chip_amount)
-	# 	{:next_state, :idle, update, [{:reply, from, update}]}
-	# end
 
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room)
 	when length(seating) < 1 and chip_amount >= @minimum_buy_in do
@@ -249,22 +243,6 @@ defmodule PokerEx.Room do
 			
 		{:next_state, :pre_flop, update, [{:reply, from, update}]}
 	end
-
-	# The above function should handle the transition to pre_flop state.
-	# def handle_event({:call, from}, :start, :idle, room) do
-	# 	update =
-	# 		room
-	# 		|> Updater.blinds
-	# 		|> Updater.set_active
-	# 		|> Updater.player_hands
-	# 		|> Updater.timer(@timeout)
-	# 		|> BetTracker.post_blind(@small_blind, :small_blind)
-	# 		|> BetTracker.post_blind(@big_blind, :big_blind)
-
-	# 		Events.game_started(room.room_id, update)
-
-	# 	{:next_state, :pre_flop, update, [{:reply, from, update}]}
-	# end
 
 	########################
 	# Between Rounds State #
@@ -474,7 +452,7 @@ defmodule PokerEx.Room do
 			room
 			|> BetTracker.fold(player)
 			|> round_transition(state)
-		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_fold}]}
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_fold}]}
 	end
 
 	def handle_event({:call, from}, {:fold, player}, state, %Room{called: called, active: active} = room) when length(called) >= length(active) - 1 do
