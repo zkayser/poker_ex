@@ -14,7 +14,7 @@ defmodule PokerExWeb.RoomsChannel do
 			|> assign(:join_amount, amount)
 			|> assign_player()
 
-		send self(), {:after_join, type}
+		send self(), :after_join
 
 		{:ok, %{name: socket.assigns.player.name}, socket}
 	end
@@ -23,8 +23,9 @@ defmodule PokerExWeb.RoomsChannel do
 	# INTERNAL #
 	############
 
-	def handle_info({:after_join, _room_type}, %{assigns: assigns} = socket) do
-		Room.join(assigns.room, assigns.player, assigns.join_amount)
+	def handle_info(:after_join, %{assigns: assigns} = socket) do
+		room = Room.join(assigns.room, assigns.player, assigns.join_amount)
+		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 		{:noreply, socket}
 	end
 	
@@ -32,7 +33,7 @@ defmodule PokerExWeb.RoomsChannel do
 	# INCOMING #
 	############
 	
-	def handle_in("action_" <> action, %{"player" => player} = params, socket) when action in ["raise", "call", "check", "fold"] do
+	def handle_in("action_" <> action, %{"player" => _player} = params, socket) when action in ["raise", "call", "check", "fold"] do
 		{player, params} = get_player_and_strip_params(params)
 		case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
 			true -> 
@@ -42,6 +43,10 @@ defmodule PokerExWeb.RoomsChannel do
 		end
 		{:noreply, socket}
 	end
+	
+	####################
+	# HELPER FUNCTIONS #
+	####################
 
 	defp atomize(room_title) do
 		String.to_atom(room_title)

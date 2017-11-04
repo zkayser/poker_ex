@@ -31,7 +31,7 @@ defmodule PokerEx.RoomChannelTest do
 		assert Room.which_state(:room_test) == :idle
 	end
 	
-	test "second player joins", context do
+	test "a game starts when a second player joins", context do
 		{_, player, _, _} = create_player_and_connect()
 
 		room_state = Room.state(:room_test)
@@ -88,6 +88,8 @@ defmodule PokerEx.RoomChannelTest do
 		
 		assert_broadcast "game_finished", %{message: _}
 	end
+	
+	
 	
 	defp create_player_and_connect do
 		player = insert_user()
