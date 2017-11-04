@@ -7,7 +7,7 @@ defmodule PokerExWeb.RoomsChannel do
 	
 	@valid_params ~w(player amount)
 	
-	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) do
+	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) when amount >= 100 do
 		socket = 
 			assign(socket, :room, atomize(room_title))
 			|> assign(:type, type)
@@ -18,6 +18,8 @@ defmodule PokerExWeb.RoomsChannel do
 
 		{:ok, %{name: socket.assigns.player.name}, socket}
 	end
+	
+	def join("rooms:" <> _, _, socket), do: {:error, %{message: "Could not join the room. Please try again."}}
 	
 	############
 	# INTERNAL #
