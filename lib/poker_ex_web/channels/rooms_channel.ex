@@ -8,18 +8,20 @@ defmodule PokerExWeb.RoomsChannel do
 	@valid_params ~w(player amount)
 	
 	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) when amount >= 100 do
-		socket = 
-			assign(socket, :room, atomize(room_title))
-			|> assign(:type, type)
-			|> assign(:join_amount, amount)
-			|> assign_player()
-
-		send self(), :after_join
-
-		{:ok, %{name: socket.assigns.player.name}, socket}
+		unless socket.assigns |> Map.has_key?(:player) do
+			socket = 
+				assign(socket, :room, atomize(room_title))
+				|> assign(:type, type)
+				|> assign(:join_amount, amount)
+				|> assign_player()
+	
+			send self(), :after_join
+			Logger.debug "Player #{socket.assigns.player.name} has joined room #{room_title}"
+			{:ok, %{name: socket.assigns.player.name}, socket}
+		end
 	end
 	
-	def join("rooms:" <> _, _, socket), do: {:error, %{message: "Could not join the room. Please try again."}}
+	def join("rooms:" <> _, _, _socket), do: {:error, %{message: "Could not join the room. Please try again."}}
 	
 	############
 	# INTERNAL #
@@ -28,6 +30,9 @@ defmodule PokerExWeb.RoomsChannel do
 	def handle_info(:after_join, %{assigns: assigns} = socket) do
 		room = Room.join(assigns.room, assigns.player, assigns.join_amount)
 		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+		
+		json = PokerExWeb.RoomView.render("room.json", %{room: room})
+		Logger.debug "Update has been sent with the following data:\n #{inspect json}"
 		{:noreply, socket}
 	end
 	
