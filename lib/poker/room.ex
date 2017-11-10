@@ -416,7 +416,7 @@ defmodule PokerEx.Room do
 			|> Updater.no_advance_event
 			|> BetTracker.call(player)
 			|> round_transition(state)
-		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_all_in}]}
 	end
 
 	def handle_event({:call, from}, {:call, player}, state, room) when state in @non_terminal_states do
@@ -429,7 +429,7 @@ defmodule PokerEx.Room do
 		{all_in, folded, seating} = {update.all_in, update.folded, update.seating}
 		case (length(all_in) + length(folded) == length(seating) - 1) do
 			true ->
-				{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
+				{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_all_in}]}
 			_ ->
 				{:next_state, advance_state(state), update, [{:reply, from, update}]}
 		end
@@ -439,7 +439,7 @@ defmodule PokerEx.Room do
 		update =
 			room
 			|> BetTracker.call(player)
-		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :reward_winner}]}
 	end
 
 	#########################################
@@ -499,7 +499,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :handle_all_in}]}
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_all_in}]}
 	end
 
 	def handle_event({:call, from}, {:check, player}, state, %Room{to_call: call_amount, round: round, called: called, active: active} = room)
@@ -527,7 +527,7 @@ defmodule PokerEx.Room do
 				_ ->
 					room
 			end
-		{:next_state, :game_over, update, [{:reply, from, :ok}, {:next_event, :internal, :reward_winner}]}
+		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :reward_winner}]}
 	end
 
 	##################
