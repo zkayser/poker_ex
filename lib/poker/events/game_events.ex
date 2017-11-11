@@ -8,6 +8,7 @@ defmodule PokerEx.GameEvents do
       room
       |> game_map()
       |> Map.merge(%{table: []})
+    
     Endpoint.broadcast!("rooms:" <> room_id, "game_started", map)
   end
 
@@ -29,7 +30,7 @@ defmodule PokerEx.GameEvents do
 
   def present_winning_hand(room_id, winning_hand, player, type) do
     cards = Enum.map(winning_hand, fn card -> Map.from_struct(card) end)
-    Endpoint.broadcast!("players:" <> room_id, "present_winning_hand", %{cards: cards, winner: player, type: type})
+    Endpoint.broadcast!("rooms:" <> room_id, "present_winning_hand", %{cards: cards, winner: player, type: type})
   end
 
   defp game_map(room) do
@@ -38,15 +39,14 @@ defmodule PokerEx.GameEvents do
       if room.active == [] do
         []
       else
-        Enum.map(room.active,
-        fn {name, _} ->
-            PokerEx.Repo.one(from p in Player, where: p.name == ^name)
-        end)
+        Enum.map(room.active, fn {name, _} -> PokerEx.Repo.one(from p in Player, where: p.name == ^name) end)
       end
     players = Enum.map(players, fn p -> %{chips: p.chips, name: p.name} end)
 
     base_map =
       %{active: active,
+        current_big_blind: room.current_big_blind || nil,
+        current_small_blind: room.current_small_blind || nil,
         players: players,
         paid: room.paid,
         round: room.round,

@@ -30,9 +30,6 @@ defmodule PokerExWeb.RoomsChannel do
 	def handle_info(:after_join, %{assigns: assigns} = socket) do
 		room = Room.join(assigns.room, assigns.player, assigns.join_amount)
 		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
-		
-		json = PokerExWeb.RoomView.render("room.json", %{room: room})
-		Logger.debug "Update has been sent with the following data:\n #{inspect json}"
 		{:noreply, socket}
 	end
 	
@@ -45,7 +42,7 @@ defmodule PokerExWeb.RoomsChannel do
 		case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
 			true -> 
 				room = apply(Room, atomize(action), [socket.assigns.room, player|Map.values(params)])
-				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+				maybe_broadcast_update(room, socket)
 			_ -> {:error, :bad_room_arguments, Map.values(params)}
 		end
 		{:noreply, socket}
@@ -66,5 +63,10 @@ defmodule PokerExWeb.RoomsChannel do
 	
 	defp get_player_and_strip_params(%{"player" => player} = params) do
 		{Player.by_name(player), Map.drop(params, ["player"])}
+	end
+	
+	defp maybe_broadcast_update(:skip_update_message, _), do: :ok
+	defp maybe_broadcast_update(room, socket) do
+		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 	end
 end
