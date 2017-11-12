@@ -8,8 +8,9 @@ defmodule PokerEx.GameEvents do
       room
       |> game_map()
       |> Map.merge(%{table: []})
+      |> Map.merge(%{state: :pre_flop})
     
-    Endpoint.broadcast!("rooms:" <> room_id, "game_started", map)
+    {Endpoint.broadcast!("rooms:" <> room_id, "game_started", map), map}
   end
 
   def state_updated(room_id, update) do
