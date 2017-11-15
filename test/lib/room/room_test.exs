@@ -25,7 +25,7 @@ defmodule PokerEx.RoomTest do
     assert length(player_names) == 1
   end
 
-  test "games begin when a second player joins the room and the start message is sent", context do
+  test "games begin when a second player joins the room", context do
     initialize(context)
 
     assert length(Room.state(context[:test_room]).player_hands) == 2
@@ -78,7 +78,7 @@ defmodule PokerEx.RoomTest do
   describe "FOLDING HEAD-TO-HEAD:" do
     setup [:init]
 
-    test "in head-to-head, the game ends when one player folds", context do
+    test "in head-to-head games, the game ends when one player folds", context do
       [p1, p2, _, _] = players(context)
       init = Room.state(context[:test_room])
       Room.raise(context[:test_room], p1, 40)
@@ -89,7 +89,7 @@ defmodule PokerEx.RoomTest do
       assert finish.chip_roll[p2.name] < init.chip_roll[p2.name]
     end
 
-    test "in head-to-head, the game ends when one player folds in the flop state", context do
+    test "in head-to-head games, the game ends when one player folds in the flop state", context do
       [p1, p2, _, _] = players(context)
       startP1 = context[:init].chip_roll[p1.name]
       startP2 = context[:init].chip_roll[p2.name]
@@ -107,7 +107,7 @@ defmodule PokerEx.RoomTest do
   describe "FOLDING WITH MULTIPLE PLAYERS" do
     setup [:initialize_multiplayer]
 
-    test "no errors should arise when a player folds in the pre-flop state", context do
+    test "players can fold in the pre-flop state", context do
       [p1, p2, p3, p4] = players(context)
       Room.raise(context[:test_room], p1, 20)
       Room.call(context[:test_room], p2)
@@ -116,7 +116,7 @@ defmodule PokerEx.RoomTest do
       assert {p4.name, 3} in data.active
     end
 
-    test "the game should end when all but one player folds", context do
+    test "the game ends when all but one player folds", context do
       [p1, p2, p3, _p4] = players(context)
       simulate_pre_flop_betting(context)
       initial_state = Room.which_state(context[:test_room])
@@ -129,7 +129,7 @@ defmodule PokerEx.RoomTest do
       assert initial_state == :flop
     end
 
-    test "the active list should be updated properly when a player folds", context do
+    test "the active list gets updated when a player folds", context do
       [p1, p2, p3, p4] = players(context)
       
       simulate_pre_flop_betting(context)
@@ -145,7 +145,7 @@ defmodule PokerEx.RoomTest do
   describe "ALL IN, HEAD-TO-HEAD:" do
     setup [:init]
 
-    test "auto-complete should kick in when both players go all_in head-to-head", context do
+    test "auto-complete should kick in when both players go all in during a head-to-head game", context do
       [p1, p2, _, _] = players(context)
       start_sum = Enum.sum(context[:init].chip_roll |> Map.values())
       startP1 = context[:init].chip_roll[p1.name]
@@ -161,7 +161,7 @@ defmodule PokerEx.RoomTest do
   describe "ALL IN AUTO-COMPLETE, MULTIPLAYER:" do
     setup [:initialize_multiplayer]
 
-    test "auto-complete kicks in when all players go all_in during pre-flop", context do
+    test "auto-complete kicks in when all players go all in on the pre-flop", context do
       [p1, p2, p3, p4] = players(context)
       Room.raise(context[:test_room], p4, 1200)
       Room.call(context[:test_room], p1)
@@ -176,7 +176,7 @@ defmodule PokerEx.RoomTest do
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle
     end
 
-    test "auto-complete kicks in when a player folds and the others go all_in during pre-flop", context do
+    test "auto-complete kicks in when a player folds and the others go all in during pre-flop", context do
       [p1, p2, p3, p4] = players(context)
       start = Room.state(context[:test_room]).chip_roll
       startP2 = Room.state(context[:test_room]).chip_roll[p2.name]
@@ -196,7 +196,7 @@ defmodule PokerEx.RoomTest do
       assert Room.which_state(context[:test_room]) == :pre_flop
     end
 
-    test "auto-complete kicks in when all players go all_in in later rounds", context do
+    test "auto-complete kicks in when all players go all in in later rounds", context do
       [p1, p2, p3, p4] = players(context)
       start = Enum.sum(Map.values(Room.state(context[:test_room]).chip_roll))
       simulate_pre_flop_betting(context)
@@ -215,7 +215,7 @@ defmodule PokerEx.RoomTest do
   describe "HEAD-TO-HEAD CHECK:" do
     setup [:init]
 
-    test "the active list gets updated properly when one player checks", context do
+    test "the active list gets updated when one player checks", context do
       [p1, p2, _, _] = players(context)
       Room.raise(context[:test_room], p1, 20)
       Room.call(context[:test_room], p2)
@@ -228,7 +228,7 @@ defmodule PokerEx.RoomTest do
   describe "MULTIPLAYER CHECK:" do
     setup [:initialize_multiplayer]
 
-    test "the active list gets updated properly when a player checks", context do
+    test "the active list gets updated when a player checks", context do
       [p1, _, _, p4] = players(context)
       simulate_pre_flop_betting(context)
       data = Room.check(context[:test_room], p4)

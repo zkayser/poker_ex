@@ -17,7 +17,7 @@ defmodule PokerEx.GameEvents do
     map =
       update
       |> game_map()
-    Endpoint.broadcast!("players:" <> room_id, "update", map)
+    Endpoint.broadcast!("rooms:" <> room_id, "update", map)
   end
 
   def game_over(room_id, winner, reward) do
