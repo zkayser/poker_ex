@@ -11,6 +11,19 @@ defmodule PokerEx.RoomTest do
 
     assert {player.name, 0} in data.seating
   end
+  
+  test "the same player can only join the room once", context do
+    player = context[:p1]
+    
+    Room.join(context[:test_room], player, 200)
+    Room.join(context[:test_room], player, 200)
+    
+    player_names = 
+      Room.state(context[:test_room]).seating 
+        |> Enum.map(fn {name, _} -> name end)
+        
+    assert length(player_names) == 1
+  end
 
   test "games begin when a second player joins the room and the start message is sent", context do
     initialize(context)

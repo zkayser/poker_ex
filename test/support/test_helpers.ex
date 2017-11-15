@@ -22,7 +22,7 @@ defmodule PokerEx.TestHelpers do
   end
   
   def build_room(attrs \\ %{}) do
-    room = Map.merge(%PokerEx.Room{}, Map.new(attrs))
+    Map.merge(%PokerEx.Room{}, Map.new(attrs))
   end
   
   def fake_table_flop do
