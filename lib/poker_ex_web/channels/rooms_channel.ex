@@ -37,7 +37,7 @@ defmodule PokerExWeb.RoomsChannel do
 	# INCOMING #
 	############
 	
-	def handle_in("action_" <> action, %{"player" => _player} = params, socket) when action in ["raise", "call", "check", "fold"] do
+	def handle_in("action_" <> action, %{"player" => _player} = params, socket) when action in ["raise", "call", "check", "fold", "leave"] do
 		{player, params} = get_player_and_strip_params(params)
 		case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
 			true -> 
