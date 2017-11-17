@@ -40,7 +40,7 @@ defmodule PokerEx.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:ex_doc, "~> 0.12"},
+     {:ex_doc, "~> 0.12", only: :dev, runtime: false},
      {:cors_plug, "~> 1.2"},
      {:gen_fsm, "~> 0.1.0"},
      {:guardian, "~> 0.14.5"},
