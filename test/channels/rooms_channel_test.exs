@@ -123,6 +123,17 @@ defmodule PokerEx.RoomChannelTest do
 		assert length(Room.state(:room_test).seating) == 1
 	end
 	
+	test "when there are only two players, the channel receives a 'clear_ui' message", _context do
+		{socket, _, _, _} = create_player_and_connect()
+		
+		assert length(Room.state(:room_test).seating) == 2
+		
+		leave(socket)
+		
+		Process.sleep(100)
+		assert_broadcast "clear_ui", %{}
+	end
+	
 	defp create_player_and_connect do
 		player = insert_user()
 		

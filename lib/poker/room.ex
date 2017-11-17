@@ -325,8 +325,8 @@ defmodule PokerEx.Room do
 		{:next_state, :idle, update, [{:reply, from, update}]}
 	end
 
-	def handle_event({:call, from}, {:leave, player}, state, %Room{active: active} = room)
-	when length(active) == 2 and state in [:pre_flop, :flop, :turn, :river] do
+	def handle_event({:call, from}, {:leave, player}, state, %Room{active: active, seating: seating} = room)
+	when length(active) == 2 and length(seating) > 2 and state in [:pre_flop, :flop, :turn, :river] do
 		active_players = Enum.map(active, fn {player, _} -> player end)
 		unless player in active_players do
 			update =
@@ -356,7 +356,9 @@ defmodule PokerEx.Room do
 			|> Updater.maybe_advance_active(player)
 			|> Updater.active(player)
 			|> Updater.reindex_seating
-		{:next_state, :game_over, update, [{:reply, from, update}, {:next_event, :internal, :handle_fold}]}
+		{:next_state, :game_over, update, 
+			[{:reply, from, update}, {:next_event, :internal, :handle_fold}, {:next_event, :internal, :send_clear_ui}]
+		}
 	end
 
 	def handle_event({:call, from}, {:leave, player}, _state, %Room{seating: seating} = room) when length(seating) == 2 do
@@ -367,8 +369,7 @@ defmodule PokerEx.Room do
 			|> Updater.remove_from_seating(player)
 			|> Updater.reindex_seating
 
-		Events.clear_ui(room.room_id)
-		{:next_state, :idle, update, [{:reply, from, update}]}
+		{:next_state, :idle, update, [{:reply, from, update}, {:next_event, :internal, :send_clear_ui}]}
 	end
 
 	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating, active: active} = room)
@@ -671,6 +672,11 @@ defmodule PokerEx.Room do
 			_ ->
 				{:next_state, :between_rounds, update_one, [{:next_event, :internal, :clear}]}
 		end
+	end
+	
+	def handle_event(:internal, :send_clear_ui, state, room) do
+		Events.clear_ui(room.room_id)
+		{:next_state, state, room}
 	end
 
 	def handle_event(:internal, :clear, :between_rounds, room) do
