@@ -89,23 +89,38 @@ defmodule PokerEx.RoomChannelTest do
 		assert_broadcast "game_finished", %{message: _}
 	end
 	
-	test "a new update message is broadcast when a player manually leaves", context do
+	test "a new update message is broadcast when a player manually sends a leave message", context do
 		{_, player, _, _} = create_player_and_connect()
 		
 		seating = Room.state(:room_test).seating
 		assert length(seating) == 2
 		assert Room.which_state(:room_test) == :pre_flop
 		
-		expected_seating_after_leave = [{context.player.name, 0}]
-		[{expected_player, expected_position}] = expected_seating_after_leave
-			
+		expected_player_remaining = context.player.name
+
 		push context.socket, "action_leave", %{"player" => player.name}
 		
-		assert_broadcast "update", %{seating: [%{name: ^expected_player, position: ^expected_position}]}
+		assert_broadcast "update", %{seating: [%{name: ^expected_player_remaining, position: 0}]}
 		
 		Process.sleep(100)
 		seating_after_leave = Room.state(:room_test).seating
 		assert length(seating_after_leave) == 1
+	end
+	
+	test "a new update message is broadcast when a player's channel is disconnected", context do
+		{_, player, _, _} = create_player_and_connect()
+		
+		assert length(Room.state(:room_test).seating) == 2
+		assert Room.which_state(:room_test) == :pre_flop
+		
+		expected_player_remaining = player.name
+		
+		leave(context.socket)
+		
+		assert_broadcast "update", %{seating: [%{name: ^expected_player_remaining, position: 0}]}
+		
+		Process.sleep(100)
+		assert length(Room.state(:room_test).seating) == 1
 	end
 	
 	defp create_player_and_connect do

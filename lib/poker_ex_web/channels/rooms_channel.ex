@@ -48,6 +48,19 @@ defmodule PokerExWeb.RoomsChannel do
 		{:noreply, socket}
 	end
 	
+	#############
+	# TERMINATE #
+	#############
+	
+	def terminate(reason, socket) do
+		Logger.debug "[RoomChannel] Terminating with reason: #{inspect reason}"
+		
+		room = Room.leave(socket.assigns.room, socket.assigns.player)
+		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+		
+		{:shutdown, :left}
+	end
+	
 	####################
 	# HELPER FUNCTIONS #
 	####################
