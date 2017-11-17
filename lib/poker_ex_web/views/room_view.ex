@@ -3,6 +3,7 @@ defmodule PokerExWeb.RoomView do
   alias PokerEx.Room
   import Ecto.Query
 
+  def render("room.json", %{room: :skip_update_message}), do: %{}
   def render("room.json", %{room: room}) do
     {active, _} = if room.active == [], do: {nil, nil}, else: hd(room.active)
     players =

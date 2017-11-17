@@ -357,7 +357,7 @@ defmodule PokerEx.Room do
 			|> Updater.active(player)
 			|> Updater.reindex_seating
 		{:next_state, :game_over, update, 
-			[{:reply, from, update}, {:next_event, :internal, :handle_fold}, {:next_event, :internal, :send_clear_ui}]
+			[{:reply, from, :skip_update_message}, {:next_event, :internal, :handle_fold}, {:next_event, :internal, :send_clear_ui}]
 		}
 	end
 
@@ -369,7 +369,7 @@ defmodule PokerEx.Room do
 			|> Updater.remove_from_seating(player)
 			|> Updater.reindex_seating
 
-		{:next_state, :idle, update, [{:reply, from, update}, {:next_event, :internal, :send_clear_ui}]}
+		{:next_state, :idle, update, [{:reply, from, :skip_update_message}, {:next_event, :internal, :send_clear_ui}]}
 	end
 
 	def handle_event({:call, from}, {:leave, player}, state, %Room{seating: seating, active: active} = room)

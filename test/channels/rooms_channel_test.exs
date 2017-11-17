@@ -109,18 +109,21 @@ defmodule PokerEx.RoomChannelTest do
 	
 	test "a new update message is broadcast when a player's channel is disconnected", context do
 		{_, player, _, _} = create_player_and_connect()
+		# Connect with 3 players so :skip_update_message is not issued
+		# when only one player is left
+		{_, other_player, _, _} = create_player_and_connect()
 		
-		assert length(Room.state(:room_test).seating) == 2
+		assert length(Room.state(:room_test).seating) == 3
 		assert Room.which_state(:room_test) == :pre_flop
 		
-		expected_player_remaining = player.name
+		expected_seating = [%{name: player.name, position: 0}, %{name: other_player.name, position: 1}]
 		
 		leave(context.socket)
 		
-		assert_broadcast "update", %{seating: [%{name: ^expected_player_remaining, position: 0}]}
+		assert_broadcast "update", %{seating: ^expected_seating}
 		
 		Process.sleep(100)
-		assert length(Room.state(:room_test).seating) == 1
+		assert length(Room.state(:room_test).seating) == 2
 	end
 	
 	test "when there are only two players, the channel receives a 'clear_ui' message", _context do
