@@ -21,6 +21,7 @@ defmodule PokerExWeb.UserSocket do
               "http://localhost:4000",
               "http://localhost:4000/",
               "http://localhost:8080",
+              "http://localhost:8081",
               "https://phoenix-experiment-zkayser.c9users.io",
               "http://phoenix-experiment-zkayser.c9users.io:8081",
               "//ancient-forest-15148.herokuapp.com/",
