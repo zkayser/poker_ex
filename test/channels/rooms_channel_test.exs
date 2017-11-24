@@ -108,8 +108,12 @@ defmodule PokerEx.RoomChannelTest do
 	
 	test "a new update message is broadcast when a player's channel is disconnected", context do
 		{_, player, _, _} = create_player_and_connect()
-		# Connect with 3 players so :skip_update_message is not issued
-		# when only one player is left
+		
+		# Since a :skip_update_message is returned if there are only two players
+		# and one leaves/gets disconnected (leaving only one player at the table), I'm having a
+		# third player join here to invoke what would normally be returned given an ongoing game with
+		# more than two players.
+
 		{_, other_player, _, _} = create_player_and_connect()
 		
 		assert length(Room.state(:room_test).seating) == 3
@@ -125,7 +129,7 @@ defmodule PokerEx.RoomChannelTest do
 		assert length(Room.state(:room_test).seating) == 2
 	end
 	
-	test "when there are only two players, the channel receives a 'clear_ui' message", _context do
+	test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message", _context do
 		{socket, _, _, _} = create_player_and_connect()
 		
 		assert length(Room.state(:room_test).seating) == 2
@@ -134,6 +138,14 @@ defmodule PokerEx.RoomChannelTest do
 		
 		Process.sleep(100)
 		assert_broadcast "clear_ui", %{}
+	end
+
+	test "the channel issues a push with the number of available chips when receiving a 'get_bank' message", context do
+		push context.socket, "get_bank", %{"player" => context.player.name}
+
+		chips = PokerEx.Player.chips(context.player.name)
+
+		assert_push "bank_info", ^chips
 	end
 	
 	defp create_player_and_connect do

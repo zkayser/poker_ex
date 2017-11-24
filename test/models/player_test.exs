@@ -15,7 +15,7 @@ defmodule PokerEx.PlayerTest do
 			assert Player.chips(player.name) == %{chips: player.chips}
 		end
 
-		test "Player.chips/1 returns an error tuple when given a non-existent player", context do
+		test "Player.chips/1 returns an error tuple when given a non-existent player", _context do
 			assert Player.chips("some username that doesn't exist") == {:error, :player_not_found}
 		end
 	end
