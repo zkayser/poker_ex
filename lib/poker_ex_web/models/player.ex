@@ -1,5 +1,4 @@
 defmodule PokerEx.Player do
-
 	use PokerExWeb, :model
 
 	@derive {Poison.Encoder, only: [:chips, :name]}
@@ -38,6 +37,14 @@ defmodule PokerEx.Player do
 		case Repo.get_by(Player, name: name) do
 			%Player{} = player -> player
 			_ -> {:error, :player_not_found}
+		end
+	end
+
+	@spec chips(String.t) :: %{chips: non_neg_integer} | {:error, :player_not_found}
+	def chips(player_name) do
+		case "players" |> where([p], p.name == ^player_name) |> select([:chips]) |> Repo.one() do
+			nil -> {:error, :player_not_found}
+			res -> res
 		end
 	end
 

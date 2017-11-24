@@ -2,7 +2,6 @@ defmodule PokerEx.RoomChannelTest do
 	use PokerExWeb.ChannelCase
 	import PokerEx.TestHelpers
 	alias PokerExWeb.RoomsChannel
-	# alias PokerEx.Player --> Not used yet.
 	alias PokerEx.Room
 
 	@endpoint PokerExWeb.Endpoint
