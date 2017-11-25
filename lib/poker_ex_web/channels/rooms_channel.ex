@@ -6,6 +6,7 @@ defmodule PokerExWeb.RoomsChannel do
 	alias PokerEx.Room
 	
 	@valid_params ~w(player amount)
+	@actions ~w(raise call check fold leave add_chips)
 	
 	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) when amount >= 100 do
 		unless socket.assigns |> Map.has_key?(:player) do
@@ -37,7 +38,7 @@ defmodule PokerExWeb.RoomsChannel do
 	# INCOMING #
 	############
 	
-	def handle_in("action_" <> action, %{"player" => _player} = params, socket) when action in ["raise", "call", "check", "fold", "leave"] do
+	def handle_in("action_" <> action, %{"player" => _player} = params, socket) when action in @actions do
 		{player, params} = get_player_and_strip_params(params)
 		case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
 			true -> 

@@ -139,7 +139,7 @@ defmodule PokerEx.Room do
 	end
 
 	def add_chips(room_id, player, amount) when amount > 0 do
-		:gen_statem.call(room_id, {:add_chips, player, amount})
+		:gen_statem.call(room_id, {:add_chips, player.name, amount})
 	end
 
 	def put_state(room_id, new_state, new_data) do

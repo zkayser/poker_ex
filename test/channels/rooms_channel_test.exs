@@ -5,6 +5,7 @@ defmodule PokerEx.RoomChannelTest do
 	alias PokerEx.Room
 
 	@endpoint PokerExWeb.Endpoint
+	@default_chips 500
 
 	setup do
 		{:ok, _} = Room.start_link("room_test")
@@ -147,6 +148,18 @@ defmodule PokerEx.RoomChannelTest do
 
 		assert_push "bank_info", ^chips
 	end
+
+	test "the channel broadcasts an update when a player submits an add_chips action", context do
+		create_player_and_connect()
+
+		player_name = context.player.name		
+		push context.socket, "action_add_chips", %{"player" => player_name, "amount" => 200}
+
+		Process.sleep(100)
+		chips = Room.state(:room_test).chip_roll[player_name]
+
+		assert_broadcast "update", %{chip_roll: %{^player_name => ^chips}}
+	end
 	
 	defp create_player_and_connect do
 		player = insert_user()
@@ -156,7 +169,7 @@ defmodule PokerEx.RoomChannelTest do
 		{:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 		
 		{:ok, reply, socket} = subscribe_and_join(socket, RoomsChannel, "rooms:room_test",
-																							%{"type" => "public", "amount" => 500})
+																							%{"type" => "public", "amount" => @default_chips})
 																							
 		{socket, player, token, reply}								
 	end
