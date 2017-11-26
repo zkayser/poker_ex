@@ -146,7 +146,7 @@ defmodule PokerEx.RoomChannelTest do
 
 		chips = PokerEx.Player.chips(context.player.name)
 
-		assert_push "bank_info", ^chips
+		assert_push "bank_info", %{chips: ^chips}
 	end
 
 	test "the channel broadcasts an update when a player submits an add_chips action", context do

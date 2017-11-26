@@ -40,56 +40,56 @@ defmodule PokerEx.Player do
 		end
 	end
 
-	@spec chips(String.t) :: %{chips: non_neg_integer} | {:error, :player_not_found}
+	@spec chips(String.t) :: non_neg_integer | {:error, :player_not_found}
 	def chips(player_name) do
 		case "players" |> where([p], p.name == ^player_name) |> select([:chips]) |> Repo.one() do
 			nil -> {:error, :player_not_found}
-			res -> res
+			res -> res.chips
 		end
 	end
 
+	# TODO: 11/26/2017 -- Just revisiting this and 
+	# am unsure of what exactly the intent of this is.
+	# The only calls to this function are in the RewardManager module,
+	# but it seems to be weird that the rewards from winning a hand are being added to the
+	# Player record in the database here and not just added to the `chip_roll`
+	# map managed by Room instances. The reason this is weird is because
+	# when a player leaves a room, the amount of chips that player has 
+	# outstanding (still in play) in the room are removed and added back
+	# to the `Player` record in the database. This would seem to be rewarding
+	# the player twice, then. Once on the `reward` call, then again when the
+	# player leaves the room. This should be fleshed out with an 
+	# integration test in the `RoomsChannelTest`.
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
-	def reward(name, amount, _) do
-
-		player = case Repo.one from(p in Player, where: p.name == ^name) do
-			nil -> :player_not_found
-			player -> player
-		end
-
-		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
-		case Repo.update(changeset) do
-			{:ok, player_struct} ->
-				player_struct
-			{:error, _} -> {:error, "problem updating chips"}
-		end
-	end
-
-	def update_chips(username, amount) when amount >= 0 do
-		player =
-			case Repo.one from(p in Player, where: p.name == ^username) do
-				nil -> :player_not_found
-				player -> player
+	def reward(name, amount, _room_id) do
+		with %Player{} = player <- Repo.one from(p in Player, where: p.name == ^name) do
+			changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+			case Repo.update(changeset) do
+				{:ok, player_struct} ->
+					{:ok, player_struct}
+				{:error, _} -> {:error, "problem updating chips"}
 			end
-
-		changeset = chip_changeset(player, %{"chips" => player.chips + amount})
-		case Repo.update(changeset) do
-			{:ok, struct} ->
-				{:ok, struct}
-			{:error, _} -> {:error, "problem updating chips"}
+		else
+			_ -> {:error, :player_not_found}
 		end
 	end
+
+	def update_chips(username, amount) when amount >= 0, do: reward(username, amount, nil)
+	def update_chips(_, _), do: {:error, :negative_chip_amount}
 
 	def subtract_chips(username, amount) do
-		player =
-			case Repo.one from(p in Player, where: p.name == ^username) do
-				nil -> :player_not_found
-				player -> player
+		with %Player{} = player <- Repo.one from(p in Player, where: p.name == ^username) do
+			if amount <= player.chips do
+				changeset = chip_changeset(player, %{"chips" => player.chips - amount})
+				case Repo.update(changeset) do
+					{:ok, struct} -> {:ok, struct}
+					{:error, _} -> {:error, "problem updating chips"}
+				end			
+			else
+				{:ok, player}
 			end
-
-		changeset = chip_changeset(player, %{"chips" => player.chips - amount})
-		case Repo.update(changeset) do
-			{:ok, struct} -> {:ok, struct}
-			{:error, _} -> {:error, "problem updating chips"}
+		else
+			_ -> {:error, :player_not_found}
 		end
 	end
 

@@ -97,6 +97,7 @@ defmodule PokerEx.Room.Updater do
     %Room{ room | chip_roll: update }
    end
    def chip_roll(%Room{chip_roll: chip_roll} = room, player, {:adding, amount}) when amount > 0 do
+    PokerEx.Player.subtract_chips(player, amount)
     {_old, update} = Map.get_and_update(chip_roll, player, fn val -> {val, val + amount} end)
     %Room{ room | chip_roll: update}
    end

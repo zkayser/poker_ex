@@ -52,7 +52,7 @@ defmodule PokerExWeb.RoomsChannel do
 	def handle_in("get_bank", %{"player" => player}, socket) do
 		case Player.chips(player) do
 			{:error, _} -> :error
-			res -> 	push socket, "bank_info", res
+			res -> 	push socket, "bank_info", %{chips: res}
 		end
 		{:noreply, socket}
 	end
