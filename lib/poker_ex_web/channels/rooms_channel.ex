@@ -74,9 +74,7 @@ defmodule PokerExWeb.RoomsChannel do
 	# HELPER FUNCTIONS #
 	####################
 
-	defp atomize(room_title) do
-		String.to_atom(room_title)
-	end
+	defp atomize(room_title), do: String.to_atom(room_title)
 
 	defp assign_player(socket) do
 		player = Repo.get(Player, socket.assigns[:player_id])
