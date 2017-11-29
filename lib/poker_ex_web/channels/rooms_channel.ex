@@ -56,6 +56,11 @@ defmodule PokerExWeb.RoomsChannel do
 		end
 		{:noreply, socket}
 	end
+
+	def handle_in("chat_msg", %{"player" => player, "message" => message}, socket) do
+		broadcast!(socket, "new_chat_msg", %{player: player, message: message})
+		{:noreply, socket}
+	end
 	
 	#############
 	# TERMINATE #

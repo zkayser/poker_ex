@@ -160,6 +160,16 @@ defmodule PokerEx.RoomChannelTest do
 
 		assert_broadcast "update", %{chip_roll: %{^player_name => ^chips}}
 	end
+
+	test "the channel broadcasts `new_chat_msg` in response to `chat_msg` incoming messages", context do
+		{_, player, _, _} = create_player_and_connect()
+
+		player_name = context.player.name
+		message = "What's up y'all?"
+		push context.socket, "chat_msg", %{"player" => context.player.name, "message" => message}
+
+		assert_broadcast "new_chat_msg", %{player: ^player_name, message: ^message}
+	end
 	
 	defp create_player_and_connect do
 		player = insert_user()
