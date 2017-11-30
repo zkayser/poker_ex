@@ -162,7 +162,7 @@ defmodule PokerEx.RoomChannelTest do
 	end
 
 	test "the channel broadcasts `new_chat_msg` in response to `chat_msg` incoming messages", context do
-		{_, player, _, _} = create_player_and_connect()
+		create_player_and_connect()
 
 		player_name = context.player.name
 		message = "What's up y'all?"
