@@ -36,7 +36,7 @@ defmodule PokerEx.RoomTest do
     [p1, _, _, _] = players(context)
     data = Room.raise(context[:test_room], p1, 20)
 
-    assert (data.round[p1.name]) == 20
+    assert (data.round[p1.name]) == 30
     assert data.current_small_blind == 0
     assert {p1.name, 0} in data.active
   end
@@ -99,7 +99,7 @@ defmodule PokerEx.RoomTest do
       Room.fold(context[:test_room], p2)
       finish = Room.state(context[:test_room])
 
-      assert finish.chip_roll[p1.name] >= startP1 + 30 # Compensating for blinds
+      assert finish.chip_roll[p1.name] >= startP1 + 30 # Compensates for blinds
       assert finish.chip_roll[p2.name] <= startP2 - 30
     end
   end
@@ -149,12 +149,12 @@ defmodule PokerEx.RoomTest do
       [p1, p2, _, _] = players(context)
       start_sum = Enum.sum(context[:init].chip_roll |> Map.values())
       startP1 = context[:init].chip_roll[p1.name]
-      Room.raise(context[:test_room], p1, startP1 + 5)
+      Room.raise(context[:test_room], p1, startP1)
       Room.call(context[:test_room], p2)
 
       finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values())
-      assert Room.which_state(context[:test_room]) == :pre_flop
-      assert_in_delta(finish_sum, start_sum, 15)
+      assert Room.which_state(context[:test_room]) == :idle
+      assert_in_delta(finish_sum, start_sum, 16)
     end
   end
 
@@ -201,13 +201,13 @@ defmodule PokerEx.RoomTest do
       start = Enum.sum(Map.values(Room.state(context[:test_room]).chip_roll))
       simulate_pre_flop_betting(context)
       Room.raise(context[:test_room], p3, 1200)
-      Room.call(context[:test_room], p4)
-      Room.call(context[:test_room], p1)
+      Room.raise(context[:test_room], p4, 1200)
+      Room.raise(context[:test_room], p1, 1200)
       Room.call(context[:test_room], p2)
       
-      finish = Room.state(context[:test_room]).chip_roll
+      finish = Room.state(context[:test_room]).chip_roll |> Map.values() |> Enum.sum()
       
-      assert_in_delta(Enum.sum(Map.values(finish)), start, 16)
+      assert_in_delta(finish, start, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle || :between_rounds
     end
   end

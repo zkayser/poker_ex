@@ -39,7 +39,7 @@ defmodule PokerEx.RoomChannelTest do
 		
 		for player <- [context.player.name, player.name], do: assert player in seated_players
 		
-		assert_broadcast "game_started", 
+		assert_broadcast "update", 
 			%{active: _, chip_roll: %{}, paid: %{},
 				player_hands: [%{hand: [%{rank: _, suit: _}, %{rank: _, suit: _}], player: _},
 											 %{hand: [%{rank: _, suit: _}, %{rank: _, suit: _}], player: _}
@@ -64,21 +64,21 @@ defmodule PokerEx.RoomChannelTest do
 		
 		push context.socket, "action_raise", %{"player" => context.player.name, "amount" => 25}
 		
-		assert_broadcast "update", %{active: ^player_name, pot: 35}
+		assert_broadcast "update", %{active: ^player_name, pot: 45}
 			 
 		push context.socket, "action_call", %{"player" => player.name}
 		
-		assert_broadcast "update", %{active: ^active_player, pot: 50}
+		assert_broadcast "update", %{active: ^active_player, pot: 70}
 			 
 		push context.socket, "action_check", %{"player" => context.player.name}
 		
-		assert_broadcast "update", %{active: ^player_name, pot: 50}
+		assert_broadcast "update", %{active: ^player_name, pot: 70}
 		
 		push context.socket, "action_check", %{"player" => player.name}
 		
 		push context.socket, "action_raise", %{"player" => context.player.name, "amount" => 50}
 		
-		assert_broadcast "update", %{active: ^player_name, pot: 100}
+		assert_broadcast "update", %{active: ^player_name, pot: 120}
 		
 		push context.socket, "action_fold", %{"player" => player.name}
 		

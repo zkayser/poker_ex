@@ -647,10 +647,12 @@ defmodule PokerEx.Room do
 			room
 			|> round_transition(:between_rounds)
 			|> Updater.remove_players_with_no_chips
+
 		case length(update_one.seating) > 1 do
 			true ->
 				update =
 					update_one
+					|> Updater.remove_players_with_no_chips
 					|> Updater.blinds
 					|> Updater.set_active
 					|> Updater.reset_table
@@ -766,8 +768,7 @@ defmodule PokerEx.Room do
 	
 	# State enter callback
 	def handle_event(:enter, _old_state, :pre_flop, room) do
-		Events.game_started(room.room_id, room)
-		{:next_state, :pre_flop, room}
+		maybe_handle_all_in(room)
 	end
 	
 	def handle_event(:enter, _, state, room), do: {:next_state, state, room}
@@ -870,4 +871,10 @@ defmodule PokerEx.Room do
 
 		{:next_state, :pre_flop, update, [{:reply, from_pid, update}]}
   end
+
+  defp maybe_handle_all_in(%Room{seating: seating, all_in: all_in} = room)
+  when length(all_in) > 0 and length(all_in) >= length(seating) - 1 do
+  	:keep_state_and_data
+  end
+  defp maybe_handle_all_in(_room), do: :keep_state_and_data
 end
