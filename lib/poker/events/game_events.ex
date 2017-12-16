@@ -9,7 +9,7 @@ defmodule PokerEx.GameEvents do
       |> game_map()
       |> Map.merge(%{table: []})
       |> Map.merge(%{state: :pre_flop})
-    
+
     {Endpoint.broadcast!("rooms:" <> room_id, "game_started", map), map}
   end
 
@@ -18,6 +18,26 @@ defmodule PokerEx.GameEvents do
       update
       |> game_map()
     Endpoint.broadcast!("rooms:" <> room_id, "update", map)
+  end
+
+  def clear(room_id, update) do
+    json =
+      %{active: nil,
+        current_big_blind: nil,
+        current_small_blind: nil,
+        state: :idle,
+        players: [],
+        paid: %{},
+        round: %{},
+        to_call: 0,
+        type: Atom.to_string(update.type),
+        chip_roll: update.chip_roll,
+        pot: update.pot,
+        seating: Phoenix.View.render_many(update.seating, PokerExWeb.RoomView, "seating.json", as: :seating),
+        player_hands: [],
+        table: []
+       }
+    Endpoint.broadcast!("rooms:" <> room_id, "update", json)
   end
 
   def game_over(room_id, winner, reward) do

@@ -670,12 +670,13 @@ defmodule PokerEx.Room do
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
 
+        Events.game_started(update.room_id, update)
 				{:next_state, :pre_flop, update}
 			_ ->
 				{:next_state, :between_rounds, update_one, [{:next_event, :internal, :clear}]}
 		end
 	end
-	
+
 	def handle_event(:internal, :send_clear_ui, state, room) do
 		Events.clear_ui(room.room_id)
 		{:next_state, state, room}
@@ -694,7 +695,8 @@ defmodule PokerEx.Room do
 			|> Updater.reset_winning_hand
 			|> Updater.reset_pot
 			|> Updater.reset_all_in
-		IO.puts "\nEntering idle state"
+
+		Events.clear(update.room_id, update)
 		{:next_state, :idle, update}
 	end
 
@@ -872,7 +874,7 @@ defmodule PokerEx.Room do
 		{:next_state, :pre_flop, update, [{:reply, from_pid, update}]}
   end
 
-  defp maybe_handle_all_in(%Room{seating: seating, all_in: all_in} = room)
+  defp maybe_handle_all_in(%Room{seating: seating, all_in: all_in})
   when length(all_in) > 0 and length(all_in) >= length(seating) - 1 do
   	:keep_state_and_data
   end

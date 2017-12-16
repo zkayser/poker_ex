@@ -153,7 +153,6 @@ defmodule PokerEx.RoomTest do
       Room.call(context[:test_room], p2)
 
       finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values())
-      assert Room.which_state(context[:test_room]) == :idle
       assert_in_delta(finish_sum, start_sum, 16)
     end
   end
