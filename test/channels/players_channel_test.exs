@@ -37,22 +37,21 @@ defmodule PokerEx.PlayersChannelTest do
 	end
 
 	defp create_player_and_connect(%{auth_type: auth_type}) do
-		player = insert_user()
-		name = 
-			case auth_type do
-				:valid_auth -> player.name
-				:existing_player_invalid_auth -> insert_user().name
-				:non_existent_player -> "non_existent_player"
-			end
+    player = insert_user()
+    name =
+      case auth_type do
+        :valid_auth -> player.name
+        :existing_player_invalid_auth -> insert_user().name
+        :non_existent_player -> "non_existent_player"
+      end
 
-		token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(), "user socket", player.id)
 
-		{:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
+    {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 
-		with {:ok, reply, socket} <- subscribe_and_join(socket, PlayersChannel, "players:" <> name) do
-			{socket, player, token, reply}
-		else {:error, reply} -> {socket, player, token, reply}
-		end 
-	end
-
+    with {:ok, reply, socket} <- subscribe_and_join(socket, PlayersChannel, "players:" <> name) do
+      {socket, player, token, reply}
+    else {:error, reply} -> {socket, player, token, reply}
+    end
+  end
 end

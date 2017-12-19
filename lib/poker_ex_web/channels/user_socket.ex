@@ -7,6 +7,7 @@ defmodule PokerExWeb.UserSocket do
   # channel "room:*", PokerEx.RoomChannel
   channel "players:*", PokerExWeb.PlayersChannel
   channel "rooms:*", PokerExWeb.RoomsChannel
+  channel "lobby:lobby", PokerExWeb.LobbyChannel
   channel "notifications:*", PokerExWeb.NotificationsChannel
   channel "player_updates:*", PokerExWeb.PlayerUpdatesChannel
   channel "online:lobby", PokerExWeb.OnlineChannel
@@ -41,7 +42,7 @@ defmodule PokerExWeb.UserSocket do
   # performing token verification on connect.
   def connect(%{"name" => name}, socket) do
     Logger.debug "Attempting connect..."
-    socket = assign(socket, :player_name, name)
+    socket = assign(socket, :player_id, name)
     {:ok, socket}
   end
 
@@ -57,7 +58,7 @@ defmodule PokerExWeb.UserSocket do
     case Guardian.decode_and_verify(token) do
       {:ok, claims} ->
         Logger.debug "Succesfully authenticated"
-        id = 
+        id =
           Regex.named_captures(~r/:(?<id>\d+)/, claims["aud"])
           |> Map.get("id")
           |> String.to_integer

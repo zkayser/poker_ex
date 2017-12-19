@@ -1,6 +1,8 @@
 defmodule PokerEx.Application do
   use Application
 
+
+  @initial_room_count Application.get_env(PokerEx, :initial_room_count)
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -17,7 +19,7 @@ defmodule PokerEx.Application do
       supervisor(PokerEx.RoomsSupervisor, []),
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
       worker(PokerEx.AppState, []),
-      worker(PokerEx.RoomServer, [10]),
+      worker(PokerEx.RoomServer, [@initial_room_count]),
       # The Room worker will be moved out to a separate supervision tree
       # later so there can be multiple instances of it running at the same
       # time.

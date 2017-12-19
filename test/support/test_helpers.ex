@@ -20,14 +20,14 @@ defmodule PokerEx.TestHelpers do
   def get_text(strategy, selector) do
     find_element(strategy, selector) |> inner_text()
   end
-  
+
   def build_room(attrs \\ %{}) do
     Map.merge(%PokerEx.Room{}, Map.new(attrs))
   end
-  
+
   def fake_table_flop do
-    [%PokerEx.Card{suit: :hearts, rank: :ace}, 
-     %PokerEx.Card{suit: :diamonds, rank: :two}, 
+    [%PokerEx.Card{suit: :hearts, rank: :ace},
+     %PokerEx.Card{suit: :diamonds, rank: :two},
      %PokerEx.Card{suit: :spades, rank: :five}
     ]
   end
