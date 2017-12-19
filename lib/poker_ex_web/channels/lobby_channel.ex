@@ -10,7 +10,15 @@ defmodule PokerExWeb.LobbyChannel do
 	end
 
 	def handle_info(:send_rooms, socket) do
-		push socket, "rooms", %{rooms: show_rooms()}
+		socket = assign(socket, :rooms, show_rooms())
+		paginated_rooms =
+			socket.assigns[:rooms]
+		 	|> Scrivener.paginate(%Scrivener.Config{page_number: 1, page_size: 10})
+
+		push socket, "rooms",
+			%{rooms: paginated_rooms.entries,
+			  page: 1,
+			  total_pages: paginated_rooms.total_pages}
 		{:noreply, socket}
 	end
 

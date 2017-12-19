@@ -16,7 +16,7 @@ defmodule LobbyChannelTest do
 	end
 
 	test "after joining, the channel pushes a list of public rooms", _context do
-		assert_push "rooms", %{rooms: _}
+		assert_push "rooms", %{rooms: _, page: 1, total_pages: 10}
 	end
 
 	defp create_player_and_connect() do
