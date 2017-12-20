@@ -3,15 +3,15 @@ defmodule PokerEx.Events do
   alias PokerEx.RoomEvents
   alias PokerEx.TableEvents
   alias PokerEx.LobbyEvents
-  
+
   def player_joined(room_id, player, position) do
     RoomEvents.player_joined(stringify(room_id), player, position)
   end
-  
+
   def state_updated(room_id, update) do
     GameEvents.state_updated(stringify(room_id), update)
   end
-  
+
   def update_number_players(room_id, number) do
     LobbyEvents.update_number_players(stringify(room_id), number)
   end
@@ -56,8 +56,8 @@ defmodule PokerEx.Events do
     GameEvents.present_winning_hand(stringify(room_id), winning_hand, player, type)
   end
 
-  def player_left(room_id, player) do
-    RoomEvents.player_left(stringify(room_id), player)
+  def update_player_count(room) do
+    LobbyEvents.update_player_count(room)
   end
 
   defp stringify(id) when is_atom(id), do: Atom.to_string(id)

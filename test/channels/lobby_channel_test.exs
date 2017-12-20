@@ -19,6 +19,17 @@ defmodule LobbyChannelTest do
 		assert_push "rooms", %{rooms: _, page: 1, total_pages: 10}
 	end
 
+	test "a `player_count_updated` message is broadcast whenever a player joins or leaves a public room", context do
+		token = Phoenix.Token.sign(context.socket, "user socket", context.player.id)
+
+		{:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
+
+		{:ok, _, _} = subscribe_and_join(socket, PokerExWeb.RoomsChannel, "rooms:room_1",
+																			%{"type" => "public", "amount" => 500})
+
+		assert_broadcast "update_player_count", _
+	end
+
 	defp create_player_and_connect() do
     player = insert_user()
 

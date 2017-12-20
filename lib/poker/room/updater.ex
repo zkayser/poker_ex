@@ -25,7 +25,9 @@ defmodule PokerEx.Room.Updater do
   def seating(%Room{seating: seating} = room, player) when is_binary(player) do
     seat_number = length(seating)
     new_seating = [{player, seat_number} | Enum.reverse(seating)] |> Enum.reverse
-    %Room{ room | seating: new_seating }
+    update = %Room{ room | seating: new_seating }
+    Events.update_player_count(update)
+    update
   end
 
   @doc ~S"""
@@ -68,7 +70,9 @@ defmodule PokerEx.Room.Updater do
   @spec remove_from_seating(Room.t, player) :: Room.t
   def remove_from_seating(%Room{seating: seating} = room, player) do
     update = Enum.reject(seating, fn {name, _} -> player == name end)
-    %Room{ room | seating: update }
+    new_room = %Room{ room | seating: update }
+    Events.update_player_count(new_room)
+    new_room
    end
 
    @doc ~S"""
@@ -645,25 +649,22 @@ defmodule PokerEx.Room.Updater do
   """
   @spec remove_players_with_no_chips(Room.t) :: Room.t
   def remove_players_with_no_chips(%Room{seating: seating, chip_roll: chip_roll} = room) do
-    updated_seating =
-      Enum.reject(seating,
-        fn {player, _} ->
-          if chip_roll[player] == 0, do: Events.player_left(room.room_id, player)
-          chip_roll[player] == 0
-        end)
+    updated_seating = Enum.reject(seating, fn {player, _} -> chip_roll[player] == 0 end)
 
-      remove_keys =
-        Enum.filter(seating, fn {player, _} -> chip_roll[player] == 0 end)
-        |> Enum.map(fn {player, _} -> player end)
+    remove_keys =
+      Enum.filter(seating, fn {player, _} -> chip_roll[player] == 0 end)
+      |> Enum.map(fn {player, _} -> player end)
 
-      updated_chip_roll = Map.drop(chip_roll, remove_keys)
+    updated_chip_roll = Map.drop(chip_roll, remove_keys)
 
     update =
       for x <- 0..(length(updated_seating) - 1) do
         {name, _} = Enum.at(updated_seating, x)
         {name, x}
       end
-    %Room{ room | seating: update, chip_roll: updated_chip_roll }
+    new_room = %Room{ room | seating: update, chip_roll: updated_chip_roll }
+    Events.update_player_count(new_room)
+    new_room
   end
 
   @doc ~S"""
