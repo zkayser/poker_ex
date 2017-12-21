@@ -15,6 +15,7 @@ defmodule PokerExWeb.LobbyChannel do
 			socket.assigns[:rooms]
 		 	|> Scrivener.paginate(%Scrivener.Config{page_number: 1, page_size: 10})
 
+		Logger.debug "[LobbyChannel] Pushing rooms message to socket"
 		push socket, "rooms",
 			%{rooms: paginated_rooms.entries,
 			  page: 1,
@@ -24,7 +25,7 @@ defmodule PokerExWeb.LobbyChannel do
 
 	defp show_rooms do
 		for room <- RoomServer.get_rooms() do
-			%{name: room, player_count: Room.state(room).seating |> length()}
+			%{room: room, player_count: Room.state(room).seating |> length()}
 		end
 	end
 end
