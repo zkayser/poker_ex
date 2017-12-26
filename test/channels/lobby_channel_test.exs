@@ -30,6 +30,11 @@ defmodule LobbyChannelTest do
 		assert_broadcast "update_player_count", _
 	end
 
+	test "the channel pushes the correctly paginated list of rooms when receiving a `get_page` message", context do
+		push context.socket, "get_page", %{"page_num" => "3"}
+		assert_push "rooms", %{rooms: _, page: 3, total_pages: 10}
+	end
+
 	defp create_player_and_connect() do
     player = insert_user()
 
