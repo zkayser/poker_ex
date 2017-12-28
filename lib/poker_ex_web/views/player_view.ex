@@ -19,6 +19,7 @@ defmodule PokerExWeb.PlayerView do
       id: player.id,
       name: player.name,
       chips: player.chips,
+      blurb: player.blurb,
       firstName: player.first_name,
       lastName: player.last_name,
       email: player.email

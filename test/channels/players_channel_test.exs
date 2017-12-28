@@ -61,6 +61,7 @@ defmodule PokerEx.PlayersChannelTest do
 
 		assert player.email == new_email # Verify that the update was valid
 		assert_push "player", ^player_json
+		assert_push "attr_updated", %{message: "Email successfully updated"}
 	end
 
 	test "the channel pushes an `error` message if an invalid attribute is given in `update_player`", context do

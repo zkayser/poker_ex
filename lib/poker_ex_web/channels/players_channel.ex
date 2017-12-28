@@ -39,25 +39,14 @@ defmodule PokerExWeb.PlayersChannel do
 		{:noreply, socket}
 	end
 
-	def handle_in("update_player", %{"chips" => 1000}, socket) do
-
+	def handle_in("update_player", %{"chips" => 1000} = params, socket) do
+		handle_update_player(params, socket)
 		{:noreply, socket}
 	end
 
 	def handle_in("update_player", params, socket) do
 		case Enum.all?(Map.keys(params), &(&1 in @updatable_attributes)) do
-			true ->
-				with %Player{} = player <- Player.get(socket.assigns.player_id) do
-					changeset = Player.update_changeset(player, params)
-					case PokerEx.Repo.update(changeset) do
-						{:ok, player} ->
-							push socket, "player", Phoenix.View.render_one(player, PokerExWeb.PlayerView, "player.json")
-						{:error, changeset} ->
-							push socket, "error", %{error: changeset.errors}
-					end
-				else
-					_ -> push socket, "error", %{error: "Failed to update attributes: #{inspect Map.keys(params)}"}
-				end
+			true -> handle_update_player(params, socket)
 			false ->
 				push socket, "error", %{error: "Failed to update attributes: #{inspect Map.keys(params)}"}
 		end
@@ -67,5 +56,25 @@ defmodule PokerExWeb.PlayersChannel do
 	def handle_in("get_chip_count", _params, socket) do
 		push socket, "chip_info", %{chips: Player.chips(socket.assigns.player.name)}
 		{:noreply, socket}
+	end
+
+	####################
+	# HELPER FUNCTIONS #
+	####################
+	defp handle_update_player(params, socket) do
+		with %Player{} = player <- Player.get(socket.assigns.player_id) do
+			changeset = Player.update_changeset(player, params)
+			case PokerEx.Repo.update(changeset) do
+				{:ok, player} ->
+					push socket, "player", Phoenix.View.render_one(player, PokerExWeb.PlayerView, "player.json")
+					for attr <- Map.keys(params) do
+					 push socket, "attr_updated", %{message: "#{String.capitalize(attr)} successfully updated"}
+					end
+				{:error, changeset} ->
+					push socket, "error", %{error: changeset.errors}
+			end
+		else
+			_ -> push socket, "error", %{error: "Failed to update attributes: #{inspect Map.keys(params)}"}
+		end
 	end
 end
