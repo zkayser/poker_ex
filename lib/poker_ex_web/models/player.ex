@@ -25,6 +25,7 @@ defmodule PokerEx.Player do
 	alias PokerEx.Player
 	alias PokerEx.Repo
 
+	@valid_email ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
 	@type t :: %Player{name: String.t, chips: non_neg_integer, first_name: String.t | nil,
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
@@ -141,6 +142,7 @@ defmodule PokerEx.Player do
 		|> cast(params, ~w(name first_name last_name email chips blurb))
 		|> validate_chips_update(model.chips)
 		|> validate_length(:name, min: 1, max: 20)
+		|> validate_format(:email, @valid_email)
 		|> unique_constraint(:name)
 		|> unique_constraint(:email)
 	end

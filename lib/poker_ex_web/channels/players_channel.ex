@@ -71,7 +71,10 @@ defmodule PokerExWeb.PlayersChannel do
 					 push socket, "attr_updated", %{message: "#{String.capitalize(attr)} successfully updated"}
 					end
 				{:error, changeset} ->
-					push socket, "error", %{error: changeset.errors}
+					for {key, {message, _}} <- changeset.errors do
+						push socket, "error",
+							%{error: "Error: #{key |> Atom.to_string() |> String.capitalize()} #{message}"}
+					end
 			end
 		else
 			_ -> push socket, "error", %{error: "Failed to update attributes: #{inspect Map.keys(params)}"}
