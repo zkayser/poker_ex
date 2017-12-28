@@ -36,6 +36,33 @@ defmodule PokerEx.PlayersChannelTest do
 		assert_push "chip_info", %{chips: ^chips}
 	end
 
+	test "the channel pushes `player` messages to the client in response to `get_player` msgs", context do
+		push context.socket, "get_player", %{player: context.player.name}
+
+		player_json = Phoenix.View.render_one(context.player, PokerExWeb.PlayerView, "player.json")
+
+		assert_push "player", ^player_json
+	end
+
+	test "the channel pushes `player` messages to the client in response to `update_player` msgs", context do
+		new_email = "the_real_player#{Base.encode16(:crypto.strong_rand_bytes(8))}@email.com"
+
+		push context.socket, "update_player", %{email: new_email}
+
+		Process.sleep(50)
+		player = Player.get(context.player.id)
+		player_json = Phoenix.View.render_one(player, PokerExWeb.PlayerView, "player.json")
+
+		assert player.email == new_email # Verify that the update was valid
+		assert_push "player", ^player_json
+	end
+
+	test "the channel pushes an `error` message if an invalid attribute is given in `update_player`", context do
+		push context.socket, "update_player", %{some_bad_attr: "blah"}
+
+		assert_push "error", %{error: "Failed to update attributes: [\"some_bad_attr\"]"}
+	end
+
 	defp create_player_and_connect(%{auth_type: auth_type}) do
     player = insert_user()
     name =

@@ -31,7 +31,15 @@ defmodule PokerEx.Player do
 
 	@spec all() :: list(Player.t)
 	def all, do: Repo.all(Player)
-	
+
+	@spec get(pos_integer()) :: Player.t | {:error, :player_not_found}
+	def get(id) when is_number(id) do
+		case Repo.get(Player, id) do
+			%Player{} = player -> player
+			_ -> {:error, :player_not_found}
+		end
+	end
+
 	@spec by_name(String.t) :: Player.t | {:error, :player_not_found}
 	def by_name(name) do
 		case Repo.get_by(Player, name: name) do
@@ -48,17 +56,17 @@ defmodule PokerEx.Player do
 		end
 	end
 
-	# TODO: 11/26/2017 -- Just revisiting this and 
+	# TODO: 11/26/2017 -- Just revisiting this and
 	# am unsure of what exactly the intent of this is.
 	# The only calls to this function are in the RewardManager module,
 	# but it seems to be weird that the rewards from winning a hand are being added to the
 	# Player record in the database here and not just added to the `chip_roll`
 	# map managed by Room instances. The reason this is weird is because
-	# when a player leaves a room, the amount of chips that player has 
+	# when a player leaves a room, the amount of chips that player has
 	# outstanding (still in play) in the room are removed and added back
 	# to the `Player` record in the database. This would seem to be rewarding
 	# the player twice, then. Once on the `reward` call, then again when the
-	# player leaves the room. This should be fleshed out with an 
+	# player leaves the room. This should be fleshed out with an
 	# integration test in the `RoomsChannelTest`.
 	@spec reward(String.t, non_neg_integer, atom()) :: Player.t
 	def reward(name, amount, _room_id) do
@@ -84,7 +92,7 @@ defmodule PokerEx.Player do
 				case Repo.update(changeset) do
 					{:ok, struct} -> {:ok, struct}
 					{:error, _} -> {:error, "problem updating chips"}
-				end			
+				end
 			else
 				{:ok, player}
 			end
