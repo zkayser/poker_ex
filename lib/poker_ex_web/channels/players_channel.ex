@@ -8,11 +8,22 @@ defmodule PokerExWeb.PlayersChannel do
 	def join("players:" <> player_name, _params, socket) do
 		with %Player{} = player <- Player.by_name(player_name) do
 			case player.id == socket.assigns.player_id do
-				true -> {:ok, %{response: :success}, assign(socket, :player, player)}
+				true ->
+					send self(), %{update_for: player.id}
+					{:ok, %{response: :success}, assign(socket, :player, player)}
 				false -> {:error, %{message: "Authentication failed"}}
 			end
 		else _ -> {:error, %{message: "Authentication failed"}}
 		end
+	end
+
+	def handle_info(%{update_for: id}, socket) when is_number(id) do
+		with %Player{} = player <- Player.get(id) do
+			push socket, "player", Phoenix.View.render_one(player, PokerExWeb.PlayerView, "player.json")
+		else
+			_ -> {:error, "update failed"}
+		end
+		{:noreply, socket}
 	end
 
 	#####################

@@ -28,6 +28,12 @@ defmodule PokerEx.PlayersChannelTest do
 		assert reply == %{message: "Authentication failed"}
 	end
 
+	test "a `player` update message is sent after joining", context do
+		player_json = Phoenix.View.render_one(context.player, PokerExWeb.PlayerView, "player.json")
+
+		assert_push "player", ^player_json
+	end
+
 	test "the channel pushes the client a `chip_info` message with chips in response to `get_chip_count` msgs", context do
 		push context.socket, "get_chip_count", %{}
 
