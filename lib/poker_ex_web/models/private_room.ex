@@ -3,7 +3,7 @@ defmodule PokerEx.PrivateRoom do
   require Logger
   alias PokerEx.Player
   alias PokerEx.PrivateRoom
-  alias PokerEx.RoomsSupervisor, as: RoomSup
+  alias PokerEx.RoomsSupervisor
   alias PokerEx.Repo
 
   schema "private_rooms" do
@@ -34,13 +34,17 @@ defmodule PokerEx.PrivateRoom do
   and the `PrivateRoom` instance in a tuple if valid. The room instance will also be committed
   to the database.
   """
-  @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
+  @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, maybe_improper_list(atom(), {String.t, any()})}
   def create(title, %Player{} = owner, invitees) do
-    %__MODULE__{title: title, owner: owner, invitees: invitees}
-    |> changeset()
-    |> update_participants([owner])
-    |> unique_constraint(:title)
-    |> Repo.insert()
+    with {:ok, %__MODULE__{} = room} <- %__MODULE__{title: title, owner: owner, invitees: invitees}
+        |> changeset()
+        |> update_participants([owner])
+        |> Repo.insert() do
+      RoomsSupervisor.create_private_room(title)
+      {:ok, room}
+    else
+      {:error, changeset} -> {:error, changeset.errors}
+    end
   end
 
   @doc ~S"""
@@ -59,8 +63,6 @@ defmodule PokerEx.PrivateRoom do
     |> update_invitees(Enum.reject(room.invitees, &(&1.id == participant.id)))
     |> Repo.update
   end
-
-
 
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
@@ -127,7 +129,7 @@ defmodule PokerEx.PrivateRoom do
 
   def stop_and_delete(%PrivateRoom{title: title} = priv_room) do
     title = String.to_atom(title)
-    if RoomSup.room_process_exists?(title), do: :gen_statem.stop(title)
+    if RoomsSupervisor.room_process_exists?(title), do: :gen_statem.stop(title)
     delete(priv_room)
   end
 

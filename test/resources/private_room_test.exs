@@ -24,7 +24,8 @@ defmodule PokerEx.PrivateRoomTest do
 		assert room.invitees == invitees
 		assert room.title == title
 		assert room.id in Enum.map(Player.preload(player).owned_rooms, &(&1.id)) # Player owns the room
-		assert player in room.participants
+		assert player in room.participants # The owner is included in participants by default
+		assert Process.alive?(Process.whereis(String.to_atom(title))) # Creates the room process
 	end
 
 	test "accept_invitation/2 moves a player from the invitees list to `participants`", context do
