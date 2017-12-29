@@ -29,10 +29,10 @@ defmodule PokerEx.PrivateRoom do
                       owner: Player.t, participants: list(Player.t), invitees: list(Player.t)}
 
   @doc ~S"""
-  `create/3` is the highest-level function for creating a new private room. It takes a title,
+  `create/3` is a high-level function for creating a new private room. It takes a title,
   owner (a `Player` struct), and a list of invitees (also `Player` structs). It will return :ok
   and the `PrivateRoom` instance in a tuple if valid. The room instance will also be committed
-  to the database.
+  to the database and the `PokerEx.Room` `:gen_statem` instance will also be initiated.
   """
   @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, maybe_improper_list(atom(), {String.t, any()})}
   def create(title, %Player{} = owner, invitees) do
