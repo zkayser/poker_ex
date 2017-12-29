@@ -35,6 +35,15 @@ defmodule PokerEx.PrivateRoom do
     |> Repo.insert()
   end
 
+  @spec accept_invitation(__MODULE__.t, Player.t) :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
+  def accept_invitation(%__MODULE__{} = room, %Player{} = participant) do
+    room = preload(room)
+    room
+    |> change()
+    |> update_participants([participant | room.participants])
+    |> update_invitees(Enum.reject(room.invitees, &(&1.id == participant.id)))
+    |> Repo.update
+  end
 
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
@@ -60,14 +69,14 @@ defmodule PokerEx.PrivateRoom do
     |> cast_assoc(:invitees)
   end
 
-  def move_invitee_to_participants(private_room, player) do
-    changeset =
-      private_room
-      |> changeset()
-      |> remove_invitee(private_room.invitees, player)
-      |> put_invitee_in_participants(private_room.participants, player)
-    Repo.update(changeset)
-  end
+  # def move_invitee_to_participants(private_room, player) do
+  #   changeset =
+  #     private_room
+  #     |> changeset()
+  #     |> remove_invitee(private_room.invitees, player)
+  #     |> put_invitee_in_participants(private_room.participants, player)
+  #   Repo.update(changeset)
+  # end
 
   def get_room_and_store_state(title, state, room) when is_atom(title) do
     title = Atom.to_string(title)
@@ -151,8 +160,16 @@ defmodule PokerEx.PrivateRoom do
       |> Repo.update()
   end
 
-  def put_invitee_in_participants(changeset, participants, invitee) do
-    participants = participants ++ [invitee]
+  def update_participants(changeset, participants) do
+    put_assoc(changeset, :participants, participants)
+  end
+
+  def update_invitees(changeset, invitees) do
+    put_assoc(changeset, :invitees, invitees)
+  end
+
+  # Just totally broke this; Don't try to use this right now. Instead use `update_participants/2`
+  def add_participant(changeset, participants) do
     put_assoc(changeset, :participants, participants)
   end
 
