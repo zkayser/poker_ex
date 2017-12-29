@@ -25,6 +25,21 @@ defmodule PokerEx.PrivateRoom do
     timestamps()
   end
 
+  @type t :: %__MODULE__{title: String.t, room_data: any(), room_state: any(),
+                      owner: Player.t, participants: list(Player.t), invitees: list(Player.t)}
+
+  @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
+  def create(title, %Player{} = owner, invitees) do
+    %__MODULE__{title: title, owner: owner, invitees: invitees}
+    |> changeset()
+    |> Repo.insert()
+  end
+
+
+  ################################################################################
+  #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
+  ################################################################################
+
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, ~w(title))
