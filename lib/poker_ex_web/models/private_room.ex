@@ -28,13 +28,28 @@ defmodule PokerEx.PrivateRoom do
   @type t :: %__MODULE__{title: String.t, room_data: any(), room_state: any(),
                       owner: Player.t, participants: list(Player.t), invitees: list(Player.t)}
 
+  @doc ~S"""
+  `create/3` is the highest-level function for creating a new private room. It takes a title,
+  owner (a `Player` struct), and a list of invitees (also `Player` structs). It will return :ok
+  and the `PrivateRoom` instance in a tuple if valid. The room instance will also be committed
+  to the database.
+  """
   @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
   def create(title, %Player{} = owner, invitees) do
     %__MODULE__{title: title, owner: owner, invitees: invitees}
     |> changeset()
+    |> update_participants([owner])
+    |> unique_constraint(:title)
     |> Repo.insert()
   end
 
+  @doc ~S"""
+  `accept_invitation/2` is meant to be used when a player who has been invited to a room accepts
+  the invitation. This will remove the player from the `PrivateRoom` instance's `invitee` list and
+  move the player into the instance's `participants` list. The function also takes care of the
+  associations on the other side, i.e., puts the `PrivateRoom` instance into the `participating_rooms`
+  list on the `Player` instance and remove the room from the player's `invited_rooms`.
+  """
   @spec accept_invitation(__MODULE__.t, Player.t) :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
   def accept_invitation(%__MODULE__{} = room, %Player{} = participant) do
     room = preload(room)
@@ -44,6 +59,8 @@ defmodule PokerEx.PrivateRoom do
     |> update_invitees(Enum.reject(room.invitees, &(&1.id == participant.id)))
     |> Repo.update
   end
+
+
 
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #

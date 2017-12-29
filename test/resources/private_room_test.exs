@@ -24,6 +24,7 @@ defmodule PokerEx.PrivateRoomTest do
 		assert room.invitees == invitees
 		assert room.title == title
 		assert room.id in Enum.map(Player.preload(player).owned_rooms, &(&1.id)) # Player owns the room
+		assert player in room.participants
 	end
 
 	test "accept_invitation/2 moves a player from the invitees list to `participants`", context do
@@ -35,6 +36,7 @@ defmodule PokerEx.PrivateRoomTest do
 		refute participant in room.invitees
 
 		updated_participant = Player.get(participant.id)
+
 		assert room.id in Enum.map(Player.preload(updated_participant).participating_rooms, &(&1.id))
 		refute room.id in Enum.map(Player.preload(updated_participant).invited_rooms, &(&1.id))
 	end
