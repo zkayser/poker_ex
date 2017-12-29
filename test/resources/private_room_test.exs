@@ -41,4 +41,12 @@ defmodule PokerEx.PrivateRoomTest do
 		assert room.id in Enum.map(Player.preload(updated_participant).participating_rooms, &(&1.id))
 		refute room.id in Enum.map(Player.preload(updated_participant).invited_rooms, &(&1.id))
 	end
+
+	test "decline_invitation/2 removes a player from the invitees list", context do
+		declining_player = hd(context.invitees)
+
+		{:ok, room} = PRoom.decline_invitation(context.room, declining_player)
+
+		refute declining_player in room.invitees
+	end
 end

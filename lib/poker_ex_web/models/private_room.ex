@@ -64,6 +64,19 @@ defmodule PokerEx.PrivateRoom do
     |> Repo.update
   end
 
+  @doc ~S"""
+  `decline_invitation/2` is used when a player declines an invitation to a private room, thus removing
+  the player from the `PrivateRoom` instance's `invitees` list.
+  """
+  @spec decline_invitation(__MODULE__.t, Player.t) :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
+  def decline_invitation(%__MODULE__{} = room, %Player{} = declining_player) do
+    room = preload(room)
+    room
+      |> change()
+      |> update_invitees(Enum.reject(room.invitees, &(&1.id == declining_player.id)))
+      |> Repo.update
+  end
+
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
   ################################################################################
