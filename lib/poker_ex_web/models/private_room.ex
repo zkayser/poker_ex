@@ -3,6 +3,7 @@ defmodule PokerEx.PrivateRoom do
   require Logger
   alias PokerEx.Player
   alias PokerEx.PrivateRoom
+  alias PokerEx.Room
   alias PokerEx.RoomsSupervisor
   alias PokerEx.Repo
 
@@ -75,6 +76,25 @@ defmodule PokerEx.PrivateRoom do
       |> change()
       |> update_invitees(Enum.reject(room.invitees, &(&1.id == declining_player.id)))
       |> Repo.update
+  end
+
+  @doc ~S"""
+  `leave_room/2` removes a player from the `participants` list and also from the ongoing
+  `Room` instance if the player is among the players seated in the `room`.
+  """
+  @spec leave_room(__MODULE__.t, Player.t) :: {:ok, __MODULE__.t} | {:error, Ecto.Changeset.t}
+  def leave_room(%__MODULE__{} = room, %Player{} = leaving_player) do
+    room = preload(room)
+    with {:ok, %__MODULE__{} = room} <-
+      room
+        |> change()
+        |> update_participants(Enum.reject(room.participants, &(&1.id == leaving_player.id)))
+        |> Repo.update() do
+      Room.leave(String.to_atom(room.title), leaving_player)
+      {:ok, room}
+    else
+      {:error, changeset} -> {:error, changeset}
+    end
   end
 
   ################################################################################

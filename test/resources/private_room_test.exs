@@ -4,6 +4,7 @@ defmodule PokerEx.PrivateRoomTest do
 	import PokerEx.TestHelpers
 	alias PokerEx.PrivateRoom, as: PRoom
 	alias PokerEx.Player
+	alias PokerEx.Room
 
 	setup do
 		player = insert_user()
@@ -48,5 +49,24 @@ defmodule PokerEx.PrivateRoomTest do
 		{:ok, room} = PRoom.decline_invitation(context.room, declining_player)
 
 		refute declining_player in room.invitees
+	end
+
+	test "leave_room/2 removes a player from the `participants` and `Room` instance if seated", context do
+		leaving_player = hd(context.invitees)
+
+		{:ok, room} = PRoom.accept_invitation(context.room, leaving_player) # First join the participants
+
+		room_process = String.to_atom(context.room.title)
+
+		Room.join(room_process, leaving_player, 200)
+
+		# Ensure that the player successfully joined the room.
+		assert leaving_player.name in Enum.map(Room.state(room_process).seating, fn {pl, _} -> pl end)
+
+		{:ok, room} = PRoom.leave_room(room, leaving_player)
+		refute leaving_player in room.participants
+
+		# Should also remove the player from the `Room` instance
+		refute leaving_player.name in Enum.map(Room.state(room_process).seating, fn {pl, _} -> pl end)
 	end
 end
