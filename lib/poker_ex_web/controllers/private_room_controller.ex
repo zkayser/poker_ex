@@ -14,40 +14,6 @@ defmodule PokerExWeb.PrivateRoomController do
     render conn, "new.html", changeset: changeset, players: players, page: page
   end
 
-  def create(conn, %{"invitees" => invitees, "private_room" => %{"title" => title, "owner" => owner} = room_params}) do
-    private_room = %PrivateRoom{invitees: [], owner: nil, participants: []}
-    changeset =
-      PrivateRoom.changeset(private_room, room_params)
-      |> PrivateRoom.put_owner(owner)
-      |> PrivateRoom.put_invitees(Map.values(invitees) ++ [owner])
-
-    case PokerEx.Repo.insert(changeset) do
-      {:ok, room} ->
-        case PokerEx.RoomsSupervisor.create_private_room(title) do
-          {:ok, _pid} ->
-            PokerEx.Notifications.notify_invitees(room)
-            conn
-            |> put_flash(:info, "#{title} has been created")
-            |> redirect(to: private_room_path(conn, :show, room.id))
-          _ ->
-            conn
-            |> put_flash(:error, "Could not create room. Please try again.")
-            |> redirect(to: private_room_path(conn, :new))
-        end
-      {:error, error_changeset} ->
-        case hd(error_changeset.errors) do
-          {:title, {"has already been taken", []}} ->
-            conn
-            |> put_flash(:error, "#{title} has already been taken")
-            |> redirect(to: private_room_path(conn, :new))
-          _ ->
-            conn
-            |> put_flash(:error, "An unknown error occurred.")
-            |> redirect(to: private_room_path(conn, :new))
-        end
-    end
-  end
-
   def show(conn, %{"id" => id}) do
     room = PokerEx.Repo.get(PrivateRoom, String.to_integer(id))
     do_show(conn, room)

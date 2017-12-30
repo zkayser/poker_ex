@@ -83,18 +83,6 @@ defmodule PokerExWeb.NotificationsChannel do
     end
   end
 
-  def handle_in("decline_invitation", %{"room" => id}, player, socket) do
-    private_room = Repo.get(PrivateRoom, id)
-    case PrivateRoom.remove_invitee(private_room, player) do
-      {:ok, _} ->
-        push(socket, "declined_invitation", %{remove: "row-#{id}"})
-        {:noreply, socket}
-      {:error, _} ->
-        push(socket, "decline_error", %{room: "#{private_room.title}"})
-        {:noreply, socket}
-    end
-  end
-
   def handle_in("decline_own", %{"room" => id}, _player, socket) do
     private_room = Repo.get(PrivateRoom, id)
     case PrivateRoom.stop_and_delete(private_room) do

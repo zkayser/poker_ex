@@ -80,4 +80,9 @@ defmodule PokerEx.PrivateRoomTest do
 
 		refute Process.whereis(room_process) # The room instance should also be shutdown.
 	end
+
+	test "all/0 returns all of the PrivateRoom instances", _ do
+		rooms = PRoom.all()
+		assert is_list(rooms) && length(rooms) > 0
+	end
 end

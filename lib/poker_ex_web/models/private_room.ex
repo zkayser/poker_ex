@@ -116,6 +116,12 @@ defmodule PokerEx.PrivateRoom do
     end
   end
 
+  @doc ~S"""
+  Returns all `PrivateRoom` instances stored in the database
+  """
+  @spec all() :: list(__MODULE__.t)
+  def all(), do: Repo.all(__MODULE__)
+
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
   ################################################################################

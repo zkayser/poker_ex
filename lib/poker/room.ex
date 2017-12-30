@@ -179,11 +179,7 @@ defmodule PokerEx.Room do
 	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
 		Logger.error "Now terminating #{inspect(id)} for reason: #{inspect reason}."
 		Logger.error "Storing game state..."
-		priv_room = PokerEx.Repo.get_by(PokerEx.PrivateRoom, title: Atom.to_string(id))
-		room = :erlang.term_to_binary(room)
-		state = :erlang.term_to_binary(state)
-		data = %{"room_state" => state, "room_data" => room}
-		PokerEx.PrivateRoom.store_state(priv_room, data)
+		PokerEx.PrivateRoom.get_room_and_store_state(id, state, room)
 		:void
 	end
 
