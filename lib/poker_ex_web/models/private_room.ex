@@ -129,6 +129,26 @@ defmodule PokerEx.PrivateRoom do
     |> unique_constraint(:title)
   end
 
+  @doc ~S"""
+  Returns the `PrivateRoom` instance with the given id or `nil`
+  """
+  @spec get(pos_integer()) :: __MODULE__.t | nil
+  def get(id), do: Repo.get(__MODULE__, id)
+
+  @doc ~S"""
+  Takes in an atom that represents a running room process that is also the title
+  of a `PrivateRoom` instance stored in the database. The second parameter is the
+  current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
+  or :between_hands, and the third parameter is the actual `Room` instance representing
+  the ongoing game of Poker. This function queries the database for the `PrivateRoom`
+  instance from the title and serializes the `state` and `room` as binaries to be
+  stored in the database. This is useful when terminating a `Room` process when, for
+  example, an error is encountered on the server. Having the state of the current game
+  stored in the DB means that it can be recovered when the Room process is started
+  back up again so that players do not lose their turns or forfeit chips that they
+  already had in play.
+  """
+  @spec get_room_and_store_state(atom(), atom(), Room.t) :: {:ok, pid()}
   def get_room_and_store_state(title, state, room) when is_atom(title) do
     title = Atom.to_string(title)
     state = :erlang.term_to_binary(state)

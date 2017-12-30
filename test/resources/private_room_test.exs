@@ -78,11 +78,28 @@ defmodule PokerEx.PrivateRoomTest do
 
 		assert Repo.get(PRoom, context.room.id) == nil
 
-		refute Process.whereis(room_process) # The room instance should also be shutdown.
+		refute Process.whereis(room_process) # The room instance should also be shutdown (it will be nil)
 	end
 
 	test "all/0 returns all of the PrivateRoom instances", _ do
 		rooms = PRoom.all()
 		assert is_list(rooms) && length(rooms) > 0
+	end
+
+	test "get_room_and_store_state/3 updates the PrivateRoom instance with current game state", context do
+		room_process = String.to_atom(context.room.title)
+
+		state = :idle # The current game state will be :idle since no actions have been taken
+		data = Room.state(room_process) # `Room.state/1 returns a `Room` instance representing the current game`
+
+		PRoom.get_room_and_store_state(room_process, state, data)
+
+		Process.sleep(50) # Let async DB update take place
+
+		room = PRoom.get(context.room.id)
+		# The `state` and `data` are serialized to a binary format for storage.
+		# `:erlang.binary_to_term/1` restores the binary form to its actual representation.
+		assert :erlang.binary_to_term(room.room_state) == :idle
+		assert :erlang.binary_to_term(room.room_data) == data
 	end
 end
