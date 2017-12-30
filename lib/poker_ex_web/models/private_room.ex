@@ -97,6 +97,25 @@ defmodule PokerEx.PrivateRoom do
     end
   end
 
+  @doc ~S"""
+  `delete/1` removes the `PrivateRoom` instance from the database and stops the `Room` instance
+  """
+  @spec delete(__MODULE__.t) :: {:ok, __MODULE__.t} | {:error, String.t}
+  def delete(%__MODULE__{} = room) do
+    with :ok <- Enum.each(preload(room).participants, &(Room.leave(String.to_atom(room.title), &1))),
+         :ok <- Room.stop(String.to_atom(room.title)) do
+      {:ok, room} =
+        room
+          |> change()
+          |> put_assoc(:participants, [])
+          |> put_assoc(:invitees, [])
+          |> Repo.update()
+      Repo.delete(room)
+    else
+      _ -> {:error, "Failed to shutdown room process"}
+    end
+  end
+
   ################################################################################
   #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
   ################################################################################
@@ -107,28 +126,6 @@ defmodule PokerEx.PrivateRoom do
     |> validate_length(:title, min: 1, max: 16)
     |> unique_constraint(:title)
   end
-
-  def create_changeset(model, %{"owner" => _owner} = params) do
-    model
-    |> changeset(params)
-    |> cast_assoc(:owner, required: true)
-  end
-
-  def update_changeset(model, %{"participants" => _participants, "invitees" => _invitees} = params) do
-    model
-    |> changeset(params)
-    |> cast_assoc(:participants)
-    |> cast_assoc(:invitees)
-  end
-
-  # def move_invitee_to_participants(private_room, player) do
-  #   changeset =
-  #     private_room
-  #     |> changeset()
-  #     |> remove_invitee(private_room.invitees, player)
-  #     |> put_invitee_in_participants(private_room.participants, player)
-  #   Repo.update(changeset)
-  # end
 
   def get_room_and_store_state(title, state, room) when is_atom(title) do
     title = Atom.to_string(title)
@@ -142,12 +139,11 @@ defmodule PokerEx.PrivateRoom do
   end
 
   def store_state(nil, _room_state) do
-    require Logger
-    Logger.error "\nFailed to store state because room either does not exist or could not be found."
+    Logger.error "Failed to store state because room either does not exist or could not be found."
+    :error
   end
 
   def store_state(%PrivateRoom{title: id} = priv_room, %{"room_state" => state, "room_data" => room}) do
-    require Logger
     update =
       priv_room
       |> cast(%{room_data: room, room_state: state}, [:room_data, :room_state])
@@ -155,7 +151,7 @@ defmodule PokerEx.PrivateRoom do
     case Repo.update(update) do
       {:ok, _} -> :ok
       _ ->
-        Logger.warn "Could not successfully update room: #{id}"
+        Logger.error "Failed to store state for room #{inspect id}"
         :error
     end
   end
@@ -166,50 +162,8 @@ defmodule PokerEx.PrivateRoom do
     delete(priv_room)
   end
 
-  def delete(priv_room) do
-    {:ok, priv_room} =
-      priv_room
-      |> preload
-      |> cast(%{}, ~w())
-      |> put_assoc(:participants, [])
-      |> put_assoc(:invitees, [])
-      |> Repo.update
-     Repo.delete(priv_room)
-  end
-
   def preload(private_room) do
     private_room |> Repo.preload([:invitees, :owner, :participants])
-  end
-
-  def put_owner(changeset, owner) do
-    case Repo.get(Player, String.to_integer(owner)) do
-      nil -> add_error(changeset, :owner, "invalid owner")
-      player ->
-        changeset
-        |> put_assoc(:owner, player)
-    end
-  end
-
-  def put_invitees(changeset, invitees) when is_list(invitees) do
-    invitees =
-      Enum.map(invitees, &String.to_integer/1)
-      |> Enum.map(&(Repo.get(Player, &1)))
-      |> Enum.reject(&(&1 == nil))
-    changeset
-    |> put_assoc(:invitees, invitees)
-  end
-
-  def remove_invitee(changeset, invitees, invitee) do
-    invitees = Enum.reject(invitees, fn inv -> inv.id == invitee.id end)
-    put_assoc(changeset, :invitees, invitees)
-  end
-
-  def remove_invitee(private_room, invitee) do
-    private_room
-      |> preload()
-      |> changeset()
-      |> put_assoc(:invitees, Enum.reject((private_room |> Repo.preload(:invitees)).invitees, fn inv -> inv.id == invitee.id end))
-      |> Repo.update()
   end
 
   def update_participants(changeset, participants) do
@@ -218,16 +172,6 @@ defmodule PokerEx.PrivateRoom do
 
   def update_invitees(changeset, invitees) do
     put_assoc(changeset, :invitees, invitees)
-  end
-
-  # Just totally broke this; Don't try to use this right now. Instead use `update_participants/2`
-  def add_participant(changeset, participants) do
-    put_assoc(changeset, :participants, participants)
-  end
-
-  def remove_participant(changeset, participants, participant) do
-    participants = participants -- [participant]
-    put_assoc(changeset, :participants, participants)
   end
 
   def shutdown_all do

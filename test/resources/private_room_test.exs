@@ -69,4 +69,15 @@ defmodule PokerEx.PrivateRoomTest do
 		# Should also remove the player from the `Room` instance
 		refute leaving_player.name in Enum.map(Room.state(room_process).seating, fn {pl, _} -> pl end)
 	end
+
+	@tag :capture_log
+	test "delete/1 deletes the `PrivateRoom` from the database and shuts down the `Room`", context do
+		room_process = String.to_atom(context.room.title)
+
+		{:ok, _} = PRoom.delete(context.room)
+
+		assert Repo.get(PRoom, context.room.id) == nil
+
+		refute Process.whereis(room_process) # The room instance should also be shutdown.
+	end
 end

@@ -94,6 +94,10 @@ defmodule PokerEx.Room do
 		:gen_statem.start_link({:local, :test}, __MODULE__, [caller], [])
 	end
 
+	def stop(id) do
+		:gen_statem.stop(id)
+	end
+
 	##############
 	# Client API #
 	##############
@@ -145,11 +149,11 @@ defmodule PokerEx.Room do
 	def put_state(room_id, new_state, new_data) do
 		:gen_statem.call(room_id, {:put_state, new_state, new_data})
 	end
-	
+
 	def start_new_round(room_id) do
 		:gen_statem.call(room_id, :start_new_round)
 	end
-	
+
 	def which_state(room_id) when is_binary(room_id) do
 		:gen_statem.call(String.to_atom(room_id), :which_state)
 	end
@@ -214,7 +218,7 @@ defmodule PokerEx.Room do
 	###############
 	#  Idle State #
 	###############
-	
+
 	def handle_event({:call, from}, {:join, player, chip_amount}, :idle, %Room{seating: seating} = room)
 	when length(seating) < 1 and chip_amount >= @minimum_buy_in do
 		case player_can_join?(player, seating) do
@@ -245,7 +249,7 @@ defmodule PokerEx.Room do
 					|> Updater.timer(@timeout)
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
-					
+
 				{:next_state, :pre_flop, update, [{:reply, from, update}]}
 		false ->
 			{:keep_state_and_data, [{:reply, from, room}]}
@@ -283,7 +287,7 @@ defmodule PokerEx.Room do
 					|> Updater.timer(@timeout)
 					|> BetTracker.post_blind(@small_blind, :small_blind)
 					|> BetTracker.post_blind(@big_blind, :big_blind)
-		
+
 				{:next_state, :pre_flop, update, [{:reply, from, update}]}
 		false ->
 			{:keep_state_and_data, [{:reply, from, room}]}
@@ -356,7 +360,7 @@ defmodule PokerEx.Room do
 			|> Updater.maybe_advance_active(player)
 			|> Updater.active(player)
 			|> Updater.reindex_seating
-		{:next_state, :game_over, update, 
+		{:next_state, :game_over, update,
 			[{:reply, from, :skip_update_message}, {:next_event, :internal, :handle_fold}, {:next_event, :internal, :send_clear_ui}]
 		}
 	end
@@ -758,7 +762,7 @@ defmodule PokerEx.Room do
 	def handle_event({:call, from}, {:put_state, new_state, new_data}, _state, _room) do
 		{:next_state, new_state, new_data, [{:reply, from, new_data}]}
 	end
-	
+
 	def handle_event({:call, from}, :start_new_round, _state, room) do
 		new_round(room, from)
 	end
@@ -767,12 +771,12 @@ defmodule PokerEx.Room do
 	def handle_event({:call, from}, :state, state, room) do
 		{:next_state, state, room, [{:reply, from, room}]}
 	end
-	
+
 	# State enter callback
 	def handle_event(:enter, _old_state, :pre_flop, room) do
 		maybe_handle_all_in(room)
 	end
-	
+
 	def handle_event(:enter, _, state, room), do: {:next_state, state, room}
 
 	# CATCH ALL CALLBACK
@@ -820,7 +824,7 @@ defmodule PokerEx.Room do
   	|> Updater.reset_called
   	|> Updater.timer(@timeout)
   end
-  
+
   defp player_can_join?(player, seating) do
   	player not in Enum.map(seating, fn {name, _pos} -> name end)
   end
@@ -830,7 +834,7 @@ defmodule PokerEx.Room do
 			|> Map.keys
 			|> Enum.each(fn p -> Player.update_chips(p, chip_roll[p]) end)
   end
-  
+
   defp reset_all(room) do
 			room
 			|> round_transition(:between_rounds)
@@ -848,7 +852,7 @@ defmodule PokerEx.Room do
 			|> Updater.reset_pot
 			|> Updater.reset_all_in
   end
-  
+
   defp new_round(room, from_pid) do
   		update =
 				room
