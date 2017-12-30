@@ -22,8 +22,8 @@ defmodule PokerExWeb.PrivateRoomChannel do
 
 	defp update_and_assign_rooms(socket, page_num) do
 		player = Player.preload(socket.assigns[:player])
-		paginated_current_rooms = get_paginated_current_rooms(player, page_num)
-		paginated_invited_rooms = get_paginated_invited_rooms(player, page_num)
+		paginated_current_rooms = get_paginated_rooms(player, page_num, :participating_rooms)
+		paginated_invited_rooms = get_paginated_rooms(player, page_num, :invited_rooms)
 
 		Logger.debug "[PrivateRoomChannel] Pushing current and invited rooms to channel client"
 		push socket, "current_rooms",
@@ -40,13 +40,10 @@ defmodule PokerExWeb.PrivateRoomChannel do
 			 }
 	end
 
-	defp get_paginated_current_rooms(%Player{} = player, page_num) do
-		Enum.map(player.participating_rooms, &(String.to_atom(&1.title)))
-			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
-	end
-
-	defp get_paginated_invited_rooms(%Player{} = player, page_num) do
-		Enum.map(player.invited_rooms, &(String.to_atom(&1.title)))
+	defp get_paginated_rooms(%Player{} = player, page_num, type) do
+		for room <- Enum.map(Map.get(player, type), &(String.to_atom(&1.title))) do
+			%{room: room, player_count: PokerEx.Room.state(room).seating |> length()}
+		end
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
 	end
 end
