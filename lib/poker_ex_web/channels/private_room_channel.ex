@@ -2,6 +2,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	use Phoenix.Channel
 	require Logger
 	alias PokerEx.Player
+	alias PokerEx.PrivateRoom
 
 	def join("private_rooms:" <> player_name, _params, socket) do
 		with %Player{} = player <- Player.by_name(player_name) do
@@ -42,7 +43,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
 
 	defp get_paginated_rooms(%Player{} = player, page_num, type) do
 		for room <- Enum.map(Map.get(player, type), &(String.to_atom(&1.title))) do
-			%{room: room, player_count: PokerEx.Room.state(room).seating |> length()}
+			%{room: room, player_count: PrivateRoom.check_state(room).seating |> length()}
 		end
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
 	end

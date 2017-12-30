@@ -136,12 +136,39 @@ defmodule PokerEx.PrivateRoom do
   def get(id), do: Repo.get(__MODULE__, id)
 
   @doc ~S"""
+  Returns the `PrivateRoom` instance with the given title or `nil`
+  """
+  @spec by_title(atom()) :: __MODULE__.t | nil
+  def by_title(title) when is_atom(title) do
+    Repo.get_by(__MODULE__, title: Atom.to_string(title))
+  end
+
+  @spec by_title(String.t) :: __MODULE__.t | nil
+  def by_title(title), do: Repo.get_by(__MODULE__, title: title)
+
+  @doc ~S"""
   Preloads the `PrivateRoom` instance passed in with `invitees`,
   `owner`, and `participants` associations
   """
   @spec preload(__MODULE__.t) :: __MODULE__.t
   def preload(private_room) do
     private_room |> Repo.preload([:invitees, :owner, :participants])
+  end
+
+  @doc ~S"""
+  Checks to see if the process for the `Room` instance is alive and restores
+  it from the database if not. Returns an empty `Room` instance if no data has
+  been stored
+  """
+  @spec check_state(atom()) :: Room.t
+  def check_state(room_process) do
+    case Process.whereis(room_process) do
+      nil ->
+        %{room_state: room_state, room_data: room_data} = by_title(room_process)
+        RoomsSupervisor.create_private_room(Atom.to_string(room_process))
+        put_state_for_room(room_process, room_state, room_data)
+      _ -> Room.state(room_process)
+    end
   end
 
   @doc ~S"""
@@ -185,6 +212,11 @@ defmodule PokerEx.PrivateRoom do
         Logger.error "Failed to store state for room #{inspect id}"
         :error
     end
+  end
+
+  defp put_state_for_room(room_process, nil, nil), do: Room.state(room_process)
+  defp put_state_for_room(room_process, state, data) do
+    Room.put_state(room_process, :erlang.binary_to_term(state), :erlang.binary_to_term(data))
   end
 
   def update_participants(changeset, participants) do

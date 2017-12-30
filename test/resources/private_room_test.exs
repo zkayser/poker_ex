@@ -86,6 +86,10 @@ defmodule PokerEx.PrivateRoomTest do
 		assert is_list(rooms) && length(rooms) > 0
 	end
 
+	test "by_title/1 returns the PrivateRoom instance with that title or nil", context do
+		assert PRoom.by_title(context.room.title).id == context.room.id
+	end
+
 	test "get_room_and_store_state/3 updates the PrivateRoom instance with current game state", context do
 		room_process = String.to_atom(context.room.title)
 
@@ -101,5 +105,15 @@ defmodule PokerEx.PrivateRoomTest do
 		# `:erlang.binary_to_term/1` restores the binary form to its actual representation.
 		assert :erlang.binary_to_term(room.room_state) == :idle
 		assert :erlang.binary_to_term(room.room_data) == data
+	end
+
+	@tag :capture_log
+	test "check_state/1 checks if a room process exists and creates one if note", context do
+		room_process = String.to_atom(context.room.title)
+
+		data = Room.state(room_process)
+		Room.stop(room_process)
+
+		assert PRoom.check_state(room_process) == data
 	end
 end
