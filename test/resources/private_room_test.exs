@@ -92,7 +92,7 @@ defmodule PokerEx.PrivateRoomTest do
 		state = :idle # The current game state will be :idle since no actions have been taken
 		data = Room.state(room_process) # `Room.state/1 returns a `Room` instance representing the current game`
 
-		PRoom.get_room_and_store_state(room_process, state, data)
+		assert {:ok, _} = PRoom.get_room_and_store_state(room_process, state, data)
 
 		Process.sleep(50) # Let async DB update take place
 
