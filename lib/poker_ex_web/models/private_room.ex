@@ -136,6 +136,26 @@ defmodule PokerEx.PrivateRoom do
   def get(id), do: Repo.get(__MODULE__, id)
 
   @doc ~S"""
+  Preloads the `PrivateRoom` instance passed in with `invitees`,
+  `owner`, and `participants` associations
+  """
+  @spec preload(__MODULE__.t) :: __MODULE__.t
+  def preload(private_room) do
+    private_room |> Repo.preload([:invitees, :owner, :participants])
+  end
+
+  @doc ~S"""
+  Stops the running room process if it exists and deletes the `PrivateRoom` instance
+  from the DB.
+  """
+  @spec stop_and_delete(__MODULE__.t) :: {:ok, __MODULE__.t} | {:error, String.t}
+  def stop_and_delete(%PrivateRoom{title: title} = priv_room) do
+    title = String.to_atom(title)
+    if RoomsSupervisor.room_process_exists?(title), do: :gen_statem.stop(title)
+    delete(priv_room)
+  end
+
+  @doc ~S"""
   Takes in an atom that represents a running room process that is also the title
   of a `PrivateRoom` instance stored in the database. The second parameter is the
   current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
@@ -160,12 +180,12 @@ defmodule PokerEx.PrivateRoom do
       end)
   end
 
-  def store_state(nil, _room_state) do
+  defp store_state(nil, _room_state) do
     Logger.error "Failed to store state because room either does not exist or could not be found."
     :error
   end
 
-  def store_state(%PrivateRoom{title: id} = priv_room, %{"room_state" => state, "room_data" => room}) do
+  defp store_state(%PrivateRoom{title: id} = priv_room, %{"room_state" => state, "room_data" => room}) do
     update =
       priv_room
       |> cast(%{room_data: room, room_state: state}, [:room_data, :room_state])
@@ -176,16 +196,6 @@ defmodule PokerEx.PrivateRoom do
         Logger.error "Failed to store state for room #{inspect id}"
         :error
     end
-  end
-
-  def stop_and_delete(%PrivateRoom{title: title} = priv_room) do
-    title = String.to_atom(title)
-    if RoomsSupervisor.room_process_exists?(title), do: :gen_statem.stop(title)
-    delete(priv_room)
-  end
-
-  def preload(private_room) do
-    private_room |> Repo.preload([:invitees, :owner, :participants])
   end
 
   def update_participants(changeset, participants) do

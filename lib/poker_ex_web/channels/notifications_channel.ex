@@ -85,7 +85,7 @@ defmodule PokerExWeb.NotificationsChannel do
 
   def handle_in("decline_own", %{"room" => id}, _player, socket) do
     private_room = Repo.get(PrivateRoom, id)
-    case PrivateRoom.stop_and_delete(private_room) do
+    case PrivateRoom.delete(private_room) do
       {:ok, _} ->
         push(socket, "room_terminated", %{remove: "owned-#{id}"})
         {:noreply, socket}
