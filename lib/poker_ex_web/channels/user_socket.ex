@@ -8,6 +8,7 @@ defmodule PokerExWeb.UserSocket do
   channel "players:*", PokerExWeb.PlayersChannel
   channel "rooms:*", PokerExWeb.RoomsChannel
   channel "lobby:lobby", PokerExWeb.LobbyChannel
+  channel "private_rooms:*", PokerExWeb.PrivateRoomChannel
   channel "notifications:*", PokerExWeb.NotificationsChannel
   channel "player_updates:*", PokerExWeb.PlayerUpdatesChannel
   channel "online:lobby", PokerExWeb.OnlineChannel
