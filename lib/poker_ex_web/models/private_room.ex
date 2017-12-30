@@ -122,10 +122,6 @@ defmodule PokerEx.PrivateRoom do
   @spec all() :: list(__MODULE__.t)
   def all(), do: Repo.all(__MODULE__)
 
-  ################################################################################
-  #         BELOW IS THE OLD VERSION OF THIS MODULE THAT WILL BE PHASED OUT      #
-  ################################################################################
-
   def changeset(model, params \\ %{}) do
     model
     |> cast(params, ~w(title))
@@ -178,26 +174,5 @@ defmodule PokerEx.PrivateRoom do
 
   def update_invitees(changeset, invitees) do
     put_assoc(changeset, :invitees, invitees)
-  end
-
-  def shutdown_all do
-    alias PokerEx.RoomsSupervisor
-    rooms = Repo.all(PrivateRoom)
-    for room <- rooms do
-      pid =
-        room.title
-        |> String.to_atom
-        |> Process.whereis
-      case pid do
-        nil ->
-          Logger.info "No running process for #{room.title}\nDeleting #{room.title}"
-          Repo.delete(room)
-        _ when is_pid(pid) ->
-          Logger.info "Shutting down room: #{room.title}"
-          Supervisor.terminate_child(RoomsSupervisor, pid)
-        _ ->
-          Logger.debug "An unknown error occurred in shutdown_all function - room.title, pid: #{room.title}, #{inspect(pid)}"
-      end
-    end
   end
 end
