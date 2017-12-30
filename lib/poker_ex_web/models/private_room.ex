@@ -145,17 +145,6 @@ defmodule PokerEx.PrivateRoom do
   end
 
   @doc ~S"""
-  Stops the running room process if it exists and deletes the `PrivateRoom` instance
-  from the DB.
-  """
-  @spec stop_and_delete(__MODULE__.t) :: {:ok, __MODULE__.t} | {:error, String.t}
-  def stop_and_delete(%PrivateRoom{title: title} = priv_room) do
-    title = String.to_atom(title)
-    if RoomsSupervisor.room_process_exists?(title), do: :gen_statem.stop(title)
-    delete(priv_room)
-  end
-
-  @doc ~S"""
   Takes in an atom that represents a running room process that is also the title
   of a `PrivateRoom` instance stored in the database. The second parameter is the
   current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
