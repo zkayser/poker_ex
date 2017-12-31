@@ -146,6 +146,11 @@ defmodule PokerEx.Room do
 		:gen_statem.call(room_id, {:add_chips, player.name, amount})
 	end
 
+	# This is effectively a no-op in the event `add_chips` is called with a negative amount
+	def add_chips(room_id, _player, _amount) do
+		:gen_statem.call(room_id, :state)
+	end
+
 	def put_state(room_id, new_state, new_data) do
 		:gen_statem.call(room_id, {:put_state, new_state, new_data})
 	end
