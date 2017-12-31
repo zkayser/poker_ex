@@ -17,12 +17,17 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	end
 
 	def handle_info(:send_rooms, socket) do
-		update_and_assign_rooms(socket, 1)
+		update_and_assign_rooms(socket, 1, Player.preload(socket.assigns[:player]))
 		{:noreply, socket}
 	end
 
-	defp update_and_assign_rooms(socket, page_num) do
-		player = Player.preload(socket.assigns[:player])
+	def handle_in("accept_invitation", %{"player" => player_name, "room" => room_title}, socket) do
+		PrivateRoom.accept_invitation(PrivateRoom.by_title(room_title), Player.by_name(player_name))
+		update_and_assign_rooms(socket, 1, Player.by_name(player_name) |> Player.preload())
+		{:noreply, socket}
+	end
+
+	defp update_and_assign_rooms(socket, page_num, player) do
 		paginated_current_rooms = get_paginated_rooms(player, page_num, :participating_rooms)
 		paginated_invited_rooms = get_paginated_rooms(player, page_num, :invited_rooms)
 

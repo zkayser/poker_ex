@@ -3,6 +3,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 	import PokerEx.TestHelpers
 	alias PokerExWeb.PrivateRoomChannel
 	alias PokerEx.PrivateRoom
+	alias PokerEx.Player
 
 	@endpoint PokerExWeb.Endpoint
 
@@ -12,7 +13,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		{:ok, socket: socket, player: player, token: token, reply: reply, room: room}
 	end
 
-	test "it join replies with `:success` when authentication is successful", context do
+	test "join replies with `:success` when authentication is successful", context do
 		assert context.reply.response == :success
 	end
 
@@ -27,6 +28,19 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 			%{current_rooms: ^expected_current_rooms,
 				invited_rooms: ^expected_invited_rooms
 			 }
+	end
+
+	test "`accept_invititation` messages trigger updates to the accepting player's participating_rooms", context do
+		invited_player = PrivateRoom.preload(context.room) |> Map.get(:invitees) |> hd()
+
+		push context.socket, "accept_invitation", %{"player" => invited_player.name, "room" => context.room.title}
+
+		Process.sleep(50)
+		updated_player = Player.by_name(invited_player.name) |> Player.preload()
+		updated_room = PrivateRoom.by_title(context.room.title) |> PrivateRoom.preload()
+
+		assert updated_room.id in Enum.map(updated_player.participating_rooms, &(&1.id))
+		refute updated_room.id in Enum.map(updated_player.invited_rooms, &(&1.id))
 	end
 
 	defp create_player_and_connect do
