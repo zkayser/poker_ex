@@ -27,6 +27,15 @@ defmodule PokerExWeb.PrivateRoomChannel do
 		{:noreply, socket}
 	end
 
+	def handle_in("create_room", %{"title" => title, "owner" => owner, "invitees" => invitees}, socket) do
+		owner = Player.by_name(owner)
+		invitees = Enum.map(invitees, &(Player.by_name(&1)))
+		case PrivateRoom.create(title, owner, invitees) do
+			{:ok, %PrivateRoom{}} -> {:reply, :ok, socket}
+			{:error, errors} -> {:stop, :shutdown, {:error, %{errors: format(errors)}}, socket}
+		end
+	end
+
 	defp update_and_assign_rooms(socket, page_num, player) do
 		paginated_current_rooms = get_paginated_rooms(player, page_num, :participating_rooms)
 		paginated_invited_rooms = get_paginated_rooms(player, page_num, :invited_rooms)
@@ -52,4 +61,11 @@ defmodule PokerExWeb.PrivateRoomChannel do
 		end
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
 	end
+
+	defp format(errors) when is_list(errors) do
+		errors
+			|> Enum.map(fn {key, {error_msg, _}} -> "#{Atom.to_string(key) |> String.capitalize()} #{error_msg}" end)
+	end
+
+	defp format(_), do: ["An error occurred"]
 end

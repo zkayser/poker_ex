@@ -43,6 +43,27 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		refute updated_room.id in Enum.map(updated_player.invited_rooms, &(&1.id))
 	end
 
+	test "`create_room` message creates a new room with the given title", context do
+		# TODO: Take one of the invited players and `subscribe_and_join` the `notifications_channel:#{name}`
+		# for that player. When a `create_room` message is received in the PrivateRoomChannel, it
+		# should also trigger a `broadcast` to the NotificationsChannel for each invited player.
+		title = "test#{Base.encode16(:crypto.strong_rand_bytes(8))}"
+		ref = push context.socket, "create_room",
+			%{"title" => title,
+				"owner" => context.player.name, "invitees" => Enum.map(context.room.invitees, &(&1.name))}
+
+		assert_reply ref, :ok # Make sure that the reply has been sent
+	end
+
+	test "`create_room` fails and returns an error response if given a duplicate room name", context do
+		room = PrivateRoom.preload(context.room)
+		invitees = Enum.map(context.room.invitees, &(&1.name))
+		ref = push context.socket, "create_room",
+			%{"title" => room.title, "owner" => context.player.name, "invitees" => invitees}
+
+		assert_reply ref, :error
+	end
+
 	defp create_player_and_connect do
 		player = insert_user()
 		invited_players = for _ <- 1..4, do: insert_user()
