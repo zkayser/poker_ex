@@ -69,5 +69,13 @@ defmodule PokerEx.PlayerTest do
 		test "subtract_chips/2 returns an error tuple when given a non-existent user", _context do
 			assert Player.subtract_chips("non-existent user", 200) == {:error, :player_not_found}
 		end
+
+		test "player_names/0 returns a list of all players' names", _context do
+			[p1, p2|_] = Player.player_names()
+			player1 = Player.by_name(p1)
+			player2 = Player.by_name(p2)
+			assert player1.name == p1
+			assert player2.name == p2
+		end
 	end
 end

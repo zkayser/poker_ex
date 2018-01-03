@@ -17,13 +17,16 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	end
 
 	def handle_info(:send_rooms, socket) do
-		update_and_assign_rooms(socket, 1, Player.preload(socket.assigns[:player]))
+		player_list = Player.player_names() |> Enum.reject(&(&1 == socket.assigns[:player].name))
+		socket = assign(socket, :player_list, player_list)
+		send_room_update(socket, 1, Player.preload(socket.assigns[:player]))
+		send_player_list(socket, 1)
 		{:noreply, socket}
 	end
 
 	def handle_in("accept_invitation", %{"player" => player_name, "room" => room_title}, socket) do
 		PrivateRoom.accept_invitation(PrivateRoom.by_title(room_title), Player.by_name(player_name))
-		update_and_assign_rooms(socket, 1, Player.by_name(player_name) |> Player.preload())
+		send_room_update(socket, 1, Player.by_name(player_name) |> Player.preload())
 		{:noreply, socket}
 	end
 
@@ -36,7 +39,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
 		end
 	end
 
-	defp update_and_assign_rooms(socket, page_num, player) do
+	defp send_room_update(socket, page_num, player) do
 		paginated_current_rooms = get_paginated_rooms(player, page_num, :participating_rooms)
 		paginated_invited_rooms = get_paginated_rooms(player, page_num, :invited_rooms)
 
@@ -55,11 +58,24 @@ defmodule PokerExWeb.PrivateRoomChannel do
 			 }
 	end
 
+	defp send_player_list(socket, page_num) do
+		paginated_list = get_paginated_players(socket, page_num)
+		push socket, "player_list",
+			%{players: paginated_list.entries,
+				page: page_num,
+				total_pages: paginated_list.total_pages}
+	end
+
 	defp get_paginated_rooms(%Player{} = player, page_num, type) do
 		for room <- Enum.map(Map.get(player, type), &(String.to_atom(&1.title))) do
 			%{room: room, player_count: PrivateRoom.check_state(room).seating |> length()}
 		end
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
+	end
+
+	defp get_paginated_players(socket, page_num) do
+		socket.assigns[:player_list]
+			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 25})
 	end
 
 	defp format(errors) when is_list(errors) do

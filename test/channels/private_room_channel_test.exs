@@ -6,6 +6,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 	alias PokerEx.Player
 
 	@endpoint PokerExWeb.Endpoint
+	@players_per_page 25
 
 	setup do
 		{socket, player, token, reply, room} = create_player_and_connect()
@@ -28,6 +29,12 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 			%{current_rooms: ^expected_current_rooms,
 				invited_rooms: ^expected_invited_rooms
 			 }
+	end
+
+	test "a `player_list` message is pushed on successful joins", _context do
+		first_page_names = Stream.map(Player.all(), &(&1.name)) |> Enum.take(@players_per_page)
+
+		assert_push "player_list", %{players: ^first_page_names, page: 1, total_pages: _}
 	end
 
 	test "`accept_invititation` messages trigger updates to the accepting player's participating_rooms", context do

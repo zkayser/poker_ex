@@ -57,6 +57,13 @@ defmodule PokerEx.Player do
 		end
 	end
 
+	@spec player_names() :: list(String.t)
+	def player_names do
+		all()
+		|> Stream.map(&(&1.name))
+		|> Enum.to_list()
+	end
+
 	# TODO: 11/26/2017 -- Just revisiting this and
 	# am unsure of what exactly the intent of this is.
 	# The only calls to this function are in the RewardManager module,
