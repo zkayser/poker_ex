@@ -32,7 +32,11 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 	end
 
 	test "a `player_list` message is pushed on successful joins", context do
-		first_page_names = Stream.map(Player.all(), &(&1.name)) |> Enum.take(@players_per_page)
+		first_page_names =
+			Player.all()
+			|> Stream.map(&(&1.name))
+			|> Stream.reject(&(&1 == context.player.name))
+			|> Enum.take(@players_per_page)
 
 		first_page_names = Enum.reject(first_page_names, &(&1 == context.player.name))
 
