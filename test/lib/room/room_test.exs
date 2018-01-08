@@ -2,7 +2,8 @@ defmodule PokerEx.RoomTest do
   use PokerEx.RoomCase, async: false
 
   test "the room starts", context do
-    assert is_pid(Process.whereis(context[:test_room]))
+    [{pid, _}] = Registry.lookup(Registry.Rooms, context[:test_room])
+    assert is_pid(pid)
   end
 
   test "players can join the room", context do
@@ -11,17 +12,17 @@ defmodule PokerEx.RoomTest do
 
     assert {player.name, 0} in data.seating
   end
-  
+
   test "the same player can only join the room once", context do
     player = context[:p1]
-    
+
     Room.join(context[:test_room], player, 200)
     Room.join(context[:test_room], player, 200)
-    
-    player_names = 
-      Room.state(context[:test_room]).seating 
+
+    player_names =
+      Room.state(context[:test_room]).seating
         |> Enum.map(fn {name, _} -> name end)
-        
+
     assert length(player_names) == 1
   end
 
@@ -131,9 +132,9 @@ defmodule PokerEx.RoomTest do
 
     test "the active list gets updated when a player folds", context do
       [p1, p2, p3, p4] = players(context)
-      
+
       simulate_pre_flop_betting(context)
-      
+
       Room.raise(context[:test_room], p4, 20)
       data = Room.fold(context[:test_room], p1)
 
@@ -166,11 +167,11 @@ defmodule PokerEx.RoomTest do
       Room.call(context[:test_room], p1)
       Room.call(context[:test_room], p2)
       Room.call(context[:test_room], p3)
-      
+
       start_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
 
       finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
-    
+
       assert_in_delta(finish_sum, start_sum, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle
     end
@@ -187,7 +188,7 @@ defmodule PokerEx.RoomTest do
       sum_beginning_chips = Enum.sum(Map.values(start))
 
       finish = Room.state(context[:test_room]).chip_roll
-      
+
       sum_finish_chips = Enum.sum(Map.values(finish))
 
       assert_in_delta(startP2, finish[p2.name], 11)
@@ -203,9 +204,9 @@ defmodule PokerEx.RoomTest do
       Room.raise(context[:test_room], p4, 1200)
       Room.raise(context[:test_room], p1, 1200)
       Room.call(context[:test_room], p2)
-      
+
       finish = Room.state(context[:test_room]).chip_roll |> Map.values() |> Enum.sum()
-      
+
       assert_in_delta(finish, start, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle || :between_rounds
     end
@@ -260,7 +261,7 @@ defmodule PokerEx.RoomTest do
     for player <- players, do: Room.join(context[:test_room], player, 200)
 
     Room.start_new_round(context[:test_room])
-    
+
     [init: Room.state(context[:test_room])]
   end
 

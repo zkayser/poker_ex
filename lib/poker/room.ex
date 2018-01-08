@@ -81,21 +81,21 @@ defmodule PokerEx.Room do
 
 	def start_link(args) when is_list(args) do
 		id = List.first(args)
-		:gen_statem.start_link({:local, id}, __MODULE__, [args], [])
+		:gen_statem.start_link(name_for(id), __MODULE__, [args], [])
 	end
 
 	def start_link(args) do
-		room_id = :"#{args}"
-		:gen_statem.start_link({:local, room_id}, __MODULE__, [args], [])
+		room_id = "#{args}"
+		:gen_statem.start_link(name_for(room_id), __MODULE__, [args], [])
 		# {:debug, [:trace, :log]}
 	end
 
 	def start_test(caller) do
-		:gen_statem.start_link({:local, :test}, __MODULE__, [caller], [])
+		:gen_statem.start_link(name_for("test"), __MODULE__, [caller], [])
 	end
 
 	def stop(id) do
-		:gen_statem.stop(id)
+		:gen_statem.stop(name_for(id))
 	end
 
 	##############
@@ -103,69 +103,69 @@ defmodule PokerEx.Room do
 	##############
 
 	def join(room_id, player, chip_amount) do
-		:gen_statem.call(room_id, {:join, player.name, chip_amount})
+		:gen_statem.call(name_for(room_id), {:join, player.name, chip_amount})
 	end
 
 	def call(room_id, player) do
-		:gen_statem.call(room_id, {:call, player.name})
+		:gen_statem.call(name_for(room_id), {:call, player.name})
 	end
 
 	def check(room_id, player) do
-		:gen_statem.call(room_id, {:check, player.name})
+		:gen_statem.call(name_for(room_id), {:check, player.name})
 	end
 
 	def raise(room_id, player, amount) do
-		:gen_statem.call(room_id, {:raise, player.name, amount})
+		:gen_statem.call(name_for(room_id), {:raise, player.name, amount})
 	end
 
 	def fold(room_id, player) do
-		:gen_statem.call(room_id, {:fold, player.name})
+		:gen_statem.call(name_for(room_id), {:fold, player.name})
 	end
 
 	def start(room_id) do
-		:gen_statem.call(room_id, :start)
+		:gen_statem.call(name_for(room_id), :start)
 	end
 
 	def leave(room_id, player) do
-		:gen_statem.call(room_id, {:leave, player.name})
+		:gen_statem.call(name_for(room_id), {:leave, player.name})
 	end
 
 	def player_count(room_id) do
-		:gen_statem.call(room_id, :player_count)
+		:gen_statem.call(name_for(room_id), :player_count)
 	end
 
 	def player_list(room_id) do
-		:gen_statem.call(room_id, :player_list)
+		:gen_statem.call(name_for(room_id), :player_list)
 	end
 
 	def state(room_id) do
-		:gen_statem.call(room_id, :state)
+		:gen_statem.call(name_for(room_id), :state)
 	end
 
 	def add_chips(room_id, player, amount) when amount > 0 do
-		:gen_statem.call(room_id, {:add_chips, player.name, amount})
+		:gen_statem.call(name_for(room_id), {:add_chips, player.name, amount})
 	end
 
 	# This is effectively a no-op in the event `add_chips` is called with a negative amount
 	def add_chips(room_id, _player, _amount) do
-		:gen_statem.call(room_id, :state)
+		:gen_statem.call(name_for(room_id), :state)
 	end
 
 	def put_state(room_id, new_state, new_data) do
-		:gen_statem.call(room_id, {:put_state, new_state, new_data})
+		:gen_statem.call(name_for(room_id), {:put_state, new_state, new_data})
 	end
 
 	def start_new_round(room_id) do
-		:gen_statem.call(room_id, :start_new_round)
+		:gen_statem.call(name_for(room_id), :start_new_round)
 	end
 
 	def which_state(room_id) when is_binary(room_id) do
-		:gen_statem.call(String.to_atom(room_id), :which_state)
+		:gen_statem.call(name_for(room_id), :which_state)
 	end
 
-	def which_state(room_id) do
-		:gen_statem.call(room_id, :which_state)
-	end
+	# def which_state(room_id) do
+	# 	:gen_statem.call(name_for(room_id), :which_state)
+	# end.  SHOULD NOT BE NEEDED ANYMORE
 
 	####################################
 	# State Machine Callback Functions #
@@ -884,4 +884,9 @@ defmodule PokerEx.Room do
   	:keep_state_and_data
   end
   defp maybe_handle_all_in(_room), do: :keep_state_and_data
+
+  defp name_for(room_title) when is_binary(room_title) do
+  	{:via, Registry, {Registry.Rooms, room_title}}
+  end
+  defp name_for(_), do: Kernel.raise("Rooms must be started with a unique string identifier")
 end

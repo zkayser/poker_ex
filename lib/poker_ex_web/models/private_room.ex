@@ -90,7 +90,7 @@ defmodule PokerEx.PrivateRoom do
         |> change()
         |> update_participants(Enum.reject(room.participants, &(&1.id == leaving_player.id)))
         |> Repo.update() do
-      Room.leave(String.to_atom(room.title), leaving_player)
+      Room.leave(room.title, leaving_player)
       {:ok, room}
     else
       {:error, changeset} -> {:error, changeset}
@@ -102,8 +102,8 @@ defmodule PokerEx.PrivateRoom do
   """
   @spec delete(__MODULE__.t) :: {:ok, __MODULE__.t} | {:error, String.t}
   def delete(%__MODULE__{} = room) do
-    with :ok <- Enum.each(preload(room).participants, &(Room.leave(String.to_atom(room.title), &1))),
-         :ok <- Room.stop(String.to_atom(room.title)) do
+    with :ok <- Enum.each(preload(room).participants, &(Room.leave(room.title, &1))),
+         :ok <- Room.stop(room.title) do
       {:ok, room} =
         room
           |> change()
@@ -138,11 +138,6 @@ defmodule PokerEx.PrivateRoom do
   @doc ~S"""
   Returns the `PrivateRoom` instance with the given title or `nil`
   """
-  @spec by_title(atom()) :: __MODULE__.t | nil
-  def by_title(title) when is_atom(title) do
-    Repo.get_by(__MODULE__, title: Atom.to_string(title))
-  end
-
   @spec by_title(String.t) :: __MODULE__.t | nil
   def by_title(title), do: Repo.get_by(__MODULE__, title: title)
 
@@ -160,19 +155,19 @@ defmodule PokerEx.PrivateRoom do
   it from the database if not. Returns an empty `Room` instance if no data has
   been stored
   """
-  @spec check_state(atom()) :: Room.t
-  def check_state(room_process) do
-    case Process.whereis(room_process) do
-      nil ->
+  @spec check_state(String.t) :: Room.t
+  def check_state(room_process) when is_binary(room_process) do
+    case RoomsSupervisor.room_process_exists?(room_process) do
+      false ->
         %{room_state: room_state, room_data: room_data} = by_title(room_process)
-        RoomsSupervisor.create_private_room(Atom.to_string(room_process))
+        RoomsSupervisor.create_private_room(room_process)
         put_state_for_room(room_process, room_state, room_data)
       _ -> Room.state(room_process)
     end
   end
 
   @doc ~S"""
-  Takes in an atom that represents a running room process that is also the title
+  Takes in an string that represents a running room process that is also the title
   of a `PrivateRoom` instance stored in the database. The second parameter is the
   current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
   or :between_hands, and the third parameter is the actual `Room` instance representing
@@ -184,9 +179,8 @@ defmodule PokerEx.PrivateRoom do
   back up again so that players do not lose their turns or forfeit chips that they
   already had in play.
   """
-  @spec get_room_and_store_state(atom(), atom(), Room.t) :: {:ok, pid()}
-  def get_room_and_store_state(title, state, room) when is_atom(title) do
-    title = Atom.to_string(title)
+  @spec get_room_and_store_state(String.t, atom(), Room.t) :: {:ok, pid()}
+  def get_room_and_store_state(title, state, room) when is_binary(title) do
     state = :erlang.term_to_binary(state)
     room = :erlang.term_to_binary(room)
     Task.start(
@@ -195,6 +189,12 @@ defmodule PokerEx.PrivateRoom do
         |> store_state(%{"room_state" => state, "room_data" => room})
       end)
   end
+
+  @spec alive?(String.t) :: boolean()
+  def alive?(title) when is_binary(title) do
+    RoomsSupervisor.room_process_exists?(title)
+  end
+  def alive?(title), do: {:error, {:invalid_title, title}}
 
   defp store_state(nil, _room_state) do
     Logger.error "Failed to store state because room either does not exist or could not be found."

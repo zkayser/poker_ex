@@ -15,7 +15,6 @@ defmodule PokerEx.Application do
       # Start the endpoint when the application starts
       supervisor(PokerExWeb.Endpoint, []),
       supervisor(PokerEx.Presence, []),
-      supervisor(Registry, [:unique, PokerEx.RoomRegistry]),
       supervisor(PokerEx.RoomsSupervisor, []),
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
       worker(PokerEx.AppState, []),

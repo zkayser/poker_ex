@@ -8,7 +8,6 @@ defmodule PokerExWeb.PageView do
 
   def room_id(%PokerEx.Room{room_id: room_id}) when not is_nil(room_id) do
     room_id
-    |> Atom.to_string
     |> String.split("_")
     |> Enum.join(" ")
     |> String.capitalize
@@ -18,7 +17,7 @@ defmodule PokerExWeb.PageView do
   def sort_rooms(rooms) do
     Enum.sort(rooms,
       fn r1, r2 ->
-        {str1, str2} = {Atom.to_string(r1.room_id), Atom.to_string(r2.room_id)}
+        {str1, str2} = {r1.room_id, r2.room_id}
         {[_, num1], [_, num2]} = {String.split(str1, "_"), String.split(str2, "_")}
         Integer.parse(num1) < Integer.parse(num2)
       end)

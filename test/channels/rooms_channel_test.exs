@@ -3,17 +3,19 @@ defmodule PokerEx.RoomChannelTest do
 	import PokerEx.TestHelpers
 	alias PokerExWeb.RoomsChannel
 	alias PokerEx.Room
+	alias PokerEx.RoomsSupervisor, as: RoomSup
 
 	@endpoint PokerExWeb.Endpoint
 	@default_chips 500
 
 	setup do
-		{:ok, _} = Room.start_link("room_test")
-		
-		{socket, player, token, reply} = create_player_and_connect()
-		@endpoint.subscribe("rooms:room_test")
-		
-		{:ok, socket: socket, player: player, token: token, reply: reply}
+		title = "room_#{Base.encode16(:crypto.strong_rand_bytes(8))}"
+		{:ok, _} = RoomSup.find_or_create_process(title)
+
+		{socket, player, token, reply} = create_player_and_connect(title)
+		@endpoint.subscribe("rooms:#{title}")
+
+		{:ok, socket: socket, player: player, token: token, reply: reply, title: title}
 	end
 
 	test "authentication works", context do
@@ -25,21 +27,21 @@ defmodule PokerEx.RoomChannelTest do
 			assert key in Map.keys(context.socket.assigns)
 		end
 
-		seated_players = for {player, _pos} <- Room.state(:room_test).seating, do: player
-		
-		assert context.player.name in seated_players
-		assert Room.which_state(:room_test) == :idle
-	end
-	
-	test "a game starts when a second player joins", context do
-		{_, player, _, _} = create_player_and_connect()
+		seated_players = for {player, _pos} <- Room.state(context.title).seating, do: player
 
-		room_state = Room.state(:room_test)
+		assert context.player.name in seated_players
+		assert Room.which_state(context.title) == :idle
+	end
+
+	test "a game starts when a second player joins", context do
+		{_, player, _, _} = create_player_and_connect(context.title)
+
+		room_state = Room.state(context.title)
 		seated_players = for {player, _} <- room_state.seating, do: player
-		
+
 		for player <- [context.player.name, player.name], do: assert player in seated_players
-		
-		assert_broadcast "update", 
+
+		assert_broadcast "update",
 			%{active: _, chip_roll: %{}, paid: %{},
 				player_hands: [%{hand: [%{rank: _, suit: _}, %{rank: _, suit: _}], player: _},
 											 %{hand: [%{rank: _, suit: _}, %{rank: _, suit: _}], player: _}
@@ -52,91 +54,91 @@ defmodule PokerEx.RoomChannelTest do
 				to_call: 10,
 				type: "public"
 			 }
-		assert Room.which_state(:room_test) == :pre_flop
+		assert Room.which_state(context.title) == :pre_flop
 	end
-	
+
 	test "channel broadcasts actions taken by players", context do
-		{_, player, _, _} = create_player_and_connect()
+		{_, player, _, _} = create_player_and_connect(context.title)
 		player_name = player.name
-		
-		{active_player, _} = Room.state(:room_test).active |> hd()
+
+		{active_player, _} = Room.state(context.title).active |> hd()
 		assert active_player == context.player.name
-		
+
 		push context.socket, "action_raise", %{"player" => context.player.name, "amount" => 25}
-		
+
 		assert_broadcast "update", %{active: ^player_name, pot: 45}
-			 
+
 		push context.socket, "action_call", %{"player" => player.name}
-		
+
 		assert_broadcast "update", %{active: ^active_player, pot: 70}
-			 
+
 		push context.socket, "action_check", %{"player" => context.player.name}
-		
+
 		assert_broadcast "update", %{active: ^player_name, pot: 70}
-		
+
 		push context.socket, "action_check", %{"player" => player.name}
-		
+
 		push context.socket, "action_raise", %{"player" => context.player.name, "amount" => 50}
-		
+
 		assert_broadcast "update", %{active: ^player_name, pot: 120}
-		
+
 		push context.socket, "action_fold", %{"player" => player.name}
-		
+
 		assert_broadcast "update", %{state: :turn}
-		
+
 		assert_broadcast "winner_message", %{message: _}
-		
+
 		assert_broadcast "game_finished", %{message: _}
 	end
-	
+
 	test "a new update message is broadcast when a player manually sends a leave message", context do
-		{_, player, _, _} = create_player_and_connect()
-		
-		seating = Room.state(:room_test).seating
+		{_, player, _, _} = create_player_and_connect(context.title)
+
+		seating = Room.state(context.title).seating
 		assert length(seating) == 2
-		assert Room.which_state(:room_test) == :pre_flop
-		
+		assert Room.which_state(context.title) == :pre_flop
+
 		expected_player_remaining = context.player.name
 
 		push context.socket, "action_leave", %{"player" => player.name}
-		
+
 		assert_broadcast "update", %{seating: [%{name: ^expected_player_remaining, position: 0}]}
-		
+
 		Process.sleep(100)
-		seating_after_leave = Room.state(:room_test).seating
+		seating_after_leave = Room.state(context.title).seating
 		assert length(seating_after_leave) == 1
 	end
-	
+
 	test "a new update message is broadcast when a player's channel is disconnected", context do
-		{_, player, _, _} = create_player_and_connect()
-		
+		{_, player, _, _} = create_player_and_connect(context.title)
+
 		# Since a :skip_update_message is returned if there are only two players
 		# and one leaves/gets disconnected (leaving only one player at the table), I'm having a
 		# third player join here to invoke what would normally be returned given an ongoing game with
 		# more than two players.
 
-		{_, other_player, _, _} = create_player_and_connect()
-		
-		assert length(Room.state(:room_test).seating) == 3
-		assert Room.which_state(:room_test) == :pre_flop
-		
+		{_, other_player, _, _} = create_player_and_connect(context.title)
+
+		assert length(Room.state(context.title).seating) == 3
+		assert Room.which_state(context.title) == :pre_flop
+
 		expected_seating = [%{name: player.name, position: 0}, %{name: other_player.name, position: 1}]
-		
+
 		leave(context.socket)
-		
+
 		assert_broadcast "update", %{seating: ^expected_seating}
-		
+
 		Process.sleep(100)
-		assert length(Room.state(:room_test).seating) == 2
+		assert length(Room.state(context.title).seating) == 2
 	end
-	
-	test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message", _context do
-		{socket, _, _, _} = create_player_and_connect()
-		
-		assert length(Room.state(:room_test).seating) == 2
-		
+
+	test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message", context do
+		{socket, _, _, _} = create_player_and_connect(context.title)
+
+		assert length(Room.state(context.title).seating) == 2
+
 		leave(socket)
-		
+
 		Process.sleep(100)
 		assert_broadcast "clear_ui", %{}
 	end
@@ -150,19 +152,19 @@ defmodule PokerEx.RoomChannelTest do
 	end
 
 	test "the channel broadcasts an update when a player submits an add_chips action", context do
-		create_player_and_connect()
+		create_player_and_connect(context.title)
 
-		player_name = context.player.name		
+		player_name = context.player.name
 		push context.socket, "action_add_chips", %{"player" => player_name, "amount" => 200}
 
 		Process.sleep(100)
-		chips = Room.state(:room_test).chip_roll[player_name]
+		chips = Room.state(context.title).chip_roll[player_name]
 
 		assert_broadcast "update", %{chip_roll: %{^player_name => ^chips}}
 	end
 
 	test "the channel broadcasts `new_chat_msg` in response to `chat_msg` incoming messages", context do
-		create_player_and_connect()
+		create_player_and_connect(context.title)
 
 		player_name = context.player.name
 		message = "What's up y'all?"
@@ -170,17 +172,17 @@ defmodule PokerEx.RoomChannelTest do
 
 		assert_broadcast "new_chat_msg", %{player: ^player_name, message: ^message}
 	end
-	
-	defp create_player_and_connect do
+
+	defp create_player_and_connect(title) do
 		player = insert_user()
-		
+
 		token = Phoenix.Token.sign(socket(), "user socket", player.id)
-		
+
 		{:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
-		
-		{:ok, reply, socket} = subscribe_and_join(socket, RoomsChannel, "rooms:room_test",
+
+		{:ok, reply, socket} = subscribe_and_join(socket, RoomsChannel, "rooms:#{title}",
 																							%{"type" => "public", "amount" => @default_chips})
-																							
-		{socket, player, token, reply}								
+
+		{socket, player, token, reply}
 	end
 end

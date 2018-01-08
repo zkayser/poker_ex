@@ -26,7 +26,7 @@ defmodule PokerEx.PrivateRoomTest do
 		assert room.title == title
 		assert room.id in Enum.map(Player.preload(player).owned_rooms, &(&1.id)) # Player owns the room
 		assert player in room.participants # The owner is included in participants by default
-		assert Process.alive?(Process.whereis(String.to_atom(title))) # Creates the room process
+		assert PRoom.alive?(title) # Creates the room process
 	end
 
 	test "accept_invitation/2 moves a player from the invitees list to `participants`", context do
@@ -54,9 +54,9 @@ defmodule PokerEx.PrivateRoomTest do
 	test "leave_room/2 removes a player from the `participants` and `Room` instance if seated", context do
 		leaving_player = hd(context.invitees)
 
-		{:ok, room} = PRoom.accept_invitation(context.room, leaving_player) # First join the participants
+		{:ok, room} = PRoom.accept_invitation(context.room, leaving_player) # First add some participants
 
-		room_process = String.to_atom(context.room.title)
+		room_process = context.room.title
 
 		Room.join(room_process, leaving_player, 200)
 
@@ -91,7 +91,7 @@ defmodule PokerEx.PrivateRoomTest do
 	end
 
 	test "get_room_and_store_state/3 updates the PrivateRoom instance with current game state", context do
-		room_process = String.to_atom(context.room.title)
+		room_process = context.room.title
 
 		state = :idle # The current game state will be :idle since no actions have been taken
 		data = Room.state(room_process) # `Room.state/1 returns a `Room` instance representing the current game`
@@ -109,7 +109,7 @@ defmodule PokerEx.PrivateRoomTest do
 
 	@tag :capture_log
 	test "check_state/1 checks if a room process exists and creates one if note", context do
-		room_process = String.to_atom(context.room.title)
+		room_process = context.room.title
 
 		data = Room.state(room_process)
 		Room.stop(room_process)

@@ -34,6 +34,6 @@ defmodule PokerEx.RoomCase do
 
     # on_exit fn -> Process.exit(Process.whereis(String.to_atom(test_room)), :kill) end
 
-    [p1: p1, p2: p2, p3: p3, p4: p4, test_room: String.to_atom(test_room)]
+    [p1: p1, p2: p2, p3: p3, p4: p4, test_room: test_room]
   end
 end
