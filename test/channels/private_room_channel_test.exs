@@ -77,6 +77,13 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		assert_reply ref, :error
 	end
 
+	test "`get_page` incoming messages triggers accurate responses with updated list data", context do
+		push context.socket, "get_page",
+			%{"for" => "current_rooms", "page_num" => 1}
+
+		assert_push "new_current_rooms", %{current_rooms: %{rooms: _, page: 1, total_pages: _}}
+	end
+
 	defp create_player_and_connect do
 		player = insert_user()
 		invited_players = for _ <- 1..4, do: insert_user()
