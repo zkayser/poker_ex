@@ -37,7 +37,7 @@ defmodule PokerEx.PrivateRoom do
   """
   @spec create(String.t, Player.t, list(Player.t))  :: {:ok, __MODULE__.t} | {:error, maybe_improper_list(atom(), {String.t, any()})}
   def create(title, %Player{} = owner, invitees) do
-    with {:ok, %__MODULE__{} = room} <- %__MODULE__{title: title, owner: owner, invitees: invitees}
+    with {:ok, %__MODULE__{} = room} <- %__MODULE__{title: format_title(title), owner: owner, invitees: invitees}
         |> changeset()
         |> update_participants([owner])
         |> Repo.insert() do
@@ -213,6 +213,11 @@ defmodule PokerEx.PrivateRoom do
         :error
     end
   end
+
+  defp format_title(title) when is_binary(title) do
+    String.replace(title, ~r(\s+), "_")
+  end
+  defp format_title(_), do: {:error, :invalid_title}
 
   defp put_state_for_room(room_process, nil, nil), do: Room.state(room_process)
   defp put_state_for_room(room_process, state, data) do
