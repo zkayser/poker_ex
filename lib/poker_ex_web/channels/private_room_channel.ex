@@ -68,6 +68,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
 			%{error: _msg} -> push socket, "error", params
 			_ -> push socket, "new_#{type}", params
 		end
+		{:noreply, socket}
 	end
 
 	defp send_room_update(socket, page_num, player) do
