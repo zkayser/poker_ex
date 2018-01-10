@@ -22,6 +22,12 @@ defmodule PokerEx.PlayerTest do
 			assert Player.delete(context.player) == :ok
 		end
 
+		test "paginate/1 returns a paginated struct with entries of players", context do
+			paginated = Player.paginate([page_num: 1])
+			assert Map.has_key?(hd(paginated.entries), :name)
+			assert length(paginated.entries) <= 10
+		end
+
 		test "by_name/1 returns a player struct given a unique player name", context do
 			assert Player.by_name(context.player.name) == context.player
 		end

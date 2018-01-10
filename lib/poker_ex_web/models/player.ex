@@ -72,6 +72,12 @@ defmodule PokerEx.Player do
 		|> Enum.to_list()
 	end
 
+	@spec paginate(list(page_num: pos_integer)) :: Scrivener.Config.t
+	def paginate([page_num: page_num]) when is_number(page_num) do
+		all()
+		|> Repo.paginate(page: page_num)
+	end
+
 	# TODO: 11/26/2017 -- Just revisiting this and
 	# am unsure of what exactly the intent of this is.
 	# The only calls to this function are in the RewardManager module,
