@@ -18,6 +18,10 @@ defmodule PokerEx.PlayerTest do
 			assert context.player in all_players
 		end
 
+		test "delete/1 removes a player from the database", context do
+			assert Player.delete(context.player) == :ok
+		end
+
 		test "by_name/1 returns a player struct given a unique player name", context do
 			assert Player.by_name(context.player.name) == context.player
 		end

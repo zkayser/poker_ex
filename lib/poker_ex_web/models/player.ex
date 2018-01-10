@@ -49,6 +49,14 @@ defmodule PokerEx.Player do
 		end
 	end
 
+	@spec delete(Player.t) :: :ok | :error
+	def delete(%Player{} = player) do
+		case Repo.delete(player) do
+			{:ok, _} -> :ok
+			{:error, _} -> :error
+		end
+	end
+
 	@spec chips(String.t) :: non_neg_integer | {:error, :player_not_found}
 	def chips(player_name) do
 		case "players" |> where([p], p.name == ^player_name) |> select([:chips]) |> Repo.one() do
