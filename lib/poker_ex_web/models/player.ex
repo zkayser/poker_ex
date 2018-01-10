@@ -74,8 +74,18 @@ defmodule PokerEx.Player do
 
 	@spec paginate(list(page_num: pos_integer)) :: Scrivener.Config.t
 	def paginate([page_num: page_num]) when is_number(page_num) do
-		all()
+		Player
+		|> select([p], p.name)
 		|> Repo.paginate(page: page_num)
+	end
+
+	@spec search(String.t) :: list(Player.t)
+	def search(query_string) when is_binary(query_string) do
+		query_string = "%#{query_string}%"
+		query = from p in Player,
+						where: ilike(p.name, ^query_string),
+						select: p.name
+		Repo.all(query)
 	end
 
 	# TODO: 11/26/2017 -- Just revisiting this and

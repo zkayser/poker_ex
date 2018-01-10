@@ -24,8 +24,18 @@ defmodule PokerEx.PlayerTest do
 
 		test "paginate/1 returns a paginated struct with entries of players", context do
 			paginated = Player.paginate([page_num: 1])
-			assert Map.has_key?(hd(paginated.entries), :name)
+			# Test player names all begin with "user", except for those inserted in the test below
+			# Checking that the `name` string contains "user" works for now, but may break if
+			# the database is ever blown away.
+			Enum.each(paginated.entries, fn name -> assert String.contains?(name, "user") end)
 			assert length(paginated.entries) <= 10
+		end
+
+		test "search/1 returns a list with names similar to the search query", _context do
+			player = insert_user(%{name: "Sear#{Base.encode16(:crypto.strong_rand_bytes(8))}"})
+			results = Player.search("sear")
+			assert is_list(results)
+			assert player.name in results
 		end
 
 		test "by_name/1 returns a player struct given a unique player name", context do
