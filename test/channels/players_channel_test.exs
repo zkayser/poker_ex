@@ -70,6 +70,11 @@ defmodule PokerEx.PlayersChannelTest do
 		assert_push "error", %{error: "Failed to update attributes: [\"some_bad_attr\"]"}
 	end
 
+	test "`player_search` messages trigger a response push with `player_search_list`", context do
+		push context.socket, "player_search", %{query: "user"} # Most test player data should have 'user' in :name
+
+		assert_push "player_search_list", %{players: _}	end
+
 	defp create_player_and_connect(%{auth_type: auth_type}) do
     player = insert_user()
     name =

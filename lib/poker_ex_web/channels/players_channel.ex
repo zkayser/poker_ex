@@ -58,6 +58,11 @@ defmodule PokerExWeb.PlayersChannel do
 		{:noreply, socket}
 	end
 
+	def handle_in("player_search", %{"query" => query}, socket) do
+		push socket, "player_search_list", %{players: Player.search(query)}
+		{:noreply, socket}
+	end
+
 	####################
 	# HELPER FUNCTIONS #
 	####################
