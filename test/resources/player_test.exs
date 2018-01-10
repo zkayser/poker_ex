@@ -22,7 +22,7 @@ defmodule PokerEx.PlayerTest do
 			assert Player.delete(context.player) == :ok
 		end
 
-		test "paginate/1 returns a paginated struct with entries of players", context do
+		test "paginate/1 returns a paginated struct with entries of players", _context do
 			paginated = Player.paginate([page_num: 1])
 			# Test player names all begin with "user", except for those inserted in the test below
 			# Checking that the `name` string contains "user" works for now, but may break if
