@@ -21,7 +21,10 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 	test "a `current_rooms` message is pushed on successful joins", context do
 		room_process = context.room.title
 
-		expected_current_rooms = %{rooms: [%{room: room_process, player_count: 0}], page: 1, total_pages: 1}
+		expected_current_rooms =
+			%{rooms: [%{room: room_process, player_count: 0, is_owner: true}],
+				page: 1,
+				total_pages: 1}
 
 		expected_invited_rooms = %{rooms: [], page: 1, total_pages: 0}
 
