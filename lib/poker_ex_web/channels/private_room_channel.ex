@@ -71,23 +71,21 @@ defmodule PokerExWeb.PrivateRoomChannel do
 		{:noreply, socket}
 	end
 
-	defp send_room_update(socket, page_num, player) do
+	defp send_room_update(socket, page_num, player, which_rooms \\ :both) do
 		paginated_current_rooms = get_paginated_rooms(player, page_num, :participating_rooms)
 		paginated_invited_rooms = get_paginated_rooms(player, page_num, :invited_rooms)
 
 		Logger.debug "[PrivateRoomChannel] Pushing current and invited rooms to channel client"
-		push socket, "current_rooms",
-			%{current_rooms: %{
-					rooms: paginated_current_rooms.entries,
-					page: page_num,
-					total_pages: paginated_current_rooms.total_pages
-				 },
-				invited_rooms: %{
-					rooms: paginated_invited_rooms.entries,
-					page: page_num,
-					total_pages: paginated_invited_rooms.total_pages
-				}
-			 }
+		case which_rooms do
+			:both -> push socket, "current_rooms",
+				%{current_rooms: build_paginated_rooms(paginated_current_rooms, page_num),
+					invited_rooms: build_paginated_rooms(paginated_invited_rooms, page_num)
+				 }
+			:current -> push socket, "current_rooms",
+				%{current_rooms: build_paginated_rooms(paginated_current_rooms, page_num), invited_rooms: %{}}
+			:invited -> push socket, "current_rooms",
+				%{current_rooms: %{}, invited_rooms: build_paginated_rooms(paginated_invited_rooms, page_num)}
+		end
 	end
 
 	defp send_player_list(socket, page_num) do
@@ -110,6 +108,10 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	defp get_paginated_players(socket, page_num) do
 		socket.assigns[:player_list]
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 25})
+	end
+
+	defp build_paginated_rooms(pagination_data, page_num) do
+		%{rooms: pagination_data.entries, page: page_num, total_pages: pagination_data.total_pages}
 	end
 
 	defp format(errors) when is_list(errors) do
