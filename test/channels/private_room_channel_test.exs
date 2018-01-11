@@ -87,6 +87,25 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		assert_push "new_current_rooms", %{current_rooms: %{rooms: _, page: 1, total_pages: _}}
 	end
 
+	test "`leave_room` messages calls sends back a `current_rooms` message with the updated room data", context do
+		player = PrivateRoom.preload(context.room) |> Map.get(:invitees) |> hd()
+
+		{socket, player} = connect_other_player(player)
+
+		push socket, "accept_invitation", %{"player" => player.name, "room" => context.room.title}
+		# Ensure the player accepts the invitation to leave the room
+
+		Process.sleep(50)
+		push socket, "leave_room",
+			%{"room" => context.room.title,
+				"player" => player.name,
+				"current_page" => 1}
+
+		expected_current_rooms = %{rooms: [], page: 1, total_pages: 0}
+
+		assert_push "current_rooms", %{current_rooms: ^expected_current_rooms, invited_rooms: _}
+	end
+
 	defp create_player_and_connect do
 		player = insert_user()
 		invited_players = for _ <- 1..4, do: insert_user()
@@ -99,6 +118,18 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		with {:ok, reply, socket} <- subscribe_and_join(socket, PrivateRoomChannel, "private_rooms:" <> name) do
 			{socket, player, token, reply, room}
 		else {:error, reply} -> {socket, player, token, reply, room}
+		end
+	end
+
+	defp connect_other_player(%Player{} = player) do
+		name = player.name
+		token = Phoenix.Token.sign(socket(), "user socket", player.id)
+
+		{:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
+
+		with {:ok, _reply, socket} <- subscribe_and_join(socket, PrivateRoomChannel, "private_rooms:" <> name) do
+			{socket, player}
+		else {:error, reply} -> raise "Connection failed: #{inspect reply, pretty: true}"
 		end
 	end
 end
