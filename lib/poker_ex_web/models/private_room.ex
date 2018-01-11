@@ -190,6 +190,20 @@ defmodule PokerEx.PrivateRoom do
       end)
   end
 
+  @doc ~S"""
+  Takes in a player instance and a room title. Returns true if the player is the owner of
+  the room, false otherwise.
+  """
+  @spec is_owner?(Player.t, String.t) :: boolean()
+  def is_owner?(%Player{} = player, title) do
+    owner =
+      title
+      |> by_title()
+      |> preload()
+      |> Map.get(:owner)
+    owner.name == player.name
+  end
+
   @spec alive?(String.t) :: boolean()
   def alive?(title) when is_binary(title) do
     RoomsSupervisor.room_process_exists?(title)

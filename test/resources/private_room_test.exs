@@ -116,4 +116,12 @@ defmodule PokerEx.PrivateRoomTest do
 
 		assert PRoom.check_state(room_process) == data
 	end
+
+	test "is_owner?/2 returns true if the player param owns the room instance passed in", context do
+		assert PRoom.is_owner?(context.player, context.room.title)
+	end
+
+	test "is_owner?/2 returns false if the player param does not own the room passed in", context do
+		refute PRoom.is_owner?(hd(context.invitees), context.room.title)
+	end
 end
