@@ -63,6 +63,17 @@ defmodule PokerExWeb.PlayersChannel do
 		{:noreply, socket}
 	end
 
+	def handle_in("delete_profile", %{"player" => player}, socket) do
+		if socket.assigns[:player] == Player.by_name(player) do
+			case Player.delete(socket.assigns[:player]) do
+				:ok -> {:reply, {:ok, %{message: "Profile successfully deleted"}}, socket}
+				_ ->	{:reply, {:error, %{error: "An error occurred while deleting your profile"}}, socket}
+			end
+		else
+			{:reply, {:error, %{error: "An error occurred while deleting your profile"}}, socket}
+		end
+	end
+
 	####################
 	# HELPER FUNCTIONS #
 	####################

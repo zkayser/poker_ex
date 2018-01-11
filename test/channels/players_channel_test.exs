@@ -75,6 +75,22 @@ defmodule PokerEx.PlayersChannelTest do
 
 		assert_push "player_search_list", %{players: _}	end
 
+	test "`delete_profile` messages should reply send a reply if deleting the current player", context do
+		ref = push context.socket, "delete_profile", %{"player" => context.player.name}
+
+		assert_reply ref, :ok
+
+		assert Player.get(context.player.id) == {:error, :player_not_found}
+	end
+
+	test "`delete_profile` returns an error if it receives a player param != to socket.player", context do
+		ref = push context.socket, "delete_profile", %{"player" => "bobbadeedoo"}
+
+		assert_reply ref, :error
+
+		assert Player.get(context.player.id).id == context.player.id
+	end
+
 	defp create_player_and_connect(%{auth_type: auth_type}) do
     player = insert_user()
     name =
