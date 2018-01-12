@@ -52,9 +52,11 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	def handle_in("delete_room", %{"room" => title, "player" => player, "current_page" => page_num}, socket) do
 		player = Player.by_name(player) |> Player.preload()
 		room = PrivateRoom.by_title(title) |> PrivateRoom.preload()
-		case PrivateRoom.delete(room) do
-			{:ok, _} -> send_room_update(socket, page_num, Player.get(player.id) |> Player.preload())
-			{:error, _} -> push socket, "error", %{error: "Failed to delete room. Please try again."}
+		if room.owner.id == player.id do
+			case PrivateRoom.delete(room) do
+				{:ok, _} -> send_room_update(socket, page_num, Player.get(player.id) |> Player.preload())
+				{:error, _} -> push socket, "error", %{error: "Failed to delete room. Please try again."}
+			end
 		end
 		{:noreply, socket}
 	end
