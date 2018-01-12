@@ -182,8 +182,8 @@ defmodule PokerEx.Room do
 		:void
 	end
 	def terminate(reason, state, %Room{type: :private, room_id: id} = room) do
-		Logger.error "Now terminating #{inspect(id)} for reason: #{inspect reason}."
-		Logger.error "Storing game state..."
+		Logger.warn "Now terminating #{inspect(id)} for reason: #{inspect reason}."
+		Logger.warn "Storing game state..."
 		PokerEx.PrivateRoom.get_room_and_store_state(id, state, room)
 		:void
 	end

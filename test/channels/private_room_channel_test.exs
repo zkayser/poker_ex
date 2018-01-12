@@ -87,7 +87,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		assert_push "new_current_rooms", %{current_rooms: %{rooms: _, page: 1, total_pages: _}}
 	end
 
-	test "`leave_room` messages calls sends back a `current_rooms` message with the updated room data", context do
+	test "`leave_room` messages sends back a `current_rooms` message with updated room data", context do
 		player = PrivateRoom.preload(context.room) |> Map.get(:invitees) |> hd()
 
 		{socket, player} = connect_other_player(player)
@@ -102,6 +102,17 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 				"current_page" => 1}
 
 		expected_current_rooms = %{rooms: [], page: 1, total_pages: 0}
+
+		assert_push "current_rooms", %{current_rooms: ^expected_current_rooms, invited_rooms: _}
+	end
+
+	test "`delete_room` messages sends back a `current_rooms` message with updated room data", context do
+		expected_current_rooms = %{rooms: [], page: 1, total_pages: 0}
+
+		push context.socket, "delete_room",
+			%{"room" => context.room.title,
+			 "player" => context.player.name,
+				"current_page" => 1}
 
 		assert_push "current_rooms", %{current_rooms: ^expected_current_rooms, invited_rooms: _}
 	end
