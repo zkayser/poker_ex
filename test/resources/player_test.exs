@@ -97,5 +97,29 @@ defmodule PokerEx.PlayerTest do
 			assert player1.name == p1
 			assert player2.name == p2
 		end
+
+		test "fb_login_or_create/1 returns an existing player with a FB id and matching name", _ do
+			{id, name} = { "1234", "person guy"}
+			{:ok, player} = Repo.insert(%Player{facebook_id: id, name: name})
+			result = Player.fb_login_or_create(%{facebook_id: id, name: name})
+			assert player == result
+		end
+
+		test "fb_login_or_create/1 creates a new player if no player with that FB id exists", _ do
+			{id, name} =
+				{Base.encode16(:crypto.strong_rand_bytes(8)), "Name#{Base.encode16(:crypto.strong_rand_bytes(8))}"}
+			result = Player.fb_login_or_create(%{facebook_id: id, name: name})
+			# The assign name will add a `1` to the end of name that ends with a digit
+			assert result.name == "#{name} #{1}" || result.name == name
+			assert result.facebook_id == id
+			assert result.chips == 1000
+		end
+
+		test "assign_name/1 adds a digit to a name if it already exists in the database", _ do
+			{:ok, _} = Repo.insert(%Player{name: "john appleseed"})
+			result = Player.assign_name("john appleseed")
+			refute result == "john appleseed"
+			assert Regex.match?(~r/\d/, String.last(result))
+		end
 	end
 end

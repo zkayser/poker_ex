@@ -1,5 +1,6 @@
 defmodule PokerEx.RoomsSupervisor do
   use Supervisor
+  require Logger
 
   @registry Registry.Rooms
   @invalid_room_id "Rooms must be started with a unique string identifier"
@@ -30,7 +31,7 @@ defmodule PokerEx.RoomsSupervisor do
         Registry.unregister(@registry, room_id)
         Registry.register(@registry, room_id, pid)
         {:ok, room_id}
-      {:error, {:already_started, pid}} -> {:ok, room_id}
+      {:error, {:already_started, _pid}} -> {:ok, room_id}
       other -> {:error, other}
     end
   end
@@ -42,7 +43,7 @@ defmodule PokerEx.RoomsSupervisor do
         Registry.unregister(@registry, room_id)
         Registry.register(@registry, room_id, pid)
         {:ok, room_id}
-      {:error, {:already_started, pid}} -> {:error, :room_already_started}
+      {:error, {:already_started, _pid}} -> {:error, :room_already_started}
       other -> {:error, other}
     end
   end

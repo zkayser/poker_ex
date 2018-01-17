@@ -26,6 +26,7 @@ defmodule PokerEx.Player do
 	alias PokerEx.Repo
 
 	@valid_email ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
+	@default_chips 1000
 	@type t :: %Player{name: String.t, chips: non_neg_integer, first_name: String.t | nil,
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
@@ -86,6 +87,47 @@ defmodule PokerEx.Player do
 						where: ilike(p.name, ^query_string),
 						select: p.name
 		Repo.all(query)
+	end
+
+	@spec fb_login_or_create(%{id: String.t, name: String.t}) :: Player.t
+	def fb_login_or_create(%{facebook_id: id, name: name}) do
+		case Repo.get_by(Player, facebook_id: id) do
+			%Player{} = player ->	player
+			nil -> Player.create_oauth_user(%{name: name, provider_data: [facebook_id: id]})
+		end
+	end
+
+	@spec create_oauth_user(%{name: String.t, provider_data: list()}) :: Player.t | :error
+	def create_oauth_user(%{name: name, provider_data: provider_data}) do
+		name = if by_name(name) == nil, do: name, else: assign_name(name)
+		case provider_data do
+			[facebook_id: id] ->
+				Repo.insert(
+					%Player{name: name,
+						 			blurb: "",
+						 			chips: @default_chips,
+						 			facebook_id: id})
+		end
+		|> case do
+			{:ok, player} -> player
+			_ -> :error
+		end
+	end
+
+	# A hack to enforce unique user names across the app.
+	# Appends number 1 to a user's name if that name is already taken.
+	# If that already exists, it adds one and cycles through until it finds
+	# a name that hasn't been taken.
+	@spec assign_name(String.t) :: String.t
+	def assign_name(name) when is_binary(name) do
+		case Regex.named_captures(~r/(?<digits>\d+$)/, name) do
+			%{digits: number} ->
+				number_plus_1 = String.to_integer(number) + 1
+				name_candidate = "#{name} #{number_plus_1}"
+				if by_name(name_candidate) != nil, do: name_candidate, else: assign_name(name_candidate)
+			_ ->
+				if by_name("#{name} #{1}") != nil, do: "#{name} #{1}", else: assign_name("#{name} #{1}")
+		end
 	end
 
 	# TODO: 11/26/2017 -- Just revisiting this and
