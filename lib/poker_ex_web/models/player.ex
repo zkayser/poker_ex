@@ -91,10 +91,19 @@ defmodule PokerEx.Player do
 
 	@spec fb_login_or_create(%{id: String.t, name: String.t}) :: Player.t | :error | :unauthorized
 	def fb_login_or_create(%{facebook_id: id, name: name}) do
-		case Repo.get_by(Player, facebook_id: id) do
+		case by_name(name) do
 			%Player{} = player ->
-				if player.name == name, do: player, else: :unauthorized
-			nil -> Player.create_oauth_user(%{name: name, provider_data: [facebook_id: id]})
+				case player.facebook_id do
+					nil ->
+						{:ok, player} = Ecto.Changeset.change(player, %{facebook_id: id}) |> Repo.update()
+						player
+					_ -> if player.facebook_id == id, do: player, else: :unauthorized
+				end
+			_ ->
+				case PokerEx.Repo.get_by(Player, facebook_id: id) do
+					%Player{} -> :unauthorized
+					_ -> Player.create_oauth_user(%{name: name, provider_data: [facebook_id: id]})
+				end
 		end
 	end
 
