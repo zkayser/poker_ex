@@ -141,7 +141,10 @@ defmodule PokerEx.Player do
 				 	_ -> assign_name(name_candidate)
 				end
 			_ ->
-				if by_name("#{name} #{1}") != nil, do: "#{name} #{1}", else: assign_name("#{name} #{1}")
+				case by_name(name) do
+					nil -> name
+					_ -> if by_name("#{name} #{1}") != nil, do: "#{name} #{1}", else: assign_name("#{name} #{1}")
+				end
 		end
 	end
 
