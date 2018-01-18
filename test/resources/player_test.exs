@@ -99,7 +99,7 @@ defmodule PokerEx.PlayerTest do
 		end
 
 		test "fb_login_or_create/1 returns an existing player with a FB id and matching name", _ do
-			{id, name} = { "1234", "person guy"}
+			{id, name} = { Base.encode16(:crypto.strong_rand_bytes(8)), "person guy"}
 			{:ok, player} = Repo.insert(%Player{facebook_id: id, name: name})
 			result = Player.fb_login_or_create(%{facebook_id: id, name: name})
 			assert player == result

@@ -6,8 +6,12 @@ defmodule PokerExWeb.AuthController do
 
   use PokerExWeb, :controller
   alias Ueberauth.Strategy.Helpers
+  alias PokerExWeb.Auth
+  alias PokerEx.MapUtils
   require Logger
   plug Ueberauth
+
+  @unauthorized_message "Authorization failed"
 
   def request(conn, _params) do
     render(conn, "request.html", callback_url: Helpers.callback_url(conn))
@@ -26,6 +30,15 @@ defmodule PokerExWeb.AuthController do
       _ ->
         maybe_insert_player(conn, user_info)
     end
+  end
+
+  def oauth_handler(conn, %{"name" => name, "facebook_id" => id} = provider_data) do
+    conn = case PokerEx.Player.fb_login_or_create(MapUtils.to_atom_keys(provider_data)) do
+      %PokerEx.Player{} = player -> api_sign_in(conn, player.name, %{facebook_id: id}, &Auth.oauth_login/4)
+      :error -> conn |> put_status(:unauthorized) |> json(%{message: @unauthorized_message})
+      :unauthorized -> conn |> put_status(:unauthorized) |> json(%{message: @unauthorized_message})
+    end
+    conn
   end
 
   defp login_and_redirect(%{conn: conn, message: message, player: player}) do

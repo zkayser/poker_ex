@@ -30,6 +30,6 @@ defmodule PokerExWeb.SessionControllerTest do
                  }))
 
     assert conn.status == 401
-    assert conn.resp_body =~ ~r({\"error\":\"Unauthenticated\"})
+    assert conn.resp_body =~ ~r({\"message\":\"Unauthorized\"})
   end
 end

@@ -89,10 +89,11 @@ defmodule PokerEx.Player do
 		Repo.all(query)
 	end
 
-	@spec fb_login_or_create(%{id: String.t, name: String.t}) :: Player.t
+	@spec fb_login_or_create(%{id: String.t, name: String.t}) :: Player.t | :error | :unauthorized
 	def fb_login_or_create(%{facebook_id: id, name: name}) do
 		case Repo.get_by(Player, facebook_id: id) do
-			%Player{} = player ->	player
+			%Player{} = player ->
+				if player.name == name, do: player, else: :unauthorized
 			nil -> Player.create_oauth_user(%{name: name, provider_data: [facebook_id: id]})
 		end
 	end

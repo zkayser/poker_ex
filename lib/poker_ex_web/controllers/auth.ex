@@ -5,6 +5,8 @@ defmodule PokerExWeb.Auth do
   alias PokerExWeb.Router.Helpers
   require Logger
 
+  @valid_oauth_providers [:facebook_id, :google_id]
+
   def init(opts) do
     Keyword.fetch!(opts, :repo)
   end
@@ -50,6 +52,31 @@ defmodule PokerExWeb.Auth do
         dummy_checkpw()
         {:error, :not_found, conn}
     end
+  end
+
+  def oauth_login(conn, _username, oauth_data, opts) do
+    with true <- Enum.all?(Map.keys(oauth_data), &(&1 in @valid_oauth_providers)),
+         true <- length(Map.keys(oauth_data)) == 1 do
+      key = hd(Map.keys(oauth_data))
+      repo = Keyword.fetch!(opts, :repo)
+      player = repo.get_by(PokerEx.Player, [{:"#{key}", oauth_data[key]}])
+
+      cond do
+        player && check_oauth(player.name, oauth_data[key]) ->
+          {:ok, login(conn, player)}
+        player -> {:error, :unauthorized, conn}
+        true ->
+          dummy_checkpw()
+          {:error, :not_found, conn}
+      end
+    else
+      _ -> {:error, :oauth_error, conn}
+    end
+  end
+
+  def check_oauth(player_name, oauth_value) do
+    player = PokerEx.Player.by_name(player_name)
+    oauth_value in Map.values(player)
   end
 
   def logout(conn) do
