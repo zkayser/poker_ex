@@ -99,7 +99,11 @@ defmodule PokerEx.Player do
 
 	@spec create_oauth_user(%{name: String.t, provider_data: list()}) :: Player.t | :error
 	def create_oauth_user(%{name: name, provider_data: provider_data}) do
-		name = if by_name(name) == nil, do: name, else: assign_name(name)
+		name = with %Player{} = player <- by_name(name) do
+		 player.name
+	 else
+	 	_ -> assign_name(name)
+	 end
 		case provider_data do
 			[facebook_id: id] ->
 				Repo.insert(
