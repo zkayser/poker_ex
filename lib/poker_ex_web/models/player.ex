@@ -125,10 +125,11 @@ defmodule PokerEx.Player do
 	@spec assign_name(String.t) :: String.t
 	def assign_name(name) when is_binary(name) do
 		case Regex.named_captures(~r/(?<digits>\d+$)/, name) do
-			%{digits: number} ->
-				number_plus_1 = String.to_integer(number) + 1
-				name_candidate = "#{name} #{number_plus_1}"
-				if by_name(name_candidate) != nil, do: name_candidate, else: assign_name(name_candidate)
+			%{digits: number} -> name_candidate = "#{name} #{String.to_integer(number) + 1}"
+				case by_name(name_candidate) do
+					nil -> name_candidate
+				 	_ -> assign_name(name_candidate)
+				end
 			_ ->
 				if by_name("#{name} #{1}") != nil, do: "#{name} #{1}", else: assign_name("#{name} #{1}")
 		end
