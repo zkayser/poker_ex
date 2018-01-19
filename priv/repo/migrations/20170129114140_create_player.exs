@@ -8,10 +8,10 @@ defmodule PokerEx.Repo.Migrations.CreatePlayer do
       add :email, :string
       add :chips, :integer
       add :password_hash, :string
-      
+
       timestamps()
     end
-    
+
     create unique_index(:players, [:name])
   end
 end

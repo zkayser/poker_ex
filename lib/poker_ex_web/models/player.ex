@@ -109,42 +109,25 @@ defmodule PokerEx.Player do
 
 	@spec create_oauth_user(%{name: String.t, provider_data: list()}) :: Player.t | :error
 	def create_oauth_user(%{name: name, provider_data: provider_data}) do
-		name = with %Player{} = player <- by_name(name) do
-		 player.name
-	 else
-	 	_ -> assign_name(name)
-	 end
 		case provider_data do
 			[facebook_id: id] ->
-				Repo.insert(
-					%Player{name: name,
-						 			blurb: "",
-						 			chips: @default_chips,
-						 			facebook_id: id})
+				change(%Player{}, %{name: name, blurb: "", chips: @default_chips, facebook_id: id})
+				|> unique_constraint(:name)
+				|> Repo.insert()
 		end
 		|> case do
+			{:error, %Ecto.Changeset{valid?: false}} ->
+				create_oauth_user(%{name: assign_unique_name(name), provider_data: provider_data})
 			{:ok, player} -> player
 			_ -> :error
 		end
 	end
 
-	# A hack to enforce unique user names across the app.
-	# Appends number 1 to a user's name if that name is already taken.
-	# If that already exists, it adds one and cycles through until it finds
-	# a name that hasn't been taken.
-	@spec assign_name(String.t) :: String.t
-	def assign_name(name) when is_binary(name) do
+	@spec assign_unique_name(String.t) :: String.t
+	def assign_unique_name(name) when is_binary(name) do
 		case Regex.named_captures(~r/(?<digits>\d+$)/, name) do
-			%{digits: number} -> name_candidate = "#{name} #{String.to_integer(number) + 1}"
-				case by_name(name_candidate) do
-					nil -> name_candidate
-				 	_ -> assign_name(name_candidate)
-				end
-			_ ->
-				case by_name(name) do
-					nil -> name
-					_ -> if by_name("#{name} #{1}") != nil, do: "#{name} #{1}", else: assign_name("#{name} #{1}")
-				end
+			%{digits: number} -> "#{name} #{String.to_integer(number) + 1}"
+			_ -> "#{name} #{1}"
 		end
 	end
 

@@ -115,11 +115,14 @@ defmodule PokerEx.PlayerTest do
 			assert result.chips == 1000
 		end
 
-		test "assign_name/1 adds a digit to a name if it already exists in the database", _ do
-			{:ok, _} = Repo.insert(%Player{name: "john appleseed"})
-			result = Player.assign_name("john appleseed")
-			refute result == "john appleseed"
-			assert Regex.match?(~r/\d/, String.last(result))
+		test "create_oauth_user/1 returns an invalid changeset if given a name of an existing user", _ do
+			duplicate_name = "john appleseed"
+			{:ok, _} = Repo.insert(%Player{name: duplicate_name}) # Setup player in DB
+			# Create fake oauth_user
+			fake_fb_id = Base.encode16(:crypto.strong_rand_bytes(8))
+			player = Player.create_oauth_user(%{name: duplicate_name, provider_data: [facebook_id: fake_fb_id]})
+			refute player.name == duplicate_name
+			assert Regex.match?(~r/\d/, String.last(player.name))
 		end
 	end
 end
