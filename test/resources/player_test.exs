@@ -117,7 +117,7 @@ defmodule PokerEx.PlayerTest do
 		end
 
 		test "create_oauth_user/1 returns an invalid changeset if given a name of an existing user", _ do
-			duplicate_name = "john appleseed"
+			duplicate_name = "user john appleseed"
 			{:ok, _} = Repo.insert(%Player{name: duplicate_name}) # Setup player in DB
 			# Create fake oauth_user
 			fake_fb_id = Base.encode16(:crypto.strong_rand_bytes(8))
