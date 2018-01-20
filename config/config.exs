@@ -25,10 +25,8 @@ config :logger, :console,
   backends: [:console],
   compile_time_purge_level: :warn
 
-# Configure Mailer module
-config :poker_ex, PokerEx.Mailer,
-  adapter: Bamboo.SendgridAdapter,
-  api_key: System.get_env("SENDGRID_API_KEY")
+# Bamboo adapter configuration now lives in `test.exs`, `dev.exs`, and `prod.exs`
+# since the configuration is different for each environment.
 
 # Ueberauth config
 config :ueberauth, Ueberauth,

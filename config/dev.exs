@@ -26,8 +26,10 @@ config :poker_ex, PokerExWeb.Endpoint,
     ]
   ]
 
-#config :poker_ex, PokerEx.Mailer,
-#  adapter: Bamboo.LocalAdapter
+config :poker_ex, PokerEx.Mailer,
+ adapter: Bamboo.MailgunAdapter,
+ api_key: System.get_env("MAILGUN_API_KEY"),
+ domain:  System.get_env("MAILGUN_SANDBOX_DOMAIN")
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"

@@ -12,6 +12,9 @@ config :poker_ex, :sql_sandbox, true
 # Save screenshot on failed Integration tests
 config :wallaby, screenshot_on_failure: true
 
+# Bamboo emailers
+config :poker_ex, PokerEx.Mailer, adapter: Bamboo.TestAdapter
+
 # Easy # of password hashing rounds on :comeonin
 # to speed up tests
 config :comeonin, :bcrypt_log_rounds, 4

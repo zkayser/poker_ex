@@ -27,6 +27,14 @@ config :poker_ex, PokerEx.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   ssl: true
 
+# TODO: Define these environment variables on Heroku.
+# Also, you will have to verify your domain with
+# Mailgun before you can actuallY start sending emails in prod.
+config :poker_ex, PokerEx.Mailer,
+	adapter: Bamboo.MailgunAdapter,
+	api_key: System.get_env("MAILGUN_API_KEY"),
+	domain: System.get_env("MAILGUN_DOMAIN")
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

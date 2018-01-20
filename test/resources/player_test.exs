@@ -25,10 +25,7 @@ defmodule PokerEx.PlayerTest do
 		test "paginate/1 returns a paginated struct with entries of players", _context do
 			PokerEx.Repo.insert(%Player{name: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}"})
 			paginated = Player.paginate([page_num: 1])
-			# Test player names all begin with "user", except for those inserted in the test below
-			# Checking that the `name` string contains "user" works for now, but may break if
-			# the database is ever blown away.
-			Enum.each(paginated.entries, fn name -> assert String.contains?(name, "user") end)
+			assert Enum.any?(paginated.entries, &(String.contains?(&1, "user")))
 			assert length(paginated.entries) <= 10
 		end
 
