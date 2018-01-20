@@ -6,8 +6,10 @@ defmodule PokerExWeb.PasswordResetViewTest do
 		json = render(PokerExWeb.PasswordResetView, "success.json", %{})
 
 		expected = %{
-			"message" => "An email has been sent with a link to reset your password",
-			"type" => "success"
+			"data" => %{
+				"message" => "An email has been sent with a link to reset your password",
+				"type" => "success"
+			}
 		}
 
 		assert json == expected
@@ -17,8 +19,10 @@ defmodule PokerExWeb.PasswordResetViewTest do
 		json = render(PokerExWeb.PasswordResetView, "error.json", %{})
 
 		expected = %{
-			"message" => "No user exists with the email provided",
-			"type" => "error"
+			"data" => %{
+				"message" => "No user exists with the email provided",
+				"type" => "error"
+			}
 		}
 
 		assert json == expected

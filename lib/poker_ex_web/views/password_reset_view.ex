@@ -5,10 +5,10 @@ defmodule PokerExWeb.PasswordResetView do
 	@error "No user exists with the email provided"
 
 	def render("success.json", %{}) do
-		%{"message" => @message, "type" => "success"}
+		%{"data" => %{"message" => @message, "type" => "success"}}
 	end
 
 	def render("error.json", %{}) do
-		%{"message" => @error, "type" => "error"}
+		%{"data" => %{"message" => @error, "type" => "error"}}
 	end
 end

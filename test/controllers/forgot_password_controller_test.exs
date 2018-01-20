@@ -14,8 +14,10 @@ defmodule PokerExWeb.ForgotPasswordControllerTest do
 			|> json_response(200)
 
 		expected_response = %{
-			"message" => "An email has been sent with a link to reset your password",
-			"type" => "success"
+			"data" => %{
+				"message" => "An email has been sent with a link to reset your password",
+				"type" => "success"
+			}
 		}
 
 		assert response == expected_response
@@ -27,8 +29,10 @@ defmodule PokerExWeb.ForgotPasswordControllerTest do
 			|> json_response(200)
 
 		expected_response = %{
-			"message" => "No user exists with the email provided",
-			"type" => "error"
+			"data" => %{
+				"message" => "No user exists with the email provided",
+				"type" => "error"
+			}
 		}
 
 		assert response == expected_response
