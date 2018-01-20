@@ -30,7 +30,7 @@ defmodule PokerEx.RoomServer do
     {:reply, rooms, state}
   end
 
-  def handle_info({:start_rooms, rooms}, state) do
+  def handle_info({:start_rooms, rooms}, _state) do
     IO.puts "Starting up #{rooms} initial rooms..."
     rooms = for x <- 1..rooms do
       room = "room_#{x}"
