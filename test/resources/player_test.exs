@@ -23,6 +23,7 @@ defmodule PokerEx.PlayerTest do
 		end
 
 		test "paginate/1 returns a paginated struct with entries of players", _context do
+			PokerEx.Repo.insert(%Player{name: "user#{Base.encode16(:crypto.strong_rand_bytes(8))}"})
 			paginated = Player.paginate([page_num: 1])
 			# Test player names all begin with "user", except for those inserted in the test below
 			# Checking that the `name` string contains "user" works for now, but may break if
