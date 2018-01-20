@@ -70,5 +70,6 @@ defmodule PokerExWeb.Router do
      resources "/registrations", RegistrationController, only: [:create]
      post "/auth", AuthController, :oauth_handler
      get "/list/:player/:page", PlayerController, :list
+     post "/forgot_password", ForgotPasswordController, :forgot_password
    end
 end

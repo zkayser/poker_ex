@@ -52,6 +52,14 @@ defmodule PokerEx.PlayerTest do
 			assert Player.chips("non-existent user") == {:error, :player_not_found}
 		end
 
+		test "email_exists?/1 returns true if there is a player with the given email", context do
+			assert Player.email_exists?(context.player.email)
+		end
+
+		test "email_exists?/1 returns false if there is no player with the given email", _context do
+			refute Player.email_exists?("some_non_existent_email@no_email.com")
+		end
+
 		test "reward/3 takes a player and returns a player with the specified amount of chips added", context do
 			{:ok, updated_player} = Player.reward(context.player.name, 200, :room_number)
 			assert updated_player.chips == context.player.chips + 200

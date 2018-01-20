@@ -50,6 +50,14 @@ defmodule PokerEx.Player do
 		end
 	end
 
+	@spec email_exists?(String.t) :: boolean()
+	def email_exists?(email) when is_binary(email) do
+		case Repo.get_by(Player, email: email) do
+			nil -> false
+			%Player{} -> true
+		end
+	end
+
 	@spec delete(Player.t) :: :ok | :error
 	def delete(%Player{} = player) do
 		case Repo.delete(player) do
