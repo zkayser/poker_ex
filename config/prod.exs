@@ -38,7 +38,7 @@ config :poker_ex, PokerEx.Mailer,
 # The client's endpoint is unknown at this point
 # This MUST be changed before the client is deployed.
 config :poker_ex,
-  client_password_reset_endpoint: "localhost:8081/#/password_reset"
+  client_password_reset_endpoint: "http://localhost:8081/#/password_reset"
 
 # ## SSL Support
 #

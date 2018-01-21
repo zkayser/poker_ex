@@ -32,7 +32,7 @@ config :poker_ex, PokerEx.Mailer,
  domain:  System.get_env("MAILGUN_SANDBOX_DOMAIN")
 
 config :poker_ex,
-  client_password_reset_endpoint: "localhost:8081/#/password_reset"
+  client_password_reset_endpoint: "http://localhost:8081/#/password_reset"
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
