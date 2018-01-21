@@ -156,7 +156,7 @@ defmodule PokerEx.Player do
 		end
 	end
 
-	@spec reset_password(String.t, %{String.t => String.t}) :: {:ok, Player.t} | {:error, atom()}
+	@spec reset_password(String.t, %{String.t => String.t}) :: {:ok, Player.t} | {:error, String.t}
 	def reset_password(reset_token, %{"password" => password}) when is_binary(password) do
 		case Repo.get_by(Player, reset_token: reset_token) do
 			nil -> :error
@@ -168,18 +168,19 @@ defmodule PokerEx.Player do
 						|> Repo.update()
 						|> case do
 							{:ok, player} -> {:ok, player}
-							{:error, _} -> {:error, :update_failed}
+							{:error, _} -> {:error, "Failed to update password. Please try again."}
 						end
 					{:error, error} -> {:error, error}
 				end
 		end
 	end
 
-	@spec verify_reset_token(String.t) :: :ok | {:error, atom()}
+	@spec verify_reset_token(String.t) :: :ok | {:error, String.t}
 	def verify_reset_token(reset_token) when is_binary(reset_token) do
 		case Phoenix.Token.verify(PokerExWeb.Endpoint, "user salt", reset_token, max_age: @one_day) do
 			{:ok, _} -> :ok
-			error -> error
+			{:error, :invalid} -> {:error, "The token is invalid"}
+			{:error, :expired} -> {:error, "Your reset token has expired"}
 		end
 	end
 
