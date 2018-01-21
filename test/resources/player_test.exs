@@ -150,5 +150,14 @@ defmodule PokerEx.PlayerTest do
 		test "verify_reset_token/1 takes an invalid reset_token and returns an :error tuple", _ do
 			assert {:error, _} = Player.verify_reset_token("bogus reset token that doesn't exist")
 		end
+
+		test "reset_password/2 takes a map with a password key and resets the user's pw hash", context do
+			initial_hash = context.player.password_hash
+			{:ok, player} = Player.initiate_password_reset(context.player.email)
+			{:ok, result} = Player.reset_password(player.reset_token, %{"password" => "secretpassword"})
+
+			refute result.password_hash == initial_hash
+			assert is_binary(result.password_hash)
+		end
 	end
 end

@@ -156,6 +156,25 @@ defmodule PokerEx.Player do
 		end
 	end
 
+	@spec reset_password(String.t, %{String.t => String.t}) :: {:ok, Player.t} | {:error, atom()}
+	def reset_password(reset_token, %{"password" => password}) when is_binary(password) do
+		case Repo.get_by(Player, reset_token: reset_token) do
+			nil -> :error
+			%Player{} = player ->
+				case verify_reset_token(reset_token) do
+					:ok ->
+						change(player, %{password: password})
+						|> put_pass_hash()
+						|> Repo.update()
+						|> case do
+							{:ok, player} -> {:ok, player}
+							{:error, _} -> {:error, :update_failed}
+						end
+					{:error, error} -> {:error, error}
+				end
+		end
+	end
+
 	@spec verify_reset_token(String.t) :: :ok | {:error, atom()}
 	def verify_reset_token(reset_token) when is_binary(reset_token) do
 		case Phoenix.Token.verify(PokerExWeb.Endpoint, "user salt", reset_token, max_age: @one_day) do

@@ -71,5 +71,6 @@ defmodule PokerExWeb.Router do
      post "/auth", AuthController, :oauth_handler
      get "/list/:player/:page", PlayerController, :list
      post "/forgot_password", ForgotPasswordController, :forgot_password
+     post "/reset_password", ResetPasswordController, :reset_password
    end
 end
