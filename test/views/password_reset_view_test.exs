@@ -27,4 +27,17 @@ defmodule PokerExWeb.PasswordResetViewTest do
 
 		assert json == expected
 	end
+
+	test "renders reset_failed.json" do
+		json = render(PokerExWeb.PasswordResetView, "reset_failed.json", %{})
+
+		expected = %{
+			"data" => %{
+				"message" => "Password reset failed. Please re-submit the form and try again",
+				"type" => "error"
+			}
+		}
+
+		assert json == expected
+	end
 end

@@ -31,4 +31,8 @@ defmodule PokerEx.TestHelpers do
      %PokerEx.Card{suit: :spades, rank: :five}
     ]
   end
+
+  def random_string do
+    Base.encode16(:crypto.strong_rand_bytes(8))
+  end
 end

@@ -1,6 +1,5 @@
 defmodule PokerEx.WelcomeMailerTest do
 	use ExUnit.Case, async: true
-	use Bamboo.Test
 	import PokerEx.TestHelpers
 	alias PokerEx.Emails
 

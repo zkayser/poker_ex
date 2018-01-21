@@ -8,6 +8,10 @@ defmodule PokerExWeb.ForgotPasswordController do
 				conn
 				|> render(PokerExWeb.PasswordResetView, "error.json", %{})
 			true ->
+				# case Player.initiate_password_reset(email) do
+				# 	%Player{} = player -> PokerEx.Emails.reset_password(player) |> PokerEx.Mailer.deliver_later()
+				# 	_ -> render(PokerExWeb.PasswordResetView, "reset_failed.json", %{})
+				# end
 				conn
 				|> render(PokerExWeb.PasswordResetView, "success.json", %{})
 		end

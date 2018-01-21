@@ -35,6 +35,11 @@ config :poker_ex, PokerEx.Mailer,
 	api_key: System.get_env("MAILGUN_API_KEY"),
 	domain: System.get_env("MAILGUN_DOMAIN")
 
+# The client's endpoint is unknown at this point
+# This MUST be changed before the client is deployed.
+config :poker_ex,
+  client_password_reset_endpoint: "localhost:8081/#/password_reset"
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
