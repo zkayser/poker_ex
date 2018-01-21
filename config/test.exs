@@ -16,7 +16,7 @@ config :wallaby, screenshot_on_failure: true
 config :poker_ex, PokerEx.Mailer, adapter: Bamboo.TestAdapter
 
 config :poker_ex,
-	client_password_reset_endpoint: "http://localhost:8081/#/password_reset"
+	client_password_reset_endpoint: "http://localhost:8081/#/reset-password"
 
 # Easy # of password hashing rounds on :comeonin
 # to speed up tests
