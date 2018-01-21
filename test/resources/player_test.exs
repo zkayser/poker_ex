@@ -130,5 +130,25 @@ defmodule PokerEx.PlayerTest do
 			refute player.name == duplicate_name
 			assert Regex.match?(~r/\d/, String.last(player.name))
 		end
+
+		test "initiate_password_reset/1 takes an email and sets the user's reset_token attribute", context do
+			{:ok, player} = Player.initiate_password_reset(context.player.email)
+			assert player.reset_token != nil
+			assert {:ok, _} =
+				Phoenix.Token.verify(PokerExWeb.Endpoint, "user salt", player.reset_token, max_age: 86400)
+		end
+
+		test "initiate_password_reset/1 returns :error if the given email does not exist", _ do
+			assert :error == Player.initiate_password_reset("some bogus email@bogus.com")
+		end
+
+		test "verify_reset_token/1 takes a valid reset_token and returns :ok", context do
+			{:ok, player} = Player.initiate_password_reset(context.player.email)
+			assert :ok == Player.verify_reset_token(player.reset_token)
+		end
+
+		test "verify_reset_token/1 takes an invalid reset_token and returns an :error tuple", _ do
+			assert {:error, _} = Player.verify_reset_token("bogus reset token that doesn't exist")
+		end
 	end
 end

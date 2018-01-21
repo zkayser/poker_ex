@@ -28,6 +28,7 @@ defmodule PokerEx.Player do
 
 	@valid_email ~r/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/
 	@default_chips 1000
+	@one_day 86400
 	@type t :: %Player{name: String.t, chips: non_neg_integer, first_name: String.t | nil,
 										 last_name: String.t | nil, email: String.t, password_hash: String.t
 										}
@@ -137,6 +138,29 @@ defmodule PokerEx.Player do
 		case Regex.named_captures(~r/(?<digits>\d+$)/, name) do
 			%{digits: number} -> "#{name} #{String.to_integer(number) + 1}"
 			_ -> "#{name} #{1}"
+		end
+	end
+
+	@spec initiate_password_reset(String.t) :: :ok | :error
+	def initiate_password_reset(email) when is_binary(email) do
+		case Repo.get_by(Player, email: email) do
+			nil -> :error
+			%Player{} = player ->
+				change(player, %{reset_token: Phoenix.Token.sign(PokerExWeb.Endpoint, "user salt", email)})
+				|> Repo.update()
+				|> case do
+					{:ok, player} ->
+						{:ok, player}
+					{:error, _} -> :error
+				end
+		end
+	end
+
+	@spec verify_reset_token(String.t) :: :ok | {:error, atom()}
+	def verify_reset_token(reset_token) when is_binary(reset_token) do
+		case Phoenix.Token.verify(PokerExWeb.Endpoint, "user salt", reset_token, max_age: @one_day) do
+			{:ok, _} -> :ok
+			error -> error
 		end
 	end
 
