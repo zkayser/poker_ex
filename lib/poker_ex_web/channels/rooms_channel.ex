@@ -69,7 +69,11 @@ defmodule PokerExWeb.RoomsChannel do
 	def terminate(reason, socket) do
 		Logger.debug "[RoomChannel] Terminating with reason: #{inspect reason}"
 
-		room = Room.leave(socket.assigns.room, socket.assigns.player)
+		room =
+		 case Room.state(socket.assigns.room).type do
+		 	:private -> socket.assigns.room
+		 	:public -> Room.leave(socket.assigns.room, socket.assigns.player)
+		 end
 		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 
 		{:shutdown, :left}

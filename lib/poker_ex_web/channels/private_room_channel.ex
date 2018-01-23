@@ -30,6 +30,12 @@ defmodule PokerExWeb.PrivateRoomChannel do
 		{:noreply, socket}
 	end
 
+	def handle_in("decline_invitation", %{"player" => player_name, "room" => room_title}, socket) do
+		PrivateRoom.decline_invitation(PrivateRoom.by_title(room_title), Player.by_name(player_name))
+		send_room_update(socket, 1, Player.by_name(player_name) |> Player.preload())
+		{:noreply, socket}
+	end
+
 	def handle_in("create_room", %{"title" => title, "owner" => owner, "invitees" => invitees}, socket) do
 		owner = Player.by_name(owner)
 		invitees = Enum.map(invitees, &(Player.by_name(&1)))

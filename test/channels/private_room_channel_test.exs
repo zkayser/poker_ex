@@ -59,6 +59,19 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 		refute updated_room.id in Enum.map(updated_player.invited_rooms, &(&1.id))
 	end
 
+	test "`decline_invitation` messages trigger updates to the declining player's invited_rooms", context do
+		invited_player = PrivateRoom.preload(context.room) |> Map.get(:invitees) |> hd()
+
+		push context.socket, "decline_invitation", %{"player" => invited_player.name, "room" => context.room.title}
+
+		Process.sleep(50)
+		updated_player = Player.by_name(invited_player.name) |> Player.preload()
+		updated_room = PrivateRoom.by_title(context.room.title) |> PrivateRoom.preload()
+
+		refute updated_room.id in Enum.map(updated_player.invited_rooms, &(&1.id))
+		refute updated_room.id in Enum.map(updated_player.invited_rooms, &(&1.id))
+	end
+
 	test "`create_room` message creates a new room with the given title", context do
 		# TODO: Take one of the invited players and `subscribe_and_join` the `notifications_channel:#{name}`
 		# for that player. When a `create_room` message is received in the PrivateRoomChannel, it
