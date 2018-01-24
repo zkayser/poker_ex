@@ -192,6 +192,16 @@ defmodule PokerEx.Room do
 		:void
 	end
 
+	def child_spec(opts) do
+		%{
+			id: __MODULE__,
+			start: {__MODULE__, :start_link, opts},
+			type: :worker,
+			restart: :transient,
+			shutdown: 500
+		}
+	end
+
 	def code_change(_vsn, state, data, _extra) do
 		{:ok, state, data}
 	end

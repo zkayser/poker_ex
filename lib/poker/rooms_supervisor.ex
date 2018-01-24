@@ -1,12 +1,12 @@
 defmodule PokerEx.RoomsSupervisor do
-  use Supervisor
+  use DynamicSupervisor
   require Logger
 
   @registry Registry.Rooms
   @invalid_room_id "Rooms must be started with a unique string identifier"
 
   def start_link() do
-    Supervisor.start_link(__MODULE__, [], name: __MODULE__)
+    DynamicSupervisor.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def find_or_create_process(room_id) when is_binary(room_id) do
@@ -26,7 +26,7 @@ defmodule PokerEx.RoomsSupervisor do
   end
 
   def create_room_process(room_id) when is_binary(room_id) do
-    case Supervisor.start_child(__MODULE__, [room_id]) do
+    case DynamicSupervisor.start_child(__MODULE__, {PokerEx.Room, [room_id]}) do
       {:ok, pid} ->
         Registry.unregister(@registry, room_id)
         Registry.register(@registry, room_id, pid)
@@ -38,7 +38,7 @@ defmodule PokerEx.RoomsSupervisor do
   def create_room_process(_), do: raise(@invalid_room_id)
 
   def create_private_room(room_id) when is_binary(room_id) do
-    case Supervisor.start_child(__MODULE__, [[room_id, :private]]) do
+    case DynamicSupervisor.start_child(__MODULE__, {PokerEx.Room, [[room_id, :private]]}) do
       {:ok, pid} ->
         Registry.unregister(@registry, room_id)
         Registry.register(@registry, room_id, pid)
@@ -54,16 +54,12 @@ defmodule PokerEx.RoomsSupervisor do
   def init([]) do
     {:ok, _} = Registry.start_link(keys: :unique, name: @registry)
 
-    children = [
-      worker(PokerEx.Room, [], [restart: :transient])
-    ]
-
     Enum.each(PokerEx.PrivateRoom.all(),
       fn room ->
-        IO.puts "Now starting #{inspect room.title}"
+        Logger.debug "Now starting #{inspect room.title}"
         Task.start(fn -> PokerEx.PrivateRoom.ensure_started(room.title) end)
       end)
 
-    supervise(children, strategy: :simple_one_for_one)
+    DynamicSupervisor.init(strategy: :one_for_one)
   end
 end
