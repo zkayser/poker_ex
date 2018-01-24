@@ -40,7 +40,7 @@ defmodule PokerEx.Application do
 
   def stop(_state) do
     PokerEx.PrivateRoom.all()
-      |> Enum.map(&(String.to_atom(&1.title)))
+      |> Enum.map(&(&1.title))
       |> Enum.each(&(PokerEx.Room.stop(&1)))
   end
 end

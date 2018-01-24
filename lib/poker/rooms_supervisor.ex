@@ -58,6 +58,12 @@ defmodule PokerEx.RoomsSupervisor do
       worker(PokerEx.Room, [], [restart: :transient])
     ]
 
+    Enum.each(PokerEx.PrivateRoom.all(),
+      fn room ->
+        IO.puts "Now starting #{inspect room.title}"
+        Task.start(fn -> PokerEx.PrivateRoom.ensure_started(room.title) end)
+      end)
+
     supervise(children, strategy: :simple_one_for_one)
   end
 end

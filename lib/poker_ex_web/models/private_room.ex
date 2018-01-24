@@ -150,13 +150,14 @@ defmodule PokerEx.PrivateRoom do
     private_room |> Repo.preload([:invitees, :owner, :participants])
   end
 
+  # The naming on this can be better. It's more like `ensure_started`
   @doc ~S"""
   Checks to see if the process for the `Room` instance is alive and restores
   it from the database if not. Returns an empty `Room` instance if no data has
   been stored
   """
-  @spec check_state(String.t) :: Room.t
-  def check_state(room_process) when is_binary(room_process) do
+  @spec ensure_started(String.t) :: Room.t
+  def ensure_started(room_process) when is_binary(room_process) do
     case RoomsSupervisor.room_process_exists?(room_process) do
       false ->
         %{room_state: room_state, room_data: room_data} = by_title(room_process)
@@ -164,6 +165,13 @@ defmodule PokerEx.PrivateRoom do
         put_state_for_room(room_process, room_state, room_data)
       _ -> Room.state(room_process)
     end
+  end
+
+  @spec restart(String.t) :: Room.t
+  def restart(title) do
+    %{room_state: room_state, room_data: room_data} = by_title(title)
+    RoomsSupervisor.create_private_room(title)
+    put_state_for_room(title, room_state, room_data)
   end
 
   @doc ~S"""
@@ -219,7 +227,6 @@ defmodule PokerEx.PrivateRoom do
     update =
       priv_room
       |> cast(%{room_data: room, room_state: state}, [:room_data, :room_state])
-
     case Repo.update(update) do
       {:ok, _} -> :ok
       _ ->

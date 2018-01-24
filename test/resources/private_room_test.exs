@@ -108,13 +108,13 @@ defmodule PokerEx.PrivateRoomTest do
 	end
 
 	@tag :capture_log
-	test "check_state/1 checks if a room process exists and creates one if note", context do
+	test "ensure_started/1 checks if a room process exists and creates one if note", context do
 		room_process = context.room.title
 
 		data = Room.state(room_process)
 		Room.stop(room_process)
 
-		assert PRoom.check_state(room_process) == data
+		assert PRoom.ensure_started(room_process) == data
 	end
 
 	test "is_owner?/2 returns true if the player param owns the room instance passed in", context do

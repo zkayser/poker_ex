@@ -127,7 +127,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	defp get_paginated_rooms(%Player{} = player, page_num, type) do
 		for room <- Enum.map(Map.get(player, type), &(&1.title)) do
 			%{room: room,
-				player_count: PrivateRoom.check_state(room).seating |> length(),
+				player_count: PrivateRoom.ensure_started(room).seating |> length(),
 				is_owner: PrivateRoom.is_owner?(player, room) }
 		end
 			|> Scrivener.paginate(%Scrivener.Config{page_number: page_num, page_size: 10})
