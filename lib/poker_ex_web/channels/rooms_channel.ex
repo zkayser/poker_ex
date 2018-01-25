@@ -7,6 +7,7 @@ defmodule PokerExWeb.RoomsChannel do
 
 	@valid_params ~w(player amount)
 	@actions ~w(raise call check fold leave add_chips)
+	@manual_join_msg "Welcome. Please join by pressing the join button and entering an amount."
 
 	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) when amount >= 100 do
 		unless socket.assigns |> Map.has_key?(:player) do
@@ -22,6 +23,25 @@ defmodule PokerExWeb.RoomsChannel do
 		end
 	end
 
+	# This is a private room join for players who are already seated. All public joins
+	# should go through the function above, as well as the initial join to a private room.
+	def join("rooms:" <> room_title, %{"type" => "private", "amount" => 0}, socket) do
+		socket =
+			assign(socket, :room, room_title)
+			|> assign(:type, "private")
+			|> assign(:join_amount, 0)
+			|> assign_player()
+
+		case socket.assigns.player.name in Enum.map(Room.state(socket.assigns.room).seating, fn {name, _} -> name end) do
+			true ->
+				send self(), :after_join
+				Logger.debug "Player #{socket.assigns.player.name} is joining private room #{room_title}"
+				{:ok, %{name: socket.assigns.player.name}, socket}
+			false ->
+				{:error, %{message: @manual_join_msg}}
+		end
+	end
+
 	def join("rooms:" <> _, _, _socket), do: {:error, %{message: "Could not join the room. Please try again."}}
 
 	############
@@ -29,8 +49,18 @@ defmodule PokerExWeb.RoomsChannel do
 	############
 
 	def handle_info(:after_join, %{assigns: assigns} = socket) do
-		room = Room.join(assigns.room, assigns.player, assigns.join_amount)
-		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+		seating = Enum.map(Room.state(assigns.room).seating, fn {name, _} -> name end)
+		case {assigns.type == "private", assigns.player.name in seating} do
+			{true, true} ->
+				room = Room.state(assigns.room)
+				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+			# {true, false} ->
+				# In this case, the player hasn't joined yet. Disconnect the channel and force rejoin.
+
+			{_, _} ->
+				room = Room.join(assigns.room, assigns.player, assigns.join_amount)
+				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+		end
 		{:noreply, socket}
 	end
 
