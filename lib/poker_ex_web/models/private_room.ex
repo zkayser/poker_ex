@@ -6,6 +6,7 @@ defmodule PokerEx.PrivateRoom do
   alias PokerEx.Room
   alias PokerEx.RoomsSupervisor
   alias PokerEx.Repo
+  alias PokerEx.Notifications
 
   schema "private_rooms" do
     field :title, :string
@@ -42,6 +43,7 @@ defmodule PokerEx.PrivateRoom do
         |> update_participants([owner])
         |> Repo.insert() do
       RoomsSupervisor.create_private_room(title)
+      Notifications.notify_invitees(room)
       {:ok, room}
     else
       {:error, changeset} -> {:error, changeset.errors}

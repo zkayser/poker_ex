@@ -33,7 +33,7 @@ defmodule PokerEx.RoomChannelTest do
 		assert Room.which_state(context.title) == :idle
 	end
 
-	test "room join for private room", context do
+	test "room join for private room", _context do
 		# Setup a new room and channel process
 		# Connect with the player
 		# Leave the channel
