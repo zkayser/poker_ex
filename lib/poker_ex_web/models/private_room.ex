@@ -107,6 +107,7 @@ defmodule PokerEx.PrivateRoom do
     with :ok <- Enum.each(preload(room).participants, &(Room.leave(room.title, &1))),
          :ok <- Room.stop(room.title),
          invitees <- preload(room).invitees,
+         participants <- preload(room).participants,
          owner <- preload(room).owner do
       {:ok, room} =
         room
@@ -114,7 +115,7 @@ defmodule PokerEx.PrivateRoom do
           |> put_assoc(:participants, [])
           |> put_assoc(:invitees, [])
           |> Repo.update()
-      Notifications.notify_invitees([owner: owner, title: room.title, invitees: invitees], :deletion)
+      Notifications.notify([owner: owner, title: room.title, recipients: invitees ++ participants], :deletion)
       Repo.delete(room)
     else
       _ -> {:error, "Failed to shutdown room process"}

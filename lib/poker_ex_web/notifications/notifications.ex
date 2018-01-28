@@ -1,7 +1,7 @@
 defmodule PokerEx.Notifications do
   alias PokerExWeb.Endpoint
 
-  @type options :: [{:owner, String}, {:title, String.t}, {:invitees, list()}]
+  @type options :: [{:owner, String}, {:title, String.t}, {:recipients, list(PokerEx.Player.t)}]
 
   # Header
   def notify_invitees(room_data, event \\ :creation)
@@ -16,11 +16,11 @@ defmodule PokerEx.Notifications do
       end)
   end
 
- 	@spec notify_invitees(options, :creation | :deletion) :: :ok
- 	def notify_invitees([owner: owner, title: title, invitees: invitees], event) do
- 		Enum.each(invitees,
- 			fn invitee ->
- 				Endpoint.broadcast("notifications:" <> "#{invitee.name}", message_for(event),
+ 	@spec notify(options, :creation | :deletion) :: :ok
+ 	def notify([owner: owner, title: title, recipients: recipients], event) do
+ 		Enum.each(recipients,
+ 			fn recipient ->
+ 				Endpoint.broadcast("notifications:" <> "#{recipient.name}", message_for(event),
  					%{title: title, owner: owner.name})
  			end)
  	end
