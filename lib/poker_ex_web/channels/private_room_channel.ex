@@ -68,18 +68,19 @@ defmodule PokerExWeb.PrivateRoomChannel do
 	end
 
 	def handle_in("get_page", %{"for" => type, "page_num" => page_num}, socket) do
+		player = Player.by_name(socket.assigns[:player].name) |> Player.preload()
 		params =
 			case type do
 				"current_rooms" ->
-					page_struct = get_paginated_rooms(socket.assigns[:player], page_num, :participating_rooms)
+					page_struct = get_paginated_rooms(player, page_num, :participating_rooms)
 					%{current_rooms: %{
 						rooms: page_struct.entries,
 						page: page_num,
 						total_pages: page_struct.total_pages
 						}}
 				"invited_rooms" ->
-					page_struct = get_paginated_rooms(socket.assigns[:player], page_num, :invited_rooms)
-					%{invited_rooms: %{
+					page_struct = get_paginated_rooms(player, page_num, :invited_rooms)
+					result = %{invited_rooms: %{
 							rooms: page_struct.entries,
 							page: page_num,
 							total_pages: page_struct.total_pages

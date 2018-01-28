@@ -239,6 +239,7 @@ defmodule PokerEx.PrivateRoom do
 
   defp format_title(title) when is_binary(title) do
     String.replace(title, ~r(\s+), "_")
+    |> String.replace("%20", "_")
   end
   defp format_title(_), do: {:error, :invalid_title}
 

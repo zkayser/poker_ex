@@ -896,7 +896,7 @@ defmodule PokerEx.Room do
   defp maybe_handle_all_in(_room), do: :keep_state_and_data
 
   defp name_for(room_title) when is_binary(room_title) do
-  	{:via, Registry, {Registry.Rooms, room_title}}
+  	{:via, Registry, {Registry.Rooms, String.replace(room_title, "%20", "_")}}
   end
   defp name_for(_), do: Kernel.raise("Rooms must be started with a unique string identifier")
 end
