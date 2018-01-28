@@ -33,6 +33,16 @@ defmodule PokerEx.NotificationsTest do
 		assert_broadcast "room_deleted", ^expected_payload
 	end
 
+	test "notify_invitees/2 with explicit options", context do
+		player = insert_user()
+		{:ok, room} = PrivateRoom.create("Test#{random_string()}", player, [context.player])
+		Notifications.notify_invitees([owner: room.owner, title: room.title, invitees: [context.player]], :deletion)
+
+		expected_payload = %{title: room.title, owner: player.name}
+
+		assert_broadcast "room_deleted", ^expected_payload
+	end
+
 	defp create_player_and_connect do
 		player = insert_user()
 

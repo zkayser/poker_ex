@@ -105,14 +105,16 @@ defmodule PokerEx.PrivateRoom do
   @spec delete(__MODULE__.t) :: {:ok, __MODULE__.t} | {:error, String.t}
   def delete(%__MODULE__{} = room) do
     with :ok <- Enum.each(preload(room).participants, &(Room.leave(room.title, &1))),
-         :ok <- Room.stop(room.title) do
-      Notifications.notify_invitees(room, :deletion)
+         :ok <- Room.stop(room.title),
+         invitees <- preload(room).invitees,
+         owner <- preload(room).owner do
       {:ok, room} =
         room
           |> change()
           |> put_assoc(:participants, [])
           |> put_assoc(:invitees, [])
           |> Repo.update()
+      Notifications.notify_invitees([owner: owner, title: room.title, invitees: invitees], :deletion)
       Repo.delete(room)
     else
       _ -> {:error, "Failed to shutdown room process"}
