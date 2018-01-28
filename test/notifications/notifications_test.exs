@@ -13,7 +13,7 @@ defmodule PokerEx.NotificationsTest do
 		{:ok, socket: socket, player: player, token: token, reply: reply}
 	end
 
-	test "notify_invitees/1 broadcasts an `invitation_received` message on the channel", context do
+	test "notify_invitees/2 broadcasts an `invitation_received` message on the channel", context do
 		player = insert_user()
 		{:ok, room} = PrivateRoom.create("Test#{random_string()}", player, [context.player])
 		Notifications.notify_invitees(room)
@@ -21,6 +21,16 @@ defmodule PokerEx.NotificationsTest do
 		expected_payload = %{title: room.title, owner: player.name}
 
 		assert_broadcast "invitation_received", ^expected_payload
+	end
+
+	test "notify_invitees/2 broadcasts a `room_deleted` message on the notifications channel", context do
+		player = insert_user()
+		{:ok, room} = PrivateRoom.create("Test#{random_string()}", player, [context.player])
+		Notifications.notify_invitees(room, :deletion)
+
+		expected_payload = %{title: room.title, owner: player.name}
+
+		assert_broadcast "room_deleted", ^expected_payload
 	end
 
 	defp create_player_and_connect do

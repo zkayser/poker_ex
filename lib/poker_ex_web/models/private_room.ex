@@ -106,6 +106,7 @@ defmodule PokerEx.PrivateRoom do
   def delete(%__MODULE__{} = room) do
     with :ok <- Enum.each(preload(room).participants, &(Room.leave(room.title, &1))),
          :ok <- Room.stop(room.title) do
+      Notifications.notify_invitees(room, :deletion)
       {:ok, room} =
         room
           |> change()
