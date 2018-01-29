@@ -13,7 +13,7 @@ config :poker_ex,
 # Configures the endpoint
 config :poker_ex, PokerExWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "VOA984IYsUk+9lwEAQpMEanCWfYyNlcIOy7Buu+KXSzbu0BY7BCbdo1kmrVVEFbK",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: PokerExWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: PokerEx.PubSub,
            adapter: Phoenix.PubSub.PG2]
