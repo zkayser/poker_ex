@@ -18,15 +18,10 @@ defmodule PokerExWeb.UserSocket do
   transport :websocket, Phoenix.Transports.WebSocket,
             timeout: 45_000,
             check_origin: [
-              "http://localhost:3000",
-              "http://localhost:4001",
-              "http://localhost:4000",
-              "http://localhost:4000/",
               "http://localhost:8080",
               "http://localhost:8081",
-              "https://phoenix-experiment-zkayser.c9users.io",
-              "http://phoenix-experiment-zkayser.c9users.io:8081",
-              "//ancient-forest-15148.herokuapp.com/",
+              "https://ancient-forest-15148.herokuapp.com/",
+              "https://poker-ex.herokuapp.com/"
               ]
   # transport :longpoll, Phoenix.Transports.LongPoll
 
