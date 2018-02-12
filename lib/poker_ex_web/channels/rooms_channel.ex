@@ -150,4 +150,5 @@ defmodule PokerExWeb.RoomsChannel do
 
 		broadcast!(socket, "new_message", %{message: message})
 	end
+	defp broadcast_action_message(_, _, _, _), do: :ok
 end
