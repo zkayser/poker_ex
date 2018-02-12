@@ -3,6 +3,7 @@ defmodule PokerExWeb.RoomsChannel do
 	require Logger
 	alias PokerEx.Repo
 	alias PokerEx.Player
+	alias PokerEx.PrivateRoom
 	alias PokerEx.Room
 
 	@valid_params ~w(player amount)
@@ -54,9 +55,6 @@ defmodule PokerExWeb.RoomsChannel do
 			{true, true} ->
 				room = Room.state(assigns.room)
 				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
-			# {true, false} ->
-				# In this case, the player hasn't joined yet. Disconnect the channel and force rejoin.
-
 			{_, _} ->
 				room = Room.join(assigns.room, assigns.player, assigns.join_amount)
 				broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
@@ -73,6 +71,7 @@ defmodule PokerExWeb.RoomsChannel do
 		case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
 			true ->
 				room = apply(Room, atomize(action), [socket.assigns.room, player|Map.values(params)])
+				save_private_room(room, socket)
 				maybe_broadcast_update(room, socket)
 			_ -> {:error, :bad_room_arguments, Map.values(params)}
 		end
@@ -127,5 +126,13 @@ defmodule PokerExWeb.RoomsChannel do
 	defp maybe_broadcast_update(:skip_update_message, _), do: :ok
 	defp maybe_broadcast_update(room, socket) do
 		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+	end
+
+	defp save_private_room(room, socket) do
+		case socket.assigns.type do
+			"private" ->
+				PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+			_ -> :ok
+		end
 	end
 end
