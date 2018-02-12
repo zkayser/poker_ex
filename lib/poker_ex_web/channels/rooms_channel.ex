@@ -8,6 +8,7 @@ defmodule PokerExWeb.RoomsChannel do
 
 	@valid_params ~w(player amount)
 	@actions ~w(raise call check fold leave add_chips)
+	@poker_actions ~w(raise call check fold)
 	@manual_join_msg "Welcome. Please join by pressing the join button and entering an amount."
 
 	def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket) when amount >= 100 do
@@ -72,6 +73,7 @@ defmodule PokerExWeb.RoomsChannel do
 			true ->
 				room = apply(Room, atomize(action), [socket.assigns.room, player|Map.values(params)])
 				save_private_room(room, socket)
+				broadcast_action_message(player, action, params, socket)
 				maybe_broadcast_update(room, socket)
 			_ -> {:error, :bad_room_arguments, Map.values(params)}
 		end
@@ -128,11 +130,24 @@ defmodule PokerExWeb.RoomsChannel do
 		broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
 	end
 
+	defp save_private_room(:skip_update_message, _), do: :ok
 	defp save_private_room(room, socket) do
 		case socket.assigns.type do
 			"private" ->
 				PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
 			_ -> :ok
 		end
+	end
+
+	defp broadcast_action_message(player, action, params, socket) when action in @poker_actions do
+		message =
+			case action do
+				"call" -> "#{player.name} called."
+				"raise" -> "#{player.name} raised #{inspect params["amount"]}."
+				"fold" -> "#{player.name} folded."
+				"check" -> "#{player.name} checked."
+			end
+
+		broadcast!(socket, "new_message", %{message: message})
 	end
 end
