@@ -15,7 +15,7 @@ defmodule PokerExWeb.RegistrationController do
       changeset = PokerEx.Player.registration_changeset(%PokerEx.Player{}, registration_params)
 
       with {:ok, player} <- PokerEx.Repo.insert(changeset) do
-        PokerEx.Emails.welcome_email(player) |> PokerEx.Mailer.deliver_later()
+        # PokerEx.Emails.welcome_email(player) |> PokerEx.Mailer.deliver_later()
         api_sign_in(conn, registration_params["name"], registration_params["password"])
       else
         _ ->
