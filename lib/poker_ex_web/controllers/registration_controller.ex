@@ -15,7 +15,10 @@ defmodule PokerExWeb.RegistrationController do
       changeset = PokerEx.Player.registration_changeset(%PokerEx.Player{}, registration_params)
 
       with {:ok, player} <- PokerEx.Repo.insert(changeset) do
-        # PokerEx.Emails.welcome_email(player) |> PokerEx.Mailer.deliver_later()
+        # Emails are broken on the live site right now because credentials...
+        unless Mix.env == :prod do
+          PokerEx.Emails.welcome_email(player) |> PokerEx.Mailer.deliver_later()
+        end
         api_sign_in(conn, registration_params["name"], registration_params["password"])
       else
         _ ->
