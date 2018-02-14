@@ -50,3 +50,5 @@ config :poker_ex, PokerEx.Repo,
   hostname: "localhost",
   template: "template0",
   pool_size: 10
+
+Application.put_env(PokerEx, :should_update_after_poker_action, true)

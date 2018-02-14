@@ -41,6 +41,8 @@ config :poker_ex, PokerEx.Mailer,
 config :poker_ex,
   client_password_reset_endpoint: "https://poker-ex.herokuapp.com/#/password-reset"
 
+Application.put_env(PokerEx, :should_update_after_poker_action, true)
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

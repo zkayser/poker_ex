@@ -29,3 +29,5 @@ config :poker_ex, PokerEx.Repo,
   hostname: "localhost",
   template: "template0",
   pool: Ecto.Adapters.SQL.Sandbox
+
+Application.put_env(PokerEx, :should_update_after_poker_action, false)

@@ -134,7 +134,12 @@ defmodule PokerExWeb.RoomsChannel do
 	defp save_private_room(room, socket) do
 		case socket.assigns.type do
 			"private" ->
-				PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+				# Should only hit the database in prod
+				if Application.get_env(PokerEx, :should_update_after_poker_action) do
+					PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+				else
+					:ok
+				end
 			_ -> :ok
 		end
 	end
