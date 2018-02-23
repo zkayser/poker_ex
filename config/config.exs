@@ -5,7 +5,7 @@
 # is restricted to this project.
 use Mix.Config
 
-  Application.put_env(PokerEx, :initial_room_count, 100)
+  Application.put_env(PokerEx, :initial_room_count, 1000)
 # General application configuration
 config :poker_ex,
   ecto_repos: [PokerEx.Repo]

@@ -16,7 +16,7 @@ defmodule LobbyChannelTest do
 	end
 
 	test "after joining, the channel pushes a list of public rooms", _context do
-		assert_push "rooms", %{rooms: _, page: 1, total_pages: 10}
+		assert_push "rooms", %{rooms: _, page: 1, total_pages: 100}
 	end
 
 	test "a `player_count_updated` message is broadcast whenever a player joins or leaves a public room", context do
@@ -32,7 +32,7 @@ defmodule LobbyChannelTest do
 
 	test "the channel pushes the correctly paginated list of rooms when receiving a `get_page` message", context do
 		push context.socket, "get_page", %{"page_num" => "3"}
-		assert_push "rooms", %{rooms: _, page: 3, total_pages: 10}
+		assert_push "rooms", %{rooms: _, page: 3, total_pages: 100}
 	end
 
 	defp create_player_and_connect() do
