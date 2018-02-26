@@ -42,9 +42,12 @@ defmodule PokerEx.PrivateRoom do
         |> changeset()
         |> update_participants([owner])
         |> Repo.insert() do
-      RoomsSupervisor.create_private_room(title)
-      Notifications.notify_invitees(room)
-      {:ok, room}
+      case result = RoomsSupervisor.create_private_room(format_title(title)) do
+        {:ok, _} ->
+          Notifications.notify_invitees(room)
+          {:ok, room}
+        {:error, error} -> {:error, error}
+      end
     else
       {:error, changeset} -> {:error, changeset.errors}
     end
