@@ -41,6 +41,12 @@ defmodule PokerEx.GameEngineTest do
     end
   end
 
+  test "returns an error if the player has already joined", context do
+    {:ok, engine} = Engine.join(Engine.new(), context.p1, 200)
+
+    assert {:error, :already_joined} = Engine.join(engine, context.p1, 200)
+  end
+
   defp join(player, {:ok, engine}), do: Engine.join(engine, player, 200)
   defp join(player, engine), do: Engine.join(engine, player, 200)
 end
