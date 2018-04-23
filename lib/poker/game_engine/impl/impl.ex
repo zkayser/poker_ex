@@ -1,13 +1,22 @@
 defmodule PokerEx.GameEngine.Impl do
   alias PokerEx.{Deck, Card, Player}
-  alias PokerEx.GameEngine.{ChipManager, Seating, HandManager, CardManager, ScoreManager}
+
+  alias PokerEx.GameEngine.{
+    ChipManager,
+    Seating,
+    PlayerTracker,
+    CardManager,
+    ScoreManager,
+    PhaseManager
+  }
+
   alias __MODULE__, as: Engine
   @timeout 30_000
   @type t :: %Engine{
           chips: ChipManager.t(),
           seating: Seating.t(),
           type: :private | :public,
-          hand_manager: HandManager.t(),
+          player_tracker: PlayerTracker.t(),
           cards: CardManager.t(),
           scoring: ScoreManager.t(),
           room_id: String.t() | :none,
@@ -17,7 +26,7 @@ defmodule PokerEx.GameEngine.Impl do
 
   defstruct chips: ChipManager.new(),
             seating: Seating.new(),
-            hand_manager: HandManager.new(),
+            player_tracker: PlayerTracker.new(),
             cards: CardManager.new(),
             scoring: ScoreManager.new(),
             type: :public,
@@ -29,11 +38,17 @@ defmodule PokerEx.GameEngine.Impl do
     %Engine{}
   end
 
-  @spec join(t(), Player.t(), non_neg_integer) :: t()
+  @spec join(t(), Player.t(), non_neg_integer) :: {:ok, t()} | {:error, atom()}
   def join(engine, player, chip_amount) do
     with {:ok, new_seating} <- Seating.join(engine, player),
          {:ok, chips} <- ChipManager.join(engine, player, chip_amount) do
-      {:ok, update_state(engine, [{:update_seating, new_seating}, {:update_chips, chips}])}
+      {:ok,
+       update_state(engine, [
+         {:update_seating, new_seating},
+         {:update_chips, chips},
+         :maybe_change_phase,
+         {:set_active_players, engine.phase}
+       ])}
     else
       error -> error
     end
@@ -89,5 +104,13 @@ defmodule PokerEx.GameEngine.Impl do
 
   defp update({:update_chips, chips}, engine) do
     Map.put(engine, :chips, chips)
+  end
+
+  defp update(:maybe_change_phase, engine) do
+    PhaseManager.maybe_change_phase(engine)
+  end
+
+  defp update({:set_active_players, phase}, engine) do
+    PlayerTracker.set_active_players(engine, phase)
   end
 end

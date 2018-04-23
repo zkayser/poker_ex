@@ -7,14 +7,12 @@ defmodule PokerEx.GameEngine.Seating do
 
   @type t :: %__MODULE__{
           arrangement: arrangement,
-          active: arrangement,
-          current_big_blind: seat_number,
-          current_small_blind: seat_number,
+          current_big_blind: {String.t(), seat_number},
+          current_small_blind: {String.t(), seat_number},
           skip_advance?: boolean()
         }
 
   defstruct arrangement: [],
-            active: [],
             current_big_blind: :empty,
             current_small_blind: :empty,
             skip_advance?: false
@@ -24,10 +22,10 @@ defmodule PokerEx.GameEngine.Seating do
   end
 
   @spec join(PokerEx.GameEngine.Impl.t(), Player.t()) :: t()
-  def join(%{seating: seating}, player) do
+  def join(%{seating: seating, phase: phase}, player) do
     with true <- length(seating.arrangement) < @capacity,
-         false <- player.name in seating.arrangement do
-      {:ok, insert_player(seating, player.name)}
+         false <- player.name in Enum.map(seating.arrangement, fn {name, pos} -> name end) do
+      {:ok, update_state(seating, [{:insert_player, player}, {:maybe_set_blinds, phase}])}
     else
       false ->
         {:error, :room_full}
@@ -37,7 +35,37 @@ defmodule PokerEx.GameEngine.Seating do
     end
   end
 
-  defp insert_player(%__MODULE__{arrangement: arrangement} = seating, name) do
-    Map.put(seating, :arrangement, [name | arrangement])
+  defp update_state(seating, updates) do
+    Enum.reduce(updates, seating, &update(&1, &2))
   end
+
+  defp update({:insert_player, player}, %{arrangement: arrangement} = seating) do
+    Map.put(seating, :arrangement, [position_for(player.name, arrangement) | arrangement])
+  end
+
+  defp update({:maybe_set_blinds, phase}, %{arrangement: arrangement} = seating) do
+    case phase in [:idle, :between_rounds] do
+      true ->
+        %__MODULE__{
+          seating
+          | current_big_blind: set_blind(arrangement, :big),
+            current_small_blind: set_blind(arrangement, :small)
+        }
+
+      false ->
+        seating
+    end
+  end
+
+  defp position_for(name, arrangement), do: {name, length(arrangement)}
+
+  defp set_blind(arrangement, :big) when length(arrangement) >= 1 do
+    hd(arrangement)
+  end
+
+  defp set_blind([_ | tail], :small) when length(tail) >= 1 do
+    hd(tail)
+  end
+
+  defp set_blind(_, _), do: :empty
 end
