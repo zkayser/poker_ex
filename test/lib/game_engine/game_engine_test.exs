@@ -6,18 +6,6 @@ defmodule PokerEx.GameEngineTest do
   alias PokerEx.TestData
   @join_amount 200
 
-  setup do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(PokerEx.Repo)
-    Ecto.Adapters.SQL.Sandbox.mode(PokerEx.Repo, {:shared, self()})
-
-    [p1, p2, p3, p4, p5, p6] =
-      for _ <- 1..6 do
-        insert_user()
-      end
-
-    {:ok, %{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}}
-  end
-
   describe "join/3" do
     test "lets players join and places them in a seat", %{p1: p1} do
       name = p1.name
