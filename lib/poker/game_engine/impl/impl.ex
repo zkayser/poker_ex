@@ -46,8 +46,8 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_seating, new_seating},
          {:update_chips, chips},
-         :maybe_change_phase,
-         {:set_active_players, engine.phase}
+         {:set_active_players, engine.phase},
+         :maybe_change_phase
        ])}
     else
       error -> error

@@ -1,9 +1,9 @@
 defmodule PokerEx.GameEngineTest do
   use ExUnit.Case
+  use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{Seating}
   alias PokerEx.TestData
-  import PokerEx.TestHelpers
   @join_amount 200
 
   setup do

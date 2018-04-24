@@ -1,9 +1,13 @@
 defmodule PokerEx.GameEngine.ChipManager do
   alias PokerEx.Player
   @minimum_join_amount 100
+  @big_blind 10
+  @small_blind 5
 
   @type chip_tracker :: %{(String.t() | Player.t()) => non_neg_integer} | %{}
   @type chip_roll :: %{optional(String.t()) => non_neg_integer} | %{}
+  @type success :: {:ok, t()}
+  @type bet_error :: {:error, :insufficient_chips | :out_of_turn}
 
   @type t :: %__MODULE__{
           to_call: non_neg_integer,
@@ -25,17 +29,46 @@ defmodule PokerEx.GameEngine.ChipManager do
     %__MODULE__{}
   end
 
-  @spec join(PokerEx.GameEngine.Impl.t(), Player.t(), pos_integer()) :: t()
-  def join(%{chips: chips}, player, join_amount) when join_amount >= @minimum_join_amount do
-    with {:ok, player} <- Player.subtract_chips(player.name, join_amount) do
+  @spec join(PokerEx.GameEngine.Impl.t(), Player.t(), pos_integer()) ::
+          {:ok, t()} | {:error, atom()}
+  def join(%{chips: chips} = engine, player, join_amount)
+      when join_amount >= @minimum_join_amount do
+    with true <- player.chips >= join_amount,
+         {:ok, player} <- Player.subtract_chips(player.name, join_amount) do
       {:ok, update_state(chips, [{:chip_roll, player.name, join_amount}])}
     else
+      false ->
+        {:error, :insufficient_chips}
+
       error ->
         error
     end
   end
 
   def join(_, _, _), do: {:error, :join_amount_insufficient}
+
+  @spec post_blinds(PokerEx.GameEngine.Impl.t()) :: t()
+  def post_blinds(%{chips: chips, seating: seating} = engine) do
+    {big_blind, _} = seating.current_big_blind
+    {small_blind, _} = seating.current_small_blind
+
+    {:ok,
+     update_state(chips, [
+       {:set_call_amount, @big_blind},
+       {:player_bet, big_blind, @big_blind},
+       {:player_bet, small_blind, @small_blind}
+     ])}
+  end
+
+  @spec call(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
+  def call(%{player_tracker: tracker, chips: chips}, name) do
+    with ^name <- hd(tracker.active) do
+      {:ok, update_state(chips, [{:player_bet, name, calculate_call_amount(name, chips)}])}
+    else
+      _ ->
+        {:error, :out_of_turn}
+    end
+  end
 
   defp update_state(chips, updates) do
     Enum.reduce(updates, chips, &update(&1, &2))
@@ -45,5 +78,42 @@ defmodule PokerEx.GameEngine.ChipManager do
     Map.update(chips, :chip_roll, %{player_name => amount}, fn chip_roll ->
       Map.put(chip_roll, player_name, amount)
     end)
+  end
+
+  defp update({:set_call_amount, amount}, chips) do
+    Map.put(chips, :to_call, amount)
+  end
+
+  defp update(
+         {:player_bet, name, amount},
+         %{paid: paid, round: round, chip_roll: chip_roll, pot: pot} = chips
+       ) do
+    adjusted_bet = calculate_bet_amount(amount, chip_roll, name)
+
+    %__MODULE__{
+      chips
+      | pot: pot + adjusted_bet,
+        paid: update_map(paid, name, adjusted_bet, :+),
+        round: update_map(round, name, adjusted_bet, :+),
+        chip_roll: update_map(chip_roll, name, adjusted_bet, :-)
+    }
+  end
+
+  defp calculate_bet_amount(amount, chip_roll, name) do
+    case chip_roll[name] - amount >= 0 do
+      true -> amount
+      false -> chip_roll[name]
+    end
+  end
+
+  defp calculate_call_amount(name, %{round: round} = chips) do
+    case round[name] do
+      nil -> chips.to_call
+      already_paid -> chips.to_call - already_paid
+    end
+  end
+
+  defp update_map(map, name, bet, operator) do
+    Map.update(map, name, bet, fn val -> apply(Kernel, operator, [val, bet]) end)
   end
 end

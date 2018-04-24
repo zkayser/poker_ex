@@ -1,5 +1,6 @@
 defmodule PokerEx.TestData do
   alias PokerEx.GameEngine.Impl, as: Engine
+  alias PokerEx.GameEngine.{ChipManager, PlayerTracker}
   @join_amount 200
 
   @doc """
@@ -18,4 +19,18 @@ defmodule PokerEx.TestData do
 
   defp join(player, {:ok, engine}), do: Engine.join(engine, player, @join_amount)
   defp join(player, engine), do: Engine.join(engine, player, @join_amount)
+
+  def insert_active_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    names = for player <- [p1, p2, p3, p4, p5, p6], do: player.name
+    %PlayerTracker{active: names}
+  end
+
+  def add_200_chips_for_all(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    chip_roll =
+      for player <- [p1, p2, p3, p4, p5, p6], into: %{} do
+        {player.name, @join_amount}
+      end
+
+    %ChipManager{chip_roll: chip_roll}
+  end
 end
