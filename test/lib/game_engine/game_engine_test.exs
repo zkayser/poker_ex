@@ -44,20 +44,4 @@ defmodule PokerEx.GameEngineTest do
       assert {:error, :already_joined} = Engine.join(engine, context.p1, 200)
     end
   end
-
-  describe "call/2" do
-    test "returns an error when the engine is a non-bettable phase", %{p1: p1} do
-      {:ok, engine} = Engine.join(Engine.new(), p1, 200)
-      engine_2 = %Engine{engine | phase: :game_over}
-      engine_3 = %Engine{engine | phase: :between_rounds}
-
-      assert {:error, :non_betting_round} = Engine.call(engine, p1)
-      assert {:error, :non_betting_round} = Engine.call(engine_2, p1)
-      assert {:error, :non_betting_round} = Engine.call(engine_3, p1)
-    end
-
-    test "only allows the active player to call", context do
-      {:ok, full_engine} = TestData.join_all(context)
-    end
-  end
 end

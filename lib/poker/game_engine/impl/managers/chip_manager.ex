@@ -31,6 +31,10 @@ defmodule PokerEx.GameEngine.ChipManager do
 
   @spec join(PokerEx.GameEngine.Impl.t(), Player.t(), pos_integer()) ::
           {:ok, t()} | {:error, atom()}
+  def join(%{chips: {:ok, chips}} = engine, player, join_amount) do
+    join(Map.put(engine, :chips, chips), player, join_amount)
+  end
+
   def join(%{chips: chips} = engine, player, join_amount)
       when join_amount >= @minimum_join_amount do
     with true <- player.chips >= join_amount,
@@ -70,6 +74,20 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
+  @spec raise(PokerEx.GameEngine.Impl.t(), Player.name(), pos_integer) :: success() | bet_error()
+  def raise(%{player_tracker: tracker, chips: chips} = engine, name, amount) do
+    with true <- amount > calculate_call_amount(name, chips),
+         ^name <- hd(tracker.active) do
+      {:ok, update_state(chips, [{:add_call_amount, name, amount}, {:player_bet, name, amount}])}
+    else
+      false ->
+        call(engine, name)
+
+      _ ->
+        {:error, :out_of_turn}
+    end
+  end
+
   defp update_state(chips, updates) do
     Enum.reduce(updates, chips, &update(&1, &2))
   end
@@ -82,6 +100,16 @@ defmodule PokerEx.GameEngine.ChipManager do
 
   defp update({:set_call_amount, amount}, chips) do
     Map.put(chips, :to_call, amount)
+  end
+
+  defp update({:add_call_amount, name, amount}, %{round: round} = chips) do
+    adjusted_amount = calculate_bet_amount(amount, chips.chip_roll, name)
+    raise_value = calculate_raise_value(name, adjusted_amount, chips)
+
+    case raise_value > chips.to_call do
+      true -> %__MODULE__{chips | to_call: raise_value}
+      false -> chips
+    end
   end
 
   defp update(
@@ -110,6 +138,13 @@ defmodule PokerEx.GameEngine.ChipManager do
     case round[name] do
       nil -> chips.to_call
       already_paid -> chips.to_call - already_paid
+    end
+  end
+
+  defp calculate_raise_value(name, adjusted_amount, %{round: round} = chips) do
+    case round[name] do
+      nil -> adjusted_amount
+      already_paid -> already_paid + adjusted_amount
     end
   end
 

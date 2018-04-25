@@ -2,7 +2,7 @@ defmodule PokerEx.ChipManagerTest do
   use ExUnit.Case
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{ChipManager, Seating}
+  alias PokerEx.GameEngine.{ChipManager}
 
   describe "join/3" do
     test "enforces players to join with at least 100 chips", _ do
@@ -75,7 +75,7 @@ defmodule PokerEx.ChipManagerTest do
       assert {:error, :out_of_turn} = ChipManager.call(engine, non_active_player)
     end
 
-    test "allows a player to call who has fewer than the to_call amount of chips", context do
+    test "allows calls by players with fewer than `to_call` amount of chips", context do
       engine =
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
         |> Map.put(:chips, TestData.add_200_chips_for_all(context))
@@ -87,6 +87,82 @@ defmodule PokerEx.ChipManagerTest do
       assert chips.chip_roll[active_player] == 0
       assert chips.paid[active_player] == 200
       assert chips.round[active_player] == 200
+    end
+  end
+
+  describe "raise/3" do
+    test "increases the pot size and removes chips from the player's chip roll", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :pot, 10) end)
+
+      [active_player | _] = engine.player_tracker.active
+      assert {:ok, chips} = ChipManager.raise(engine, active_player, 30)
+      assert chips.to_call == 30
+      assert chips.pot == 40
+      assert chips.chip_roll[active_player] == 170
+      assert chips.round[active_player] == 30
+      assert chips.paid[active_player] == 30
+    end
+
+    test "limits raises to the number of chips the player has in their chip roll", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+
+      [active_player | _] = engine.player_tracker.active
+      assert {:ok, chips} = ChipManager.raise(engine, active_player, 201)
+      assert chips.to_call == 200
+      assert chips.round[active_player] == 200
+      assert chips.chip_roll[active_player] == 0
+    end
+
+    test "does not allow raises if a player does not have enough chips to raise", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 400) end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :pot, 400) end)
+
+      [active_player | _] = engine.player_tracker.active
+      assert {:ok, chips} = ChipManager.raise(engine, active_player, 200)
+      assert chips.to_call == 400
+      assert chips.round[active_player] == 200
+      assert chips.paid[active_player] == 200
+      assert chips.chip_roll[active_player] == 0
+      assert chips.pot == 600
+    end
+
+    test "manages raises for players who have already paid in round", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :pot, 10) end)
+
+      [active_player | _] = engine.player_tracker.active
+
+      engine =
+        Map.update(engine, :chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+        end)
+
+      assert {:ok, chips} = ChipManager.raise(engine, active_player, 5)
+      assert chips.to_call == 15
+      assert chips.round[active_player] == 15
+      assert chips.pot == 15
+    end
+
+    test "prevents players from going out of turn", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+
+      non_active_player = Enum.drop(engine.player_tracker.active, 1) |> hd()
+
+      assert {:error, :out_of_turn} = ChipManager.raise(engine, non_active_player, 20)
     end
   end
 end
