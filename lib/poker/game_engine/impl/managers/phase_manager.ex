@@ -34,9 +34,33 @@ defmodule PokerEx.GameEngine.PhaseManager do
   def check_phase_change(%{phase: phase}, :join, _), do: phase
 
   def check_phase_change(%{phase: phase}, :bet, player_tracker) when phase in @betting_phases do
-    case length(player_tracker.active) == length(player_tracker.called) do
-      true -> next_phase(phase)
-      false -> phase
+    with true <- length(player_tracker.active) >= 1 do
+      case length(player_tracker.active) == length(player_tracker.called) do
+        true ->
+          if length(player_tracker.active) == 1, do: :game_over, else: next_phase(phase)
+
+        false ->
+          cond do
+            length(player_tracker.all_in) >= 1 && length(player_tracker.active) == 1 ->
+              phase
+
+            length(player_tracker.active) == 1 ->
+              :game_over
+
+            true ->
+              phase
+          end
+      end
+    else
+      _ ->
+        :game_over
+    end
+  end
+
+  def check_phase_change(%{phase: :between_rounds}, :system, seating) do
+    case length(seating.arrangement) > 1 do
+      true -> :pre_flop
+      false -> :idle
     end
   end
 

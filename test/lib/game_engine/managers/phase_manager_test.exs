@@ -64,7 +64,7 @@ defmodule PokerEx.PhaseManagerTest do
       assert :game_over = PhaseManager.check_phase_change(engine, :bet, engine.player_tracker)
     end
 
-    test "changes phase to game_over when one active player and no all in", context do
+    test "changes phase to game_over when one active player and others folded", context do
       engine =
         Map.update(Engine.new(), :player_tracker, %{}, fn tracker ->
           Map.put(tracker, :active, [context.p1.name])
@@ -113,7 +113,7 @@ defmodule PokerEx.PhaseManagerTest do
           Map.put(tracker, :active, [p1.name, p2.name])
         end)
         |> Map.update(:player_tracker, %{}, fn tracker ->
-          TestData.call_for_players(tracker, [p1.name, p2.name])
+          TestData.call_for_players(tracker, [p1, p2])
         end)
         |> Map.put(:phase, :river)
 
@@ -132,7 +132,7 @@ defmodule PokerEx.PhaseManagerTest do
           Map.put(tracker, :active, [p1.name, p2.name])
         end)
         |> Map.update(:player_tracker, %{}, fn tracker ->
-          TestData.call_for_players(tracker, [p1.name])
+          TestData.call_for_players(tracker, [p1])
         end)
         |> Map.put(:phase, :river)
 
