@@ -63,7 +63,6 @@ defmodule PokerEx.PlayerTrackerTest do
       [active_player | _] = engine.player_tracker.active
 
       assert {:ok, player_tracker} = PlayerTracker.raise(engine, active_player, engine.chips)
-      assert [active_player] == player_tracker.called
     end
 
     test "places the raising player at the end of the active player list", context do
@@ -114,6 +113,23 @@ defmodule PokerEx.PlayerTrackerTest do
       non_active_player = Enum.drop(engine.player_tracker.active, 1) |> hd()
 
       assert {:error, :player_not_active} = PlayerTracker.fold(engine, non_active_player)
+    end
+  end
+
+  describe "check/2" do
+    test "places the checking player in the called list if player can check", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+      [active_player | _] = engine.player_tracker.active
+
+      engine =
+        Map.update(engine, :chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+        end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+
+      assert {:ok, player_tracker} = PlayerTracker.check(engine, active_player)
+
+      assert active_player in player_tracker.called
     end
   end
 end

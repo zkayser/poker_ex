@@ -66,8 +66,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
         {:ok,
          update_state(tracker, [
            {:update_active, name, :to_back},
-           :clear_called,
-           {:update_called, name}
+           :clear_called
          ])}
     end
   end
@@ -77,6 +76,17 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     case tracker.active do
       [player | _] when player == name ->
         {:ok, update_state(tracker, [{:update_active, name, :drop}, {:update_folded, name}])}
+
+      _ ->
+        {:error, :player_not_active}
+    end
+  end
+
+  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() :: error()
+  def check(%{player_tracker: tracker}, name) do
+    case tracker.active do
+      [player | _] when player == name ->
+        {:ok, update_state(tracker, [{:update_called, name}])}
 
       _ ->
         {:error, :player_not_active}

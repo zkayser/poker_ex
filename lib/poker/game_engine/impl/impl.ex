@@ -14,6 +14,7 @@ defmodule PokerEx.GameEngine.Impl do
   @timeout 30_000
   @type success :: {:ok, t()}
   @type error :: {:error, atom()}
+  @type result :: success | error
   @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
   @type t :: %Engine{
           chips: ChipManager.t(),
@@ -41,27 +42,28 @@ defmodule PokerEx.GameEngine.Impl do
     %Engine{}
   end
 
-  @spec join(t(), Player.t(), non_neg_integer) :: success() | error()
+  @spec join(t(), Player.t(), non_neg_integer) :: result()
   def join(engine, player, chip_amount) do
     with {:ok, new_seating} <- Seating.join(engine, player),
-         {:ok, chips} <- ChipManager.join(engine, player, chip_amount) do
+         {:ok, chips} <- ChipManager.join(engine, player, chip_amount),
+         phase <- PhaseManager.check_phase_change(engine, :join, new_seating) do
       {:ok,
        update_state(engine, [
          {:update_seating, new_seating},
          {:update_chips, chips},
          {:set_active_players, engine.phase},
-         :maybe_change_phase
+         {:update_phase, phase}
        ])}
     else
       error -> error
     end
   end
 
-  @spec call(t(), Player.t()) :: t()
+  @spec call(t(), Player.t()) :: result()
   def call(%{player_tracker: %{active: [active_player | _]}} = engine, player) do
     with {:ok, chips} <- ChipManager.call(engine, active_player),
          {:ok, player_tracker} <- PlayerTracker.call(engine, active_player, chips),
-         phase <- PhaseManager.check_phase_change(engine, player_tracker) do
+         phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
        update_state(engine, [
          {:update_chips, chips},
@@ -73,22 +75,22 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec raise(t(), Player.t(), non_neg_integer) :: t()
+  @spec raise(t(), Player.t(), non_neg_integer) :: result()
   def raise(engine, player, amount) do
     nil
   end
 
-  @spec check(t(), Player.t()) :: t()
+  @spec check(t(), Player.t()) :: result()
   def check(engine, player) do
     nil
   end
 
-  @spec fold(t(), Player.t()) :: t()
+  @spec fold(t(), Player.t()) :: result()
   def fold(engine, player) do
     nil
   end
 
-  @spec leave(t(), Player.t()) :: t()
+  @spec leave(t(), Player.t()) :: result()
   def leave(engine, player) do
     nil
   end
@@ -103,7 +105,7 @@ defmodule PokerEx.GameEngine.Impl do
     nil
   end
 
-  @spec add_chips(t(), Player.t(), pos_integer) :: t()
+  @spec add_chips(t(), Player.t(), pos_integer) :: result()
   def add_chips(engine, player, amount) do
     nil
   end
