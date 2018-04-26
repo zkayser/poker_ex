@@ -29,6 +29,14 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, update_state(cards, [:deal_table, :deal_table, :deal_table])}
   end
 
+  def deal(%{cards: cards}, phase) when phase in [:turn, :river] do
+    {:ok, update_state(cards, [:deal_table])}
+  end
+
+  def deal(_, :between_rounds) do
+    {:ok, new()}
+  end
+
   def update_state(cards, updates) when is_list(updates) do
     Enum.reduce(updates, cards, &update(&1, &2))
   end

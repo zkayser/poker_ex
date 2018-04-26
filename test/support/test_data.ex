@@ -1,6 +1,6 @@
 defmodule PokerEx.TestData do
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{ChipManager, PlayerTracker, Seating}
+  alias PokerEx.GameEngine.{ChipManager, PlayerTracker, Seating, CardManager}
   @join_amount 200
 
   @doc """
@@ -65,5 +65,19 @@ defmodule PokerEx.TestData do
       end
 
     %ChipManager{chip_roll: chip_roll}
+  end
+
+  def setup_cards_and_deck(context) do
+    ## The setup work in the following lines ensures that a deck has been
+    ## instantiated. It is not otherwise necessary. Trying to takes cards
+    ## from an uninstantiated deck (an empty list value) throws a Runtime
+    ## Exception inside of the Deck module (see PokerEx.Deck.deal/2)
+    engine = Map.put(Engine.new(), :seating, seat_players(context))
+
+    engine =
+      Map.update(engine, :cards, %{}, fn card_manager ->
+        {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
+        card_manager
+      end)
   end
 end

@@ -20,14 +20,7 @@ defmodule PokerEx.CardManagerTest do
     end
 
     test "deals three cards on the table when transitioning to the flop", context do
-      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
-
-      engine =
-        Map.update(engine, :cards, %{}, fn card_manager ->
-          {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
-          card_manager
-        end)
-
+      engine = TestData.setup_cards_and_deck(context)
       assert {:ok, card_manager} = CardManager.deal(engine, :flop)
 
       for card <- card_manager.table do
@@ -36,6 +29,35 @@ defmodule PokerEx.CardManagerTest do
       end
 
       assert length(card_manager.table) == 3
+    end
+
+    test "deals one card on the table when transitioning to the turn", context do
+      engine = TestData.setup_cards_and_deck(context)
+      {:ok, card_manager} = CardManager.deal(engine, :flop)
+      engine = %Engine{engine | cards: card_manager}
+
+      assert {:ok, card_manager} = CardManager.deal(engine, :turn)
+      assert length(card_manager.table) == 4
+    end
+
+    test "deals one card on the table when transitioning to the river", context do
+      engine = TestData.setup_cards_and_deck(context)
+      {:ok, card_manager} = CardManager.deal(engine, :flop)
+      engine = %Engine{engine | cards: card_manager}
+      {:ok, card_manager} = CardManager.deal(engine, :turn)
+      engine = %Engine{engine | cards: card_manager}
+
+      assert {:ok, card_manager} = CardManager.deal(engine, :river)
+      assert length(card_manager.table) == 5
+    end
+
+    test "clears the deck when transitioning between rounds", context do
+      engine = TestData.setup_cards_and_deck(context)
+
+      assert {:ok, card_manager} = CardManager.deal(engine, :between_rounds)
+      assert [] = card_manager.table
+      assert [] = card_manager.deck
+      assert [] = card_manager.player_hands
     end
   end
 end
