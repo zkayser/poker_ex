@@ -25,6 +25,10 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, update_state(cards, [:shuffle, {:deal_players, players}])}
   end
 
+  def deal(%{cards: cards}, :flop) do
+    {:ok, update_state(cards, [:deal_table, :deal_table, :deal_table])}
+  end
+
   def update_state(cards, updates) when is_list(updates) do
     Enum.reduce(updates, cards, &update(&1, &2))
   end
@@ -46,5 +50,10 @@ defmodule PokerEx.GameEngine.CardManager do
       end
 
     new_cards = %__MODULE__{cards | deck: new_deck, player_hands: player_hands}
+  end
+
+  defp update(:deal_table, cards) do
+    {[dealt], deck} = Deck.deal(cards.deck, 1)
+    %__MODULE__{cards | deck: deck, table: [dealt | cards.table]}
   end
 end

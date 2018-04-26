@@ -18,5 +18,24 @@ defmodule PokerEx.CardManagerTest do
       assert length(hd(card_manager.player_hands).hand) == 2
       assert [] = card_manager.table
     end
+
+    test "deals three cards on the table when transitioning to the flop", context do
+      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
+
+      engine =
+        Map.update(engine, :cards, %{}, fn card_manager ->
+          {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
+          card_manager
+        end)
+
+      assert {:ok, card_manager} = CardManager.deal(engine, :flop)
+
+      for card <- card_manager.table do
+        deck = card_manager.deck
+        refute card in deck.cards
+      end
+
+      assert length(card_manager.table) == 3
+    end
   end
 end
