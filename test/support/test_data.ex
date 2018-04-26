@@ -25,6 +25,30 @@ defmodule PokerEx.TestData do
     %PlayerTracker{active: names}
   end
 
+  def call_for_players(tracker, players) when is_list(players) do
+    names = for player <- players, do: player.name
+    %PlayerTracker{tracker | called: names}
+  end
+
+  def call_for_all(tracker, %{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    call_for_players(tracker, [p1, p2, p3, p4, p5, p6])
+  end
+
+  def put_all_players_all_in(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    names = for player <- [p1, p2, p3, p4, p5, p6], do: player.name
+    %PlayerTracker{all_in: names}
+  end
+
+  def all_in_for_all_but_first(tracker, %{p1: _, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    names = for player <- [p2, p3, p4, p5, p6], do: player.name
+    %PlayerTracker{tracker | all_in: names}
+  end
+
+  def fold_for_all_but_first(tracker, %{p1: _, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    names = for player <- [p2, p3, p4, p5, p6], do: player.name
+    %PlayerTracker{tracker | folded: names}
+  end
+
   def add_200_chips_for_all(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
     chip_roll =
       for player <- [p1, p2, p3, p4, p5, p6], into: %{} do

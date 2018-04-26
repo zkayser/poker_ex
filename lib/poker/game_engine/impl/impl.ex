@@ -12,6 +12,9 @@ defmodule PokerEx.GameEngine.Impl do
 
   alias __MODULE__, as: Engine
   @timeout 30_000
+  @type success :: {:ok, t()}
+  @type error :: {:error, atom()}
+  @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
   @type t :: %Engine{
           chips: ChipManager.t(),
           seating: Seating.t(),
@@ -21,7 +24,7 @@ defmodule PokerEx.GameEngine.Impl do
           scoring: ScoreManager.t(),
           room_id: String.t() | :none,
           timeout: pos_integer,
-          phase: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
+          phase: phase
         }
 
   defstruct chips: ChipManager.new(),
@@ -38,7 +41,7 @@ defmodule PokerEx.GameEngine.Impl do
     %Engine{}
   end
 
-  @spec join(t(), Player.t(), non_neg_integer) :: {:ok, t()} | {:error, atom()}
+  @spec join(t(), Player.t(), non_neg_integer) :: success() | error()
   def join(engine, player, chip_amount) do
     with {:ok, new_seating} <- Seating.join(engine, player),
          {:ok, chips} <- ChipManager.join(engine, player, chip_amount) do
@@ -55,8 +58,19 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   @spec call(t(), Player.t()) :: t()
-  def call(engine, player) do
-    nil
+  def call(%{player_tracker: %{active: [active_player | _]}} = engine, player) do
+    with {:ok, chips} <- ChipManager.call(engine, active_player),
+         {:ok, player_tracker} <- PlayerTracker.call(engine, active_player, chips),
+         phase <- PhaseManager.check_phase_change(engine, player_tracker) do
+      {:ok,
+       update_state(engine, [
+         {:update_chips, chips},
+         {:update_tracker, player_tracker},
+         {:update_phase, phase}
+       ])}
+    else
+      error -> error
+    end
   end
 
   @spec raise(t(), Player.t(), non_neg_integer) :: t()
