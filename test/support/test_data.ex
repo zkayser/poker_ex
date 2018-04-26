@@ -1,6 +1,6 @@
 defmodule PokerEx.TestData do
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{ChipManager, PlayerTracker}
+  alias PokerEx.GameEngine.{ChipManager, PlayerTracker, Seating}
   @join_amount 200
 
   @doc """
@@ -23,6 +23,15 @@ defmodule PokerEx.TestData do
   def insert_active_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
     names = for player <- [p1, p2, p3, p4, p5, p6], do: player.name
     %PlayerTracker{active: names}
+  end
+
+  def seat_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    seating =
+      for {player, seat} <- [{p1, 0}, {p2, 1}, {p3, 2}, {p4, 3}, {p5, 4}, {p6, 5}] do
+        {player.name, seat}
+      end
+
+    %Seating{arrangement: seating}
   end
 
   def call_for_players(tracker, players) when is_list(players) do
