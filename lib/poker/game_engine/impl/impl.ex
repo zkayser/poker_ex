@@ -120,6 +120,10 @@ defmodule PokerEx.GameEngine.Impl do
     Map.put(engine, :chips, chips)
   end
 
+  defp update({:update_phase, phase}, engine) do
+    Map.put(engine, :phase, phase)
+  end
+
   defp update(:maybe_change_phase, engine) do
     PhaseManager.maybe_change_phase(engine)
   end
