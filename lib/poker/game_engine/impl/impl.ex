@@ -23,7 +23,7 @@ defmodule PokerEx.GameEngine.Impl do
           player_tracker: PlayerTracker.t(),
           cards: CardManager.t(),
           scoring: ScoreManager.t(),
-          room_id: String.t() | :none,
+          game_id: String.t() | :none,
           timeout: pos_integer,
           phase: phase
         }
@@ -34,7 +34,7 @@ defmodule PokerEx.GameEngine.Impl do
             cards: CardManager.new(),
             scoring: ScoreManager.new(),
             type: :public,
-            room_id: :none,
+            game_id: :none,
             phase: :idle,
             timeout: @timeout
 

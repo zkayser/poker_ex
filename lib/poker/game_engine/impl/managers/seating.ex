@@ -60,11 +60,13 @@ defmodule PokerEx.GameEngine.Seating do
   defp position_for(name, arrangement), do: {name, length(arrangement)}
 
   defp set_blind(arrangement, :big) when length(arrangement) >= 1 do
-    hd(arrangement)
+    {_, seat} = hd(arrangement)
+    seat
   end
 
   defp set_blind([_ | tail], :small) when length(tail) >= 1 do
-    hd(tail)
+    {_, seat} = hd(tail)
+    seat
   end
 
   defp set_blind(_, _), do: :empty
