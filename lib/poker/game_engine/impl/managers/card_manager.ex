@@ -21,7 +21,7 @@ defmodule PokerEx.GameEngine.CardManager do
 
   @spec deal(PokerEx.GameEngine.Impl.t(), PokerEx.GameEngine.Impl.phase()) :: result()
   def deal(%{cards: cards, seating: seating}, :pre_flop) do
-    players = for {player, _, _} <- seating.arrangement, do: player
+    players = for {player, _} <- seating.arrangement, do: player
     {:ok, update_state(cards, [:shuffle, {:deal_players, players}])}
   end
 
