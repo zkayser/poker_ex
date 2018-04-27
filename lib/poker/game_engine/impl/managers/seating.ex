@@ -48,8 +48,8 @@ defmodule PokerEx.GameEngine.Seating do
       true ->
         %__MODULE__{
           seating
-          | current_big_blind: set_blind(arrangement, :big),
-            current_small_blind: set_blind(arrangement, :small)
+          | current_big_blind: set_blind(seating, :big),
+            current_small_blind: set_blind(seating, :small)
         }
 
       false ->
@@ -59,15 +59,28 @@ defmodule PokerEx.GameEngine.Seating do
 
   defp position_for(name, arrangement), do: {name, length(arrangement)}
 
-  defp set_blind(arrangement, :big) when length(arrangement) >= 1 do
-    {_, seat} = hd(arrangement)
-    seat
+  defp set_blind(%{arrangement: arrangement} = seating, :big) when length(arrangement) >= 1 do
+    case seating.current_big_blind do
+      :empty ->
+        0
+
+      number ->
+        set_blind_for(number, :big, length(seating.arrangement))
+    end
   end
 
-  defp set_blind([_ | tail], :small) when length(tail) >= 1 do
-    {_, seat} = hd(tail)
-    seat
+  defp set_blind(%{arrangement: arrangement} = seating, :small) when length(arrangement) >= 1 do
+    case seating.current_small_blind do
+      :empty ->
+        1
+
+      number ->
+        set_blind_for(number, :small, length(seating.arrangement))
+    end
   end
 
   defp set_blind(_, _), do: :empty
+
+  defp set_blind_for(seat_position, :big, num_seats) do
+  end
 end

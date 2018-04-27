@@ -27,8 +27,15 @@ defmodule PokerEx.TestData do
 
   def seat_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
     seating =
-      for {player, seat} <- [{p1, 0}, {p2, 1}, {p3, 2}, {p4, 3}, {p5, 4}, {p6, 5}] do
-        {player.name, seat}
+      for {player, seat, role} <- [
+            {p1, 0, :dealer},
+            {p2, 1, :big_blind},
+            {p3, 2, :small_blind},
+            {p4, 3, :none},
+            {p5, 4, :none},
+            {p6, 5, :none}
+          ] do
+        {player.name, seat, role}
       end
 
     %Seating{arrangement: seating}
@@ -74,10 +81,9 @@ defmodule PokerEx.TestData do
     ## Exception inside of the Deck module (see PokerEx.Deck.deal/2)
     engine = Map.put(Engine.new(), :seating, seat_players(context))
 
-    engine =
-      Map.update(engine, :cards, %{}, fn card_manager ->
-        {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
-        card_manager
-      end)
+    Map.update(engine, :cards, %{}, fn card_manager ->
+      {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
+      card_manager
+    end)
   end
 end

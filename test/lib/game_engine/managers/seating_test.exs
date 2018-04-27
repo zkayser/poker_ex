@@ -27,8 +27,8 @@ defmodule PokerEx.SeatingTest do
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p2)
-      assert seating.current_big_blind == 1
-      assert seating.current_small_blind == 0
+      assert seating.current_big_blind == 0
+      assert seating.current_small_blind == 1
     end
   end
 end
