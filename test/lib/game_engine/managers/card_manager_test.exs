@@ -60,4 +60,14 @@ defmodule PokerEx.CardManagerTest do
       assert [] = card_manager.player_hands
     end
   end
+
+  describe "fold/2" do
+    test "removes the folding player's cards from the card manager", context do
+      engine = TestData.setup_cards_and_deck(context)
+
+      assert {:ok, card_manager} = CardManager.fold(engine, context.p1.name)
+      remaining_hands = Enum.map(card_manager.player_hands, fn data -> data.player end)
+      refute context.p1 in remaining_hands
+    end
+  end
 end

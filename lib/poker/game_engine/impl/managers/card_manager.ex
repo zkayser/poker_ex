@@ -37,6 +37,11 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, new()}
   end
 
+  @spec fold(PokerEx.GameEngine.Impl.t(), PokerEx.Player.name()) :: result()
+  def fold(%{cards: cards}, name) do
+    {:ok, update_state(cards, [{:remove_player_hand, name}])}
+  end
+
   def update_state(cards, updates) when is_list(updates) do
     Enum.reduce(updates, cards, &update(&1, &2))
   end
@@ -63,5 +68,9 @@ defmodule PokerEx.GameEngine.CardManager do
   defp update(:deal_table, cards) do
     {[dealt], deck} = Deck.deal(cards.deck, 1)
     %__MODULE__{cards | deck: deck, table: [dealt | cards.table]}
+  end
+
+  defp update({:remove_player_hand, name}, cards) do
+    %__MODULE__{cards | player_hands: Enum.reject(cards.player_hands, &(&1.player == name))}
   end
 end
