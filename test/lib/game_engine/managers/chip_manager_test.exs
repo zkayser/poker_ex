@@ -165,4 +165,40 @@ defmodule PokerEx.ChipManagerTest do
       assert {:error, :out_of_turn} = ChipManager.raise(engine, non_active_player, 20)
     end
   end
+
+  describe "check/2" do
+    test "allows a check if the player is active and has paid the to_call amount", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+
+      [active_player | _] = engine.player_tracker.active
+
+      engine =
+        Map.update(engine, :chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+        end)
+
+      assert {:ok, chips} = ChipManager.check(engine, active_player)
+      assert chips == engine.chips
+    end
+
+    test "errors if the player has not paid the to_call amount", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+
+      [active_player | _] = engine.player_tracker.active
+
+      assert {:error, :not_paid} = ChipManager.check(engine, active_player)
+    end
+
+    test "errors if the player tries to go out of turn", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      non_active_player = Enum.drop(engine.player_tracker.active, 1) |> hd()
+
+      assert {:error, :out_of_turn} = ChipManager.check(engine, non_active_player)
+    end
+  end
 end

@@ -52,6 +52,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_seating, new_seating},
          {:update_chips, chips},
          {:set_active_players, engine.phase},
+         {:maybe_update_cards, engine.phase, phase},
          {:update_phase, phase}
        ])}
     else
@@ -60,14 +61,15 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   @spec call(t(), Player.t()) :: result()
-  def call(%{player_tracker: %{active: [active_player | _]}} = engine, player) do
-    with {:ok, chips} <- ChipManager.call(engine, active_player),
-         {:ok, player_tracker} <- PlayerTracker.call(engine, active_player, chips),
+  def call(engine, player) do
+    with {:ok, chips} <- ChipManager.call(engine, player),
+         {:ok, player_tracker} <- PlayerTracker.call(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
        update_state(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
+         {:maybe_update_cards, engine.phase, phase},
          {:update_phase, phase}
        ])}
     else
@@ -77,12 +79,36 @@ defmodule PokerEx.GameEngine.Impl do
 
   @spec raise(t(), Player.t(), non_neg_integer) :: result()
   def raise(engine, player, amount) do
-    nil
+    with {:ok, chips} <- ChipManager.raise(engine, player, amount),
+         {:ok, player_tracker} <- PlayerTracker.raise(engine, player, chips),
+         phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
+      {:ok,
+       update_state(engine, [
+         {:update_chips, chips},
+         {:update_tracker, player_tracker},
+         {:maybe_update_cards, engine.phase, phase},
+         {:update_phase, phase}
+       ])}
+    else
+      error -> error
+    end
   end
 
   @spec check(t(), Player.t()) :: result()
   def check(engine, player) do
-    nil
+    with {:ok, chips} <- ChipManager.check(engine, player),
+         {:ok, player_tracker} <- PlayerTracker.check(engine, player),
+         phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
+      {:ok,
+       update_state(engine, [
+         {:update_chips, chips},
+         {:update_tracker, player_tracker},
+         {:maybe_update_cards, engine.phase, phase},
+         {:update_phase, phase}
+       ])}
+    else
+      error -> error
+    end
   end
 
   @spec fold(t(), Player.t()) :: result()
@@ -97,12 +123,12 @@ defmodule PokerEx.GameEngine.Impl do
 
   @spec player_count(t()) :: non_neg_integer
   def player_count(engine) do
-    nil
+    length(engine.seating.arrangement)
   end
 
   @spec player_list(t()) :: [String.t()]
   def player_list(engine) do
-    nil
+    for {player, _} <- engine.seating.arrangement, do: player
   end
 
   @spec add_chips(t(), Player.t(), pos_integer) :: result()
@@ -128,6 +154,17 @@ defmodule PokerEx.GameEngine.Impl do
 
   defp update(:maybe_change_phase, engine) do
     PhaseManager.maybe_change_phase(engine)
+  end
+
+  defp update({:maybe_update_cards, old_phase, new_phase}, engine) do
+    case old_phase == new_phase do
+      true ->
+        {:ok, cards} = CardManager.deal(engine, new_phase)
+        %__MODULE__{engine | cards: cards}
+
+      false ->
+        engine
+    end
   end
 
   defp update({:set_active_players, phase}, engine) do

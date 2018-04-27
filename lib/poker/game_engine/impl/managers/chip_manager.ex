@@ -7,7 +7,7 @@ defmodule PokerEx.GameEngine.ChipManager do
   @type chip_tracker :: %{(String.t() | Player.t()) => non_neg_integer} | %{}
   @type chip_roll :: %{optional(String.t()) => non_neg_integer} | %{}
   @type success :: {:ok, t()}
-  @type bet_error :: {:error, :insufficient_chips | :out_of_turn}
+  @type bet_error :: {:error, :insufficient_chips | :out_of_turn | :not_paid}
 
   @type t :: %__MODULE__{
           to_call: non_neg_integer,
@@ -85,6 +85,15 @@ defmodule PokerEx.GameEngine.ChipManager do
 
       _ ->
         {:error, :out_of_turn}
+    end
+  end
+
+  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
+  def check(%{player_tracker: tracker, chips: chips} = engine, name) do
+    case {name == hd(tracker.active), chips.round[name] == chips.to_call} do
+      {true, true} -> {:ok, chips}
+      {false, _} -> {:error, :out_of_turn}
+      {_, false} -> {:error, :not_paid}
     end
   end
 
