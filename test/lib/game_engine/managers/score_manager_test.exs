@@ -13,7 +13,16 @@ defmodule PokerEx.ScoreManagerTest do
     test "is a no-op if the game if phase is game over but not all cards dealt", context do
       blank_score_manager = ScoreManager.new()
 
-      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
+      engine =
+        Map.put(Engine.new(), :seating, TestData.seat_players(context))
+        |> Map.put(:player_tracker, TestData.insert_active_players(context))
+
+      engine =
+        Map.put(
+          engine,
+          :player_tracker,
+          TestData.all_in_for_all_but_first(engine.player_tracker, context)
+        )
 
       engine =
         Map.update(engine, :cards, %{}, fn _ ->
@@ -74,6 +83,27 @@ defmodule PokerEx.ScoreManagerTest do
       end
 
       assert scoring.winning_hand == hd(expected_winning_hand)
+    end
+
+    test "selects the only remaining player as the winner when all others fold", context do
+      engine =
+        Map.put(Engine.new(), :seating, TestData.seat_players(context))
+        |> Map.put(:player_tracker, TestData.insert_active_players(context))
+
+      engine =
+        Map.put(
+          engine,
+          :player_tracker,
+          TestData.fold_for_all_but_first(engine.player_tracker, context)
+        )
+        |> Map.put(:chips, TestData.pay_200_chips_for_all(context))
+        |> Map.put(:phase, :game_over)
+
+      scoring = ScoreManager.manage_score(engine)
+      assert length(scoring.stats) == 1
+      assert length(scoring.rewards) == 1
+      assert context.p1.name == hd(scoring.winners)
+      assert :none = scoring.winning_hand
     end
   end
 end

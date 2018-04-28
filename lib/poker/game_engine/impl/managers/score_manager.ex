@@ -27,7 +27,17 @@ defmodule PokerEx.GameEngine.ScoreManager do
   def manage_score(%{phase: :game_over, scoring: scoring, cards: cards} = engine) do
     case length(cards.table) < 5 do
       true ->
-        scoring
+        case length(engine.player_tracker.all_in) > 0 do
+          true ->
+            scoring
+
+          false ->
+            update_state(scoring, [
+              {:auto_win, engine.player_tracker.active},
+              {:set_rewards, engine.chips},
+              :set_winners
+            ])
+        end
 
       false ->
         update_state(scoring, [
@@ -73,5 +83,9 @@ defmodule PokerEx.GameEngine.ScoreManager do
       |> hd()
 
     %__MODULE__{scoring | winning_hand: winning_hand}
+  end
+
+  defp update({:auto_win, [player | _]}, scoring) do
+    Map.put(scoring, :stats, [{player, 1000}])
   end
 end
