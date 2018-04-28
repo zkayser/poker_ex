@@ -78,6 +78,15 @@ defmodule PokerEx.TestData do
     %ChipManager{chip_roll: chip_roll}
   end
 
+  def pay_200_chips_for_all(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
+    paid =
+      for player <- [p1, p2, p3, p4, p5, p6], into: %{} do
+        {player.name, 200}
+      end
+
+    %ChipManager{paid: paid}
+  end
+
   def setup_cards_and_deck(context) do
     ## The setup work in the following lines ensures that a deck has been
     ## instantiated. It is not otherwise necessary. Trying to takes cards

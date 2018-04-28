@@ -56,7 +56,8 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:set_active_players, engine.phase},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase}
+         {:update_phase, phase},
+         :set_roles
        ])}
     else
       error -> error
@@ -116,7 +117,17 @@ defmodule PokerEx.GameEngine.Impl do
 
   @spec fold(t(), Player.t()) :: result()
   def fold(engine, player) do
-    nil
+    with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
+         phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
+      {:ok,
+       update_state(engine, [
+         {:update_tracker, player_tracker},
+         {:maybe_update_cards, engine.phase, phase},
+         {:update_phase, phase}
+       ])}
+    else
+      error -> error
+    end
   end
 
   @spec leave(t(), Player.t()) :: result()
@@ -173,4 +184,10 @@ defmodule PokerEx.GameEngine.Impl do
   defp update({:set_active_players, phase}, engine) do
     PlayerTracker.set_active_players(engine, phase)
   end
+
+  defp update(:set_roles, %{phase: :pre_flop} = engine) do
+    Map.put(engine, :roles, RoleManager.manage_roles(engine))
+  end
+
+  defp update(:set_roles, engine), do: engine
 end
