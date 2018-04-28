@@ -9,13 +9,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
       async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
-      assert context.p1.name in async_data.fold_queue
-    end
-
-    test "cannot mark a player to leave if the player is not active", context do
-      async_data = AsyncManager.mark_for_action(Engine.new(), context.p1.name, :leave)
-      refute context.p1.name in async_data.fold_queue
-      assert [] = async_data.fold_queue
+      assert context.p1.name in async_data.cleanup_queue
     end
 
     test "marking a player/chip combination for add chips inserts the data in the chip queue",

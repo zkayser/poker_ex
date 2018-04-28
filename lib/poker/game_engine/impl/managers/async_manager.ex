@@ -26,10 +26,10 @@ defmodule PokerEx.GameEngine.AsyncManager do
 
   @type action :: :leave | {:add_chips, pos_integer()}
   @type t() :: %__MODULE__{
-          fold_queue: [Player.name()],
+          cleanup_queue: [Player.name()],
           chip_queue: [{Player.name(), pos_integer()}]
         }
-  defstruct fold_queue: [],
+  defstruct cleanup_queue: [],
             chip_queue: []
 
   def new do
@@ -43,7 +43,10 @@ defmodule PokerEx.GameEngine.AsyncManager do
   def mark_for_action(%{player_tracker: tracker} = engine, player, :leave) do
     case player in tracker.active do
       true ->
-        %__MODULE__{engine.async_manager | fold_queue: [player | engine.async_manager.fold_queue]}
+        %__MODULE__{
+          engine.async_manager
+          | cleanup_queue: [player | engine.async_manager.cleanup_queue]
+        }
 
       false ->
         engine.async_manager
