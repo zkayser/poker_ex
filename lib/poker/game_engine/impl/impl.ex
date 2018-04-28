@@ -7,7 +7,8 @@ defmodule PokerEx.GameEngine.Impl do
     PlayerTracker,
     CardManager,
     ScoreManager,
-    PhaseManager
+    PhaseManager,
+    RoleManager
   }
 
   alias __MODULE__, as: Engine
@@ -24,6 +25,7 @@ defmodule PokerEx.GameEngine.Impl do
           cards: CardManager.t(),
           scoring: ScoreManager.t(),
           game_id: String.t() | :none,
+          roles: RoleManager.t(),
           timeout: pos_integer,
           phase: phase
         }
@@ -33,6 +35,7 @@ defmodule PokerEx.GameEngine.Impl do
             player_tracker: PlayerTracker.new(),
             cards: CardManager.new(),
             scoring: ScoreManager.new(),
+            roles: RoleManager.new(),
             type: :public,
             game_id: :none,
             phase: :idle,

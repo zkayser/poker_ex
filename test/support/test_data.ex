@@ -41,6 +41,10 @@ defmodule PokerEx.TestData do
     %Seating{arrangement: seating}
   end
 
+  def seat_two(%{p1: p1, p2: p2}) do
+    %Seating{arrangement: for({player, seat} <- [{p1, 0}, {p2, 1}], do: {player.name, seat})}
+  end
+
   def call_for_players(tracker, players) when is_list(players) do
     names = for player <- players, do: player.name
     %PlayerTracker{tracker | called: names}

@@ -35,6 +35,12 @@ defmodule PokerEx.GameEngine.Seating do
     end
   end
 
+  @spec cycle(PokerEx.GameEngine.Impl.t()) :: t()
+  def cycle(%{seating: seating}) do
+    [hd | tail] = seating.arrangement
+    %__MODULE__{seating | arrangement: tail ++ [hd]}
+  end
+
   defp update_state(seating, updates) do
     Enum.reduce(updates, seating, &update(&1, &2))
   end

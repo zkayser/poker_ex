@@ -31,4 +31,17 @@ defmodule PokerEx.SeatingTest do
       assert seating.current_small_blind == 1
     end
   end
+
+  describe "cycle/1" do
+    test "moves the player in front of the seating arrangement to the back", context do
+      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
+
+      [hd | _] = engine.seating.arrangement
+      new_seating = Seating.cycle(engine)
+      [new_head | tail] = new_seating.arrangement
+
+      refute hd == new_head
+      assert hd == List.last(new_seating.arrangement)
+    end
+  end
 end
