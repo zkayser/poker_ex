@@ -93,6 +93,20 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
+  @spec cycle(PokerEx.GameEngine.Impl.t()) :: t()
+  def cycle(%{player_tracker: tracker}) do
+    case tracker.active do
+      [] ->
+        tracker
+
+      [_] ->
+        tracker
+
+      [active | rest] ->
+        %__MODULE__{tracker | active: rest ++ [active]}
+    end
+  end
+
   defp update_state(tracker, updates) do
     Enum.reduce(updates, tracker, &update(&1, &2))
   end
