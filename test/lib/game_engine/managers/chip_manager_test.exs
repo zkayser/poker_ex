@@ -2,7 +2,7 @@ defmodule PokerEx.ChipManagerTest do
   use ExUnit.Case
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{ChipManager}
+  alias PokerEx.GameEngine.{ChipManager, RoleManager, Seating}
 
   describe "join/3" do
     test "enforces players to join with at least 100 chips", _ do
@@ -30,20 +30,19 @@ defmodule PokerEx.ChipManagerTest do
 
   describe "post_blinds/1" do
     test "automatically places bets for the small and big blinds", _ do
-      {big_blind, small_blind} = {insert_user(), insert_user()}
+      {%{name: big_blind}, %{name: small_blind}} = {insert_user(), insert_user()}
 
       engine = Engine.new()
-      seating = engine.seating
-      chips = engine.chips
+      seating = %Seating{arrangement: [{big_blind, 0}, {small_blind, 1}]}
+      chips = %{engine.chips | chip_roll: %{big_blind => 200, small_blind => 200}}
 
-      seating = %{
-        seating
-        | current_big_blind: {big_blind, 0},
-          current_small_blind: {small_blind, 1}
+      engine = %Engine{
+        engine
+        | seating: seating,
+          chips: chips
       }
 
-      chips = %{chips | chip_roll: %{big_blind => 200, small_blind => 200}}
-      engine = %Engine{engine | seating: seating, chips: chips}
+      engine = Map.put(engine, :roles, RoleManager.manage_roles(engine))
 
       assert {:ok, %{chip_roll: chip_roll, paid: paid, round: round, to_call: 10, pot: 15}} =
                ChipManager.post_blinds(engine)

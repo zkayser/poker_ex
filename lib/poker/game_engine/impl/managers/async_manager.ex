@@ -61,12 +61,15 @@ defmodule PokerEx.GameEngine.AsyncManager do
   """
   @spec run(PokerEx.GameEngine.Impl.t(), async_task) :: PokerEx.GameEngine.Impl.t()
   def run(%{async_manager: async_manager} = engine, :cleanup) do
-    {:ok, Enum.reduce(async_manager.cleanup_queue, engine, &cleanup(&1, &2))}
+    Enum.reduce(async_manager.cleanup_queue, engine, &cleanup(&1, &2))
   end
 
   def run(%{async_manager: async_manager} = engine, :add_chips) do
-    {:ok, Enum.reduce(async_manager.chip_queue, engine, &add_chips(&1, &2))}
+    Enum.reduce(async_manager.chip_queue, engine, &add_chips(&1, &2))
   end
+
+  defp cleanup(player, {:ok, engine}), do: cleanup(player, engine)
+  defp cleanup(player, {:error, error}), do: {:error, error}
 
   defp cleanup(player, %{player_tracker: %{active: active}} = engine) do
     case PlayerTracker.is_player_active?(engine, player) do
@@ -89,30 +92,34 @@ defmodule PokerEx.GameEngine.AsyncManager do
          seating <- Seating.leave(engine, player),
          {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
          {:ok, chips} <- ChipManager.leave(engine, player) do
-      %{
-        engine
-        | player_tracker: player_tracker,
-          seating: seating,
-          chips: chips
-      }
+      {:ok,
+       %{
+         engine
+         | player_tracker: player_tracker,
+           seating: seating,
+           chips: chips
+       }}
     else
-      _ -> engine
+      error -> error
     end
   end
 
   defp auto_check(engine, player) do
     with {:ok, player_tracker} = PlayerTracker.check(engine, player),
          {:ok, chips} = ChipManager.check(engine, player) do
-      %{engine | player_tracker: player_tracker, chips: chips}
+      {:ok, %{engine | player_tracker: player_tracker, chips: chips}}
     else
-      _ -> engine
+      error -> error
     end
   end
+
+  defp add_chips({player, amount}, {:ok, engine}), do: add_chips({player, amount}, engine)
+  defp add_chips(_, {:error, error}), do: {:error, error}
 
   defp add_chips({player, amount}, engine) do
     case Seating.is_player_seated?(engine, player) do
       true ->
-        do_add_chips(engine, player, amount)
+        {:ok, do_add_chips(engine, player, amount)}
 
       false ->
         engine

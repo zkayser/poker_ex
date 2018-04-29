@@ -52,9 +52,8 @@ defmodule PokerEx.GameEngine.ChipManager do
   def join(_, _, _), do: {:error, :join_amount_insufficient}
 
   @spec post_blinds(PokerEx.GameEngine.Impl.t()) :: t()
-  def post_blinds(%{chips: chips, seating: seating} = engine) do
-    {big_blind, _} = seating.current_big_blind
-    {small_blind, _} = seating.current_small_blind
+  def post_blinds(%{chips: chips} = engine) do
+    {big_blind, small_blind} = {get_blind(engine, :big), get_blind(engine, :small)}
 
     {:ok,
      update_state(chips, [
@@ -114,6 +113,26 @@ defmodule PokerEx.GameEngine.ChipManager do
       _ ->
         false
     end
+  end
+
+  defp get_blind(%{roles: roles} = engine, :big) do
+    {player, _} =
+      Enum.filter(engine.seating.arrangement, fn {_, seat_num} ->
+        engine.roles.big_blind == seat_num
+      end)
+      |> hd()
+
+    player
+  end
+
+  defp get_blind(%{roles: roles} = engine, :small) do
+    {player, _} =
+      Enum.filter(engine.seating.arrangement, fn {_, seat_num} ->
+        engine.roles.small_blind == seat_num
+      end)
+      |> hd()
+
+    player
   end
 
   defp update_state(chips, updates) do

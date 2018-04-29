@@ -7,14 +7,10 @@ defmodule PokerEx.GameEngine.Seating do
 
   @type t :: %__MODULE__{
           arrangement: arrangement,
-          current_big_blind: {String.t(), seat_number},
-          current_small_blind: {String.t(), seat_number},
           skip_advance?: boolean()
         }
 
   defstruct arrangement: [],
-            current_big_blind: :empty,
-            current_small_blind: :empty,
             skip_advance?: false
 
   def new do
