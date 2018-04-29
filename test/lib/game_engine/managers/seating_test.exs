@@ -70,6 +70,32 @@ defmodule PokerEx.SeatingTest do
       assert {:ok, seating} = Seating.join(engine, context.p5)
       assert {context.p5.name, 0} == Enum.at(seating.arrangement, 2)
     end
+
+    test "handles reindexing with multiple gaps", context do
+      engine =
+        Map.update(Engine.new(), :seating, %{}, fn seating ->
+          Map.put(seating, :arrangement, [
+            {context.p1.name, 2},
+            {context.p2.name, 4},
+            {context.p3.name, 5}
+          ])
+        end)
+
+      assert {:ok, seating} = Seating.join(engine, context.p4)
+      assert {context.p4.name, 0} == hd(seating.arrangement)
+    end
+  end
+
+  describe "leave/2" do
+    test "removes the player from the seating arrangement", context do
+      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
+
+      new_seating = Seating.leave(engine, context.p2.name)
+
+      refute context.p2.name in Enum.map(new_seating.arrangement, fn {name, _} ->
+               name
+             end)
+    end
   end
 
   describe "cycle/1" do
