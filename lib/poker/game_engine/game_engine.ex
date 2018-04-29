@@ -60,7 +60,7 @@ defmodule PokerEx.GameEngine do
     call_gen_server(room_id, :which_state)
   end
 
-  defp statemCall(id, call_params) when is_binary(id) do
+  defp call_gen_server(id, call_params) when is_binary(id) do
     GenServer.call(name_for(id), call_params)
   end
 
