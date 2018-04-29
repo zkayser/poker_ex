@@ -69,7 +69,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp update_state(player, %{player_tracker: %{active: active}} = engine) do
-    case length(active) > 0 && player == hd(active) do
+    case PlayerTracker.is_player_active?(engine, player) do
       true ->
         case ChipManager.can_player_check?(engine, player) do
           true ->
