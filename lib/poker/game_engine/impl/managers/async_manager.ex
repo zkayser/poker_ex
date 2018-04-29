@@ -1,5 +1,6 @@
 defmodule PokerEx.GameEngine.AsyncManager do
   alias PokerEx.Player
+  alias PokerEx.GameEngine.{Seating, PlayerTracker, ChipManager}
 
   @moduledoc """
   Handles asynchronous management of game engine state
@@ -41,16 +42,10 @@ defmodule PokerEx.GameEngine.AsyncManager do
   """
   @spec mark_for_action(PokerEx.GameEngine.Impl.t(), Player.name(), action) :: t()
   def mark_for_action(%{player_tracker: tracker} = engine, player, :leave) do
-    case player in tracker.active do
-      true ->
-        %__MODULE__{
-          engine.async_manager
-          | cleanup_queue: [player | engine.async_manager.cleanup_queue]
-        }
-
-      false ->
-        engine.async_manager
-    end
+    %__MODULE__{
+      engine.async_manager
+      | cleanup_queue: [player | engine.async_manager.cleanup_queue]
+    }
   end
 
   def mark_for_action(%{player_tracker: tracker} = engine, player, {:add_chips, amount}) do
@@ -58,5 +53,13 @@ defmodule PokerEx.GameEngine.AsyncManager do
       engine.async_manager
       | chip_queue: [{player, amount} | engine.async_manager.chip_queue]
     }
+  end
+
+  @doc """
+  Updates the game engine state asynchronously given the current queues
+  """
+  @spec run(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
+  def run(%{async_manager: async_manager} = engine) do
+    {:ok, engine}
   end
 end

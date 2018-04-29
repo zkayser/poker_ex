@@ -25,7 +25,7 @@ defmodule PokerEx.GameEngine.Seating do
   def join(%{seating: seating, phase: phase}, player) do
     with true <- length(seating.arrangement) < @capacity,
          false <- player.name in Enum.map(seating.arrangement, fn {name, pos} -> name end) do
-      {:ok, update_state(seating, [{:insert_player, player}, {:maybe_set_blinds, phase}])}
+      {:ok, update_state(seating, [{:insert_player, player}])}
     else
       false ->
         {:error, :room_full}
@@ -46,47 +46,35 @@ defmodule PokerEx.GameEngine.Seating do
   end
 
   defp update({:insert_player, player}, %{arrangement: arrangement} = seating) do
-    Map.put(seating, :arrangement, [position_for(player.name, arrangement) | arrangement])
+    new_arrangement =
+      case Enum.drop_while(0..length(arrangement), fn num ->
+             num in Enum.map(arrangement, fn {_, seat_num} -> seat_num end)
+           end) do
+        [] ->
+          insert_player_at(arrangement, player.name, length(arrangement))
+
+        [head | _] ->
+          insert_player_at(arrangement, player.name, head)
+      end
+
+    Map.put(seating, :arrangement, new_arrangement)
   end
 
-  defp update({:maybe_set_blinds, phase}, %{arrangement: arrangement} = seating) do
-    case phase in [:idle, :between_rounds] do
-      true ->
-        %__MODULE__{
-          seating
-          | current_big_blind: set_blind(seating, :big),
-            current_small_blind: set_blind(seating, :small)
-        }
+  defp insert_player_at(arrangement, player, missing_index) do
+    case Enum.find_index(arrangement, fn {_, seat_num} -> seat_num == missing_index - 1 end) do
+      nil ->
+        case Enum.find_index(arrangement, fn {_, seat} -> seat == missing_index + 1 end) do
+          nil ->
+            [{player, missing_index}] ++ arrangement
 
-      false ->
-        seating
+          index ->
+            {front, back} = Enum.split(arrangement, index)
+            front ++ [{player, missing_index}] ++ back
+        end
+
+      index ->
+        {front, back} = Enum.split(arrangement, index + 1)
+        front ++ [{player, missing_index}] ++ back
     end
-  end
-
-  defp position_for(name, arrangement), do: {name, length(arrangement)}
-
-  defp set_blind(%{arrangement: arrangement} = seating, :big) when length(arrangement) >= 1 do
-    case seating.current_big_blind do
-      :empty ->
-        0
-
-      number ->
-        set_blind_for(number, :big, length(seating.arrangement))
-    end
-  end
-
-  defp set_blind(%{arrangement: arrangement} = seating, :small) when length(arrangement) >= 1 do
-    case seating.current_small_blind do
-      :empty ->
-        1
-
-      number ->
-        set_blind_for(number, :small, length(seating.arrangement))
-    end
-  end
-
-  defp set_blind(_, _), do: :empty
-
-  defp set_blind_for(seat_position, :big, num_seats) do
   end
 end
