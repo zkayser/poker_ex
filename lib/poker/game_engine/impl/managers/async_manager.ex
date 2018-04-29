@@ -83,7 +83,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
         end
 
       false ->
-        engine
+        {:ok, engine}
     end
   end
 
@@ -100,7 +100,9 @@ defmodule PokerEx.GameEngine.AsyncManager do
            chips: chips
        }}
     else
-      error -> error
+      {:error, error} -> {:error, error}
+      :error -> {:error, :failed_to_update}
+      _ -> {:ok, engine}
     end
   end
 
@@ -109,7 +111,9 @@ defmodule PokerEx.GameEngine.AsyncManager do
          {:ok, chips} = ChipManager.check(engine, player) do
       {:ok, %{engine | player_tracker: player_tracker, chips: chips}}
     else
-      error -> error
+      {:error, error} -> {:error, error}
+      :error -> {:error, :failed_to_update}
+      _ -> {:ok, engine}
     end
   end
 
@@ -122,7 +126,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
         {:ok, do_add_chips(engine, player, amount)}
 
       false ->
-        engine
+        {:ok, engine}
     end
   end
 

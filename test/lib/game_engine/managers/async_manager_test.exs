@@ -54,7 +54,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
 
       async_data = AsyncManager.mark_for_action(engine, context.p2.name, :leave)
       engine = %Engine{engine | async_manager: async_data}
-      assert updated_engine = AsyncManager.run(engine, :cleanup)
+      assert {:ok, updated_engine} = AsyncManager.run(engine, :cleanup)
       assert updated_engine == engine
     end
 

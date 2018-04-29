@@ -77,7 +77,8 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase}
+         {:update_phase, phase},
+         :async_cleanup
        ])}
     else
       error -> error
@@ -94,7 +95,8 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase}
+         {:update_phase, phase},
+         :async_cleanup
        ])}
     else
       error -> error
@@ -111,7 +113,8 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase}
+         {:update_phase, phase},
+         :async_cleanup
        ])}
     else
       error -> error
@@ -126,7 +129,8 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase}
+         {:update_phase, phase},
+         :async_cleanup
        ])}
     else
       error -> error
@@ -135,7 +139,8 @@ defmodule PokerEx.GameEngine.Impl do
 
   @spec leave(t(), Player.t()) :: result()
   def leave(engine, player) do
-    nil
+    %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}
+    # What am I trying to accomplish here??
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -193,4 +198,10 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   defp update(:set_roles, engine), do: engine
+
+  defp update(:async_cleanup, %{phase: :game_over} = engine), do: engine
+
+  defp update(:async_cleanup, engine) do
+    engine
+  end
 end
