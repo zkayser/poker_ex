@@ -202,6 +202,10 @@ defmodule PokerEx.GameEngine.Impl do
   defp update(:async_cleanup, %{phase: :game_over} = engine), do: engine
 
   defp update(:async_cleanup, engine) do
-    engine
+    with {:ok, engine} = AsyncManager.run(engine, :cleanup) do
+      engine
+    else
+      error -> error
+    end
   end
 end
