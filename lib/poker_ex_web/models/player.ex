@@ -238,7 +238,7 @@ defmodule PokerEx.Player do
   # the player twice, then. Once on the `reward` call, then again when the
   # player leaves the room. This should be fleshed out with an
   # integration test in the `RoomsChannelTest`.
-  @spec reward(String.t(), non_neg_integer, atom()) :: Player.t()
+  @spec reward(String.t(), non_neg_integer, atom()) :: {:ok, Player.t()} | {:error, term()}
   def reward(name, amount, _room_id) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
       changeset = chip_changeset(player, %{"chips" => player.chips + amount})

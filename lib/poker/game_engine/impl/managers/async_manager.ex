@@ -60,6 +60,29 @@ defmodule PokerEx.GameEngine.AsyncManager do
   """
   @spec run(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
   def run(%{async_manager: async_manager} = engine) do
-    {:ok, engine}
+    Enum.reduce(async_manager.cleanup_queue, engine, &update_state(&1, &2))
+  end
+
+  defp update_state(player, %{player_tracker: %{active: active}} = engine) do
+    case length(active) > 0 && player == hd(active) do
+      true ->
+        with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
+             seating <- Seating.leave(engine, player),
+             {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
+             {:ok, chips} <- ChipManager.leave(engine, player) do
+          {:ok,
+           %{
+             engine
+             | player_tracker: player_tracker,
+               seating: seating,
+               chips: chips
+           }}
+        else
+          error -> error
+        end
+
+      false ->
+        {:ok, engine}
+    end
   end
 end

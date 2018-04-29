@@ -97,6 +97,14 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
+  @spec leave(PokerEx.GameEngine.Impl.t(), Player.name()) :: success()
+  def leave(%{chips: chips} = engine, name) do
+    {:ok,
+     Map.update(chips, :chip_roll, %{}, fn chip_roll ->
+       Map.drop(chip_roll, [name])
+     end)}
+  end
+
   defp update_state(chips, updates) do
     Enum.reduce(updates, chips, &update(&1, &2))
   end

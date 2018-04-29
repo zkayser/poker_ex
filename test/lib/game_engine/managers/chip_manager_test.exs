@@ -201,4 +201,15 @@ defmodule PokerEx.ChipManagerTest do
       assert {:error, :out_of_turn} = ChipManager.check(engine, non_active_player)
     end
   end
+
+  describe "leave/2" do
+    test "removes the player from the chip_roll", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+
+      assert {:ok, chips} = ChipManager.leave(engine, context.p1.name)
+      refute Map.has_key?(chips.chip_roll, context.p1.name)
+    end
+  end
 end
