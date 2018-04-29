@@ -74,5 +74,16 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
       assert context.p1.name in engine.player_tracker.called
     end
+
+    test "auto checks for the active player if to_call is 0", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn _ -> TestData.add_200_chips_for_all(context) end)
+
+      async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
+      engine = %Engine{engine | async_manager: async_data}
+      assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
+      assert context.p1.name in engine.player_tracker.called
+    end
   end
 end

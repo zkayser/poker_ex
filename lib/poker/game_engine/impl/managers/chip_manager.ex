@@ -90,7 +90,7 @@ defmodule PokerEx.GameEngine.ChipManager do
 
   @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
   def check(%{player_tracker: tracker, chips: chips} = engine, name) do
-    case {name == hd(tracker.active), chips.round[name] == chips.to_call} do
+    case {name == hd(tracker.active), chips.round[name] == chips.to_call || chips.to_call == 0} do
       {true, true} -> {:ok, chips}
       {false, _} -> {:error, :out_of_turn}
       {_, false} -> {:error, :not_paid}
