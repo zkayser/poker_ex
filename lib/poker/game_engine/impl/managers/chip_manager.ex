@@ -105,6 +105,17 @@ defmodule PokerEx.GameEngine.ChipManager do
      end)}
   end
 
+  @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
+  def can_player_check?(%{player_tracker: %{active: active}, chips: chips}, player) do
+    case active do
+      [active_player | _] when active_player == player ->
+        chips.round[player] == chips.to_call || chips.to_call == 0
+
+      _ ->
+        false
+    end
+  end
+
   defp update_state(chips, updates) do
     Enum.reduce(updates, chips, &update(&1, &2))
   end

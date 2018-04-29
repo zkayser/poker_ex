@@ -212,4 +212,28 @@ defmodule PokerEx.ChipManagerTest do
       refute Map.has_key?(chips.chip_roll, context.p1.name)
     end
   end
+
+  describe "can_player_check?/2" do
+    test "returns true if the player has paid the to_call amount", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          %{chips | to_call: 10, round: Map.put(%{}, context.p1.name, 10)}
+        end)
+
+      assert ChipManager.can_player_check?(engine, context.p1.name)
+    end
+
+    test "returns true if the to_call amount is 0", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      assert ChipManager.can_player_check?(engine, context.p1.name)
+    end
+
+    test "returns false if the player is not active", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      refute ChipManager.can_player_check?(engine, context.p2.name)
+    end
+  end
 end

@@ -132,4 +132,18 @@ defmodule PokerEx.PlayerTrackerTest do
       assert active_player in player_tracker.called
     end
   end
+
+  describe "is_player_active?/2" do
+    test "returns true if the player is at the front of the active list", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      assert PlayerTracker.is_player_active?(engine, context.p1.name)
+    end
+
+    test "returns false if the player is not at the front of the active list", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      refute PlayerTracker.is_player_active?(engine, context.p2.name)
+    end
+  end
 end
