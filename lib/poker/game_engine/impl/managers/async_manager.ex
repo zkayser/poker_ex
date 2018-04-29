@@ -26,6 +26,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   """
 
   @type action :: :leave | {:add_chips, pos_integer()}
+  @type async_task :: :cleanup | :add_chips
   @type t() :: %__MODULE__{
           cleanup_queue: [Player.name()],
           chip_queue: [{Player.name(), pos_integer()}]
@@ -58,31 +59,54 @@ defmodule PokerEx.GameEngine.AsyncManager do
   @doc """
   Updates the game engine state asynchronously given the current queues
   """
-  @spec run(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
-  def run(%{async_manager: async_manager} = engine) do
+  @spec run(PokerEx.GameEngine.Impl.t(), async_task) :: PokerEx.GameEngine.Impl.t()
+  def run(%{async_manager: async_manager} = engine, :cleanup) do
     Enum.reduce(async_manager.cleanup_queue, engine, &update_state(&1, &2))
+  end
+
+  def run(%{async_manager: async_manager} = engine, :add_chips) do
+    Enum.reduce(async_manager.chip_queue, engine, fn _, _ -> engine end)
   end
 
   defp update_state(player, %{player_tracker: %{active: active}} = engine) do
     case length(active) > 0 && player == hd(active) do
       true ->
-        with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
-             seating <- Seating.leave(engine, player),
-             {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
-             {:ok, chips} <- ChipManager.leave(engine, player) do
-          {:ok,
-           %{
-             engine
-             | player_tracker: player_tracker,
-               seating: seating,
-               chips: chips
-           }}
-        else
-          error -> error
+        case engine.chips.round[player] == engine.chips.to_call || engine.chips.to_call == 0 do
+          true ->
+            auto_check(engine, player)
+
+          false ->
+            auto_fold(engine, player)
         end
 
       false ->
         {:ok, engine}
+    end
+  end
+
+  defp auto_fold(engine, player) do
+    with {:ok, player_tracker} = PlayerTracker.fold(engine, player),
+         seating <- Seating.leave(engine, player),
+         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
+         {:ok, chips} <- ChipManager.leave(engine, player) do
+      {:ok,
+       %{
+         engine
+         | player_tracker: player_tracker,
+           seating: seating,
+           chips: chips
+       }}
+    else
+      error -> error
+    end
+  end
+
+  defp auto_check(engine, player) do
+    with {:ok, player_tracker} = PlayerTracker.check(engine, player),
+         {:ok, chips} = ChipManager.check(engine, player) do
+      {:ok, %{engine | player_tracker: player_tracker, chips: chips}}
+    else
+      error -> error
     end
   end
 end

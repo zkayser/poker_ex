@@ -22,7 +22,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
     end
   end
 
-  describe "run/1" do
+  describe "run/2" do
     test "auto folds for the active player if marked as leaving", context do
       engine =
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
@@ -42,11 +42,37 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
 
       async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
       engine = %Engine{engine | async_manager: async_data}
-      assert {:ok, engine} = AsyncManager.run(engine)
+      assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
       refute context.p1.name in engine.player_tracker.active
       assert context.p1.name in engine.player_tracker.folded
       refute context.p1.name in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
       assert Player.by_name(context.p1.name).chips == 1200
+    end
+
+    test "does not do anything if the player marked as leaving is not active", context do
+      engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+
+      async_data = AsyncManager.mark_for_action(engine, context.p2.name, :leave)
+      engine = %Engine{engine | async_manager: async_data}
+      assert {:ok, updated_engine} = AsyncManager.run(engine, :cleanup)
+      assert updated_engine == engine
+    end
+
+    test "auto checks for the active player if marked as leaving", context do
+      # This happens when the player has already paid the :to_call amount
+      # but has not yet called.
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn _ -> TestData.add_200_chips_for_all(context) end)
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, context.p1.name, 10) end)
+        end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+
+      async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
+      engine = %Engine{engine | async_manager: async_data}
+      assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
+      assert context.p1.name in engine.player_tracker.called
     end
   end
 end
