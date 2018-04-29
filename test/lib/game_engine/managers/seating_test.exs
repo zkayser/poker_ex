@@ -110,4 +110,16 @@ defmodule PokerEx.SeatingTest do
       assert hd == List.last(new_seating.arrangement)
     end
   end
+
+  describe "is_player_seated?/2" do
+    test "returns true if the player is in the seating arrangement", context do
+      engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
+
+      assert Seating.is_player_seated?(engine, context.p1.name)
+    end
+
+    test "returns false if the player is not in the seating arrangment", context do
+      refute Seating.is_player_seated?(Engine.new(), context.p1.name)
+    end
+  end
 end

@@ -52,6 +52,11 @@ defmodule PokerEx.GameEngine.Seating do
     %__MODULE__{seating | arrangement: tail ++ [hd]}
   end
 
+  @spec is_player_seated?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean
+  def is_player_seated?(%{seating: %{arrangement: arrangement}}, player) do
+    player in Enum.map(arrangement, fn {name, _} -> name end)
+  end
+
   defp update_state(seating, updates) do
     Enum.reduce(updates, seating, &update(&1, &2))
   end

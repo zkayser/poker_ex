@@ -61,14 +61,14 @@ defmodule PokerEx.GameEngine.AsyncManager do
   """
   @spec run(PokerEx.GameEngine.Impl.t(), async_task) :: PokerEx.GameEngine.Impl.t()
   def run(%{async_manager: async_manager} = engine, :cleanup) do
-    Enum.reduce(async_manager.cleanup_queue, engine, &update_state(&1, &2))
+    {:ok, Enum.reduce(async_manager.cleanup_queue, engine, &cleanup(&1, &2))}
   end
 
   def run(%{async_manager: async_manager} = engine, :add_chips) do
-    Enum.reduce(async_manager.chip_queue, engine, fn _, _ -> engine end)
+    {:ok, Enum.reduce(async_manager.chip_queue, engine, &add_chips(&1, &2))}
   end
 
-  defp update_state(player, %{player_tracker: %{active: active}} = engine) do
+  defp cleanup(player, %{player_tracker: %{active: active}} = engine) do
     case PlayerTracker.is_player_active?(engine, player) do
       true ->
         case ChipManager.can_player_check?(engine, player) do
@@ -80,7 +80,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
         end
 
       false ->
-        {:ok, engine}
+        engine
     end
   end
 
@@ -89,24 +89,48 @@ defmodule PokerEx.GameEngine.AsyncManager do
          seating <- Seating.leave(engine, player),
          {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
          {:ok, chips} <- ChipManager.leave(engine, player) do
-      {:ok,
-       %{
-         engine
-         | player_tracker: player_tracker,
-           seating: seating,
-           chips: chips
-       }}
+      %{
+        engine
+        | player_tracker: player_tracker,
+          seating: seating,
+          chips: chips
+      }
     else
-      error -> error
+      _ -> engine
     end
   end
 
   defp auto_check(engine, player) do
     with {:ok, player_tracker} = PlayerTracker.check(engine, player),
          {:ok, chips} = ChipManager.check(engine, player) do
-      {:ok, %{engine | player_tracker: player_tracker, chips: chips}}
+      %{engine | player_tracker: player_tracker, chips: chips}
     else
-      error -> error
+      _ -> engine
+    end
+  end
+
+  defp add_chips({player, amount}, engine) do
+    case Seating.is_player_seated?(engine, player) do
+      true ->
+        do_add_chips(engine, player, amount)
+
+      false ->
+        engine
+    end
+  end
+
+  defp do_add_chips(engine, player, amount) do
+    with {:ok, player} = Player.subtract_chips(player, amount) do
+      %{chips: chips} =
+        Map.update(engine, :chips, %{}, fn chips ->
+          Map.update(chips, :chip_roll, %{}, fn chip_roll ->
+            Map.update(chip_roll, player.name, 0, fn old_amount -> old_amount + amount end)
+          end)
+        end)
+
+      %{engine | chips: chips}
+    else
+      _ -> engine
     end
   end
 end

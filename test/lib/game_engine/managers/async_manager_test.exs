@@ -85,5 +85,16 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
       assert context.p1.name in engine.player_tracker.called
     end
+
+    test "adds extra chips to a player's chip roll", context do
+      engine =
+        Map.put(Engine.new(), :seating, TestData.seat_players(context))
+        |> Map.update(:chips, %{}, fn _ -> TestData.add_200_chips_for_all(context) end)
+
+      async_data = AsyncManager.mark_for_action(engine, context.p1.name, {:add_chips, 200})
+      engine = %Engine{engine | async_manager: async_data}
+      assert {:ok, engine} = AsyncManager.run(engine, :add_chips)
+      assert engine.chips.chip_roll[context.p1.name] == 400
+    end
   end
 end
