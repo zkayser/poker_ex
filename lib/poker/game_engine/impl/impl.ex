@@ -77,9 +77,9 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase},
-         :async_cleanup
+         {:update_phase, phase}
        ])}
+      |> process_async(:cleanup)
     else
       error -> error
     end
@@ -95,9 +95,9 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase},
-         :async_cleanup
+         {:update_phase, phase}
        ])}
+      |> process_async(:cleanup)
     else
       error -> error
     end
@@ -113,9 +113,9 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase},
-         :async_cleanup
+         {:update_phase, phase}
        ])}
+      |> process_async(:cleanup)
     else
       error -> error
     end
@@ -129,9 +129,9 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_tracker, player_tracker},
          {:maybe_update_cards, engine.phase, phase},
-         {:update_phase, phase},
-         :async_cleanup
+         {:update_phase, phase}
        ])}
+      |> process_async(:cleanup)
     else
       error -> error
     end
@@ -139,8 +139,9 @@ defmodule PokerEx.GameEngine.Impl do
 
   @spec leave(t(), Player.t()) :: result()
   def leave(engine, player) do
-    %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}
-    # What am I trying to accomplish here??
+    {:ok,
+     %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
+    |> process_async(:cleanup)
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -153,9 +154,13 @@ defmodule PokerEx.GameEngine.Impl do
     for {player, _} <- engine.seating.arrangement, do: player
   end
 
-  @spec add_chips(t(), Player.t(), pos_integer) :: result()
+  @spec add_chips(t(), Player.t(), pos_integer) :: success()
   def add_chips(engine, player, amount) do
-    nil
+    {:ok,
+     %__MODULE__{
+       engine
+       | async_manager: AsyncManager.mark_for_action(engine, player, {:add_chips, amount})
+     }}
   end
 
   defp update_state(engine, updates) do
@@ -199,11 +204,16 @@ defmodule PokerEx.GameEngine.Impl do
 
   defp update(:set_roles, engine), do: engine
 
-  defp update(:async_cleanup, %{phase: :game_over} = engine), do: engine
-
-  defp update(:async_cleanup, engine) do
-    with {:ok, engine} = AsyncManager.run(engine, :cleanup) do
-      engine
+  # This function clause is triggered after successful poker betting actions
+  # (call, raise, check, and fold). It removes any players that have been marked
+  # to leave and updates the phase if appropriate. It is also triggered after leaves
+  # to handle the case in which the leaving player is active. This will auto fold or
+  # auto check for the player.
+  defp process_async({:ok, engine}, :cleanup) do
+    with {:ok, engine} <- AsyncManager.run(engine, :cleanup),
+         phase <- PhaseManager.check_phase_change(engine, :bet, engine.player_tracker) do
+      {:ok,
+       update_state(engine, [{:maybe_update_cards, engine.phase, phase}, {:update_phase, phase}])}
     else
       error -> error
     end
