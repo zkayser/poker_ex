@@ -51,7 +51,7 @@ defmodule PokerEx.GameEngine.ChipManager do
 
   def join(_, _, _), do: {:error, :join_amount_insufficient}
 
-  @spec post_blinds(PokerEx.GameEngine.Impl.t()) :: t()
+  @spec post_blinds(PokerEx.GameEngine.Impl.t()) :: success()
   def post_blinds(%{chips: chips} = engine) do
     {big_blind, small_blind} = {get_blind(engine, :big), get_blind(engine, :small)}
 
