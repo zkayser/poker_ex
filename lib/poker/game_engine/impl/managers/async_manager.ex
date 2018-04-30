@@ -97,7 +97,12 @@ defmodule PokerEx.GameEngine.AsyncManager do
          engine
          | player_tracker: player_tracker,
            seating: seating,
-           chips: chips
+           chips: chips,
+           async_manager: %{
+             engine.async_manager
+             | cleanup_queue:
+                 Enum.reject(engine.async_manager.cleanup_queue, &(&1 == player.name))
+           }
        }}
     else
       {:error, error} -> {:error, error}

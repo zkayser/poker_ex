@@ -49,7 +49,7 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   @spec join(t(), Player.t(), non_neg_integer) :: result()
-  def join(engine, player, chip_amount) do
+  def join(%{phase: initial_phase} = engine, player, chip_amount) do
     with {:ok, new_seating} <- Seating.join(engine, player),
          {:ok, chips} <- ChipManager.join(engine, player, chip_amount),
          phase <- PhaseManager.check_phase_change(engine, :join, new_seating) do
@@ -57,11 +57,11 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_seating, new_seating},
          {:update_chips, chips},
-         {:set_active_players, engine.phase},
-         {:maybe_update_cards, engine.phase, phase},
+         {:set_active_players, initial_phase},
+         {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase},
          :set_roles,
-         {:maybe_post_blinds, engine.phase, phase}
+         {:maybe_post_blinds, initial_phase, phase}
        ])}
     else
       error -> error
@@ -69,7 +69,7 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   @spec call(t(), Player.t()) :: result()
-  def call(engine, %{name: player}) do
+  def call(%{phase: initial_phase} = engine, %{name: player}) do
     with {:ok, chips} <- ChipManager.call(engine, player),
          {:ok, player_tracker} <- PlayerTracker.call(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -77,17 +77,18 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
-         {:maybe_update_cards, engine.phase, phase},
+         {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> process_async(:cleanup)
+      |> and_then(:process_async_auto_actions)
+      |> and_then(:cleanup_round)
     else
       error -> error
     end
   end
 
   @spec raise(t(), Player.t(), non_neg_integer) :: result()
-  def raise(engine, %{name: player}, amount) do
+  def raise(%{phase: initial_phase} = engine, %{name: player}, amount) do
     with {:ok, chips} <- ChipManager.raise(engine, player, amount),
          {:ok, player_tracker} <- PlayerTracker.raise(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -95,17 +96,18 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
-         {:maybe_update_cards, engine.phase, phase},
+         {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> process_async(:cleanup)
+      |> and_then(:process_async_auto_actions)
+      |> and_then(:cleanup_round)
     else
       error -> error
     end
   end
 
   @spec check(t(), Player.t()) :: result()
-  def check(engine, %{name: player}) do
+  def check(%{phase: initial_phase} = engine, %{name: player}) do
     with {:ok, chips} <- ChipManager.check(engine, player),
          {:ok, player_tracker} <- PlayerTracker.check(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -113,36 +115,39 @@ defmodule PokerEx.GameEngine.Impl do
        update_state(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
-         {:maybe_update_cards, engine.phase, phase},
+         {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> process_async(:cleanup)
+      |> and_then(:process_async_auto_actions)
+      |> and_then(:cleanup_round)
     else
       error -> error
     end
   end
 
   @spec fold(t(), Player.t()) :: result()
-  def fold(engine, %{name: player}) do
+  def fold(%{phase: initial_phase} = engine, %{name: player}) do
     with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
        update_state(engine, [
          {:update_tracker, player_tracker},
-         {:maybe_update_cards, engine.phase, phase},
+         {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> process_async(:cleanup)
+      |> and_then(:process_async_auto_actions)
+      |> and_then(:cleanup_round)
     else
       error -> error
     end
   end
 
   @spec leave(t(), Player.t()) :: result()
-  def leave(engine, %{name: player}) do
+  def leave(%{phase: initial_phase} = engine, %{name: player}) do
     {:ok,
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
-    |> process_async(:cleanup)
+    |> and_then(:process_async_auto_actions)
+    |> and_then(:cleanup_round)
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -229,13 +234,20 @@ defmodule PokerEx.GameEngine.Impl do
   # to leave and updates the phase if appropriate. It is also triggered after leaves
   # to handle the case in which the leaving player is active. This will auto fold or
   # auto check for the player.
-  defp process_async({:ok, engine}, :cleanup) do
+  defp and_then({:ok, %{phase: initial_phase} = engine}, :process_async_auto_actions) do
     with {:ok, engine} <- AsyncManager.run(engine, :cleanup),
          phase <- PhaseManager.check_phase_change(engine, :bet, engine.player_tracker) do
       {:ok,
-       update_state(engine, [{:maybe_update_cards, engine.phase, phase}, {:update_phase, phase}])}
+       update_state(engine, [{:maybe_update_cards, initial_phase, phase}, {:update_phase, phase}])}
     else
       error -> error
     end
+  end
+
+  # This function clause will trigger any necessary cleanup after transitioning
+  # from one phase to the next. If there is no phase transition, then this
+  # clause is effectively a no-op.
+  defp and_then({:ok, engine}, :cleanup_round) do
+    {:ok, engine}
   end
 end

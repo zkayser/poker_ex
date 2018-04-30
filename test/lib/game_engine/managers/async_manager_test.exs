@@ -46,6 +46,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       refute context.p1.name in engine.player_tracker.active
       assert context.p1.name in engine.player_tracker.folded
       refute context.p1.name in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
+      refute context.p1.name in engine.async_manager.cleanup_queue
       assert Player.by_name(context.p1.name).chips == 1200
     end
 
