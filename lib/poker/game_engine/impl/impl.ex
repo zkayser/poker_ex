@@ -175,7 +175,7 @@ defmodule PokerEx.GameEngine.Impl do
       engine
       | chips: ChipManager.reset_game(engine.chips),
         seating: Seating.reset_game(engine.seating),
-        player_tracker: PlayerTracker.reset_game(engine.player_tracker),
+        player_tracker: PlayerTracker.reset_game(engine),
         cards: CardManager.reset_game(engine.cards)
     }
   end

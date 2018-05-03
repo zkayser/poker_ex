@@ -133,6 +133,19 @@ defmodule PokerEx.PlayerTrackerTest do
     end
   end
 
+  describe "reset_round/1" do
+    test "clears the called list", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:player_tracker, %{}, fn tracker ->
+          Map.put(tracker, :called, [context.p1.name, context.p2.name])
+        end)
+
+      assert tracker = PlayerTracker.reset_round(engine.player_tracker)
+      assert [] == tracker.called
+    end
+  end
+
   describe "is_player_active?/2" do
     test "returns true if the player is at the front of the active list", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))

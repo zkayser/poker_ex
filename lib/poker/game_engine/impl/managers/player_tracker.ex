@@ -3,7 +3,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   alias PokerEx.GameEngine.ChipManager
   @type tracker :: [String.t() | Player.t()] | []
   @type hands :: [{String.t(), [Card.t()]}] | []
-  @settable_rounds [:idle, :between_rounds]
+  @settable_rounds [:idle, :between_rounds, :game_over]
   @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
   @type success :: {:ok, t()}
   @type error :: {:error, :player_did_not_call | :player_not_active}
@@ -114,6 +114,9 @@ defmodule PokerEx.GameEngine.PlayerTracker do
         %__MODULE__{tracker | active: rest ++ [active]}
     end
   end
+
+  @spec reset_round(t()) :: t()
+  def reset_round(tracker), do: %__MODULE__{tracker | called: []}
 
   defp update_state(tracker, updates) do
     Enum.reduce(updates, tracker, &update(&1, &2))
