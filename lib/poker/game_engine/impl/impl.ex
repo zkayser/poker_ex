@@ -81,7 +81,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_phase, phase}
        ])}
       |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round)
+      |> and_then(:cleanup_round, initial_phase)
     else
       error -> error
     end
@@ -100,7 +100,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_phase, phase}
        ])}
       |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round)
+      |> and_then(:cleanup_round, initial_phase)
     else
       error -> error
     end
@@ -119,7 +119,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_phase, phase}
        ])}
       |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round)
+      |> and_then(:cleanup_round, initial_phase)
     else
       error -> error
     end
@@ -136,7 +136,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:update_phase, phase}
        ])}
       |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round)
+      |> and_then(:cleanup_round, initial_phase)
     else
       error -> error
     end
@@ -147,7 +147,7 @@ defmodule PokerEx.GameEngine.Impl do
     {:ok,
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
     |> and_then(:process_async_auto_actions)
-    |> and_then(:cleanup_round)
+    |> and_then(:cleanup_round, initial_phase)
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -169,12 +169,34 @@ defmodule PokerEx.GameEngine.Impl do
      }}
   end
 
+  @spec reset_game(t()) :: t()
+  def reset_game(engine) do
+    %__MODULE__{
+      engine
+      | chips: ChipManager.reset_game(engine.chips),
+        seating: Seating.reset_game(engine.seating),
+        player_tracker: PlayerTracker.reset_game(engine.player_tracker),
+        cards: CardManager.reset_game(engine.cards)
+    }
+  end
+
+  @spec reset_round(t()) :: t()
+  def reset_round(engine) do
+    %__MODULE__{
+      engine
+      | chips: ChipManager.reset_round(engine.chips),
+        player_tracker: PlayerTracker.reset_round(engine.player_tracker),
+        cards: CardManager.deal(engine)
+    }
+  end
+
   defp update_state(engine, updates) do
     Enum.reduce(updates, engine, &update(&1, &2))
   end
 
   defp update({:update_seating, seating}, engine) do
     Map.put(engine, :seating, seating)
+    %__MODULE__{engine | seating: seating}
   end
 
   defp update({:update_tracker, tracker}, engine) do
@@ -234,6 +256,13 @@ defmodule PokerEx.GameEngine.Impl do
   # to leave and updates the phase if appropriate. It is also triggered after leaves
   # to handle the case in which the leaving player is active. This will auto fold or
   # auto check for the player.
+  defp and_then(
+         {:ok, %{async_manager: %{cleanup_queue: []}} = engine},
+         :process_async_auto_actions
+       ) do
+    {:ok, engine}
+  end
+
   defp and_then({:ok, %{phase: initial_phase} = engine}, :process_async_auto_actions) do
     with {:ok, engine} <- AsyncManager.run(engine, :cleanup),
          phase <- PhaseManager.check_phase_change(engine, :bet, engine.player_tracker) do
@@ -247,7 +276,14 @@ defmodule PokerEx.GameEngine.Impl do
   # This function clause will trigger any necessary cleanup after transitioning
   # from one phase to the next. If there is no phase transition, then this
   # clause is effectively a no-op.
-  defp and_then({:ok, engine}, :cleanup_round) do
-    {:ok, engine}
+  defp and_then({:ok, engine}, :cleanup_round, :game_over) do
+    {:ok, reset_game(engine)}
   end
+
+  defp and_then({:ok, %{phase: current_phase} = engine}, :cleanup_round, initial_phase)
+       when current_phase != initial_phase do
+    {:ok, reset_round(engine)}
+  end
+
+  defp and_then({:ok, engine}, _), do: {:ok, engine}
 end

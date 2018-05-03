@@ -212,6 +212,63 @@ defmodule PokerEx.ChipManagerTest do
     end
   end
 
+  describe "reset_round/1" do
+    test "resets the round map to a blank and to_call to 0", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.put(chips, :round, %{context.p1.name => 200, context.p2.name => 100})
+        end)
+
+      # The above round map inserted on line 220 is completely arbitrary. It should
+      # be wiped out when the round is reset.
+
+      assert chips = ChipManager.reset_round(engine.chips)
+      assert chips.round == %{}
+      refute context.p1.name in Map.keys(chips.round)
+      refute context.p2.name in Map.keys(chips.round)
+      assert chips.to_call == 0
+    end
+  end
+
+  describe "reset_game/1" do
+    test "resets everything except for the chip roll", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.put(chips, :round, %{context.p1.name => 20, context.p2.name => 40})
+        end)
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.put(chips, :paid, %{context.p1.name => 100, context.p2.name => 100})
+        end)
+
+      assert chips = ChipManager.reset_game(engine.chips)
+      assert map_size(chips.round) == 0
+      assert map_size(chips.paid) == 0
+      assert chips.to_call == 0
+      assert chips.pot == 0
+      assert chips.chip_roll == engine.chips.chip_roll
+    end
+
+    test "removes players with 0 chips in the chip roll", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.update(chips, :chip_roll, %{}, fn chip_roll ->
+            Map.put(chip_roll, context.p3.name, 0)
+          end)
+        end)
+
+      # Above, we insert 200 chips into the chip roll for all players, then
+      # arbitrarily set player 3's chip roll to 0. Player 3 should be removed
+      # on game reset.
+      chips = ChipManager.reset_game(engine.chips)
+      refute context.p3.name in Map.keys(chips.chip_roll)
+    end
+  end
+
   describe "can_player_check?/2" do
     test "returns true if the player has paid the to_call amount", context do
       engine =

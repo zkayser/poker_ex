@@ -23,6 +23,9 @@ defmodule PokerEx.GameEngine.PhaseManager do
 
   def maybe_change_phase(engine), do: engine
 
+  @doc """
+  Determines whether or not to change the game's phase.
+  """
   @spec check_phase_change(Engine.t(), action, reference_module) :: Engine.phase()
   def check_phase_change(%{phase: phase}, :join, seating) when phase in @non_betting_phases do
     case length(seating.arrangement) > 1 do

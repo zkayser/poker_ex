@@ -1,6 +1,6 @@
 defmodule PokerEx.GameEngine.RoleManager do
   @type role :: :dealer | :big_blind | :small_blind | :none
-  @type seat_position :: 0..6 | :game_not_in_progress
+  @type seat_position :: 0..6 | :unset
   @type t() :: %__MODULE__{
           dealer: seat_position,
           big_blind: seat_position,

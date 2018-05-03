@@ -104,6 +104,22 @@ defmodule PokerEx.GameEngine.ChipManager do
      end)}
   end
 
+  @spec reset_round(t()) :: t()
+  def reset_round(chips) do
+    %__MODULE__{chips | round: %{}, to_call: 0}
+  end
+
+  @spec reset_game(t()) :: t()
+  def reset_game(chips) do
+    %__MODULE__{
+      chips
+      | round: %{},
+        paid: %{},
+        to_call: 0,
+        chip_roll: remove_players_with_no_chips(chips.chip_roll)
+    }
+  end
+
   @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
   def can_player_check?(%{player_tracker: %{active: active}, chips: chips}, player) do
     case active do
@@ -192,6 +208,12 @@ defmodule PokerEx.GameEngine.ChipManager do
     case round[name] do
       nil -> adjusted_amount
       already_paid -> already_paid + adjusted_amount
+    end
+  end
+
+  defp remove_players_with_no_chips(chip_roll) do
+    for {key, value} <- chip_roll, value != 0, into: %{} do
+      {key, value}
     end
   end
 
