@@ -37,6 +37,8 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, new()}
   end
 
+  def deal(%{cards: cards}, :game_over), do: {:ok, cards}
+
   def deal(%{cards: cards}, :idle), do: {:ok, cards}
 
   @spec fold(PokerEx.GameEngine.Impl.t(), PokerEx.Player.name()) :: result()

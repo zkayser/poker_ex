@@ -185,8 +185,7 @@ defmodule PokerEx.GameEngine.Impl do
     %__MODULE__{
       engine
       | chips: ChipManager.reset_round(engine.chips),
-        player_tracker: PlayerTracker.reset_round(engine.player_tracker),
-        cards: CardManager.deal(engine)
+        player_tracker: PlayerTracker.reset_round(engine.player_tracker)
     }
   end
 
@@ -285,5 +284,5 @@ defmodule PokerEx.GameEngine.Impl do
     {:ok, reset_round(engine)}
   end
 
-  defp and_then({:ok, engine}, _), do: {:ok, engine}
+  defp and_then({:ok, engine}, :cleanup_round, _), do: {:ok, engine}
 end
