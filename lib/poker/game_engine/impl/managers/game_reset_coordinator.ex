@@ -69,10 +69,10 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
         %{tracker | all_in: [big_blind, small_blind]}
 
       chips.chip_roll[small_blind] == 0 ->
-        %{tracker | all_in: [small_blind], called: [big_blind]}
+        %{tracker | all_in: [small_blind]}
 
       true ->
-        %{tracker | called: [big_blind]}
+        tracker
     end
   end
 end
