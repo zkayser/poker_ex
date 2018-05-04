@@ -6,17 +6,10 @@ config :poker_ex, PokerExWeb.Endpoint,
   http: [port: 4001],
   server: true
 
-# Set up SQL Sandbox for Wallaby Integration tests
-config :poker_ex, :sql_sandbox, true
-
-# Save screenshot on failed Integration tests
-config :wallaby, screenshot_on_failure: true
-
 # Bamboo emailers
 config :poker_ex, PokerEx.Mailer, adapter: Bamboo.TestAdapter
 
-config :poker_ex,
-	client_password_reset_endpoint: "http://localhost:8081/#/reset-password"
+config :poker_ex, client_password_reset_endpoint: "http://localhost:8081/#/reset-password"
 
 # Easy # of password hashing rounds on :comeonin
 # to speed up tests

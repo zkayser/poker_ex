@@ -50,5 +50,22 @@ defmodule PokerEx.GameResetCoordinatorTest do
       assert new_engine.chips.round[context.p3.name] == 5
       assert new_engine.chips.round[context.p4.name] == 10
     end
+
+    test "distributes chips to the winners", context do
+      engine =
+        Map.put(Engine.new(), :seating, TestData.seat_players(context))
+        |> Map.put(:player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:scoring, %{}, fn scoring ->
+          Map.put(scoring, :winners, [context.p1.name, context.p2.name])
+          |> Map.put(:rewards, [{context.p1.name, 25}, {context.p2.name, 50}])
+        end)
+
+      assert new_engine = GameResetCoordinator.coordinate_reset(engine)
+      # p1 and p2 should have 225 and 250 chips, respectively
+      # (seeded with 200 chips on line 58, then the additional winnings)
+      assert new_engine.chips.chip_roll[context.p1.name] == 225
+      assert new_engine.chips.chip_roll[context.p2.name] == 250
+    end
   end
 end

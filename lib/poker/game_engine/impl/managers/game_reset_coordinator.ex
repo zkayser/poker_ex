@@ -1,15 +1,19 @@
 defmodule PokerEx.GameEngine.GameResetCoordinator do
-  alias PokerEx.GameEngine.{Seating, ChipManager, PlayerTracker, RoleManager}
+  alias PokerEx.GameEngine.{Seating, ChipManager, PlayerTracker, RoleManager, ScoreManager}
 
   @spec coordinate_reset(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
   def coordinate_reset(engine) do
     new_seating = update_seating(engine)
+    scoring = ScoreManager.manage_score(engine)
+    new_chips = %{engine.chips | chip_roll: reward_winners(engine.chips.chip_roll, scoring)}
+    engine = %{engine | chips: new_chips}
 
     %{
       engine
       | seating: new_seating,
         chips: ChipManager.reset_game(engine.chips),
         player_tracker: update_player_tracker(engine),
+        scoring: %ScoreManager{},
         roles: RoleManager.manage_roles(%{seating: new_seating, roles: engine.roles})
     }
     |> PlayerTracker.set_active_players(:game_over)
@@ -52,6 +56,12 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
   end
 
   defp maybe_post_blind(engine), do: engine
+
+  defp reward_winners(chip_roll, %{rewards: rewards}) do
+    Enum.reduce(rewards, chip_roll, fn {player, reward}, acc ->
+      Map.update(acc, player, 0, fn player_chips -> player_chips + reward end)
+    end)
+  end
 
   defp position_blinds_in_tracker(chips, tracker, engine) do
     big_blind =

@@ -104,7 +104,7 @@ defmodule PokerEx.SeatingTest do
 
       [hd | _] = engine.seating.arrangement
       new_seating = Seating.cycle(engine)
-      [new_head | tail] = new_seating.arrangement
+      [new_head | _tail] = new_seating.arrangement
 
       refute hd == new_head
       assert hd == List.last(new_seating.arrangement)
