@@ -94,7 +94,7 @@ defmodule PokerEx.TestData do
     ## Exception inside of the Deck module (see PokerEx.Deck.deal/2)
     engine = Map.put(Engine.new(), :seating, seat_players(context))
 
-    Map.update(engine, :cards, %{}, fn card_manager ->
+    Map.update(engine, :cards, %{}, fn _ ->
       {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
       card_manager
     end)

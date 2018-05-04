@@ -38,7 +38,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   end
 
   @spec call(PokerEx.GameEngine.Impl.t(), Player.name(), ChipManager.t()) :: success() | error()
-  def call(%{player_tracker: tracker} = engine, name, chip_manager) do
+  def call(%{player_tracker: tracker}, name, chip_manager) do
     case get_call_state(chip_manager, name) do
       :called ->
         {:ok, update_state(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
@@ -126,7 +126,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     Map.put(tracker, :active, Enum.drop(active, 1) |> Kernel.++([name]))
   end
 
-  defp update({:update_active, name, :drop}, %{active: active} = tracker) do
+  defp update({:update_active, _name, :drop}, %{active: active} = tracker) do
     Map.put(tracker, :active, Enum.drop(active, 1))
   end
 

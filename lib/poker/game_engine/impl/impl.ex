@@ -1,5 +1,5 @@
 defmodule PokerEx.GameEngine.Impl do
-  alias PokerEx.{Deck, Card, Player}
+  alias PokerEx.{Player}
 
   alias PokerEx.GameEngine.{
     ChipManager,
@@ -267,6 +267,15 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
+  # This function clause will reset the game engine implementation struct to a
+  # clean state and prepare for a new game only if the phase is :game_over.
+  # Otherwise this clause is a no-op.
+  defp and_then({:ok, %{phase: :game_over} = engine}, :maybe_reset_game) do
+    {:ok, GameResetCoordinator.coordinate_reset(engine)}
+  end
+
+  defp and_then({:ok, engine}, _), do: {:ok, engine}
+
   # This function clause will trigger any necessary cleanup after transitioning
   # from one phase to the next. If there is no phase transition, then this
   # clause is effectively a no-op.
@@ -276,13 +285,4 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   defp and_then({:ok, engine}, :cleanup_round, _), do: {:ok, engine}
-
-  # This function clause will reset the game engine implementation struct to a
-  # clean state and prepare for a new game only if the phase is :game_over.
-  # Otherwise this clause is a no-op.
-  defp and_then({:ok, %{phase: :game_over} = engine}, :maybe_reset_game) do
-    {:ok, GameResetCoordinator.coordinate_reset(engine)}
-  end
-
-  defp and_then({:ok, engine}, _), do: {:ok, engine}
 end

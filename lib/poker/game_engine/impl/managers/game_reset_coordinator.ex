@@ -48,7 +48,7 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
     cycle_for_small_blind = PlayerTracker.cycle(%{player_tracker: cycle_for_dealer})
     cycle_for_big_blind = PlayerTracker.cycle(%{player_tracker: cycle_for_small_blind})
     updated_tracker = position_blinds_in_tracker(chips_after_posting, cycle_for_big_blind, engine)
-    %{engine | player_tracker: cycle_for_big_blind, chips: chips_after_posting}
+    %{engine | player_tracker: updated_tracker, chips: chips_after_posting}
   end
 
   defp maybe_post_blind(engine), do: engine

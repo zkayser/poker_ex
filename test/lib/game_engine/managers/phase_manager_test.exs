@@ -2,7 +2,7 @@ defmodule PokerEx.PhaseManagerTest do
   use ExUnit.Case
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{PhaseManager, ChipManager}
+  alias PokerEx.GameEngine.{PhaseManager}
 
   describe "check_phase_change/3" do
     test "sets phase to :pre_flop when a second player joins" do
@@ -120,7 +120,7 @@ defmodule PokerEx.PhaseManagerTest do
       assert :game_over = PhaseManager.check_phase_change(engine, :bet, engine.player_tracker)
     end
 
-    test "changes phase to game over when there are no more active players", context do
+    test "changes phase to game over when there are no more active players", _context do
       engine = Engine.new() |> Map.put(:phase, :river)
 
       assert :game_over = PhaseManager.check_phase_change(engine, :bet, engine.player_tracker)

@@ -16,7 +16,7 @@ defmodule PokerEx.GameEngine.RoleManager do
   end
 
   @spec manage_roles(PokerEx.GameEngine.Impl.t()) :: t()
-  def manage_roles(%{seating: seating, roles: roles} = engine) do
+  def manage_roles(%{seating: seating}) do
     [{_, dealer}, {_, small_blind}, {_, big_blind}] =
       Stream.cycle(seating.arrangement) |> Enum.take(3)
 

@@ -35,7 +35,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     join(Map.put(engine, :chips, chips), player, join_amount)
   end
 
-  def join(%{chips: chips} = engine, player, join_amount)
+  def join(%{chips: chips}, player, join_amount)
       when join_amount >= @minimum_join_amount do
     with true <- player.chips >= join_amount,
          {:ok, player} <- Player.subtract_chips(player.name, join_amount) do
@@ -88,7 +88,7 @@ defmodule PokerEx.GameEngine.ChipManager do
   end
 
   @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
-  def check(%{player_tracker: tracker, chips: chips} = engine, name) do
+  def check(%{player_tracker: tracker, chips: chips}, name) do
     case {name == hd(tracker.active), chips.round[name] == chips.to_call || chips.to_call == 0} do
       {true, true} -> {:ok, chips}
       {false, _} -> {:error, :out_of_turn}
@@ -97,7 +97,7 @@ defmodule PokerEx.GameEngine.ChipManager do
   end
 
   @spec leave(PokerEx.GameEngine.Impl.t(), Player.name()) :: success()
-  def leave(%{chips: chips} = engine, name) do
+  def leave(%{chips: chips}, name) do
     {:ok,
      Map.update(chips, :chip_roll, %{}, fn chip_roll ->
        Map.drop(chip_roll, [name])
@@ -131,7 +131,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
-  defp get_blind(%{roles: roles} = engine, :big) do
+  defp get_blind(%{roles: _roles} = engine, :big) do
     {player, _} =
       Enum.filter(engine.seating.arrangement, fn {_, seat_num} ->
         engine.roles.big_blind == seat_num
@@ -141,7 +141,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     player
   end
 
-  defp get_blind(%{roles: roles} = engine, :small) do
+  defp get_blind(%{roles: _roles} = engine, :small) do
     {player, _} =
       Enum.filter(engine.seating.arrangement, fn {_, seat_num} ->
         engine.roles.small_blind == seat_num
@@ -165,7 +165,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     Map.put(chips, :to_call, amount)
   end
 
-  defp update({:add_call_amount, name, amount}, %{round: round} = chips) do
+  defp update({:add_call_amount, name, amount}, %{round: _round} = chips) do
     adjusted_amount = calculate_bet_amount(amount, chips.chip_roll, name)
     raise_value = calculate_raise_value(name, adjusted_amount, chips)
 
@@ -204,7 +204,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
-  defp calculate_raise_value(name, adjusted_amount, %{round: round} = chips) do
+  defp calculate_raise_value(name, adjusted_amount, %{round: round}) do
     case round[name] do
       nil -> adjusted_amount
       already_paid -> already_paid + adjusted_amount

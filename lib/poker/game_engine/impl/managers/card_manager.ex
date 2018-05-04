@@ -51,7 +51,7 @@ defmodule PokerEx.GameEngine.CardManager do
   end
 
   defp update(:shuffle, cards) do
-    cards = %__MODULE__{cards | deck: Deck.new() |> Deck.shuffle()}
+    %__MODULE__{cards | deck: Deck.new() |> Deck.shuffle()}
   end
 
   defp update({:deal_players, players}, cards) do
@@ -66,7 +66,7 @@ defmodule PokerEx.GameEngine.CardManager do
         %{player: player, hand: hand}
       end
 
-    new_cards = %__MODULE__{cards | deck: new_deck, player_hands: player_hands}
+    %__MODULE__{cards | deck: new_deck, player_hands: player_hands}
   end
 
   defp update(:deal_table, cards) do

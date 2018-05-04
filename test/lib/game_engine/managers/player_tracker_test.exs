@@ -62,7 +62,7 @@ defmodule PokerEx.PlayerTrackerTest do
 
       [active_player | _] = engine.player_tracker.active
 
-      assert {:ok, player_tracker} = PlayerTracker.raise(engine, active_player, engine.chips)
+      assert {:ok, _player_tracker} = PlayerTracker.raise(engine, active_player, engine.chips)
     end
 
     test "places the raising player at the end of the active player list", context do

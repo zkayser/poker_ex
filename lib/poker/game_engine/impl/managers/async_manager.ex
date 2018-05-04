@@ -42,14 +42,14 @@ defmodule PokerEx.GameEngine.AsyncManager do
   Places a player in a queue for later action
   """
   @spec mark_for_action(PokerEx.GameEngine.Impl.t(), Player.name(), action) :: t()
-  def mark_for_action(%{player_tracker: tracker} = engine, player, :leave) do
+  def mark_for_action(engine, player, :leave) do
     %__MODULE__{
       engine.async_manager
       | cleanup_queue: [player | engine.async_manager.cleanup_queue]
     }
   end
 
-  def mark_for_action(%{player_tracker: tracker} = engine, player, {:add_chips, amount}) do
+  def mark_for_action(engine, player, {:add_chips, amount}) do
     %__MODULE__{
       engine.async_manager
       | chip_queue: [{player, amount} | engine.async_manager.chip_queue]
@@ -69,9 +69,9 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp cleanup(player, {:ok, engine}), do: cleanup(player, engine)
-  defp cleanup(player, {:error, error}), do: {:error, error}
+  defp cleanup(_player, {:error, error}), do: {:error, error}
 
-  defp cleanup(player, %{player_tracker: %{active: active}} = engine) do
+  defp cleanup(player, engine) do
     case PlayerTracker.is_player_active?(engine, player) do
       true ->
         case ChipManager.can_player_check?(engine, player) do
