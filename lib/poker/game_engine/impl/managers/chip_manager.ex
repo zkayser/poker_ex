@@ -116,6 +116,7 @@ defmodule PokerEx.GameEngine.ChipManager do
       | round: %{},
         paid: %{},
         to_call: 0,
+        pot: 0,
         chip_roll: remove_players_with_no_chips(chips.chip_roll)
     }
   end
