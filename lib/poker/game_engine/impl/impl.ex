@@ -9,7 +9,8 @@ defmodule PokerEx.GameEngine.Impl do
     ScoreManager,
     PhaseManager,
     RoleManager,
-    AsyncManager
+    AsyncManager,
+    GameResetCoordinator
   }
 
   alias __MODULE__, as: Engine
@@ -82,6 +83,7 @@ defmodule PokerEx.GameEngine.Impl do
        ])}
       |> and_then(:process_async_auto_actions)
       |> and_then(:cleanup_round, initial_phase)
+      |> and_then(:maybe_reset_game)
     else
       error -> error
     end
@@ -101,6 +103,7 @@ defmodule PokerEx.GameEngine.Impl do
        ])}
       |> and_then(:process_async_auto_actions)
       |> and_then(:cleanup_round, initial_phase)
+      |> and_then(:maybe_reset_game)
     else
       error -> error
     end
@@ -120,6 +123,7 @@ defmodule PokerEx.GameEngine.Impl do
        ])}
       |> and_then(:process_async_auto_actions)
       |> and_then(:cleanup_round, initial_phase)
+      |> and_then(:maybe_reset_game)
     else
       error -> error
     end
@@ -137,6 +141,7 @@ defmodule PokerEx.GameEngine.Impl do
        ])}
       |> and_then(:process_async_auto_actions)
       |> and_then(:cleanup_round, initial_phase)
+      |> and_then(:maybe_reset_game)
     else
       error -> error
     end
@@ -148,6 +153,7 @@ defmodule PokerEx.GameEngine.Impl do
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
     |> and_then(:process_async_auto_actions)
     |> and_then(:cleanup_round, initial_phase)
+    |> and_then(:maybe_reset_game)
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -167,17 +173,6 @@ defmodule PokerEx.GameEngine.Impl do
        engine
        | async_manager: AsyncManager.mark_for_action(engine, player, {:add_chips, amount})
      }}
-  end
-
-  @spec reset_game(t()) :: t()
-  def reset_game(engine) do
-    %__MODULE__{
-      engine
-      | chips: ChipManager.reset_game(engine.chips),
-        seating: Seating.reset_game(engine.seating),
-        player_tracker: PlayerTracker.reset_game(engine),
-        cards: CardManager.reset_game(engine.cards)
-    }
   end
 
   @spec reset_round(t()) :: t()
@@ -275,14 +270,19 @@ defmodule PokerEx.GameEngine.Impl do
   # This function clause will trigger any necessary cleanup after transitioning
   # from one phase to the next. If there is no phase transition, then this
   # clause is effectively a no-op.
-  defp and_then({:ok, engine}, :cleanup_round, :game_over) do
-    {:ok, reset_game(engine)}
-  end
-
   defp and_then({:ok, %{phase: current_phase} = engine}, :cleanup_round, initial_phase)
        when current_phase != initial_phase do
     {:ok, reset_round(engine)}
   end
 
   defp and_then({:ok, engine}, :cleanup_round, _), do: {:ok, engine}
+
+  # This function clause will reset the game engine implementation struct to a
+  # clean state and prepare for a new game only if the phase is :game_over.
+  # Otherwise this clause is a no-op.
+  defp and_then({:ok, %{phase: :game_over} = engine}, :maybe_reset_game) do
+    {:ok, GameResetCoordinator.coordinate_reset(engine)}
+  end
+
+  defp and_then({:ok, engine}, _), do: {:ok, engine}
 end
