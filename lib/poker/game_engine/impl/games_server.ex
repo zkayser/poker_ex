@@ -12,6 +12,7 @@ defmodule PokerEx.GameEngine.GamesServer do
 
   def init(num_games \\ 1) do
     send(self(), {:start_games, num_games})
+    {:ok, %{}}
   end
 
   ##########

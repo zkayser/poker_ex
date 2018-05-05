@@ -26,7 +26,7 @@ defmodule PokerEx.GameEngine.GamesSupervisor do
   end
 
   def create_game_process(game_id) when is_binary(game_id) do
-    case DynamicSupervisor.start_child(__MODULE__, {PokerEx.GameEngine.Server, [game_id]}) do
+    case DynamicSupervisor.start_child(__MODULE__, {PokerEx.GameEngine, [game_id]}) do
       {:ok, pid} ->
         Registry.unregister(@registry, game_id)
         Registry.register(@registry, game_id, pid)
@@ -45,7 +45,7 @@ defmodule PokerEx.GameEngine.GamesSupervisor do
   def create_private_game(game_id) when is_binary(game_id) do
     case DynamicSupervisor.start_child(
            __MODULE__,
-           {PokerEx.GameEngine.Server, [[game_id, :private]]}
+           {PokerEx.GameEngine, [[game_id, :private]]}
          ) do
       {:ok, pid} ->
         Registry.unregister(@registry, game_id)
@@ -74,4 +74,10 @@ defmodule PokerEx.GameEngine.GamesSupervisor do
 
     DynamicSupervisor.init(strategy: :one_for_one)
   end
+
+  def name_for(game_title) when is_binary(game_title) do
+    {:via, Registry, {@registry, String.replace(game_title, "%20", "_")}}
+  end
+
+  def name_for(_), do: Kernel.raise("Rooms must be started with a unique string identifier")
 end

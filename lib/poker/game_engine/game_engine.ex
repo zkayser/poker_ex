@@ -1,4 +1,16 @@
 defmodule PokerEx.GameEngine do
+  use GenServer
+  defdelegate name_for(id), to: PokerEx.GameEngine.GamesSupervisor
+  defdelegate init(args), to: PokerEx.GameEngine.Server
+
+  def start_link(args) when is_list(args) do
+    GenServer.start_link(__MODULE__, args, name: name_for(List.first(args)))
+  end
+
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, [args], name: name_for("#{args}"))
+  end
+
   def join(game_id, player, chip_amount) do
     call_gen_server(game_id, {:join, player.name, chip_amount})
   end
@@ -17,10 +29,6 @@ defmodule PokerEx.GameEngine do
 
   def fold(game_id, player) do
     call_gen_server(game_id, {:fold, player.name})
-  end
-
-  def new(game_id) do
-    call_gen_server(game_id, :start)
   end
 
   def leave(game_id, player) do
@@ -52,21 +60,7 @@ defmodule PokerEx.GameEngine do
     call_gen_server(game_id, {:put_state, new_state, new_data})
   end
 
-  def start_new_round(game_id) do
-    call_gen_server(game_id, :start_new_round)
-  end
-
-  def which_state(game_id) when is_binary(game_id) do
-    call_gen_server(game_id, :which_state)
-  end
-
   defp call_gen_server(id, call_params) when is_binary(id) do
     GenServer.call(name_for(id), call_params)
   end
-
-  defp name_for(game_title) when is_binary(game_title) do
-    {:via, Registry, {Registry.Rooms, String.replace(game_title, "%20", "_")}}
-  end
-
-  defp name_for(_), do: Kernel.raise("Rooms must be started with a unique string identifier")
 end
