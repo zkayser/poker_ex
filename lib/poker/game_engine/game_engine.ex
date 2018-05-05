@@ -2,6 +2,10 @@ defmodule PokerEx.GameEngine do
   use GenServer
   defdelegate name_for(id), to: PokerEx.GameEngine.GamesSupervisor
   defdelegate init(args), to: PokerEx.GameEngine.Server
+  defdelegate terminate(reason, state), to: PokerEx.GameEngine.Server
+  defdelegate handle_call(args, from, state), to: PokerEx.GameEngine.Server
+  defdelegate handle_cast(args, state), to: PokerEx.GameEngine.Server
+  defdelegate handle_info(args, state), to: PokerEx.GameEngine.Server
 
   def start_link(args) when is_list(args) do
     GenServer.start_link(__MODULE__, args, name: name_for(List.first(args)))
@@ -12,27 +16,27 @@ defmodule PokerEx.GameEngine do
   end
 
   def join(game_id, player, chip_amount) do
-    call_gen_server(game_id, {:join, player.name, chip_amount})
+    call_gen_server(game_id, {:join, player, chip_amount})
   end
 
   def call(game_id, player) do
-    call_gen_server(game_id, {:call, player.name})
+    call_gen_server(game_id, {:call, player})
   end
 
   def check(game_id, player) do
-    call_gen_server(game_id, {:check, player.name})
+    call_gen_server(game_id, {:check, player})
   end
 
   def raise(game_id, player, amount) do
-    call_gen_server(game_id, {:raise, player.name, amount})
+    call_gen_server(game_id, {:raise, player, amount})
   end
 
   def fold(game_id, player) do
-    call_gen_server(game_id, {:fold, player.name})
+    call_gen_server(game_id, {:fold, player})
   end
 
   def leave(game_id, player) do
-    call_gen_server(game_id, {:leave, player.name})
+    call_gen_server(game_id, {:leave, player})
   end
 
   def player_count(game_id) do
@@ -48,7 +52,7 @@ defmodule PokerEx.GameEngine do
   end
 
   def add_chips(game_id, player, amount) when amount > 0 do
-    call_gen_server(game_id, {:add_chips, player.name, amount})
+    call_gen_server(game_id, {:add_chips, player, amount})
   end
 
   # This is effectively a no-op for when `add_chips` is called with a negative amount

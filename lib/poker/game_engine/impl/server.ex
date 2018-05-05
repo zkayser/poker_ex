@@ -45,6 +45,62 @@ defmodule PokerEx.GameEngine.Server do
   # CALLBACKS #
   #############
 
+  def handle_call({:join, player, join_amount}, _from, game) do
+    with {:ok, game_update} <- Game.join(game, player, join_amount) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  def handle_call({:call, player}, _from, game) do
+    with {:ok, game_update} <- Game.call(game, player) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  def handle_call({:check, player}, _from, game) do
+    with {:ok, game_update} <- Game.check(game, player) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  def handle_call({:raise, player, amount}, _from, game) do
+    with {:ok, game_update} <- Game.raise(game, player, amount) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  def handle_call({:fold, player}, _from, game) do
+    with {:ok, game_update} <- Game.fold(game, player) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  def handle_call({:leave, player}, _from, game) do
+    with {:ok, game_update} <- Game.fold(game, player) do
+      {:reply, game_update, game_update}
+    else
+      {:error, error} ->
+        {:reply, error, game}
+    end
+  end
+
+  #### TODO: Add in the remaining callbacks -- player_count and player_list
+
   ###########
   # HELPERS #
   ###########
