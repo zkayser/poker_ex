@@ -2,7 +2,7 @@ defmodule PokerEx.GameResetCoordinatorTest do
   use ExUnit.Case
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.GameResetCoordinator
+  alias PokerEx.GameEngine.{GameResetCoordinator, CardManager}
 
   describe "coordinate_reset/1" do
     test "cycles the seating arrangement", context do
@@ -66,6 +66,31 @@ defmodule PokerEx.GameResetCoordinatorTest do
       # (seeded with 200 chips on line 58, then the additional winnings)
       assert new_engine.chips.chip_roll[context.p1.name] == 225
       assert new_engine.chips.chip_roll[context.p2.name] == 250
+    end
+
+    test "should clear cards dealt from the previous round", context do
+      engine =
+        Map.put(Engine.new(), :seating, TestData.seat_players(context))
+        |> Map.put(:player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+
+      engine =
+        Map.update(engine, :cards, %{}, fn cards ->
+          {:ok, cards} =
+            CardManager.deal(%{cards: %CardManager{}, seating: engine.seating}, :pre_flop)
+
+          {:ok, cards} = CardManager.deal(%{cards: cards, seating: engine.seating}, :flop)
+          cards
+        end)
+
+      # The above code is making sure that the CardManager struct
+      # gets populated with player hands and places cards on the table.
+      # When the game gets reset, these properties of the card manager
+      # should also be refreshed.
+      assert new_engine = GameResetCoordinator.coordinate_reset(engine)
+      refute new_engine.cards == engine.cards
+      assert length(new_engine.cards.table) == 0
+      refute new_engine.cards.player_hands == engine.cards.player_hands
     end
   end
 end

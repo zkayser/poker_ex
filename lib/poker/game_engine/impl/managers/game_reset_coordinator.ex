@@ -1,5 +1,12 @@
 defmodule PokerEx.GameEngine.GameResetCoordinator do
-  alias PokerEx.GameEngine.{Seating, ChipManager, PlayerTracker, RoleManager, ScoreManager}
+  alias PokerEx.GameEngine.{
+    Seating,
+    ChipManager,
+    PlayerTracker,
+    RoleManager,
+    ScoreManager,
+    CardManager
+  }
 
   @spec coordinate_reset(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
   def coordinate_reset(engine) do
@@ -7,11 +14,13 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
     scoring = ScoreManager.manage_score(engine)
     new_chips = %{engine.chips | chip_roll: reward_winners(engine.chips.chip_roll, scoring)}
     engine = %{engine | chips: new_chips}
+    {:ok, new_cards} = CardManager.deal(%{cards: %CardManager{}, seating: new_seating}, :pre_flop)
 
     %{
       engine
       | seating: new_seating,
         chips: ChipManager.reset_game(engine.chips),
+        cards: new_cards,
         player_tracker: update_player_tracker(engine),
         scoring: %ScoreManager{},
         roles: RoleManager.manage_roles(%{seating: new_seating, roles: engine.roles})
