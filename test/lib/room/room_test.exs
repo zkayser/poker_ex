@@ -21,7 +21,7 @@ defmodule PokerEx.RoomTest do
 
     player_names =
       Room.state(context[:test_room]).seating
-        |> Enum.map(fn {name, _} -> name end)
+      |> Enum.map(fn {name, _} -> name end)
 
     assert length(player_names) == 1
   end
@@ -32,12 +32,13 @@ defmodule PokerEx.RoomTest do
     assert length(Room.state(context[:test_room]).player_hands) == 2
   end
 
-  test "player 1 should be the small blind and be able to make the first move when a game begins", context do
+  test "player 1 should be the small blind and be able to make the first move when a game begins",
+       context do
     initialize(context)
     [p1, _, _, _] = players(context)
     data = Room.raise(context[:test_room], p1, 20)
 
-    assert (data.round[p1.name]) == 30
+    assert data.round[p1.name] == 30
     assert data.current_small_blind == 0
     assert {p1.name, 0} in data.active
   end
@@ -57,6 +58,7 @@ defmodule PokerEx.RoomTest do
         Room.raise(context[:test_room], p1, 20)
         Room.call(context[:test_room], p2)
       end
+
       Room.raise(context[:test_room], p1, 20)
       Room.call(context[:test_room], p2)
 
@@ -90,7 +92,8 @@ defmodule PokerEx.RoomTest do
       assert finish.chip_roll[p2.name] < init.chip_roll[p2.name]
     end
 
-    test "in head-to-head games, the game ends when one player folds in the flop state", context do
+    test "in head-to-head games, the game ends when one player folds in the flop state",
+         context do
       [p1, p2, _, _] = players(context)
       startP1 = context[:init].chip_roll[p1.name]
       startP2 = context[:init].chip_roll[p2.name]
@@ -100,7 +103,8 @@ defmodule PokerEx.RoomTest do
       Room.fold(context[:test_room], p2)
       finish = Room.state(context[:test_room])
 
-      assert finish.chip_roll[p1.name] >= startP1 + 30 # Compensates for blinds
+      # Compensates for blinds
+      assert finish.chip_roll[p1.name] >= startP1 + 30
       assert finish.chip_roll[p2.name] <= startP2 - 30
     end
   end
@@ -146,7 +150,8 @@ defmodule PokerEx.RoomTest do
   describe "ALL IN, HEAD-TO-HEAD:" do
     setup [:init]
 
-    test "auto-complete should kick in when both players go all in during a head-to-head game", context do
+    test "auto-complete should kick in when both players go all in during a head-to-head game",
+         context do
       [p1, p2, _, _] = players(context)
       start_sum = Enum.sum(context[:init].chip_roll |> Map.values())
       startP1 = context[:init].chip_roll[p1.name]
@@ -168,15 +173,16 @@ defmodule PokerEx.RoomTest do
       Room.call(context[:test_room], p2)
       Room.call(context[:test_room], p3)
 
-      start_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
+      start_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values())
 
-      finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values)
+      finish_sum = Enum.sum(Room.state(context[:test_room]).chip_roll |> Map.values())
 
       assert_in_delta(finish_sum, start_sum, 16)
       assert Room.which_state(context[:test_room]) == :pre_flop || :idle
     end
 
-    test "auto-complete kicks in when a player folds and the others go all in during pre-flop", context do
+    test "auto-complete kicks in when a player folds and the others go all in during pre-flop",
+         context do
       [p1, p2, p3, p4] = players(context)
       start = Room.state(context[:test_room]).chip_roll
       startP2 = Room.state(context[:test_room]).chip_roll[p2.name]
