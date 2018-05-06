@@ -5,24 +5,29 @@ defmodule PokerExWeb.UserSocket do
 
   ## Channels
   # channel "room:*", PokerEx.RoomChannel
-  channel "players:*", PokerExWeb.PlayersChannel
-  channel "rooms:*", PokerExWeb.RoomsChannel
-  channel "lobby:lobby", PokerExWeb.LobbyChannel
-  channel "private_rooms:*", PokerExWeb.PrivateRoomChannel
-  channel "notifications:*", PokerExWeb.NotificationsChannel
-  channel "player_updates:*", PokerExWeb.PlayerUpdatesChannel
-  channel "online:lobby", PokerExWeb.OnlineChannel
-  channel "online:search", PokerExWeb.OnlineChannel
+  channel("players:*", PokerExWeb.PlayersChannel)
+  channel("rooms:*", PokerExWeb.RoomsChannel)
+  channel("games:*", PokerExWeb.GamesChannel)
+  channel("lobby:lobby", PokerExWeb.LobbyChannel)
+  channel("private_rooms:*", PokerExWeb.PrivateRoomChannel)
+  channel("notifications:*", PokerExWeb.NotificationsChannel)
+  channel("player_updates:*", PokerExWeb.PlayerUpdatesChannel)
+  channel("online:lobby", PokerExWeb.OnlineChannel)
+  channel("online:search", PokerExWeb.OnlineChannel)
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket,
-            timeout: 45_000,
-            check_origin: [
-              "http://localhost:8080",
-              "http://localhost:8081",
-              "https://ancient-forest-15148.herokuapp.com/",
-              "https://poker-ex.herokuapp.com/"
-              ]
+  transport(
+    :websocket,
+    Phoenix.Transports.WebSocket,
+    timeout: 45_000,
+    check_origin: [
+      "http://localhost:8080",
+      "http://localhost:8081",
+      "https://ancient-forest-15148.herokuapp.com/",
+      "https://poker-ex.herokuapp.com/"
+    ]
+  )
+
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can
@@ -37,13 +42,14 @@ defmodule PokerExWeb.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"name" => name}, socket) do
-    Logger.debug "Attempting connect..."
+    Logger.debug("Attempting connect...")
     socket = assign(socket, :player_id, name)
     {:ok, socket}
   end
 
   def connect(%{"token" => token}, socket) do
-    Logger.debug "You need a token to connect to the socket..."
+    Logger.debug("You need a token to connect to the socket...")
+
     case Phoenix.Token.verify(socket, "user socket", token, max_age: @max_age) do
       {:ok, player_id} -> {:ok, assign(socket, :player_id, player_id)}
       {:error, _reason} -> :error
@@ -53,13 +59,17 @@ defmodule PokerExWeb.UserSocket do
   def connect(%{"guardian_token" => token}, socket) do
     case Guardian.decode_and_verify(token) do
       {:ok, claims} ->
-        Logger.debug "Succesfully authenticated"
+        Logger.debug("Succesfully authenticated")
+
         id =
           Regex.named_captures(~r/:(?<id>\d+)/, claims["aud"])
           |> Map.get("id")
-          |> String.to_integer
+          |> String.to_integer()
+
         {:ok, assign(socket, :player_id, id)}
-      {:error, _reason} -> :error
+
+      {:error, _reason} ->
+        :error
     end
   end
 

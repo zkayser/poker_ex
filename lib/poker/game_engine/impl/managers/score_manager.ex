@@ -1,5 +1,5 @@
 defmodule PokerEx.GameEngine.ScoreManager do
-  alias PokerEx.{Player, Hand, Evaluator, RewardManager}
+  alias PokerEx.{Player, Hand, Evaluator, RewardManager, Events}
   @type stats :: [{String.t(), pos_integer()}] | []
   @type rewards :: [{String.t(), pos_integer()}] | []
 
@@ -7,13 +7,15 @@ defmodule PokerEx.GameEngine.ScoreManager do
           stats: stats,
           rewards: rewards,
           winners: [String.t()] | [Player.t()] | :none,
-          winning_hand: Hand.t() | :none
+          winning_hand: Hand.t() | :none,
+          game_id: String.t()
         }
 
   defstruct stats: [],
             rewards: [],
             winners: :none,
-            winning_hand: :none
+            winning_hand: :none,
+            game_id: nil
 
   def new do
     %__MODULE__{}
@@ -32,7 +34,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
             scoring
 
           false ->
-            update_state(scoring, [
+            update_state(%{scoring | game_id: engine.game_id}, [
               {:auto_win, engine.player_tracker.active},
               {:set_rewards, engine.chips},
               :set_winners
@@ -40,7 +42,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
         end
 
       false ->
-        update_state(scoring, [
+        update_state(%{scoring | game_id: engine.game_id}, [
           {:evaluate_hands, cards},
           {:set_rewards, engine.chips},
           :set_winners,
@@ -72,6 +74,18 @@ defmodule PokerEx.GameEngine.ScoreManager do
       Enum.filter(scoring.stats, fn {_, score} -> score == high_score end)
       |> Enum.map(fn {player, _} -> player end)
 
+    Enum.each(winners, fn winner ->
+      Events.game_over(
+        scoring.game_id,
+        winner,
+        Enum.filter(scoring.rewards, fn {name, _} ->
+          winner == name
+        end)
+        |> hd()
+        |> elem(1)
+      )
+    end)
+
     %__MODULE__{scoring | winners: winners}
   end
 
@@ -86,6 +100,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
   end
 
   defp update({:auto_win, [player | _]}, scoring) do
+    Events.winner_message(scoring.game_id, "#{player} wins the round on a fold")
     Map.put(scoring, :stats, [{player, 1000}])
   end
 end

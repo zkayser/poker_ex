@@ -1,6 +1,7 @@
 defmodule PokerEx.GameEngine do
   use GenServer
   defdelegate name_for(id), to: PokerEx.GameEngine.GamesSupervisor
+  defdelegate get_pid(id), to: PokerEx.GameEngine.GamesSupervisor
   defdelegate init(args), to: PokerEx.GameEngine.Server
   defdelegate terminate(reason, state), to: PokerEx.GameEngine.Server
   defdelegate handle_call(args, from, state), to: PokerEx.GameEngine.Server
@@ -62,6 +63,13 @@ defmodule PokerEx.GameEngine do
 
   def put_state(game_id, new_state, new_data) do
     call_gen_server(game_id, {:put_state, new_state, new_data})
+  end
+
+  def get_state(game_id) do
+    case get_pid(game_id) do
+      pid when is_pid(pid) -> :sys.get_state(pid)
+      _ -> %PokerEx.GameEngine.Impl{}
+    end
   end
 
   defp call_gen_server(id, call_params) when is_binary(id) do

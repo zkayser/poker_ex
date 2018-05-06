@@ -1,44 +1,47 @@
-defmodule PokerExWeb.RoomsChannel do
+defmodule PokerExWeb.GamesChannel do
   use Phoenix.Channel
   require Logger
-  alias PokerEx.{Repo, Player, PrivateRoom, Room}
+  alias PokerEx.{Repo, Player, PrivateRoom}
+  alias PokerEx.GameEngine, as: Game
+  alias PokerEx.GameEngine.Seating
 
   @valid_params ~w(player amount)
   @actions ~w(raise call check fold leave add_chips)
   @poker_actions ~w(raise call check fold)
   @manual_join_msg "Welcome. Please join by pressing the join button and entering an amount."
 
-  def join("rooms:" <> room_title, %{"type" => type, "amount" => amount}, socket)
+  ########
+  # JOIN #
+  ########
+
+  def join("games:" <> game_title, %{"type" => type, "amount" => amount}, socket)
       when amount >= 100 do
-    unless socket.assigns |> Map.has_key?(:player) do
+    unless Map.has_key?(socket.assigns, :player) do
       socket =
-        assign(socket, :room, room_title)
+        assign(socket, :game, game_title)
         |> assign(:type, type)
         |> assign(:join_amount, amount)
         |> assign_player()
 
       send(self(), :after_join)
-      Logger.debug("Player #{socket.assigns.player.name} has joined room #{room_title}")
+      Logger.debug("Player: #{socket.assigns.player.name} has joined game #{game_title}")
       {:ok, %{name: socket.assigns.player.name}, socket}
     end
   end
 
-  # This is a private room join for players who are already seated. All public joins
-  # should go through the function above, as well as the initial join to a private room.
-  def join("rooms:" <> room_title, %{"type" => "private", "amount" => 0}, socket) do
+  # This is a private game join for players who are already seated. All public joins
+  # should go through the function above, as well as the initial join to a private game.
+  def join("games:" <> game_title, %{"type" => "private", "amount" => 0}, socket) do
     socket =
-      assign(socket, :room, room_title)
+      assign(socket, :game, game_title)
       |> assign(:type, "private")
       |> assign(:join_amount, 0)
       |> assign_player()
 
-    case socket.assigns.player.name in Enum.map(Room.state(socket.assigns.room).seating, fn {name,
-                                                                                             _} ->
-           name
-         end) do
+    case Seating.is_player_seated?(Game.get_state(game_title), socket.assigns.player.name) do
       true ->
         send(self(), :after_join)
-        Logger.debug("Player #{socket.assigns.player.name} is joining private room #{room_title}")
+        Logger.debug("Player #{socket.assigns.player.name} is joining private game #{game_title}")
         {:ok, %{name: socket.assigns.player.name}, socket}
 
       false ->
@@ -46,24 +49,29 @@ defmodule PokerExWeb.RoomsChannel do
     end
   end
 
-  def join("rooms:" <> _, _, _socket),
-    do: {:error, %{message: "Could not join the room. Please try again."}}
+  def join("games:" <> _, _, _socket) do
+    {:error, %{message: "Failed to join the game. Please try again."}}
+  end
+
+  #############
+  # CALLBACKS #
+  #############
 
   ############
   # INTERNAL #
   ############
 
   def handle_info(:after_join, %{assigns: assigns} = socket) do
-    seating = Enum.map(Room.state(assigns.room).seating, fn {name, _} -> name end)
+    seating = Enum.map(Game.get_state(assigns.game).seating.arrangement, fn {name, _} -> name end)
 
     case {assigns.type == "private", assigns.player.name in seating} do
       {true, true} ->
-        room = Room.state(assigns.room)
-        broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+        game = Game.get_state(assigns.game)
+        broadcast!(socket, "update", PokerExWeb.GameView.render("game.json", %{game: game}))
 
       {_, _} ->
-        room = Room.join(assigns.room, assigns.player, assigns.join_amount)
-        broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+        game = Game.join(assigns.game, assigns.player, assigns.join_amount)
+        broadcast!(socket, "update", PokerExWeb.GameView.render("game.json", %{game: game}))
     end
 
     {:noreply, socket}
@@ -79,10 +87,10 @@ defmodule PokerExWeb.RoomsChannel do
 
     case Enum.all?(Map.keys(params), &(&1 in @valid_params)) do
       true ->
-        room = apply(Room, atomize(action), [socket.assigns.room, player | Map.values(params)])
-        save_private_room(room, socket)
+        game = apply(Game, atomize(action), [socket.assigns.game, player | Map.values(params)])
+        save_private_game(game, socket)
         broadcast_action_message(player, action, params, socket)
-        maybe_broadcast_update(room, socket)
+        maybe_broadcast_update(game, socket)
 
       _ ->
         {:error, :bad_room_arguments, Map.values(params)}
@@ -110,22 +118,22 @@ defmodule PokerExWeb.RoomsChannel do
   #############
 
   def terminate(reason, socket) do
-    Logger.debug("[RoomChannel] Terminating with reason: #{inspect(reason)}")
+    Logger.debug("[GamesChannel] Terminating with reason: #{inspect(reason)}")
 
-    room =
-      case Room.state(socket.assigns.room).type do
-        :private -> socket.assigns.room
-        :public -> Room.leave(socket.assigns.room, socket.assigns.player)
+    game =
+      case Game.get_state(socket.assigns.game).type do
+        :private -> socket.assigns.game
+        :public -> Game.leave(socket.assigns.game, socket.assigns.player)
       end
 
-    broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+    broadcast!(socket, "update", PokerExWeb.GameView.render("game.json", %{game: game}))
 
     {:shutdown, :left}
   end
 
-  ####################
-  # HELPER FUNCTIONS #
-  ####################
+  ###########
+  # HELPERS #
+  ###########
 
   defp atomize(string), do: String.to_atom(string)
 
@@ -140,18 +148,22 @@ defmodule PokerExWeb.RoomsChannel do
 
   defp maybe_broadcast_update(:skip_update_message, _), do: :ok
 
-  defp maybe_broadcast_update(room, socket) do
-    broadcast!(socket, "update", PokerExWeb.RoomView.render("room.json", %{room: room}))
+  defp maybe_broadcast_update(game, socket) do
+    broadcast!(socket, "update", PokerExWeb.GameView.render("game.json", %{game: game}))
   end
 
-  defp save_private_room(:skip_update_message, _), do: :ok
+  defp save_private_game(:skip_update_message, _), do: :ok
 
-  defp save_private_room(room, socket) do
+  defp save_private_game(game, socket) do
     case socket.assigns.type do
       "private" ->
         # Should only hit the database in prod
         if Application.get_env(PokerEx, :should_update_after_poker_action) do
-          PrivateRoom.get_room_and_store_state(room.room_id, Room.which_state(room.room_id), room)
+          PrivateRoom.get_room_and_store_state(
+            game.game_id,
+            game.phase,
+            game
+          )
         else
           :ok
         end

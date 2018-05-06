@@ -25,6 +25,14 @@ defmodule PokerEx.GameEngine.GamesSupervisor do
     end
   end
 
+  def get_pid(id) do
+    case Registry.lookup(@registry, id) do
+      [] -> {:error, :not_started}
+      [{pid, _}] when is_pid(pid) -> pid
+      _ -> {:error, :pid_not_found}
+    end
+  end
+
   def create_game_process(game_id) when is_binary(game_id) do
     case DynamicSupervisor.start_child(__MODULE__, {PokerEx.GameEngine, [game_id]}) do
       {:ok, pid} ->
