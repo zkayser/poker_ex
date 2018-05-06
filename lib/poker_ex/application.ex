@@ -17,6 +17,8 @@ defmodule PokerEx.Application do
       supervisor(PokerEx.RoomsSupervisor, []),
       supervisor(PokerEx.GameEngine.GamesSupervisor, []),
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
+      # AppState is no longer a thing.
+      # RoomServer will be deprecated once the GameServer is ready
       worker(PokerEx.AppState, []),
       worker(PokerEx.RoomServer, [@initial_game_count]),
       worker(PokerEx.GameEngine.GamesServer, [@initial_game_count])

@@ -112,8 +112,8 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp auto_check(engine, player) do
-    with {:ok, player_tracker} = PlayerTracker.check(engine, player),
-         {:ok, chips} = ChipManager.check(engine, player) do
+    with {:ok, player_tracker} <- PlayerTracker.check(engine, player),
+         {:ok, chips} <- ChipManager.check(engine, player) do
       {:ok, %{engine | player_tracker: player_tracker, chips: chips}}
     else
       {:error, error} -> {:error, error}
@@ -136,7 +136,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp do_add_chips(engine, player, amount) do
-    with {:ok, player} = Player.subtract_chips(player, amount) do
+    with {:ok, player} <- Player.subtract_chips(player, amount) do
       %{chips: chips} =
         Map.update(engine, :chips, %{}, fn chips ->
           Map.update(chips, :chip_roll, %{}, fn chip_roll ->
