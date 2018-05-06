@@ -51,6 +51,27 @@ defmodule PokerEx.CardManagerTest do
       assert length(card_manager.table) == 5
     end
 
+    test "deals the remaining cards needed to evaluate a hand if players are all in on game over",
+         context do
+      engine = TestData.setup_cards_and_deck(context)
+      {:ok, card_manager} = CardManager.deal(engine, :flop)
+      # The above will place three cards on the table. If players go
+      # all in and the phase transitions to :game_over, two more cards
+      # will be needed to evaluate the hand
+      engine = %Engine{
+        engine
+        | cards: card_manager,
+          player_tracker: %{
+            active: [context.p1.name, context.p2.name],
+            all_in: [context.p1.name, context.p2.name],
+            folded: []
+          }
+      }
+
+      assert {:ok, card_manager} = CardManager.deal(engine, :game_over)
+      assert length(card_manager.table) == 5
+    end
+
     test "clears the deck when transitioning between rounds", context do
       engine = TestData.setup_cards_and_deck(context)
 

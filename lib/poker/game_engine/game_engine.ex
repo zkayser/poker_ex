@@ -20,23 +20,23 @@ defmodule PokerEx.GameEngine do
   end
 
   def call(game_id, player) do
-    call_gen_server(game_id, {:call, player})
+    call_gen_server(game_id, {:call, player.name})
   end
 
   def check(game_id, player) do
-    call_gen_server(game_id, {:check, player})
+    call_gen_server(game_id, {:check, player.name})
   end
 
   def raise(game_id, player, amount) do
-    call_gen_server(game_id, {:raise, player, amount})
+    call_gen_server(game_id, {:raise, player.name, amount})
   end
 
   def fold(game_id, player) do
-    call_gen_server(game_id, {:fold, player})
+    call_gen_server(game_id, {:fold, player.name})
   end
 
   def leave(game_id, player) do
-    call_gen_server(game_id, {:leave, player})
+    call_gen_server(game_id, {:leave, player.name})
   end
 
   def player_count(game_id) do
@@ -52,7 +52,7 @@ defmodule PokerEx.GameEngine do
   end
 
   def add_chips(game_id, player, amount) when amount > 0 do
-    call_gen_server(game_id, {:add_chips, player, amount})
+    call_gen_server(game_id, {:add_chips, player.name, amount})
   end
 
   # This is effectively a no-op for when `add_chips` is called with a negative amount

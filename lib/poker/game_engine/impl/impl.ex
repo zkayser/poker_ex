@@ -69,8 +69,8 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec call(t(), Player.t()) :: result()
-  def call(%{phase: initial_phase} = engine, %{name: player}) do
+  @spec call(t(), Player.name()) :: result()
+  def call(%{phase: initial_phase} = engine, player) do
     with {:ok, chips} <- ChipManager.call(engine, player),
          {:ok, player_tracker} <- PlayerTracker.call(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -89,8 +89,8 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec raise(t(), Player.t(), non_neg_integer) :: result()
-  def raise(%{phase: initial_phase} = engine, %{name: player}, amount) do
+  @spec raise(t(), Player.name(), non_neg_integer) :: result()
+  def raise(%{phase: initial_phase} = engine, player, amount) do
     with {:ok, chips} <- ChipManager.raise(engine, player, amount),
          {:ok, player_tracker} <- PlayerTracker.raise(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -109,8 +109,8 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec check(t(), Player.t()) :: result()
-  def check(%{phase: initial_phase} = engine, %{name: player}) do
+  @spec check(t(), Player.name()) :: result()
+  def check(%{phase: initial_phase} = engine, player) do
     with {:ok, chips} <- ChipManager.check(engine, player),
          {:ok, player_tracker} <- PlayerTracker.check(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
@@ -129,8 +129,8 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec fold(t(), Player.t()) :: result()
-  def fold(%{phase: initial_phase} = engine, %{name: player}) do
+  @spec fold(t(), Player.name()) :: result()
+  def fold(%{phase: initial_phase} = engine, player) do
     with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
@@ -147,8 +147,8 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec leave(t(), Player.t()) :: result()
-  def leave(%{phase: initial_phase} = engine, %{name: player}) do
+  @spec leave(t(), Player.name()) :: result()
+  def leave(%{phase: initial_phase} = engine, player) do
     {:ok,
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
     |> and_then(:process_async_auto_actions)
@@ -166,7 +166,7 @@ defmodule PokerEx.GameEngine.Impl do
     for {player, _} <- engine.seating.arrangement, do: player
   end
 
-  @spec add_chips(t(), Player.t(), pos_integer) :: success()
+  @spec add_chips(t(), Player.name(), pos_integer) :: success()
   def add_chips(engine, player, amount) do
     {:ok,
      %__MODULE__{

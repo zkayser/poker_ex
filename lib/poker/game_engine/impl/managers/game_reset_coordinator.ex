@@ -10,9 +10,9 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
 
   @spec coordinate_reset(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
   def coordinate_reset(engine) do
-    new_seating = update_seating(engine)
     scoring = ScoreManager.manage_score(engine)
     new_chips = %{engine.chips | chip_roll: reward_winners(engine.chips.chip_roll, scoring)}
+    new_seating = update_seating(%{engine | chips: new_chips})
     engine = %{engine | chips: new_chips}
     {:ok, new_cards} = CardManager.deal(%{cards: %CardManager{}, seating: new_seating}, :pre_flop)
 

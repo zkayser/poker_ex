@@ -37,6 +37,17 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, new()}
   end
 
+  def deal(%{cards: cards, player_tracker: %{all_in: all_in}}, :game_over)
+      when length(all_in) > 0 do
+    case length(cards.table) do
+      5 ->
+        {:ok, cards}
+
+      num ->
+        {:ok, update_state(cards, Stream.repeatedly(fn -> :deal_table end) |> Enum.take(5 - num))}
+    end
+  end
+
   def deal(%{cards: cards}, :game_over), do: {:ok, cards}
 
   def deal(%{cards: cards}, :idle), do: {:ok, cards}

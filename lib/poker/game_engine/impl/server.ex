@@ -121,7 +121,7 @@ defmodule PokerEx.GameEngine.Server do
   ###########
 
   defp restore_chips_to_players(chips) do
-    chips
+    chips.chip_roll
     |> Map.keys()
     |> Enum.each(fn p -> Player.update_chips(p, restore_chips(chips, p)) end)
   end

@@ -1,7 +1,5 @@
 defmodule PokerEx.RewardManager do
-  alias PokerEx.Player
-  alias PokerEx.Events
-  alias PokerEx.Room
+  alias PokerEx.{Player, Events, Room}
 
   @type hand_rankings :: [{String.t(), pos_integer}]
   @type paid_in :: [{String.t(), pos_integer}]
@@ -33,11 +31,6 @@ defmodule PokerEx.RewardManager do
   @spec distribute_rewards(rewards, atom()) :: :ok
   def distribute_rewards(rewards, room_id) do
     Enum.each(rewards, fn {player, amount} ->
-      # TODO: 5/4/18 -- Probably should not reward amounts on
-      # game over. Instead, the amount won should be restored
-      # to the game engine struct's chip roll for the winning
-      # players, then credited to the player's account on game
-      # leave.
       Player.reward(player, amount, room_id)
       Events.game_over(room_id, player, amount)
     end)
