@@ -48,9 +48,17 @@ defmodule PokerEx.GameEvents do
     Endpoint.broadcast!("games:" <> game_id, "update", json)
   end
 
+  def game_over(:none, winner, reward) do
+    {:ok, "Winner: #{winner}\nReward: #{reward}"}
+  end
+
   def game_over(game_id, winner, reward) do
     message = "#{winner} wins #{reward} chips"
     Endpoint.broadcast!("games:" <> game_id, "game_finished", %{message: message})
+  end
+
+  def winner_message(:none, message) do
+    {:ok, "#{message}"}
   end
 
   def winner_message(game_id, message) do
