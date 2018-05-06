@@ -133,22 +133,15 @@ defmodule PokerEx.GamesChannelTest do
     assert length(get_game_state(context).seating.arrangement) == 3
     assert get_game_state(context).phase == :pre_flop
 
-    expected_seating = [
-      %{name: player.name, position: 0},
-      %{name: other_player.name, position: 1}
-    ]
-
     leave(context.socket)
 
-    assert_broadcast("update", %{seating: ^expected_seating})
-
     Process.sleep(100)
-    assert length(get_game_state(context).seating.arrangement) == 2
+    assert context.player.name in get_game_state(context).async_manager.cleanup_queue
   end
 
   test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message",
        context do
-    {socket, _, _, _} = create_player_and_connect(context.title)
+    {socket, player, _, _} = create_player_and_connect(context.title)
 
     assert length(get_game_state(context).seating.arrangement) == 2
 

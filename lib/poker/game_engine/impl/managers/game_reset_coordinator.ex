@@ -1,4 +1,6 @@
 defmodule PokerEx.GameEngine.GameResetCoordinator do
+  alias PokerEx.Events
+
   alias PokerEx.GameEngine.{
     Seating,
     ChipManager,
@@ -48,7 +50,14 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
   end
 
   defp update_phase(engine) do
-    if length(engine.seating.arrangement) > 1, do: :pre_flop, else: :between_rounds
+    case length(engine.seating.arrangement) > 1 do
+      true ->
+        :pre_flop
+
+      false ->
+        Events.clear_ui(engine.game_id)
+        :between_rounds
+    end
   end
 
   defp update_player_tracker(engine) do
