@@ -26,7 +26,7 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
         roles: RoleManager.manage_roles(%{seating: new_seating, roles: engine.roles})
     }
     |> PlayerTracker.set_active_players(:game_over)
-    |> Map.put(:phase, update_phase(engine))
+    |> Map.put(:phase, update_phase(%{engine | seating: new_seating}))
     |> maybe_post_blind()
   end
 
