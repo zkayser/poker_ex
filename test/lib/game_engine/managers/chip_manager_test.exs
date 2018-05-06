@@ -134,6 +134,22 @@ defmodule PokerEx.ChipManagerTest do
       assert chips.pot == 600
     end
 
+    test "does not allow raises above the amount the player controls", context do
+      engine =
+        Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
+        |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
+        |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :pot, 10) end)
+
+      [active_player | _] = engine.player_tracker.active
+      assert {:ok, chips} = ChipManager.raise(engine, active_player, 300)
+      assert chips.to_call == 200
+      assert chips.round[active_player] == 200
+      assert chips.paid[active_player] == 200
+      assert chips.chip_roll[active_player] == 0
+      assert chips.pot == 210
+    end
+
     test "manages raises for players who have already paid in round", context do
       engine =
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
