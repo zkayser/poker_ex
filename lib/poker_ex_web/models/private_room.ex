@@ -5,10 +5,11 @@ defmodule PokerEx.PrivateRoom do
   alias PokerEx.GameEngine.GamesSupervisor
   alias PokerEx.GameEngine, as: Game
 
-  schema "private_rooms" do
+  schema "private_games" do
     field(:title, :string)
     field(:room_data, :binary)
     field(:room_state, :binary)
+    field(:stored_game_data, :map)
     belongs_to(:owner, PokerEx.Player)
 
     many_to_many(
@@ -160,7 +161,8 @@ defmodule PokerEx.PrivateRoom do
     model
     |> cast(params, ~w(title))
     |> validate_length(:title, min: 1, max: 16)
-    |> unique_constraint(:title)
+    |> unique_constraint(:title, name: :private_rooms_title_index)
+    |> unique_constraint(:title, name: :private_games_title_index)
   end
 
   @doc ~S"""
@@ -234,6 +236,21 @@ defmodule PokerEx.PrivateRoom do
     end)
   end
 
+  @spec get_game_and_store_state(String.t(), PokerEx.GameEngine.Impl.t()) :: {:ok, pid()}
+  def get_game_and_store_state(title, game_data) when is_binary(title) do
+    {:ok, serialized_game_data} =
+      PokerExWeb.GameView.render("game.json", %{game: game_data}) |> Poison.encode()
+
+    IO.puts("Decoded: #{inspect(Poison.decode(serialized_game_data))}")
+
+    IO.puts("Serialized game data: #{inspect(serialized_game_data)}")
+
+    Task.start(fn ->
+      Repo.get_by(PrivateRoom, title: title)
+      |> store_state(%{"game_data" => serialized_game_data})
+    end)
+  end
+
   @doc ~S"""
   Takes in a player instance and a room title. Returns true if the player is the owner of
   the room, false otherwise.
@@ -278,6 +295,20 @@ defmodule PokerEx.PrivateRoom do
 
       _ ->
         Logger.error("Failed to store state for room #{inspect(id)}")
+        :error
+    end
+  end
+
+  defp store_state(%PrivateRoom{title: id} = priv_room, %{"game_data" => game_data}) do
+    priv_room
+    |> cast(%{game_data: game_data}, [:game_data])
+    |> Repo.update()
+    |> case do
+      {:ok, _} ->
+        :ok
+
+      _ ->
+        Logger.error("Failed to store state for game: #{inspect(id)}")
         :error
     end
   end
