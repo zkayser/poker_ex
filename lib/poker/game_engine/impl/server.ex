@@ -4,6 +4,18 @@ defmodule PokerEx.GameEngine.Server do
   alias PokerEx.GameEngine.Impl, as: Game
   alias PokerEx.Player
 
+  @valid_funcs [
+    :join,
+    :leave,
+    :call,
+    :check,
+    :fold,
+    :raise,
+    :add_chips,
+    :player_count,
+    :player_list
+  ]
+
   ##################
   # INITIALIZATION #
   ##################
@@ -44,77 +56,29 @@ defmodule PokerEx.GameEngine.Server do
   # CALLBACKS #
   #############
 
-  def handle_call({:join, player, join_amount}, _from, game) do
-    with {:ok, game_update} <- Game.join(game, player, join_amount) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:call, player}, _from, game) do
-    with {:ok, game_update} <- Game.call(game, player) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:check, player}, _from, game) do
-    with {:ok, game_update} <- Game.check(game, player) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:raise, player, amount}, _from, game) do
-    with {:ok, game_update} <- Game.raise(game, player, amount) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:fold, player}, _from, game) do
-    with {:ok, game_update} <- Game.fold(game, player) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:leave, player}, _from, game) do
-    with {:ok, game_update} <- Game.leave(game, player) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
-  def handle_call({:add_chips, player, amount}, _from, game) do
-    with {:ok, game_update} <- Game.add_chips(game, player, amount) do
-      {:reply, game_update, game_update}
-    else
-      {:error, error} ->
-        {:reply, error, game}
-    end
-  end
-
   def handle_call(:no_op, _from, game), do: {:reply, game, game}
 
   def handle_call({:put_state, new_game}, _from, _game) do
     {:reply, new_game, new_game}
   end
 
-  def handle_call(:player_count, _from, game), do: {:reply, Game.player_count(game), game}
-  def handle_call(:player_list, _from, game), do: {:reply, Game.player_list(game), game}
+  def handle_call(args, _from, game) do
+    [function | arguments] = Tuple.to_list(args)
+
+    case function in @valid_funcs do
+      true ->
+        with {:ok, game_update} <- apply(Game, function, [game | arguments]) do
+          {:reply, game_update, game_update}
+        else
+          {:error, error} ->
+            {:reply, error, game}
+        end
+
+      false ->
+        Logger.warn("Received an unrecognized function call on game: #{function}")
+        {:noreply, game}
+    end
+  end
 
   ###########
   # HELPERS #
