@@ -1,10 +1,10 @@
 defmodule PokerExWeb.RoomController do
   use PokerExWeb, :controller
-  alias PokerEx.GamesSupervisor, as: GamesSupervisor
+  alias PokerEx.GameEngine.GamesSupervisor, as: GamesSupervisor
 
   def index(conn, _params) do
-    [{pid, _}] = Registry.lookup(PokerEx.RoomRegistry, "room_1")
-    ids = Registry.keys(PokerEx.RoomRegistry, pid)
+    [{pid, _}] = Registry.lookup(PokerEx.GameRegistry, "game_1")
+    ids = Registry.keys(PokerEx.GameRegistry, pid)
 
     {_, room_states} =
       Enum.map_reduce(ids, %{}, fn room, acc ->

@@ -5,7 +5,6 @@ defmodule PokerEx.PrivateRoomTest do
   alias PokerEx.PrivateRoom, as: PRoom
   alias PokerEx.GameEngine, as: Game
   alias PokerEx.Player
-  alias PokerEx.Room
 
   setup do
     player = insert_user()

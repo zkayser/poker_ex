@@ -1,6 +1,5 @@
 defmodule PokerExWeb.GameView do
   use PokerExWeb, :view
-  alias PokerEx.GameEngine.Impl, as: Game
   import Ecto.Query
 
   @errors [:out_of_turn, :not_paid, :already_joined]
