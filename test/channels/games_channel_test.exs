@@ -2,7 +2,6 @@ defmodule PokerEx.GamesChannelTest do
   use PokerExWeb.ChannelCase
   import PokerEx.TestHelpers
   alias PokerExWeb.GamesChannel
-  alias PokerEx.GameEngine, as: Game
   alias PokerEx.GameEngine.GamesSupervisor
 
   @endpoint PokerExWeb.Endpoint
@@ -121,14 +120,14 @@ defmodule PokerEx.GamesChannelTest do
   end
 
   test "a new update message is broadcast when a player's channel is disconnected", context do
-    {_, player, _, _} = create_player_and_connect(context.title)
+    {_, _, _, _} = create_player_and_connect(context.title)
 
     # Since a :skip_update_message is returned if there are only two players
     # and one leaves/gets disconnected (leaving only one player at the table), I'm having a
     # third player join here to invoke what would normally be returned given an ongoing game with
     # more than two players.
 
-    {_, other_player, _, _} = create_player_and_connect(context.title)
+    {_, _, _, _} = create_player_and_connect(context.title)
 
     assert length(get_game_state(context).seating.arrangement) == 3
     assert get_game_state(context).phase == :pre_flop
@@ -141,7 +140,7 @@ defmodule PokerEx.GamesChannelTest do
 
   test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message",
        context do
-    {socket, player, _, _} = create_player_and_connect(context.title)
+    {socket, _, _, _} = create_player_and_connect(context.title)
 
     assert length(get_game_state(context).seating.arrangement) == 2
 

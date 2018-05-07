@@ -75,7 +75,7 @@ defmodule PokerEx.GameResetCoordinatorTest do
         |> Map.put(:chips, TestData.add_200_chips_for_all(context))
 
       engine =
-        Map.update(engine, :cards, %{}, fn cards ->
+        Map.update(engine, :cards, %{}, fn _cards ->
           {:ok, cards} =
             CardManager.deal(%{cards: %CardManager{}, seating: engine.seating}, :pre_flop)
 
