@@ -1,7 +1,7 @@
 defmodule PokerEx.Application do
   use Application
 
-  @initial_game_count Application.get_env(PokerEx, :initial_room_count)
+  @initial_game_count Application.get_env(PokerEx, :initial_game_count)
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
@@ -14,13 +14,8 @@ defmodule PokerEx.Application do
       # Start the endpoint when the application starts
       supervisor(PokerExWeb.Endpoint, []),
       supervisor(PokerEx.Presence, []),
-      supervisor(PokerEx.RoomsSupervisor, []),
       supervisor(PokerEx.GameEngine.GamesSupervisor, []),
       # Start your own worker by calling: PokerEx.Worker.start_link(arg1, arg2, arg3)
-      # AppState is no longer a thing.
-      # RoomServer will be deprecated once the GameServer is ready
-      worker(PokerEx.AppState, []),
-      worker(PokerEx.RoomServer, [@initial_game_count]),
       worker(PokerEx.GameEngine.GamesServer, [@initial_game_count])
       # The Room worker will be moved out to a separate supervision tree
       # later so there can be multiple instances of it running at the same

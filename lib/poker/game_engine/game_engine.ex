@@ -16,6 +16,8 @@ defmodule PokerEx.GameEngine do
     GenServer.start_link(__MODULE__, [args], name: name_for("#{args}"))
   end
 
+  def stop(game_id), do: GenServer.stop(name_for(game_id))
+
   def join(game_id, player, chip_amount) do
     call_gen_server(game_id, {:join, player, chip_amount})
   end

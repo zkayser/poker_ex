@@ -83,9 +83,13 @@ defmodule PokerEx.GameEngine.GamesSupervisor do
     DynamicSupervisor.init(strategy: :one_for_one)
   end
 
+  def name_for([game_title, :private]) when is_binary(game_title) do
+    {:via, Registry, {@registry, String.replace(game_title, "%20", "_")}}
+  end
+
   def name_for(game_title) when is_binary(game_title) do
     {:via, Registry, {@registry, String.replace(game_title, "%20", "_")}}
   end
 
-  def name_for(_), do: Kernel.raise("Rooms must be started with a unique string identifier")
+  def name_for(name), do: Kernel.raise("Games must be started with a unique string identifier")
 end

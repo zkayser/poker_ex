@@ -1,12 +1,9 @@
 defmodule PokerEx.PrivateRoom do
   use PokerExWeb, :model
   require Logger
-  alias PokerEx.Player
-  alias PokerEx.PrivateRoom
-  alias PokerEx.Room
-  alias PokerEx.RoomsSupervisor
-  alias PokerEx.Repo
-  alias PokerEx.Notifications
+  alias PokerEx.{Player, Repo, Notifications, PrivateRoom}
+  alias PokerEx.GameEngine.GamesSupervisor
+  alias PokerEx.GameEngine, as: Game
 
   schema "private_rooms" do
     field(:title, :string)
@@ -57,7 +54,7 @@ defmodule PokerEx.PrivateRoom do
            |> changeset()
            |> update_participants([owner])
            |> Repo.insert() do
-      case RoomsSupervisor.create_private_room(format_title(title)) do
+      case GamesSupervisor.create_private_game(format_title(title)) do
         {:ok, _} ->
           Notifications.notify_invitees(room)
           {:ok, room}
@@ -118,7 +115,7 @@ defmodule PokerEx.PrivateRoom do
            |> change()
            |> update_participants(Enum.reject(room.participants, &(&1.id == leaving_player.id)))
            |> Repo.update() do
-      Room.leave(room.title, leaving_player)
+      Game.leave(room.title, leaving_player)
       {:ok, room}
     else
       {:error, changeset} -> {:error, changeset}
@@ -130,8 +127,8 @@ defmodule PokerEx.PrivateRoom do
   """
   @spec delete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, String.t()}
   def delete(%__MODULE__{} = room) do
-    with :ok <- Enum.each(preload(room).participants, &Room.leave(room.title, &1)),
-         :ok <- Room.stop(room.title),
+    with :ok <- Enum.each(preload(room).participants, &Game.leave(room.title, &1)),
+         :ok <- Game.stop(room.title),
          invitees <- preload(room).invitees,
          participants <- preload(room).participants,
          owner <- preload(room).owner do
@@ -195,21 +192,21 @@ defmodule PokerEx.PrivateRoom do
   """
   @spec ensure_started(String.t()) :: Room.t()
   def ensure_started(room_process) when is_binary(room_process) do
-    case RoomsSupervisor.room_process_exists?(room_process) do
+    case GamesSupervisor.process_exists?(room_process) do
       false ->
         %{room_state: room_state, room_data: room_data} = by_title(room_process)
-        RoomsSupervisor.create_private_room(room_process)
+        GamesSupervisor.create_private_game(room_process)
         put_state_for_room(room_process, room_state, room_data)
 
       _ ->
-        Room.state(room_process)
+        Game.get_state(room_process)
     end
   end
 
   @spec restart(String.t()) :: Room.t()
   def restart(title) do
     %{room_state: room_state, room_data: room_data} = by_title(title)
-    RoomsSupervisor.create_private_room(title)
+    GamesSupervisor.create_private_game(title)
     put_state_for_room(title, room_state, room_data)
   end
 
@@ -254,7 +251,7 @@ defmodule PokerEx.PrivateRoom do
 
   @spec alive?(String.t()) :: boolean()
   def alive?(title) when is_binary(title) do
-    RoomsSupervisor.room_process_exists?(title)
+    GamesSupervisor.process_exists?(title)
   end
 
   def alive?(title), do: {:error, {:invalid_title, title}}
@@ -292,10 +289,10 @@ defmodule PokerEx.PrivateRoom do
 
   defp format_title(_), do: {:error, :invalid_title}
 
-  defp put_state_for_room(room_process, nil, nil), do: Room.state(room_process)
+  defp put_state_for_room(room_process, nil, nil), do: Game.get_state(room_process)
 
   defp put_state_for_room(room_process, state, data) do
-    Room.put_state(room_process, :erlang.binary_to_term(state), :erlang.binary_to_term(data))
+    Game.put_state(room_process, :erlang.binary_to_term(state), :erlang.binary_to_term(data))
   end
 
   def update_participants(changeset, participants) do

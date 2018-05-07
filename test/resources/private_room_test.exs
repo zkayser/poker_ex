@@ -1,8 +1,9 @@
 defmodule PokerEx.PrivateRoomTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use PokerEx.ModelCase
   import PokerEx.TestHelpers
   alias PokerEx.PrivateRoom, as: PRoom
+  alias PokerEx.GameEngine, as: Game
   alias PokerEx.Player
   alias PokerEx.Room
 
@@ -12,7 +13,7 @@ defmodule PokerEx.PrivateRoomTest do
     invitees = for _ <- 1..4, do: insert_user()
 
     {:ok, room} =
-      PRoom.create("room#{Base.encode16(:crypto.strong_rand_bytes(8))}", player, invitees)
+      PRoom.create("game#{Base.encode16(:crypto.strong_rand_bytes(8))}", player, invitees)
 
     {:ok, player: player, invitees: invitees, room: room}
   end
@@ -64,16 +65,19 @@ defmodule PokerEx.PrivateRoomTest do
 
     room_process = context.room.title
 
-    Room.join(room_process, leaving_player, 200)
+    Game.join(room_process, leaving_player, 200)
 
     # Ensure that the player successfully joined the room.
-    assert leaving_player.name in Enum.map(Room.state(room_process).seating, fn {pl, _} -> pl end)
+    assert leaving_player.name in Enum.map(
+             Game.get_state(room_process).seating.arrangement,
+             fn {pl, _} -> pl end
+           )
 
     {:ok, room} = PRoom.leave_room(room, leaving_player)
     refute leaving_player in room.participants
 
     # Should also remove the player from the `Room` instance
-    refute leaving_player.name in Enum.map(Room.state(room_process).seating, fn {pl, _} -> pl end)
+    assert leaving_player.name in Game.get_state(room_process).async_manager.cleanup_queue
   end
 
   @tag :capture_log
@@ -105,7 +109,7 @@ defmodule PokerEx.PrivateRoomTest do
     # The current game state will be :idle since no actions have been taken
     state = :idle
     # `Room.state/1 returns a `Room` instance representing the current game`
-    data = Room.state(room_process)
+    data = Game.get_state(room_process)
 
     assert {:ok, _} = PRoom.get_room_and_store_state(room_process, state, data)
 
@@ -120,11 +124,11 @@ defmodule PokerEx.PrivateRoomTest do
   end
 
   @tag :capture_log
-  test "ensure_started/1 checks if a room process exists and creates one if note", context do
+  test "ensure_started/1 checks if a room process exists and creates one if not", context do
     room_process = context.room.title
 
-    data = Room.state(room_process)
-    Room.stop(room_process)
+    data = Game.get_state(room_process)
+    Game.stop(room_process)
 
     assert PRoom.ensure_started(room_process) == data
   end
