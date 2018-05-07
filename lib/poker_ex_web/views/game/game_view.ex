@@ -2,7 +2,7 @@ defmodule PokerExWeb.GameView do
   use PokerExWeb, :view
   import Ecto.Query
 
-  @errors [:out_of_turn, :not_paid]
+  @errors [:out_of_turn, :not_paid, :already_joined]
 
   ### TODO: Extract all errors that can be output by the
   ### GameEngine.Impl functions and create user-facing messages
