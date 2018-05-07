@@ -12,6 +12,8 @@ defmodule PokerEx.LobbyEvents do
     })
   end
 
+  def update_player_count(%PokerEx.GameEngine.Impl{game_id: :none}), do: :ok
+
   def update_player_count(%PokerEx.GameEngine.Impl{game_id: id, seating: %{arrangement: seating}}) do
     Endpoint.broadcast("lobby:lobby", "update_player_count", %{
       game: id,

@@ -60,6 +60,8 @@ defmodule PokerEx.GameEngine.PhaseManager do
     end
   end
 
+  def check_phase_change(engine, :bet, _player_tracker), do: engine.phase
+
   def check_phase_change(%{phase: :between_rounds}, :system, seating) do
     case length(seating.arrangement) > 1 do
       true -> :pre_flop

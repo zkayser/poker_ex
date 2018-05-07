@@ -1,5 +1,5 @@
 defmodule PokerEx.GameEngine.Impl do
-  alias PokerEx.{Player}
+  alias PokerEx.{Player, Events}
 
   alias PokerEx.GameEngine.{
     ChipManager,
@@ -54,6 +54,8 @@ defmodule PokerEx.GameEngine.Impl do
     with {:ok, new_seating} <- Seating.join(engine, player),
          {:ok, chips} <- ChipManager.join(engine, player, chip_amount),
          phase <- PhaseManager.check_phase_change(engine, :join, new_seating) do
+      Events.update_player_count(engine)
+
       {:ok,
        update_state(engine, [
          {:update_seating, new_seating},
