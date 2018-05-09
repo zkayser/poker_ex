@@ -3,7 +3,7 @@ defmodule PokerEx.Repo.Migrations.AddStoredGameDataToPrivateGames do
 
   def change do
     alter table(:private_games) do
-      add(:stored_game_data, :map)
+      add(:stored_game_data, :binary)
     end
   end
 end

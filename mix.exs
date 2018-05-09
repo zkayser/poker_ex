@@ -74,7 +74,8 @@ defmodule PokerEx.Mixfile do
       {:oauth, github: "tim/erlang-oauth"},
       {:ueberauth_facebook, "~> 0.6"},
       {:httpotion, "~> 3.0.2"},
-      {:exvcr, "~> 0.10", only: :test}
+      {:exvcr, "~> 0.10", only: :test},
+      {:jason, "~> 1.0"}
     ]
   end
 
