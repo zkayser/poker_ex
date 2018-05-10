@@ -18,6 +18,7 @@ defmodule PokerEx.GameEngine.ChipManager do
           in_play: chip_roll()
         }
 
+  @derive Jason.Encoder
   defstruct to_call: 0,
             paid: %{},
             round: %{},

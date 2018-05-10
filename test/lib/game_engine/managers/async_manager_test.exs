@@ -5,6 +5,12 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
   alias PokerEx.GameEngine.{AsyncManager}
   alias PokerEx.Player
 
+  @example_struct %AsyncManager{
+    cleanup_queue: ["George"],
+    chip_queue: [{"Zack", 200}, {"Billy", 400}]
+  }
+  @json_struct "{\"chip_queue\":{\"Billy\":400,\"Zack\":200},\"cleanup_queue\":[\"George\"]}"
+
   describe "mark_for_action/3" do
     test "marking a player to leave inserts active players in the fold queue", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
@@ -96,6 +102,18 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :add_chips)
       assert engine.chips.chip_roll[context.p1.name] == 400
+    end
+  end
+
+  describe "serialization" do
+    test "serializes to JSON", _context do
+      assert {:ok, actual} = Jason.encode(@example_struct)
+      assert actual == @json_struct
+    end
+
+    test "deserializes from JSON", _context do
+      assert {:ok, actual} = AsyncManager.decode(@json_struct)
+      assert actual == @example_struct
     end
   end
 end

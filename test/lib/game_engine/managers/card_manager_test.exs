@@ -4,6 +4,34 @@ defmodule PokerEx.CardManagerTest do
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{CardManager}
 
+  @json "{\"deck\":{\"cards\":[{\"rank\":\"two\",\"suit\":\"spades\"},{\"rank\":\"three\",\"suit\":\"hearts\"}],\"dealt\":[{\"rank\":\"four\",\"suit\":\"diamonds\"}]},\"player_hands\":[{\"hand\":[{\"rank\":\"six\",\"suit\":\"spades\"},{\"rank\":\"seven\",\"suit\":\"hearts\"}],\"player\":\"Zack\"},{\"hand\":[{\"rank\":\"eight\",\"suit\":\"spades\"},{\"rank\":\"nine\",\"suit\":\"diamonds\"}],\"player\":\"Bob\"}],\"table\":[{\"rank\":\"five\",\"suit\":\"clubs\"}]}"
+  @struct %CardManager{
+    deck: %PokerEx.Deck{
+      cards: [
+        %PokerEx.Card{rank: :two, suit: :spades},
+        %PokerEx.Card{rank: :three, suit: :hearts}
+      ],
+      dealt: [%PokerEx.Card{rank: :four, suit: :diamonds}]
+    },
+    player_hands: [
+      %{
+        hand: [
+          %PokerEx.Card{rank: :six, suit: :spades},
+          %PokerEx.Card{rank: :seven, suit: :hearts}
+        ],
+        player: "Zack"
+      },
+      %{
+        hand: [
+          %PokerEx.Card{rank: :eight, suit: :spades},
+          %PokerEx.Card{rank: :nine, suit: :diamonds}
+        ],
+        player: "Bob"
+      }
+    ],
+    table: [%PokerEx.Card{rank: :five, suit: :clubs}]
+  }
+
   describe "deal/2" do
     test "deals player cards when phase changes to pre_flop", context do
       engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
@@ -89,6 +117,18 @@ defmodule PokerEx.CardManagerTest do
       assert {:ok, card_manager} = CardManager.fold(engine, context.p1.name)
       remaining_hands = Enum.map(card_manager.player_hands, fn data -> data.player end)
       refute context.p1 in remaining_hands
+    end
+  end
+
+  describe "serialization" do
+    test "serializes to JSON", _ do
+      assert {:ok, actual} = Jason.encode(@struct)
+      assert actual == @json
+    end
+
+    test "deserializes from JSON", _ do
+      assert {:ok, actual} = CardManager.decode(@json)
+      assert actual == @struct
     end
   end
 end
