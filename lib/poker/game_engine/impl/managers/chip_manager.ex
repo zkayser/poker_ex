@@ -133,6 +133,22 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
+  @spec decode(String.t()) :: {:ok, t()} | {:error, :decode_failed}
+  def decode(json) do
+    with {:ok, value} <- Jason.decode(json) do
+      {:ok,
+       %__MODULE__{
+         chip_roll: value["chip_roll"],
+         paid: value["paid"],
+         pot: value["pot"],
+         round: value["round"],
+         to_call: value["to_call"]
+       }}
+    else
+      _ -> {:error, :decode_failed}
+    end
+  end
+
   defp get_blind(%{roles: _roles} = engine, :big) do
     {player, _} =
       Enum.filter(engine.seating.arrangement, fn {_, seat_num} ->

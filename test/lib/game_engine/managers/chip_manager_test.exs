@@ -4,6 +4,16 @@ defmodule PokerEx.ChipManagerTest do
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{ChipManager, RoleManager, Seating}
 
+  @json_card_manager "{\"chip_roll\":{\"Jane\":300,\"Zack\":400},\"in_play\":{},\"paid\":{\"Jane\":40,\"Zack\":30},\"pot\":70,\"round\":{\"Jane\":5,\"Zack\":10},\"to_call\":10}"
+  @card_manager_struct %PokerEx.GameEngine.ChipManager{
+    chip_roll: %{"Jane" => 300, "Zack" => 400},
+    in_play: %{},
+    paid: %{"Jane" => 40, "Zack" => 30},
+    pot: 70,
+    round: %{"Jane" => 5, "Zack" => 10},
+    to_call: 10
+  }
+
   describe "join/3" do
     test "enforces players to join with at least 100 chips", _ do
       assert {:error, :join_amount_insufficient} =
@@ -306,6 +316,13 @@ defmodule PokerEx.ChipManagerTest do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
       refute ChipManager.can_player_check?(engine, context.p2.name)
+    end
+  end
+
+  describe "serialization" do
+    test "can decode a ChipManager struct from JSON" do
+      assert {:ok, actual} = ChipManager.decode(@json_card_manager)
+      assert actual == @card_manager_struct
     end
   end
 end
