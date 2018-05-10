@@ -324,5 +324,10 @@ defmodule PokerEx.ChipManagerTest do
       assert {:ok, actual} = ChipManager.decode(@json_card_manager)
       assert actual == @card_manager_struct
     end
+
+    test "can encode JSON from a ChipManager struct" do
+      assert {:ok, actual} = Jason.encode(@card_manager_struct)
+      assert actual == @json_card_manager
+    end
   end
 end
