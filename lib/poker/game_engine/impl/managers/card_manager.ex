@@ -59,6 +59,17 @@ defmodule PokerEx.GameEngine.CardManager do
   end
 
   @spec decode(String.t()) :: t()
+  def decode(%{} = value) do
+    with {:ok, deck} <- PokerEx.Deck.decode(value["deck"]),
+         {:ok, table} <- PokerEx.Card.decode_list(value["table"]),
+         {:ok, player_hands} <- decode_player_hands(value["player_hands"]) do
+      {:ok, %__MODULE__{deck: deck, table: table, player_hands: player_hands}}
+    else
+      _ ->
+        {:error, :decode_failed}
+    end
+  end
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json),
          {:ok, deck} <- PokerEx.Deck.decode(value["deck"]),

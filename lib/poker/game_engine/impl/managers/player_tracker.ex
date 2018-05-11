@@ -117,18 +117,24 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   def reset_round(tracker), do: %__MODULE__{tracker | called: []}
 
   @spec decode(String.t()) :: success() | error()
+  def decode(%{} = map), do: decode_from_map(map)
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
-      {:ok,
-       %__MODULE__{
-         active: value["active"],
-         all_in: value["active"],
-         folded: value["active"],
-         called: value["called"]
-       }}
+      decode_from_map(value)
     else
       {:error, _} -> {:error, :decode_failed}
     end
+  end
+
+  defp decode_from_map(value) do
+    {:ok,
+     %__MODULE__{
+       active: value["active"],
+       all_in: value["active"],
+       folded: value["active"],
+       called: value["called"]
+     }}
   end
 
   defp update_state(tracker, updates) do

@@ -66,21 +66,27 @@ defmodule PokerEx.GameEngine.Seating do
   Decodes JSON seating values into Seating structs
   """
   @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(%{} = map), do: decode_from_map(map)
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
-      arrangement =
-        Enum.reduce(value, [], fn map, acc ->
-          key = Map.keys(map) |> hd()
-          [{key, map[key]} | acc]
-        end)
-        |> Enum.reverse()
-
-      {:ok, %__MODULE__{arrangement: arrangement}}
+      decode_from_map(value)
     else
       error ->
         IO.puts("Error is: #{inspect(error, pretty: true)}")
         {:error, :decode_failed}
     end
+  end
+
+  defp decode_from_map(value) do
+    arrangement =
+      Enum.reduce(value, [], fn map, acc ->
+        key = Map.keys(map) |> hd()
+        [{key, map[key]} | acc]
+      end)
+      |> Enum.reverse()
+
+    {:ok, %__MODULE__{arrangement: arrangement}}
   end
 
   defp update_state(seating, updates) do

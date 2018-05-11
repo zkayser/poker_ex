@@ -134,19 +134,25 @@ defmodule PokerEx.GameEngine.ChipManager do
   end
 
   @spec decode(String.t()) :: {:ok, t()} | {:error, :decode_failed}
+  def decode(%{} = map), do: decode_from_map(map)
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
-      {:ok,
-       %__MODULE__{
-         chip_roll: value["chip_roll"],
-         paid: value["paid"],
-         pot: value["pot"],
-         round: value["round"],
-         to_call: value["to_call"]
-       }}
+      decode_from_map(value)
     else
       _ -> {:error, :decode_failed}
     end
+  end
+
+  defp decode_from_map(map) do
+    {:ok,
+     %__MODULE__{
+       chip_roll: map["chip_roll"],
+       paid: map["paid"],
+       pot: map["pot"],
+       round: map["round"],
+       to_call: map["to_call"]
+     }}
   end
 
   defp get_blind(%{roles: _roles} = engine, :big) do

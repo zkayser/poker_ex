@@ -25,17 +25,23 @@ defmodule PokerEx.GameEngine.RoleManager do
   end
 
   @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(%{} = map), do: decode_from_map(map)
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
-      {:ok,
-       %__MODULE__{
-         dealer: parse(value["dealer"]),
-         big_blind: parse(value["big_blind"]),
-         small_blind: parse(value["small_blind"])
-       }}
+      decode_from_map(value)
     else
       _ -> {:error, :decode_failed}
     end
+  end
+
+  defp decode_from_map(value) do
+    {:ok,
+     %__MODULE__{
+       dealer: parse(value["dealer"]),
+       big_blind: parse(value["big_blind"]),
+       small_blind: parse(value["small_blind"])
+     }}
   end
 
   defp parse("unset"), do: :unset

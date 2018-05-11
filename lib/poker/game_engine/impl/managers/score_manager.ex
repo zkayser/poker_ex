@@ -138,9 +138,19 @@ defmodule PokerEx.GameEngine.ScoreManager do
   Decodes JSON values into ScoreManager structs
   """
   @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(%{} = map), do: decode_from_map(map)
+
   def decode(json) do
-    with {:ok, value} <- Jason.decode(json),
-         {:ok, winning_hand_json} <- Jason.encode(value["winning_hand"]),
+    with {:ok, value} <- Jason.decode(json) do
+      decode_from_map(value)
+    else
+      _ ->
+        {:error, :decode_failed}
+    end
+  end
+
+  defp decode_from_map(value) do
+    with {:ok, winning_hand_json} <- Jason.encode(value["winning_hand"]),
          {:ok, winning_hand} <- Hand.decode(winning_hand_json) do
       {:ok,
        %__MODULE__{

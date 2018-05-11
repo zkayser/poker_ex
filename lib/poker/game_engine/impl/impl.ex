@@ -33,6 +33,7 @@ defmodule PokerEx.GameEngine.Impl do
           phase: phase
         }
 
+  @derive Jason.Encoder
   defstruct chips: ChipManager.new(),
             seating: Seating.new(),
             player_tracker: PlayerTracker.new(),
@@ -184,6 +185,38 @@ defmodule PokerEx.GameEngine.Impl do
       | chips: ChipManager.reset_round(engine.chips),
         player_tracker: PlayerTracker.reset_round(engine.player_tracker)
     }
+  end
+
+  @doc """
+  Decodes a game struct from JSON
+  """
+  @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(json) do
+    with {:ok, value} <- Jason.decode(json),
+         {:ok, async_manager} <- AsyncManager.decode(value["async_manager"]),
+         {:ok, cards} <- CardManager.decode(value["cards"]),
+         {:ok, chips} <- ChipManager.decode(value["chips"]),
+         {:ok, player_tracker} <- PlayerTracker.decode(value["player_tracker"]),
+         {:ok, roles} <- RoleManager.decode(value["roles"]),
+         {:ok, scoring} <- ScoreManager.decode(value["scoring"]),
+         {:ok, seating} <- Seating.decode(value["seating"]) do
+      {:ok,
+       %__MODULE__{
+         async_manager: async_manager,
+         cards: cards,
+         chips: chips,
+         game_id: value["game_id"],
+         phase: value["phase"],
+         player_tracker: player_tracker,
+         roles: roles,
+         scoring: scoring,
+         seating: seating,
+         timeout: value["timeout"],
+         type: value["type"]
+       }}
+    else
+      error -> error
+    end
   end
 
   defp update_state(engine, updates) do

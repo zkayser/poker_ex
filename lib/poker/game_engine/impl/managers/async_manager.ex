@@ -91,18 +91,25 @@ defmodule PokerEx.GameEngine.AsyncManager do
   Deserializes an async manager struct from a JSON value
   """
   @spec decode(String.t()) :: %__MODULE__{}
+  def decode(%{} = map) do
+    decode_from_map(map)
+  end
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
-      chip_queue =
-        for {key, value} <- value["chip_queue"] do
-          {key, value}
-        end
-
-      {:ok,
-       %__MODULE__{cleanup_queue: value["cleanup_queue"], chip_queue: Enum.reverse(chip_queue)}}
+      decode_from_map(value)
     else
       _ -> {:error, :decode_failed}
     end
+  end
+
+  defp decode_from_map(map) do
+    chip_queue =
+      for {key, value} <- map["chip_queue"] do
+        {key, value}
+      end
+
+    {:ok, %__MODULE__{cleanup_queue: map["cleanup_queue"], chip_queue: Enum.reverse(chip_queue)}}
   end
 
   defp cleanup(player, {:ok, engine}), do: cleanup(player, engine)
