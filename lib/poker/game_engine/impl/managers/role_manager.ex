@@ -7,6 +7,7 @@ defmodule PokerEx.GameEngine.RoleManager do
           small_blind: seat_position
         }
 
+  @derive Jason.Encoder
   defstruct dealer: :unset,
             big_blind: :unset,
             small_blind: :unset
@@ -22,4 +23,21 @@ defmodule PokerEx.GameEngine.RoleManager do
 
     %__MODULE__{dealer: dealer, small_blind: small_blind, big_blind: big_blind}
   end
+
+  @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(json) do
+    with {:ok, value} <- Jason.decode(json) do
+      {:ok,
+       %__MODULE__{
+         dealer: parse(value["dealer"]),
+         big_blind: parse(value["big_blind"]),
+         small_blind: parse(value["small_blind"])
+       }}
+    else
+      _ -> {:error, :decode_failed}
+    end
+  end
+
+  defp parse("unset"), do: :unset
+  defp parse(value), do: value
 end
