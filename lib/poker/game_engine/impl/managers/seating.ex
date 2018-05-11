@@ -3,15 +3,13 @@ defmodule PokerEx.GameEngine.Seating do
   @capacity 6
 
   @type seat_number :: 0..6 | :empty
-  @type arrangement :: [{String.t(), non_neg_integer}] | []
+  @type arrangement :: [{String.t(), seat_number}] | []
 
   @type t :: %__MODULE__{
-          arrangement: arrangement,
-          skip_advance?: boolean()
+          arrangement: arrangement
         }
 
-  defstruct arrangement: [],
-            skip_advance?: false
+  defstruct arrangement: []
 
   def new do
     %__MODULE__{}
@@ -51,6 +49,38 @@ defmodule PokerEx.GameEngine.Seating do
   @spec is_player_seated?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean
   def is_player_seated?(%{seating: %{arrangement: arrangement}}, player) do
     player in Enum.map(arrangement, fn {name, _} -> name end)
+  end
+
+  defimpl Jason.Encoder, for: __MODULE__ do
+    alias Jason.Encode
+
+    def encode(value, opts) do
+      for {player, seat_num} <- value.arrangement do
+        %{player => seat_num}
+      end
+      |> Encode.list(opts)
+    end
+  end
+
+  @doc """
+  Decodes JSON seating values into Seating structs
+  """
+  @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
+  def decode(json) do
+    with {:ok, value} <- Jason.decode(json) do
+      arrangement =
+        Enum.reduce(value, [], fn map, acc ->
+          key = Map.keys(map) |> hd()
+          [{key, map[key]} | acc]
+        end)
+        |> Enum.reverse()
+
+      {:ok, %__MODULE__{arrangement: arrangement}}
+    else
+      error ->
+        IO.puts("Error is: #{inspect(error, pretty: true)}")
+        {:error, :decode_failed}
+    end
   end
 
   defp update_state(seating, updates) do

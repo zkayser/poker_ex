@@ -3,6 +3,8 @@ defmodule PokerEx.SeatingTest do
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{Seating}
+  @json "[{\"Zack\":0},{\"Sally\":1},{\"Fred\":2}]"
+  @struct %Seating{arrangement: [{"Zack", 0}, {"Sally", 1}, {"Fred", 2}]}
 
   describe "join/2" do
     test "returns an error if the room is already full", context do
@@ -120,6 +122,18 @@ defmodule PokerEx.SeatingTest do
 
     test "returns false if the player is not in the seating arrangment", context do
       refute Seating.is_player_seated?(Engine.new(), context.p1.name)
+    end
+  end
+
+  describe "serialization" do
+    test "serializes Seating structs into JSON values" do
+      assert {:ok, actual} = Jason.encode(@struct)
+      assert actual == @json
+    end
+
+    test "deserializes JSON seating values into Seating structs" do
+      assert {:ok, actual} = Seating.decode(@json)
+      assert actual == @struct
     end
   end
 end
