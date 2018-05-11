@@ -4,6 +4,14 @@ defmodule PokerEx.PlayerTrackerTest do
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{PlayerTracker}
 
+  @json "{\"active\":[\"Zack\",\"Raphael\",\"Splinter\",\"April\"],\"all_in\":[\"Zack\",\"Raphael\",\"Splinter\",\"April\"],\"called\":[\"Zack\",\"Raphael\",\"Splinter\",\"April\"],\"folded\":[\"Zack\",\"Raphael\",\"Splinter\",\"April\"]}"
+  @struct %PokerEx.GameEngine.PlayerTracker{
+    active: ["Zack", "Raphael", "Splinter", "April"],
+    all_in: ["Zack", "Raphael", "Splinter", "April"],
+    called: ["Zack", "Raphael", "Splinter", "April"],
+    folded: ["Zack", "Raphael", "Splinter", "April"]
+  }
+
   describe "call/3" do
     test "moves the calling player into the list of called players", context do
       engine =
@@ -157,6 +165,18 @@ defmodule PokerEx.PlayerTrackerTest do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
       refute PlayerTracker.is_player_active?(engine, context.p2.name)
+    end
+  end
+
+  describe "serialization" do
+    test "serializes PlayerTracker structs into JSON values", _ do
+      assert {:ok, actual} = Jason.encode(@struct)
+      assert actual == @json
+    end
+
+    test "deserializes JSON values into PlayerTracker structs", _ do
+      assert {:ok, actual} = PlayerTracker.decode(@json)
+      assert actual == @struct
     end
   end
 end

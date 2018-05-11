@@ -1,8 +1,7 @@
 defmodule PokerEx.GameEngine.PlayerTracker do
-  alias PokerEx.{Player, Card}
+  alias PokerEx.Player
   alias PokerEx.GameEngine.ChipManager
   @type tracker :: [String.t() | Player.t()] | []
-  @type hands :: [{String.t(), [Card.t()]}] | []
   @settable_rounds [:idle, :between_rounds, :game_over]
   @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
   @type success :: {:ok, t()}
@@ -12,15 +11,14 @@ defmodule PokerEx.GameEngine.PlayerTracker do
           active: tracker,
           called: tracker,
           all_in: tracker,
-          folded: tracker,
-          hands: hands
+          folded: tracker
         }
 
+  @derive Jason.Encoder
   defstruct active: [],
             called: [],
             all_in: [],
-            folded: [],
-            hands: []
+            folded: []
 
   def new do
     %__MODULE__{}
@@ -117,6 +115,21 @@ defmodule PokerEx.GameEngine.PlayerTracker do
 
   @spec reset_round(t()) :: t()
   def reset_round(tracker), do: %__MODULE__{tracker | called: []}
+
+  @spec decode(String.t()) :: success() | error()
+  def decode(json) do
+    with {:ok, value} <- Jason.decode(json) do
+      {:ok,
+       %__MODULE__{
+         active: value["active"],
+         all_in: value["active"],
+         folded: value["active"],
+         called: value["called"]
+       }}
+    else
+      {:error, _} -> {:error, :decode_failed}
+    end
+  end
 
   defp update_state(tracker, updates) do
     Enum.reduce(updates, tracker, &update(&1, &2))
