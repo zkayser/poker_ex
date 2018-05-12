@@ -17,6 +17,8 @@ defmodule PokerEx.GameEngine.ScoreManager do
             winning_hand: :none,
             game_id: nil
 
+  defdelegate decode(value), to: PokerEx.GameEngine.Decoders.ScoreManager
+
   def new do
     %__MODULE__{}
   end
@@ -102,76 +104,5 @@ defmodule PokerEx.GameEngine.ScoreManager do
   defp update({:auto_win, [player | _]}, scoring) do
     Events.winner_message(scoring.game_id, "#{player} wins the round on a fold")
     Map.put(scoring, :stats, [{player, 1000}])
-  end
-
-  #################
-  # SERIALIZATION #
-  #################
-
-  defimpl Jason.Encoder, for: __MODULE__ do
-    alias Jason.Encode
-
-    def encode(value, opts) do
-      Encode.map(
-        %{
-          stats: encode_tuples(value.stats),
-          rewards: encode_tuples(value.rewards),
-          winners: encode_winners(value.winners),
-          winning_hand: encode_winning_hand(value.winning_hand),
-          game_id: value.game_id
-        },
-        opts
-      )
-    end
-
-    defp encode_tuples(list_tuples) do
-      for {key, value} <- list_tuples, do: %{key => value}
-    end
-
-    defp encode_winners(:none), do: "none"
-    defp encode_winners(list), do: list
-    defp encode_winning_hand(:none), do: "none"
-    defp encode_winning_hand(hand), do: hand
-  end
-
-  @doc """
-  Decodes JSON values into ScoreManager structs
-  """
-  @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
-  def decode(%{} = map), do: decode_from_map(map)
-
-  def decode(json) do
-    with {:ok, value} <- Jason.decode(json) do
-      decode_from_map(value)
-    else
-      error -> {:error, {:decode_failed, __MODULE__}}
-    end
-  end
-
-  defp decode_from_map(value) do
-    with {:ok, winning_hand_json} <- Jason.encode(value["winning_hand"]),
-         {:ok, winning_hand} <- Hand.decode(winning_hand_json) do
-      {:ok,
-       %__MODULE__{
-         stats: decode_to_tuples(value["stats"]),
-         rewards: decode_to_tuples(value["rewards"]),
-         game_id: value["game_id"],
-         winning_hand: winning_hand,
-         winners: value["winners"]
-       }}
-    else
-      _ ->
-        {:error, :decode_failed}
-    end
-  end
-
-  defp decode_to_tuples(nil), do: nil
-
-  defp decode_to_tuples(list_maps) do
-    Enum.reduce(list_maps, [], fn map, acc ->
-      key = Map.keys(map) |> hd()
-      [{key, map[key]} | acc]
-    end)
-    |> Enum.reverse()
   end
 end

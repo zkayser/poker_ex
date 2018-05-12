@@ -3,7 +3,6 @@ defmodule PokerEx.PrivateRoom do
   require Logger
   alias PokerEx.{Player, Repo, Notifications, PrivateRoom}
   alias PokerEx.GameEngine.GamesSupervisor
-  alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine, as: Game
 
   schema "private_games" do

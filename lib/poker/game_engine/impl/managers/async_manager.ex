@@ -34,24 +34,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   defstruct cleanup_queue: [],
             chip_queue: []
 
-  defimpl Jason.Encoder, for: __MODULE__ do
-    alias Jason.Encode
-
-    def encode(value, opts) do
-      chip_queue =
-        for {player, amount} <- value.chip_queue, into: %{} do
-          {player, amount}
-        end
-
-      Encode.map(
-        %{
-          cleanup_queue: value.cleanup_queue,
-          chip_queue: chip_queue
-        },
-        opts
-      )
-    end
-  end
+  defdelegate decode(value), to: PokerEx.GameEngine.Decoders.AsyncManager
 
   def new do
     %__MODULE__{}
@@ -85,33 +68,6 @@ defmodule PokerEx.GameEngine.AsyncManager do
 
   def run(%{async_manager: async_manager} = engine, :add_chips) do
     Enum.reduce(async_manager.chip_queue, engine, &add_chips(&1, &2))
-  end
-
-  @doc """
-  Deserializes an async manager struct from a JSON value
-  """
-  @spec decode(String.t()) :: %__MODULE__{}
-  def decode(%{} = map) do
-    decode_from_map(map)
-  end
-
-  def decode(json) do
-    IO.puts("Decoding json #{inspect(json)}")
-
-    with {:ok, value} <- Jason.decode(json) do
-      decode_from_map(value)
-    else
-      _ -> {:error, {:decode_failed, __MODULE__}}
-    end
-  end
-
-  defp decode_from_map(map) do
-    chip_queue =
-      for {key, value} <- map["chip_queue"] do
-        {key, value}
-      end
-
-    {:ok, %__MODULE__{cleanup_queue: map["cleanup_queue"], chip_queue: Enum.reverse(chip_queue)}}
   end
 
   defp cleanup(player, {:ok, engine}), do: cleanup(player, engine)

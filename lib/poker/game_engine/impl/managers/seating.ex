@@ -11,6 +11,8 @@ defmodule PokerEx.GameEngine.Seating do
 
   defstruct arrangement: []
 
+  defdelegate decode(value), to: PokerEx.GameEngine.Decoders.Seating
+
   def new do
     %__MODULE__{}
   end
@@ -49,44 +51,6 @@ defmodule PokerEx.GameEngine.Seating do
   @spec is_player_seated?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean
   def is_player_seated?(%{seating: %{arrangement: arrangement}}, player) do
     player in Enum.map(arrangement, fn {name, _} -> name end)
-  end
-
-  defimpl Jason.Encoder, for: __MODULE__ do
-    alias Jason.Encode
-
-    def encode(value, opts) do
-      for {player, seat_num} <- value.arrangement do
-        %{player => seat_num}
-      end
-      |> Encode.list(opts)
-    end
-  end
-
-  @doc """
-  Decodes JSON seating values into Seating structs
-  """
-  @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
-  def decode(%{} = map), do: decode_from_map(map)
-  def decode([]), do: {:ok, %__MODULE__{}}
-
-  def decode(json) do
-    with {:ok, value} <- Jason.decode(json) do
-      decode_from_map(value)
-    else
-      _ ->
-        {:error, {:decode_failed, __MODULE__}}
-    end
-  end
-
-  defp decode_from_map(value) do
-    arrangement =
-      Enum.reduce(value, [], fn map, acc ->
-        key = Map.keys(map) |> hd()
-        [{key, map[key]} | acc]
-      end)
-      |> Enum.reverse()
-
-    {:ok, %__MODULE__{arrangement: arrangement}}
   end
 
   defp update_state(seating, updates) do

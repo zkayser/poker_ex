@@ -9,6 +9,7 @@ defmodule PokerEx.Deck do
   @type t :: %Deck{cards: [Card.t()], dealt: [Card.t()] | nil}
   @derive Jason.Encoder
   defstruct cards: nil, dealt: nil
+  defdelegate decode(value), to: PokerEx.GameEngine.Decoders.Deck
 
   @doc """
   Creates a new deck.
@@ -81,18 +82,4 @@ defmodule PokerEx.Deck do
 
   def deal(_, _),
     do: raise("number must be less than or equal to the remaining number of cards in the deck")
-
-  @doc """
-  Decodes a deck from a JSON value
-  """
-  def decode([]), do: {:ok, %Deck{}}
-
-  def decode(json) do
-    with {:ok, cards} <- PokerEx.Card.decode_list(json["cards"]),
-         {:ok, dealt} <- PokerEx.Card.decode_list(json["dealt"]) do
-      {:ok, %Deck{cards: cards, dealt: dealt}}
-    else
-      {:error, error} -> {:error, error}
-    end
-  end
 end
