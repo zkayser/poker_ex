@@ -140,7 +140,7 @@ defmodule PokerEx.GameEngine.ChipManager do
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
-      _ -> {:error, :decode_failed}
+      _ -> {:error, {:decode_failed, __MODULE__}}
     end
   end
 

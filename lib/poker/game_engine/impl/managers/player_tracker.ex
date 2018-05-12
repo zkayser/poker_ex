@@ -123,7 +123,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
-      {:error, _} -> {:error, :decode_failed}
+      {:error, _} -> {:error, {:decode_failed, __MODULE__}}
     end
   end
 

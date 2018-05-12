@@ -85,6 +85,8 @@ defmodule PokerEx.Deck do
   @doc """
   Decodes a deck from a JSON value
   """
+  def decode([]), do: {:ok, %Deck{}}
+
   def decode(json) do
     with {:ok, cards} <- PokerEx.Card.decode_list(json["cards"]),
          {:ok, dealt} <- PokerEx.Card.decode_list(json["dealt"]) do

@@ -67,14 +67,14 @@ defmodule PokerEx.GameEngine.Seating do
   """
   @spec decode(String.t()) :: {:ok, t} | {:error, :decode_failed}
   def decode(%{} = map), do: decode_from_map(map)
+  def decode([]), do: {:ok, %__MODULE__{}}
 
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
-      error ->
-        IO.puts("Error is: #{inspect(error, pretty: true)}")
-        {:error, :decode_failed}
+      _ ->
+        {:error, {:decode_failed, __MODULE__}}
     end
   end
 

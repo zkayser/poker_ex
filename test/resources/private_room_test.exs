@@ -4,6 +4,7 @@ defmodule PokerEx.PrivateRoomTest do
   import PokerEx.TestHelpers
   alias PokerEx.PrivateRoom, as: PRoom
   alias PokerEx.GameEngine, as: Game
+  alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.Player
 
   setup do
@@ -131,12 +132,12 @@ defmodule PokerEx.PrivateRoomTest do
     assert {:ok, _} = PRoom.get_game_and_store_state(game_process, data)
 
     Process.sleep(50)
+    game = PRoom.get(context.game.id)
+    {:ok, restored} = Engine.decode(game.stored_game_data)
 
-    room = PRoom.get(context.game.id)
-
-    assert room.stored_game_data.phase == :idle
-    assert room.stored_game_data.seating.arrangement == []
-    assert room.stored_game_data.game_id == context.game.title
+    assert restored.phase == :idle
+    assert restored.seating.arrangement == []
+    assert restored.game_id == context.game.title
   end
 
   @tag :capture_log

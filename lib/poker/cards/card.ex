@@ -138,6 +138,8 @@ defmodule PokerEx.Card do
 
   defp card_decode(card_json, {:ok, acc}), do: card_decode(card_json, acc)
 
+  defp card_decode([], acc), do: {:ok, acc}
+
   defp card_decode(card_json, acc) do
     {:ok,
      [
@@ -150,5 +152,7 @@ defmodule PokerEx.Card do
   end
 
   defp maybe_reverse_list({:ok, list}), do: {:ok, Enum.reverse(list)}
+  defp maybe_reverse_list([]), do: {:ok, []}
+
   defp maybe_reverse_list(error), do: error
 end

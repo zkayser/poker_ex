@@ -144,8 +144,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
-      _ ->
-        {:error, :decode_failed}
+      error -> {:error, {:decode_failed, __MODULE__}}
     end
   end
 

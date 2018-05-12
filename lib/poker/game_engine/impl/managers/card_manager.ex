@@ -65,8 +65,8 @@ defmodule PokerEx.GameEngine.CardManager do
          {:ok, player_hands} <- decode_player_hands(value["player_hands"]) do
       {:ok, %__MODULE__{deck: deck, table: table, player_hands: player_hands}}
     else
-      _ ->
-        {:error, :decode_failed}
+      error ->
+        {:error, {:decode_failed, __MODULE__}}
     end
   end
 
@@ -82,10 +82,11 @@ defmodule PokerEx.GameEngine.CardManager do
   end
 
   defp decode_player_hands(player_hands_json) do
-    Enum.reduce(player_hands_json, [], &decode_player_hand/2)
+    Enum.reduce(player_hands_json, {:ok, []}, &decode_player_hand/2)
   end
 
   defp decode_player_hand(player_hand, {:ok, acc}), do: decode_player_hand(player_hand, acc)
+
   defp decode_player_hand({:error, error}, _), do: {:error, error}
 
   defp decode_player_hand(%{"hand" => hand, "player" => player}, acc) do

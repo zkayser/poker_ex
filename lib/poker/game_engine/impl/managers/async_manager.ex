@@ -96,10 +96,12 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   def decode(json) do
+    IO.puts("Decoding json #{inspect(json)}")
+
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
-      _ -> {:error, :decode_failed}
+      _ -> {:error, {:decode_failed, __MODULE__}}
     end
   end
 

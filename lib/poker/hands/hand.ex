@@ -28,7 +28,8 @@ defmodule PokerEx.Hand do
   Deserializes JSON values into Hand structs
   """
   @spec decode(String.t() | nil) :: {:ok, t} | {:error, :decode_failed} | nil
-  def decode("null"), do: nil
+  def decode("null"), do: {:ok, nil}
+  def decode("\"none\""), do: {:ok, nil}
 
   def decode(json) do
     with {:ok, value} <- Jason.decode(json),
@@ -50,9 +51,7 @@ defmodule PokerEx.Hand do
          best_hand: best_hand
        }}
     else
-      error ->
-        IO.puts("Error is: #{inspect(error, pretty: true)}")
-        {:error, :decode_failed}
+      error -> {:error, :decode_failed}
     end
   end
 

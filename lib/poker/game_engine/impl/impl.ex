@@ -206,13 +206,13 @@ defmodule PokerEx.GameEngine.Impl do
          cards: cards,
          chips: chips,
          game_id: value["game_id"],
-         phase: value["phase"],
+         phase: String.to_existing_atom(value["phase"]),
          player_tracker: player_tracker,
          roles: roles,
          scoring: scoring,
          seating: seating,
          timeout: value["timeout"],
-         type: value["type"]
+         type: String.to_existing_atom(value["type"])
        }}
     else
       error -> error

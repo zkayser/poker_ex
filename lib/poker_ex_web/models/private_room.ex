@@ -3,6 +3,7 @@ defmodule PokerEx.PrivateRoom do
   require Logger
   alias PokerEx.{Player, Repo, Notifications, PrivateRoom}
   alias PokerEx.GameEngine.GamesSupervisor
+  alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine, as: Game
 
   schema "private_games" do
@@ -238,10 +239,12 @@ defmodule PokerEx.PrivateRoom do
 
   @spec get_game_and_store_state(String.t(), PokerEx.GameEngine.Impl.t()) :: {:ok, pid()}
   def get_game_and_store_state(title, game_data) when is_binary(title) do
-    Task.start(fn ->
-      Repo.get_by(PrivateRoom, title: title)
-      |> store_state(%{"stored_game_data" => :erlang.term_to_binary(game_data)})
-    end)
+    with {:ok, game_json} <- Jason.encode(game_data) do
+      Task.start(fn ->
+        Repo.get_by(PrivateRoom, title: title)
+        |> store_state(%{"stored_game_data" => game_json})
+      end)
+    end
   end
 
   @doc ~S"""
