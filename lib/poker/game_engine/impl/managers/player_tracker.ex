@@ -93,6 +93,18 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
+  @doc """
+  Removes a player from the active list of players. Note that this function only
+  gets called when the game engine phase is either :idle or :between_rounds. No
+  poker actions (bets, etc.) take place in these rounds, so it is safe to remove
+  a player without having to worry about crediting him/her with possible chips
+  won later.
+  """
+  @spec leave(PokerEx.GameEngine.Impl.t(), Player.name()) :: success()
+  def leave(%{player_tracker: tracker}, name) do
+    {:ok, update_state(tracker, [{:update_active, name, :drop}])}
+  end
+
   @spec is_player_active?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
   def is_player_active?(%{player_tracker: %{active: active}}, player) do
     case active do

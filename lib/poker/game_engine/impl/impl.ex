@@ -153,6 +153,21 @@ defmodule PokerEx.GameEngine.Impl do
   end
 
   @spec leave(t(), Player.name()) :: result()
+  def leave(%{phase: phase} = engine, player) when phase in [:idle, :between_rounds] do
+    with {:ok, chips} <- ChipManager.leave(engine, player),
+         {:ok, player_tracker} <- PlayerTracker.leave(engine, player),
+         seating <- Seating.leave(engine, player) do
+      {:ok,
+       update_state(engine, [
+         {:update_chips, chips},
+         {:update_tracker, player_tracker},
+         {:update_seating, seating}
+       ])}
+    else
+      error -> error
+    end
+  end
+
   def leave(%{phase: initial_phase} = engine, player) do
     {:ok,
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}

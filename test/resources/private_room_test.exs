@@ -77,7 +77,10 @@ defmodule PokerEx.PrivateRoomTest do
     refute leaving_player in room.participants
 
     # Should also remove the player from the `Room` instance
-    assert leaving_player.name in Game.get_state(room_process).async_manager.cleanup_queue
+    refute leaving_player.name in Enum.map(
+             Game.get_state(room_process).seating.arrangement,
+             fn {name, _} -> name end
+           )
   end
 
   @tag :capture_log

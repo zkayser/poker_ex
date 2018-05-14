@@ -85,7 +85,7 @@ defmodule PokerEx.GameEngine.CardManager do
 
   defp update(:deal_table, cards) do
     {[dealt], deck} = Deck.deal(cards.deck, 1)
-    %__MODULE__{cards | deck: deck, table: [dealt | cards.table]}
+    %__MODULE__{cards | deck: deck, table: cards.table ++ [dealt]}
   end
 
   defp update({:remove_player_hand, name}, cards) do

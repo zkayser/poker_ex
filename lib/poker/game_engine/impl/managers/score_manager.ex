@@ -8,6 +8,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
           rewards: rewards,
           winners: [String.t()] | [Player.t()] | :none,
           winning_hand: Hand.t() | :none,
+          hands: [Hand.t()] | :none,
           game_id: String.t()
         }
 
@@ -15,6 +16,7 @@ defmodule PokerEx.GameEngine.ScoreManager do
             rewards: [],
             winners: :none,
             winning_hand: :none,
+            hands: :none,
             game_id: nil
 
   defdelegate decode(value), to: PokerEx.GameEngine.Decoders.ScoreManager
@@ -48,7 +50,8 @@ defmodule PokerEx.GameEngine.ScoreManager do
           {:evaluate_hands, cards},
           {:set_rewards, engine.chips},
           :set_winners,
-          {:set_winning_hand, cards}
+          {:set_winning_hand, cards},
+          :send_winner_message
         ])
     end
   end
@@ -58,11 +61,11 @@ defmodule PokerEx.GameEngine.ScoreManager do
   end
 
   defp update({:evaluate_hands, cards}, scoring) do
-    stats =
+    hands =
       Enum.map(cards.player_hands, &{&1.player, Evaluator.evaluate_hand(&1.hand, cards.table)})
-      |> Enum.map(fn {player, hand} -> {player, hand.score} end)
 
-    Map.put(scoring, :stats, stats)
+    Map.put(scoring, :stats, Enum.map(hands, fn {player, hand} -> {player, hand.score} end))
+    |> Map.put(:hands, Enum.map(hands, fn {_, hand} -> hand end))
   end
 
   defp update({:set_rewards, chips}, scoring) do
@@ -104,5 +107,23 @@ defmodule PokerEx.GameEngine.ScoreManager do
   defp update({:auto_win, [player | _]}, scoring) do
     Events.winner_message(scoring.game_id, "#{player} wins the round on a fold")
     Map.put(scoring, :stats, [{player, 1000}])
+  end
+
+  defp update(:send_winner_message, scoring) do
+    winning_hand =
+      Enum.filter(scoring.hands, fn hand ->
+        {_, score} = Enum.max_by(scoring.stats, fn {_, score} -> score end)
+        hand.score == score
+      end)
+      |> hd()
+
+    Events.present_winning_hand(
+      scoring.game_id,
+      winning_hand.best_hand,
+      hd(scoring.winners),
+      winning_hand.type_string
+    )
+
+    %{scoring | winning_hand: winning_hand}
   end
 end

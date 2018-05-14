@@ -65,6 +65,8 @@ defmodule PokerEx.GameEvents do
     Endpoint.broadcast!("games:" <> game_id, "winner_message", %{message: message})
   end
 
+  def present_winning_hand(:none, _, _, _), do: :ok
+
   def present_winning_hand(game_id, winning_hand, player, type) do
     cards = Enum.map(winning_hand, fn card -> Map.from_struct(card) end)
 
