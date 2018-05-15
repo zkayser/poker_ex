@@ -65,4 +65,30 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert 60 = engine.chips.pot
     end
   end
+
+  describe "checks" do
+    test "players cannot check unless they have paid the to_call amount", context do
+      engine = TestData.setup_multiplayer_game(context)
+      assert {:error, :not_paid} = Game.check(engine, context.p4.name)
+    end
+
+    test "players can check once the to_call amount has been paid", context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round ->
+            Map.put(round, context.p4.name, 10)
+          end)
+        end)
+
+      assert {:ok, engine} = Game.check(engine, context.p4.name)
+      assert hd(engine.player_tracker.active) == context.p5.name
+    end
+
+    test "players cannot check out of turn", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:error, :out_of_turn} = Game.check(engine, context.p3.name)
+    end
+  end
 end
