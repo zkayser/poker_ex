@@ -54,19 +54,20 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   @spec raise(PokerEx.GameEngine.Impl.t(), Player.name(), ChipManager.t()) :: success()
   def raise(%{player_tracker: tracker}, name, chip_manager) do
     case get_raise_state(chip_manager, name) do
-      :all_in ->
+      {:all_in, should_clear_called?} ->
         {:ok,
          update_state(tracker, [
            {:update_active, name, :drop},
-           :clear_called,
+           {:clear_called, should_clear_called?},
            {:update_all_in, name}
          ])}
 
-      :raised ->
+      {:raised, should_clear_called?} ->
         {:ok,
          update_state(tracker, [
            {:update_active, name, :to_back},
-           :clear_called
+           {:clear_called, should_clear_called?},
+           {:update_called_if_should_clear_is_false, should_clear_called?, name}
          ])}
     end
   end
@@ -146,13 +147,21 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     Map.put(tracker, :called, [name | called])
   end
 
+  defp update({:update_called_if_should_clear_is_false, false, name}, %{called: called} = tracker) do
+    Map.put(tracker, :called, [name | called])
+  end
+
+  defp update({:update_called_if_should_clear_is_false, true, _name}, tracker), do: tracker
+
   defp update({:update_all_in, name}, %{all_in: all_in} = tracker) do
     Map.put(tracker, :all_in, [name | all_in])
   end
 
-  defp update(:clear_called, tracker) do
+  defp update({:clear_called, true}, tracker) do
     %__MODULE__{tracker | called: []}
   end
+
+  defp update({:clear_called, false}, tracker), do: tracker
 
   defp update({:update_folded, name}, tracker) do
     %__MODULE__{tracker | folded: [name | tracker.folded]}
@@ -172,8 +181,17 @@ defmodule PokerEx.GameEngine.PlayerTracker do
 
   defp get_raise_state(chip_manager, name) do
     cond do
-      chip_manager.chip_roll[name] == 0 -> :all_in
-      true -> :raised
+      chip_manager.chip_roll[name] == 0 -> {:all_in, should_clear_called?(chip_manager, name)}
+      true -> {:raised, should_clear_called?(chip_manager, name)}
+    end
+  end
+
+  defp should_clear_called?(chip_manager, name) do
+    max_paid = Enum.max(Map.values(chip_manager.round))
+
+    case Enum.filter(Map.values(chip_manager.round), fn chip_value -> chip_value == max_paid end) do
+      [max] -> chip_manager.round[name] == max
+      _ -> false
     end
   end
 end

@@ -91,4 +91,15 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert {:error, :out_of_turn} = Game.check(engine, context.p3.name)
     end
   end
+
+  describe "raises" do
+    test "raises for less than the to_call amount turn into calls instead", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.raise(engine, context.p4.name, 5)
+      assert engine.chips.round[context.p4.name] == 10
+      assert engine.chips.to_call == 10
+      assert context.p4.name in engine.player_tracker.called
+    end
+  end
 end

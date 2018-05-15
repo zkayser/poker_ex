@@ -67,6 +67,11 @@ defmodule PokerEx.PlayerTrackerTest do
       engine =
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
         |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round ->
+            Map.put(round, context.p1.name, 10)
+          end)
+        end)
 
       [active_player | _] = engine.player_tracker.active
 
@@ -77,6 +82,11 @@ defmodule PokerEx.PlayerTrackerTest do
       engine =
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
         |> Map.put(:chips, TestData.add_200_chips_for_all(context))
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.update(chips, :round, %{}, fn round ->
+            Map.put(round, context.p1.name, 10)
+          end)
+        end)
 
       [active_player | _] = engine.player_tracker.active
 
@@ -95,6 +105,9 @@ defmodule PokerEx.PlayerTrackerTest do
         Map.update(engine, :chips, %{}, fn chips ->
           Map.update(chips, :chip_roll, %{}, fn chip_roll ->
             Map.put(chip_roll, active_player, 0)
+          end)
+          |> Map.update(:round, %{}, fn round ->
+            Map.put(round, active_player, 10)
           end)
         end)
 
