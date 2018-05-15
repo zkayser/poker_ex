@@ -1,6 +1,6 @@
 defmodule PokerEx.GameEngine.AsyncManager do
   alias PokerEx.Player
-  alias PokerEx.GameEngine.{Seating, PlayerTracker, ChipManager}
+  alias PokerEx.GameEngine.{Seating, PlayerTracker, ChipManager, CardManager}
 
   @moduledoc """
   Handles asynchronous management of game engine state
@@ -93,6 +93,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
     with {:ok, player_tracker} = PlayerTracker.fold(engine, player),
          seating <- Seating.leave(engine, player),
          {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
+         {:ok, cards} <- CardManager.fold(engine, player.name),
          {:ok, chips} <- ChipManager.leave(engine, player) do
       {:ok,
        %{
@@ -100,6 +101,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
          | player_tracker: player_tracker,
            seating: seating,
            chips: chips,
+           cards: cards,
            async_manager: %{
              engine.async_manager
              | cleanup_queue:

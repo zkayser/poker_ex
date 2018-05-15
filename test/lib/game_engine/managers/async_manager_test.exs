@@ -36,6 +36,19 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
         |> Map.update(:chips, %{}, fn chips ->
           Map.put(chips, :to_call, 10)
         end)
+        |> Map.update(:cards, %{}, fn cards ->
+          # Add cards for the leaving player (context.p1) to verify that
+          # the cards were removed from the `CardManager` struct on the engine
+          Map.put(cards, :player_hands, [
+            %{
+              player: context.p1.name,
+              hand: [
+                %PokerEx.Card{rank: :two, suit: :spades},
+                %PokerEx.Card{rank: :three, suit: :diamonds}
+              ]
+            }
+          ])
+        end)
 
       # Since we marked the :to_call amount as 10 chips and the players have not
       # paid any chips in, the player should be auto-folded. If the player has paid
@@ -53,6 +66,11 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       assert context.p1.name in engine.player_tracker.folded
       refute context.p1.name in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
       refute context.p1.name in engine.async_manager.cleanup_queue
+
+      refute context.p1.name in Enum.map(engine.cards.player_hands, fn hand_data ->
+               hand_data.player
+             end)
+
       assert Player.by_name(context.p1.name).chips == 1200
     end
 
