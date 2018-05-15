@@ -1,6 +1,6 @@
 defmodule PokerEx.TestData do
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{ChipManager, PlayerTracker, Seating, CardManager}
+  alias PokerEx.GameEngine.{ChipManager, PlayerTracker, Seating, CardManager, RoleManager}
   @join_amount 200
 
   @doc """
@@ -98,5 +98,66 @@ defmodule PokerEx.TestData do
       {:ok, card_manager} = CardManager.deal(engine, :pre_flop)
       card_manager
     end)
+  end
+
+  @doc """
+  Sets up the role manager for a multi-player game
+  """
+  def setup_roles(engine) do
+    Map.put(engine, :roles, %RoleManager{dealer: 0, small_blind: 1, big_blind: 2})
+  end
+
+  @doc """
+  Sets up the chips in accordance with starting a multi-player
+  game. The big blind (context.p3) will pay 10, the small_blind
+  will pay 5 (context.p2 will be the small blind), and the `round`
+  and `paid` attributes of the ChipManager will be set. The `to_call`
+  amounts and `pot` amounts will be set to 10 and 15, respectively
+  """
+  def setup_chips(engine, context) do
+    Map.update(engine, :chips, %{}, fn chips ->
+      Map.put(chips, :to_call, 10)
+      |> Map.put(:pot, 15)
+      |> Map.put(:paid, %{context.p2.name => 5, context.p3.name => 10})
+      |> Map.put(:round, %{context.p2.name => 5, context.p3.name => 10})
+    end)
+  end
+
+  @doc """
+  Rotates active list to first player's turn. Because of
+  the roles, context.p4 should be the first player to go.
+  """
+  def cycle_to_first_move(engine, context) do
+    Map.update(engine, :player_tracker, %{}, fn tracker ->
+      Map.put(
+        tracker,
+        :active,
+        active: [
+          context.p4.name,
+          context.p5.name,
+          context.p6.name,
+          context.p1.name,
+          context.p2.name,
+          context.p3.name
+        ]
+      )
+    end)
+  end
+
+  @doc """
+  Sets up a game with the maximum number of players. The game will
+  begin in the pre_flop phase with all players holding 200 chips,
+  cards have been dealt out to all players, and the seating and active
+  player tracker lists have been filled. Roles will have been set, and
+  blinds will have been paid.
+  """
+  def setup_multiplayer_game(context) do
+    setup_cards_and_deck(context)
+    |> Map.put(:player_tracker, insert_active_players(context))
+    |> Map.put(:chips, add_200_chips_for_all(context))
+    |> Map.put(:phase, :pre_flop)
+    |> setup_roles()
+    |> setup_chips(context)
+    |> cycle_to_first_move(context)
   end
 end
