@@ -129,18 +129,14 @@ defmodule PokerEx.TestData do
   """
   def cycle_to_first_move(engine, context) do
     Map.update(engine, :player_tracker, %{}, fn tracker ->
-      Map.put(
-        tracker,
-        :active,
-        active: [
-          context.p4.name,
-          context.p5.name,
-          context.p6.name,
-          context.p1.name,
-          context.p2.name,
-          context.p3.name
-        ]
-      )
+      Map.put(tracker, :active, [
+        context.p4.name,
+        context.p5.name,
+        context.p6.name,
+        context.p1.name,
+        context.p2.name,
+        context.p3.name
+      ])
     end)
   end
 
