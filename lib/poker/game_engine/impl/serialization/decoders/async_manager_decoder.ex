@@ -10,8 +10,6 @@ defmodule PokerEx.GameEngine.Decoders.AsyncManager do
   end
 
   def decode(json) do
-    IO.puts("Decoding json #{inspect(json)}")
-
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)
     else
