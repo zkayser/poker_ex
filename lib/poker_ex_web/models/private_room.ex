@@ -186,7 +186,6 @@ defmodule PokerEx.PrivateRoom do
     private_room |> Repo.preload([:invitees, :owner, :participants])
   end
 
-  # The naming on this can be better. It's more like `ensure_started`
   @doc ~S"""
   Checks to see if the process for the `Room` instance is alive and restores
   it from the database if not. Returns an empty `Room` instance if no data has
@@ -213,7 +212,7 @@ defmodule PokerEx.PrivateRoom do
   end
 
   @doc ~S"""
-  Takes in an string that represents a running room process that is also the title
+  Takes in a string that represents a running room process that is also the title
   of a `PrivateRoom` instance stored in the database. The second parameter is the
   current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
   or :between_hands, and the third parameter is the actual `Room` instance representing

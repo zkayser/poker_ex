@@ -137,10 +137,12 @@ defmodule PokerEx.GameEngine.Impl do
   @spec fold(t(), Player.name()) :: result()
   def fold(%{phase: initial_phase} = engine, player) do
     with {:ok, player_tracker} <- PlayerTracker.fold(engine, player),
+         {:ok, card_manager} <- CardManager.fold(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
        update_state(engine, [
          {:update_tracker, player_tracker},
+         {:update_cards, card_manager},
          {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
@@ -227,6 +229,10 @@ defmodule PokerEx.GameEngine.Impl do
 
   defp update(:maybe_change_phase, engine) do
     PhaseManager.maybe_change_phase(engine)
+  end
+
+  defp update({:update_cards, cards}, engine) do
+    Map.put(engine, :cards, cards)
   end
 
   defp update({:maybe_update_cards, old_phase, new_phase}, engine) do
