@@ -172,6 +172,41 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert engine.phase == :pre_flop
       assert length(engine.player_tracker.active) == 6
       assert [] = engine.player_tracker.folded
+      # Game over bookkeeping. The blinds should have changed and the active
+      # list reset
+      refute context.p4.name == hd(engine.player_tracker.active)
+      assert context.p5.name == hd(engine.player_tracker.active)
+      assert engine.roles.dealer == 1
+      assert engine.roles.small_blind == 2
+      assert engine.roles.big_blind == 3
+    end
+
+    test "ends the game if the final player folds and two or more players are all in", context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.update(:player_tracker, %{}, fn tracker ->
+          Map.update(tracker, :all_in, [], fn _ -> [context.p4.name, context.p5.name] end)
+          |> Map.update(:active, [], fn _active ->
+            [context.p6.name, context.p1.name, context.p2.name, context.p3.name]
+          end)
+        end)
+        |> Map.put(:phase, :flop)
+        |> Map.update(:chips, %{}, fn chips ->
+          # Seed the paid amount and chips for the all in players,
+          # otherwise an arithmetic exception will be raised when
+          # trying to reward the winning player(s).
+          # The numbers below are arbitrary.
+          Map.put(chips, :paid, %{context.p4.name => 100, context.p5.name => 100})
+          |> Map.put(:round, %{context.p4.name => 100, context.p5.name => 100})
+        end)
+
+      assert {:ok, engine} =
+               Enum.reduce(engine.player_tracker.active, {:ok, engine}, fn player,
+                                                                           {:ok, engine} ->
+                 Game.fold(engine, player)
+               end)
+
+      assert engine.phase == :pre_flop
     end
   end
 end
