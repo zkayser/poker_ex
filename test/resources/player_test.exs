@@ -11,7 +11,7 @@ defmodule PokerEx.PlayerTest do
       |> Map.put(:password, nil)
 
     # Seed the database with some players
-    for x <- 1..6, do: insert_user()
+    for _ <- 1..6, do: insert_user()
 
     {:ok, player: player}
   end
