@@ -217,6 +217,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert {:ok, engine} = Game.leave(engine, context.p4.name)
       refute context.p4.name in engine.player_tracker.active
       assert context.p4.name in engine.player_tracker.folded
+      refute context.p4.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
     end
 
     test "auto-checks for the player if the leaving player has paid the to_call amount",
@@ -230,6 +231,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert {:ok, engine} = Game.leave(engine, context.p4.name)
       assert context.p4.name in engine.player_tracker.called
       assert context.p4.name in engine.async_manager.cleanup_queue
+      assert context.p4.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
     end
 
     test "places the player in the cleanup queue and auto-folds when player is active", context do
@@ -238,9 +240,11 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert {:ok, engine} = Game.leave(engine, context.p5.name)
       assert context.p5.name in engine.async_manager.cleanup_queue
       refute context.p5.name in engine.player_tracker.folded
+      assert context.p5.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
 
       assert {:ok, engine} = Game.fold(engine, context.p4.name)
       assert context.p5.name in engine.player_tracker.folded
+      refute context.p5.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
     end
   end
 end
