@@ -7,11 +7,13 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
     PlayerTracker,
     RoleManager,
     ScoreManager,
-    CardManager
+    CardManager,
+    AsyncManager
   }
 
   @spec coordinate_reset(PokerEx.GameEngine.Impl.t()) :: PokerEx.GameEngine.Impl.t()
   def coordinate_reset(engine) do
+    engine = AsyncManager.run(engine, :add_chips)
     scoring = ScoreManager.manage_score(engine)
     new_chips = %{engine.chips | chip_roll: reward_winners(engine.chips.chip_roll, scoring)}
     new_seating = update_seating(%{engine | chips: new_chips})

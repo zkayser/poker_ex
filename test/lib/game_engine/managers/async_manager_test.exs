@@ -118,7 +118,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
 
       async_data = AsyncManager.mark_for_action(engine, context.p1.name, {:add_chips, 200})
       engine = %Engine{engine | async_manager: async_data}
-      assert {:ok, engine} = AsyncManager.run(engine, :add_chips)
+      assert engine = AsyncManager.run(engine, :add_chips)
       assert engine.chips.chip_roll[context.p1.name] == 400
     end
   end

@@ -132,10 +132,10 @@ defmodule PokerEx.GameEngine.AsyncManager do
   defp add_chips({player, amount}, engine) do
     case Seating.is_player_seated?(engine, player) do
       true ->
-        {:ok, do_add_chips(engine, player, amount)}
+        do_add_chips(engine, player, amount)
 
       false ->
-        {:ok, engine}
+        engine
     end
   end
 

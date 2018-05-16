@@ -247,4 +247,38 @@ defmodule PokerEx.GameEngine.ImplTest do
       refute context.p5.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
     end
   end
+
+  describe "add_chips/3" do
+    test "places the player in the add_chip queue until game over", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.add_chips(engine, context.p4.name, 200)
+      assert {context.p4.name, 200} in engine.async_manager.chip_queue
+      # Does not add the chips to the chip_roll automatically
+      # Players begin with 200 chips given the TestData setup above,
+      # so adding another 200 should put the player at 400 chips
+      assert engine.chips.chip_roll[context.p4.name] == 200
+    end
+
+    test "adds the chip amount in the queue to the chip_roll on game over", context do
+      players = [
+        context.p4.name,
+        context.p5.name,
+        context.p6.name,
+        context.p1.name,
+        context.p2.name
+      ]
+
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.add_chips(engine, context.p5.name, 200)
+
+      assert {:ok, engine} =
+               Enum.reduce(players, {:ok, engine}, fn player, {:ok, engine} ->
+                 Game.fold(engine, player)
+               end)
+
+      assert engine.chips.chip_roll[context.p5.name] == 400
+    end
+  end
 end
