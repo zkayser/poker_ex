@@ -231,5 +231,16 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert context.p4.name in engine.player_tracker.called
       assert context.p4.name in engine.async_manager.cleanup_queue
     end
+
+    test "places the player in the cleanup queue and auto-folds when player is active", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.leave(engine, context.p5.name)
+      assert context.p5.name in engine.async_manager.cleanup_queue
+      refute context.p5.name in engine.player_tracker.folded
+
+      assert {:ok, engine} = Game.fold(engine, context.p4.name)
+      assert context.p5.name in engine.player_tracker.folded
+    end
   end
 end
