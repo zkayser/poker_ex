@@ -135,4 +135,43 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert [] = engine.player_tracker.called
     end
   end
+
+  describe "fold/2" do
+    test "places the folding player in the folded list and removes them from active", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.fold(engine, context.p4.name)
+      assert context.p4.name in engine.player_tracker.folded
+      refute context.p4.name in engine.player_tracker.active
+    end
+
+    test "prevents players from taking action out of turn", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:error, :out_of_turn} = Game.fold(engine, context.p5.name)
+    end
+
+    test "ends the game if everyone folds except one player who has paid the to_call amount",
+         context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.update(:player_tracker, %{}, fn tracker ->
+          Map.update(tracker, :folded, [], fn _folded ->
+            # Fold all but the second-to-last and last players to go in the round
+            [context.p4.name, context.p5.name, context.p6.name, context.p1.name]
+          end)
+          |> Map.update(:active, [], fn _active ->
+            [context.p2.name, context.p3.name]
+          end)
+        end)
+        |> Map.put(:phase, :flop)
+
+      # Put the game in the :flop phase so we can assert that the game state was reset to :pre_flop
+      # on game over
+      assert {:ok, engine} = Game.fold(engine, context.p2.name)
+      assert engine.phase == :pre_flop
+      assert length(engine.player_tracker.active) == 6
+      assert [] = engine.player_tracker.folded
+    end
+  end
 end

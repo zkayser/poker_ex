@@ -133,7 +133,7 @@ defmodule PokerEx.PlayerTrackerTest do
 
       non_active_player = Enum.drop(engine.player_tracker.active, 1) |> hd()
 
-      assert {:error, :player_not_active} = PlayerTracker.fold(engine, non_active_player)
+      assert {:error, :out_of_turn} = PlayerTracker.fold(engine, non_active_player)
     end
   end
 

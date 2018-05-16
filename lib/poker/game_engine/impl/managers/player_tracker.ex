@@ -5,7 +5,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   @settable_rounds [:idle, :between_rounds, :game_over]
   @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
   @type success :: {:ok, t()}
-  @type error :: {:error, :player_did_not_call | :player_not_active}
+  @type error :: {:error, :player_did_not_call | :out_of_turn}
 
   @type t :: %__MODULE__{
           active: tracker,
@@ -79,7 +79,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
         {:ok, update_state(tracker, [{:update_active, name, :drop}, {:update_folded, name}])}
 
       _ ->
-        {:error, :player_not_active}
+        {:error, :out_of_turn}
     end
   end
 
@@ -90,7 +90,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
         {:ok, update_state(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
 
       _ ->
-        {:error, :player_not_active}
+        {:error, :out_of_turn}
     end
   end
 
