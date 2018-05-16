@@ -1,5 +1,5 @@
 defmodule PokerEx.ChipManagerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{ChipManager, RoleManager, Seating}
