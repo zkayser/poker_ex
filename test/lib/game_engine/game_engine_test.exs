@@ -12,15 +12,15 @@ defmodule PokerEx.GameEngine.ImplTest do
   expected behavior.
   """
 
-  describe "calls" do
-    test "players cannot call out of turn", context do
+  describe "call/2" do
+    test "does not allow players to call out of turn", context do
       engine = TestData.setup_multiplayer_game(context)
 
       # The first turn belongs to player 4 (context.p4)
       assert {:error, :out_of_turn} = Game.call(engine, context.p5.name)
     end
 
-    test "when the active player calls, the active list rotates", context do
+    test "rotates the active list when the active player calls", context do
       engine = TestData.setup_multiplayer_game(context)
 
       assert {:ok, engine} = Game.call(engine, context.p4.name)
@@ -28,7 +28,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert context.p4.name in engine.player_tracker.called
     end
 
-    test "the phase should change when all players call", context do
+    test "changes phase once all players have called", context do
       players = [context.p4, context.p5, context.p6, context.p1, context.p2, context.p3]
       engine = TestData.setup_multiplayer_game(context)
 
@@ -40,7 +40,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert engine.phase == :flop
     end
 
-    test "the called list should be cleared when all players call and phase changes", context do
+    test "clears the called list once all players have called", context do
       players = [context.p4, context.p5, context.p6, context.p1, context.p2, context.p3]
       engine = TestData.setup_multiplayer_game(context)
 
@@ -52,7 +52,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert [] = engine.player_tracker.called
     end
 
-    test "each player's call gets added to the amount of chips in the pot", context do
+    test "adds the to_call amount to the overall pot value", context do
       players = [context.p4, context.p5, context.p6, context.p1, context.p2, context.p3]
       engine = TestData.setup_multiplayer_game(context)
 
@@ -66,13 +66,13 @@ defmodule PokerEx.GameEngine.ImplTest do
     end
   end
 
-  describe "checks" do
-    test "players cannot check unless they have paid the to_call amount", context do
+  describe "check/2" do
+    test "requires players to pay the to_call amount", context do
       engine = TestData.setup_multiplayer_game(context)
       assert {:error, :not_paid} = Game.check(engine, context.p4.name)
     end
 
-    test "players can check once the to_call amount has been paid", context do
+    test "allows checks once a player has paid the to_call amount", context do
       engine =
         TestData.setup_multiplayer_game(context)
         |> Map.update(:chips, %{}, fn chips ->
@@ -85,21 +85,54 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert hd(engine.player_tracker.active) == context.p5.name
     end
 
-    test "players cannot check out of turn", context do
+    test "prevents players from taking action out of turn", context do
       engine = TestData.setup_multiplayer_game(context)
 
       assert {:error, :out_of_turn} = Game.check(engine, context.p3.name)
     end
   end
 
-  describe "raises" do
-    test "raises for less than the to_call amount turn into calls instead", context do
+  describe "raise/3" do
+    test "falls back to the call/2 implementation if the raise amount is < to_call", context do
       engine = TestData.setup_multiplayer_game(context)
 
       assert {:ok, engine} = Game.raise(engine, context.p4.name, 5)
       assert engine.chips.round[context.p4.name] == 10
       assert engine.chips.to_call == 10
       assert context.p4.name in engine.player_tracker.called
+    end
+
+    test "sets the to_call amount to the value of the raise", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.raise(engine, context.p4.name, 100)
+      assert engine.chips.round[context.p4.name] == 100
+      assert engine.chips.to_call == 100
+      assert [] = engine.player_tracker.called
+      assert context.p5.name == hd(engine.player_tracker.active)
+    end
+
+    test "places the raising player in the all_in list if the raise amount is > player chips",
+         context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      # Players only start with 200 given the setup function above
+      assert {:ok, engine} = Game.raise(engine, context.p4.name, 250)
+      assert context.p4.name in engine.player_tracker.all_in
+      assert engine.chips.to_call == 200
+      refute context.p4.name in engine.player_tracker.active
+    end
+
+    test "clears out the called list if a new to_call amount is set", context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.update(:player_tracker, %{}, fn tracker ->
+          # Arbitrarily place some players in the called list
+          Map.put(tracker, :called, [context.p1.name, context.p2.name])
+        end)
+
+      assert {:ok, engine} = Game.raise(engine, context.p4.name, 20)
+      assert [] = engine.player_tracker.called
     end
   end
 end
