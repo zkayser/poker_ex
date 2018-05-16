@@ -209,4 +209,27 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert engine.phase == :pre_flop
     end
   end
+
+  describe "leave/2" do
+    test "auto-folds if the player is leaving", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, engine} = Game.leave(engine, context.p4.name)
+      refute context.p4.name in engine.player_tracker.active
+      assert context.p4.name in engine.player_tracker.folded
+    end
+
+    test "auto-checks for the player if the leaving player has paid the to_call amount",
+         context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.update(:chips, %{}, fn chips ->
+          Map.put(chips, :round, %{context.p4.name => 10})
+        end)
+
+      assert {:ok, engine} = Game.leave(engine, context.p4.name)
+      assert context.p4.name in engine.player_tracker.called
+      assert context.p4.name in engine.async_manager.cleanup_queue
+    end
+  end
 end
