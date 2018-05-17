@@ -33,16 +33,23 @@ defmodule PokerEx.GameEngine.ScoreManager do
   def manage_score(%{phase: :game_over, scoring: scoring, cards: cards} = engine) do
     case length(cards.table) < 5 do
       true ->
-        case length(engine.player_tracker.all_in) > 0 do
-          true ->
-            scoring
-
-          false ->
+        cond do
+          length(engine.player_tracker.all_in) == 1 && length(engine.player_tracker.active) == 0 ->
             update_state(%{scoring | game_id: engine.game_id}, [
-              {:auto_win, engine.player_tracker.active},
+              {:auto_win, engine.player_tracker.all_in, :raise},
               {:set_rewards, engine.chips},
               :set_winners
             ])
+
+          length(engine.player_tracker.all_in) == 0 ->
+            update_state(%{scoring | game_id: engine.game_id}, [
+              {:auto_win, engine.player_tracker.active, :fold},
+              {:set_rewards, engine.chips},
+              :set_winners
+            ])
+
+          true ->
+            scoring
         end
 
       false ->
@@ -104,8 +111,14 @@ defmodule PokerEx.GameEngine.ScoreManager do
     %__MODULE__{scoring | winning_hand: winning_hand}
   end
 
-  defp update({:auto_win, [player | _]}, scoring) do
-    Events.winner_message(scoring.game_id, "#{player} wins the round on a fold")
+  defp update({:auto_win, [player | _], type}, scoring) do
+    message =
+      case type do
+        :raise -> "#{player} wins the round"
+        :fold -> "#{player} wins the round on a fold"
+      end
+
+    Events.winner_message(scoring.game_id, message)
     Map.put(scoring, :stats, [{player, 1000}])
   end
 

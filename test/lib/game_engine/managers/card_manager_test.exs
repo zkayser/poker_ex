@@ -90,7 +90,7 @@ defmodule PokerEx.CardManagerTest do
         engine
         | cards: card_manager,
           player_tracker: %{
-            active: [context.p1.name, context.p2.name],
+            active: [context.p2.name],
             all_in: [context.p1.name, context.p2.name],
             folded: []
           }

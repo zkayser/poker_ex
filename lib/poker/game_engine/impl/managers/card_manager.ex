@@ -40,8 +40,8 @@ defmodule PokerEx.GameEngine.CardManager do
     {:ok, new()}
   end
 
-  def deal(%{cards: cards, player_tracker: %{all_in: all_in}}, :game_over)
-      when length(all_in) > 0 do
+  def deal(%{cards: cards, player_tracker: %{all_in: all_in, active: active}}, :game_over)
+      when length(all_in) > 0 and length(active) == 1 do
     case length(cards.table) do
       5 ->
         {:ok, cards}
