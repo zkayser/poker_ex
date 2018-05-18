@@ -11,7 +11,7 @@ defmodule PokerExWeb.GameView do
   def render("game.json", %{game: game}) when game in @errors, do: %{message: game}
 
   def render("game.json", %{game: game}) do
-    active = if game.player_tracker.active == [], do: [], else: hd(game.player_tracker.active)
+    active = if game.player_tracker.active == [], do: nil, else: hd(game.player_tracker.active)
 
     players =
       case game.player_tracker.active do
@@ -26,8 +26,8 @@ defmodule PokerExWeb.GameView do
 
     %{
       active: active,
-      current_big_blind: game.roles.big_blind,
-      current_small_blind: game.roles.small_blind,
+      current_big_blind: view_blind(game.roles.big_blind),
+      current_small_blind: view_blind(game.roles.small_blind),
       state: Atom.to_string(game.phase),
       paid: game.chips.paid,
       to_call: game.chips.to_call,
@@ -73,4 +73,7 @@ defmodule PokerExWeb.GameView do
   def render("card.json", %{card: card}) do
     %{rank: card.rank, suit: card.suit}
   end
+
+  def view_blind(:unset), do: 0
+  def view_blind(blind), do: blind
 end

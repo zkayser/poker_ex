@@ -70,6 +70,9 @@ defmodule PokerEx.GameEngine.Server do
         with {:ok, game_update} <- apply(Game, function, [game | arguments]) do
           {:reply, game_update, game_update}
         else
+          {:error, :already_joined} ->
+            {:reply, game, game}
+
           {:error, error} ->
             {:reply, error, game}
         end
