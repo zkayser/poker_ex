@@ -5,6 +5,10 @@ defmodule PokerEx.GameEngine.Decoders.Seating do
   def decode(%{} = map), do: decode_from_map(map)
   def decode([]), do: {:ok, %Seating{}}
 
+  def decode(json_list) when is_list(json_list) do
+    decode_from_map(json_list)
+  end
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json) do
       decode_from_map(value)

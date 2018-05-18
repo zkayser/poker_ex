@@ -267,6 +267,59 @@ defmodule PokerEx.PrivateRoom do
 
   def alive?(title), do: {:error, {:invalid_title, title}}
 
+  ##################################################################
+  # MIGRATION FROM OLD ROOM DATA STRUCTURE TO NEW GAME DATA STRUCT #
+  ##################################################################
+
+  def migrate_data do
+    migration_targets = Enum.filter(__MODULE__.all(), fn room -> room.room_data != nil end)
+
+    for room <- migration_targets do
+      room_data = :erlang.binary_to_term(room.room_data)
+
+      game = %PokerEx.GameEngine.Impl{
+        async_manager: %PokerEx.GameEngine.AsyncManager{},
+        chips: %PokerEx.GameEngine.ChipManager{
+          to_call: room_data[:to_call],
+          paid: room_data[:paid],
+          round: room_data[:round],
+          pot: room_data[:pot],
+          chip_roll: room_data[:chip_roll]
+        },
+        player_tracker: %PokerEx.GameEngine.PlayerTracker{
+          active: Enum.map(room_data[:active], fn {player, _} -> player end),
+          all_in: room_data[:all_in],
+          called: room_data[:called],
+          folded: room_data[:folded]
+        },
+        cards: %PokerEx.GameEngine.CardManager{
+          table: room_data[:table],
+          deck: room_data[:deck],
+          player_hands:
+            Enum.map(room_data[:player_hands], fn {player, hand} ->
+              %{player: player, hand: hand}
+            end)
+        },
+        seating: %PokerEx.GameEngine.Seating{arrangement: room_data[:seating]},
+        scoring: %PokerEx.GameEngine.ScoreManager{},
+        roles: %PokerEx.GameEngine.RoleManager{
+          dealer: if(room_data[:current_big_blind] == 1, do: 1, else: 0),
+          small_blind: room_data[:current_small_blind],
+          big_blind: room_data[:current_big_blind]
+        },
+        type: room_data[:type],
+        game_id: room_data[:room_id],
+        phase: room_data[:phase],
+        timeout: 30_000
+      }
+
+      get_game_and_store_state(game.game_id, game)
+      IO.puts("Game stored")
+    end
+  end
+
+  ##### END MIGRATION CODE #########################################
+
   defp store_state(nil, _room_state) do
     Logger.error(
       "Failed to store state because room either does not exist or could not be found."

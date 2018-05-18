@@ -16,8 +16,8 @@ defmodule PokerEx.GameEngine.Decoders.PlayerTracker do
     {:ok,
      %PlayerTracker{
        active: value["active"],
-       all_in: value["active"],
-       folded: value["active"],
+       all_in: value["all_in"],
+       folded: value["folded"],
        called: value["called"]
      }}
   end

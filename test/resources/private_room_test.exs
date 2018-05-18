@@ -160,4 +160,21 @@ defmodule PokerEx.PrivateRoomTest do
   test "is_owner?/2 returns false if the player param does not own the room passed in", context do
     refute PRoom.is_owner?(hd(context.invitees), context.game.title)
   end
+
+  describe "migrate_data/0" do
+    test "maps from deprecated room data structure to the new GameEngine.Impl structs", _ do
+      MigrationSeeds.seed()
+
+      old_rooms =
+        Enum.map(MigrationSeeds.old_room_data(), fn data ->
+          PRoom.by_title(data.room_id)
+        end)
+
+      PRoom.migrate_data()
+
+      Process.sleep(100)
+      assert {:ok, game} = Engine.decode(PRoom.by_title("Player_Haters_Ball").stored_game_data)
+      assert game == MigrationSeeds.expected_game()
+    end
+  end
 end

@@ -20,8 +20,8 @@ defmodule PokerEx.GameEngine.Decoders.ScoreManager do
          stats: decode_to_tuples(value["stats"]),
          rewards: decode_to_tuples(value["rewards"]),
          game_id: value["game_id"],
-         winning_hand: winning_hand,
-         winners: value["winners"]
+         winning_hand: decode_winning_hand(winning_hand),
+         winners: decode_winner(value["winners"])
        }}
     else
       _ ->
@@ -38,4 +38,9 @@ defmodule PokerEx.GameEngine.Decoders.ScoreManager do
     end)
     |> Enum.reverse()
   end
+
+  defp decode_winning_hand(nil), do: :none
+  defp decode_winning_hand(hand), do: hand
+  defp decode_winner(winner) when winner in ["none", nil], do: :none
+  defp decode_winner(winner), do: winner
 end
