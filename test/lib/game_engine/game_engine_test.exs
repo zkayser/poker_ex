@@ -245,6 +245,7 @@ defmodule PokerEx.GameEngine.ImplTest do
       assert {:ok, engine} = Game.fold(engine, context.p4.name)
       assert context.p5.name in engine.player_tracker.folded
       refute context.p5.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
+      refute context.p5.name in engine.player_tracker.active
     end
   end
 

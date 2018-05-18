@@ -6,7 +6,7 @@ defmodule PokerExWeb.GamesChannel do
   alias PokerEx.GameEngine.Seating
 
   @valid_params ~w(player amount)
-  @actions ~w(raise call check fold leave add_chips)
+  @actions ~w(raise call check fold leave add_chips join)
   @poker_actions ~w(raise call check fold)
   @manual_join_msg "Welcome. Please join by pressing the join button and entering an amount."
 

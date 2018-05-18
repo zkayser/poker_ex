@@ -55,7 +55,8 @@ defmodule PokerExWeb.GameView do
           game.cards.table == [],
           do: [],
           else: Phoenix.View.render_many(game.cards.table, __MODULE__, "card.json", as: :card)
-        )
+        ),
+      leaving: game.async_manager.cleanup_queue
     }
   end
 
