@@ -195,9 +195,12 @@ defmodule PokerEx.PrivateRoom do
   def ensure_started(room_process) when is_binary(room_process) do
     case GamesSupervisor.process_exists?(room_process) do
       false ->
-        %{room_state: room_state, room_data: room_data} = by_title(room_process)
-        GamesSupervisor.create_private_game(room_process)
-        put_state_for_room(room_process, room_state, room_data)
+        %{stored_game_data: game_data} = by_title(room_process)
+
+        with {:ok, game_data} <- PokerEx.GameEngine.Impl.decode(game_data) do
+          GamesSupervisor.create_private_game(room_process)
+          put_state_for_game(room_process, game_data)
+        end
 
       _ ->
         Game.get_state(room_process)
@@ -206,9 +209,12 @@ defmodule PokerEx.PrivateRoom do
 
   @spec restart(String.t()) :: Room.t()
   def restart(title) do
-    %{room_state: room_state, room_data: room_data} = by_title(title)
-    GamesSupervisor.create_private_game(title)
-    put_state_for_room(title, room_state, room_data)
+    %{stored_game_data: game_data} = by_title(title)
+
+    with {:ok, game_data} <- PokerEx.GameEngine.Impl.decode(game_data) do
+      GamesSupervisor.create_private_game(title)
+      put_state_for_game(title, game_data)
+    end
   end
 
   @doc ~S"""
@@ -367,10 +373,11 @@ defmodule PokerEx.PrivateRoom do
 
   defp format_title(_), do: {:error, :invalid_title}
 
-  defp put_state_for_room(room_process, nil, nil), do: Game.get_state(room_process)
+  defp put_state_for_game(room_process, nil), do: Game.get_state(room_process)
 
-  defp put_state_for_room(room_process, state, data) do
-    Game.put_state(room_process, :erlang.binary_to_term(state), :erlang.binary_to_term(data))
+  defp put_state_for_game(room_process, data) do
+    Logger.info("Restoring game data for room: #{inspect(room_process)}")
+    Game.put_state(room_process, data)
   end
 
   def update_participants(changeset, participants) do

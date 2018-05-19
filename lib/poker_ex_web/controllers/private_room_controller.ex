@@ -68,20 +68,17 @@ defmodule PokerExWeb.PrivateRoomController do
     unless pid do
       priv_room = PokerEx.Repo.get_by(PrivateRoom, title: id)
 
-      case {priv_room.room_state, priv_room.room_data} do
-        {nil, nil} ->
+      case priv_room.stored_game_data do
+        nil ->
           {:error, priv_room}
 
-        {state, data} when is_binary(state) and is_binary(data) ->
-          PokerEx.GameEngine.start_link(id |> String.to_atom())
+        game_data when is_binary(game_data) ->
+          with {:ok, game_data} <- PokerEx.GameEngine.Impl.decode(game_data) do
+            PokerEx.GameEngine.start_link(game_data.game_id)
+            PokerEx.GameEngine.put_state(game_data.game_id, game_data)
 
-          PokerEx.GameEngine.put_state(
-            id |> String.to_atom(),
-            :erlang.binary_to_term(priv_room.room_state),
-            :erlang.binary_to_term(priv_room.room_data)
-          )
-
-          :ok
+            :ok
+          end
 
         _ ->
           {:error, priv_room}

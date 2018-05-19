@@ -63,8 +63,8 @@ defmodule PokerEx.GameEngine do
     call_gen_server(game_id, :state)
   end
 
-  def put_state(game_id, new_state, new_data) do
-    call_gen_server(game_id, {:put_state, new_state, new_data})
+  def put_state(game_id, new_data) do
+    call_gen_server(game_id, {:put_state, new_data})
   end
 
   def get_state(game_id) do

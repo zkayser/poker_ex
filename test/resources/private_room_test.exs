@@ -145,12 +145,14 @@ defmodule PokerEx.PrivateRoomTest do
 
   @tag :capture_log
   test "ensure_started/1 checks if a room process exists and creates one if not", context do
-    room_process = context.game.title
+    game_process = context.game.title
 
-    data = Game.get_state(room_process)
-    Game.stop(room_process)
+    data = Game.get_state(game_process)
+    assert {:ok, _} = PRoom.get_game_and_store_state(game_process, data)
+    Process.sleep(50)
+    Game.stop(game_process)
 
-    assert PRoom.ensure_started(room_process) == data
+    assert PRoom.ensure_started(game_process) == data
   end
 
   test "is_owner?/2 returns true if the player param owns the room instance passed in", context do
@@ -165,10 +167,9 @@ defmodule PokerEx.PrivateRoomTest do
     test "maps from deprecated room data structure to the new GameEngine.Impl structs", _ do
       MigrationSeeds.seed()
 
-      old_rooms =
-        Enum.map(MigrationSeeds.old_room_data(), fn data ->
-          PRoom.by_title(data.room_id)
-        end)
+      Enum.map(MigrationSeeds.old_room_data(), fn data ->
+        PRoom.by_title(data.room_id)
+      end)
 
       PRoom.migrate_data()
 

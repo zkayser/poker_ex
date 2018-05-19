@@ -2,7 +2,7 @@ defmodule PokerEx.GameEngine.Decoders.Deck do
   alias PokerEx.Deck
   @behaviour PokerEx.GameEngine.Decoder
 
-  def decode([]), do: {:ok, %Deck{}}
+  def decode([]), do: {:ok, []}
 
   def decode(json) do
     flattened_dealt = List.flatten(json["dealt"])
