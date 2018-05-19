@@ -5,10 +5,14 @@ defmodule PokerEx.GameEngine.Decoders.Deck do
   def decode([]), do: {:ok, []}
 
   def decode(json) do
-    flattened_dealt = List.flatten(json["dealt"])
+    dealt =
+      case json["dealt"] do
+        nil -> []
+        dealt -> List.flatten(dealt)
+      end
 
     with {:ok, cards} <- PokerEx.Card.decode(json["cards"]),
-         {:ok, dealt} <- PokerEx.Card.decode(flattened_dealt) do
+         {:ok, dealt} <- PokerEx.Card.decode(dealt) do
       {:ok, %Deck{cards: cards, dealt: dealt}}
     else
       {:error, error} -> {:error, error}
