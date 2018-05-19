@@ -13,6 +13,8 @@ defmodule PokerEx.GameEngine.Decoders.Engine do
 
   @behaviour PokerEx.GameEngine.Decoder
 
+  def decode(nil), do: nil
+
   def decode(json) do
     with {:ok, value} <- Jason.decode(json),
          {:ok, async_manager} <- AsyncManager.decode(value["async_manager"]),

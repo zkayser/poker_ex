@@ -192,18 +192,20 @@ defmodule PokerEx.PrivateRoom do
   been stored
   """
   @spec ensure_started(String.t()) :: Room.t()
-  def ensure_started(room_process) when is_binary(room_process) do
-    case GamesSupervisor.process_exists?(room_process) do
+  def ensure_started(game_process) when is_binary(game_process) do
+    case GamesSupervisor.process_exists?(game_process) do
       false ->
-        %{stored_game_data: game_data} = by_title(room_process)
+        %{stored_game_data: game_data} = by_title(game_process)
 
         with {:ok, game_data} <- PokerEx.GameEngine.Impl.decode(game_data) do
-          GamesSupervisor.create_private_game(room_process)
-          put_state_for_game(room_process, game_data)
+          GamesSupervisor.create_private_game(game_process)
+          put_state_for_game(game_process, game_data)
+        else
+          error -> error
         end
 
       _ ->
-        Game.get_state(room_process)
+        Game.get_state(game_process)
     end
   end
 
