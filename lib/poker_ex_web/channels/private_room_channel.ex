@@ -169,9 +169,15 @@ defmodule PokerExWeb.PrivateRoomChannel do
 
   defp get_paginated_rooms(%Player{} = player, page_num, type) do
     for room <- Enum.map(Map.get(player, type), & &1.title) do
+      player_count =
+        case PrivateRoom.ensure_started(room) do
+          nil -> 0
+          data -> length(data.seating.arrangement)
+        end
+
       %{
         room: room,
-        player_count: PrivateRoom.ensure_started(room).seating.arrangement |> length(),
+        player_count: player_count,
         is_owner: PrivateRoom.is_owner?(player, room)
       }
     end
