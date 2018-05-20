@@ -1,5 +1,0 @@
-
-  <div class="col s12 left-align" id="player-card-row">
-    <img src="" id="player-card-image" class="card-image-left">
-    <img src="" id="player-card-image" class="card-image-right">
-  </div>

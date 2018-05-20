@@ -1,5 +1,0 @@
-<div class="center-align">
-  <div class="card-panel blue darken-4 white-text z-depth-5" id="player-home-card">
-    <%= PokerExWeb.PlayerView.stats(@current_player |> PokerEx.Player.preload(), conn: @conn) %>
-  </div>
-</div>
