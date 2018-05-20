@@ -2,7 +2,7 @@ defmodule PokerEx.PrivateRoomTest do
   use ExUnit.Case, async: false
   use PokerEx.ModelCase
   import PokerEx.TestHelpers
-  alias PokerEx.PrivateRoom, as: PRoom
+  alias PokerEx.PrivateRoom
   alias PokerEx.GameEngine, as: Game
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.Player
@@ -13,7 +13,7 @@ defmodule PokerEx.PrivateRoomTest do
     invitees = for _ <- 1..4, do: insert_user()
 
     {:ok, game} =
-      PRoom.create("game#{Base.encode16(:crypto.strong_rand_bytes(8))}", player, invitees)
+      PrivateRoom.create("game#{Base.encode16(:crypto.strong_rand_bytes(8))}", player, invitees)
 
     {:ok, player: player, invitees: invitees, game: game}
   end
@@ -21,7 +21,7 @@ defmodule PokerEx.PrivateRoomTest do
   test "create/3 instantiates a new `PrivateRoom` instance", %{player: player} do
     title = "room_title#{Base.encode16(:crypto.strong_rand_bytes(8))}"
     invitees = for _ <- 1..4, do: insert_user()
-    {:ok, room} = PRoom.create(title, player, invitees)
+    {:ok, room} = PrivateRoom.create(title, player, invitees)
 
     assert room.owner == player
     assert room.invitees == invitees
@@ -31,13 +31,13 @@ defmodule PokerEx.PrivateRoomTest do
     # The owner is included in participants by default
     assert player in room.participants
     # Creates the room process
-    assert PRoom.alive?(title)
+    assert PrivateRoom.alive?(title)
   end
 
   test "accept_invitation/2 moves a player from the invitees list to `participants`", context do
     participant = hd(context.invitees)
 
-    {:ok, room} = PRoom.accept_invitation(context.game, participant)
+    {:ok, room} = PrivateRoom.accept_invitation(context.game, participant)
 
     assert participant in room.participants
     refute participant in room.invitees
@@ -51,7 +51,7 @@ defmodule PokerEx.PrivateRoomTest do
   test "decline_invitation/2 removes a player from the invitees list", context do
     declining_player = hd(context.invitees)
 
-    {:ok, room} = PRoom.decline_invitation(context.game, declining_player)
+    {:ok, room} = PrivateRoom.decline_invitation(context.game, declining_player)
 
     refute declining_player in room.invitees
   end
@@ -61,7 +61,7 @@ defmodule PokerEx.PrivateRoomTest do
     leaving_player = hd(context.invitees)
 
     # First add some participants
-    {:ok, room} = PRoom.accept_invitation(context.game, leaving_player)
+    {:ok, room} = PrivateRoom.accept_invitation(context.game, leaving_player)
 
     room_process = context.game.title
 
@@ -73,7 +73,7 @@ defmodule PokerEx.PrivateRoomTest do
              fn {pl, _} -> pl end
            )
 
-    {:ok, room} = PRoom.leave_room(room, leaving_player)
+    {:ok, room} = PrivateRoom.leave_room(room, leaving_player)
     refute leaving_player in room.participants
 
     # Should also remove the player from the `Room` instance
@@ -88,42 +88,21 @@ defmodule PokerEx.PrivateRoomTest do
        context do
     room_process = String.to_atom(context.game.title)
 
-    {:ok, _} = PRoom.delete(context.game)
+    {:ok, _} = PrivateRoom.delete(context.game)
 
-    assert Repo.get(PRoom, context.game.id) == nil
+    assert Repo.get(PrivateRoom, context.game.id) == nil
 
     # The room instance should also be shutdown (it will be nil)
     refute Process.whereis(room_process)
   end
 
   test "all/0 returns all of the PrivateRoom instances", _ do
-    rooms = PRoom.all()
+    rooms = PrivateRoom.all()
     assert is_list(rooms) && length(rooms) > 0
   end
 
   test "by_title/1 returns the PrivateRoom instance with that title or nil", context do
-    assert PRoom.by_title(context.game.title).id == context.game.id
-  end
-
-  test "get_room_and_store_state/3 updates the PrivateRoom instance with current game state",
-       context do
-    room_process = context.game.title
-
-    # The current game state will be :idle since no actions have been taken
-    state = :idle
-    # `Room.state/1 returns a `Room` instance representing the current game`
-    data = Game.get_state(room_process)
-
-    assert {:ok, _} = PRoom.get_room_and_store_state(room_process, state, data)
-
-    # Let async DB update take place
-    Process.sleep(50)
-
-    room = PRoom.get(context.game.id)
-    # The `state` and `data` are serialized to a binary format for storage.
-    # `:erlang.binary_to_term/1` restores the binary form to its actual representation.
-    assert :erlang.binary_to_term(room.room_state) == :idle
-    assert :erlang.binary_to_term(room.room_data) == data
+    assert PrivateRoom.by_title(context.game.title).id == context.game.id
   end
 
   test "get_game_and_store_state/2 takes in a game process and a game struct and saves it to the database",
@@ -132,10 +111,10 @@ defmodule PokerEx.PrivateRoomTest do
 
     data = Game.get_state(game_process)
 
-    assert {:ok, _} = PRoom.get_game_and_store_state(game_process, data)
+    assert {:ok, _} = PrivateRoom.get_game_and_store_state(game_process, data)
 
     Process.sleep(50)
-    game = PRoom.get(context.game.id)
+    game = PrivateRoom.get(context.game.id)
     {:ok, restored} = Engine.decode(game.stored_game_data)
 
     assert restored.phase == :idle
@@ -148,18 +127,18 @@ defmodule PokerEx.PrivateRoomTest do
     game_process = context.game.title
 
     data = Game.get_state(game_process)
-    assert {:ok, _} = PRoom.get_game_and_store_state(game_process, data)
+    assert {:ok, _} = PrivateRoom.get_game_and_store_state(game_process, data)
     Process.sleep(50)
     Game.stop(game_process)
 
-    assert PRoom.ensure_started(game_process) == data
+    assert PrivateRoom.ensure_started(game_process) == data
   end
 
   test "is_owner?/2 returns true if the player param owns the room instance passed in", context do
-    assert PRoom.is_owner?(context.player, context.game.title)
+    assert PrivateRoom.is_owner?(context.player, context.game.title)
   end
 
   test "is_owner?/2 returns false if the player param does not own the room passed in", context do
-    refute PRoom.is_owner?(hd(context.invitees), context.game.title)
+    refute PrivateRoom.is_owner?(hd(context.invitees), context.game.title)
   end
 end
