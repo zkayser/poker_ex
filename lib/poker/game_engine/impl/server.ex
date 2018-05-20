@@ -42,11 +42,7 @@ defmodule PokerEx.GameEngine.Server do
   def terminate(reason, %Game{type: :private, game_id: id} = game) do
     Logger.warn("Now terminating #{inspect(id)} for reason: #{inspect(reason)}.")
     Logger.warn("Storing game state...")
-    # PrivateRoom.get_room_and_store_state/3 is out of date with the move from
-    # gen_statem to GenServer. The second parameter did store the phase of
-    # the game (:pre_flop, :flop, etc.). This is now stored in the game struct,
-    # so is no longer needed.
-    PokerEx.PrivateRoom.get_room_and_store_state(id, nil, game)
+    PokerEx.PrivateRoom.get_game_and_store_state(id, game)
     :void
   end
 

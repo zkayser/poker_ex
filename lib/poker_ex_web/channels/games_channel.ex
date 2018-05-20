@@ -159,9 +159,8 @@ defmodule PokerExWeb.GamesChannel do
       "private" ->
         # Should only hit the database in prod
         if Application.get_env(PokerEx, :should_update_after_poker_action) do
-          PrivateRoom.get_room_and_store_state(
+          PrivateRoom.get_game_and_store_state(
             game.game_id,
-            game.phase,
             game
           )
         else

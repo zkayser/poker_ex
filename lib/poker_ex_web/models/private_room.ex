@@ -220,29 +220,14 @@ defmodule PokerEx.PrivateRoom do
   end
 
   @doc ~S"""
-  Takes in a string that represents a running room process that is also the title
-  of a `PrivateRoom` instance stored in the database. The second parameter is the
-  current `state` of the `Room` process, i.e. :idle, :pre_flop, :flop, :turn, :river,
-  or :between_hands, and the third parameter is the actual `Room` instance representing
-  the ongoing game of Poker. This function queries the database for the `PrivateRoom`
-  instance from the title and serializes the `state` and `room` as binaries to be
-  stored in the database. This is useful when terminating a `Room` process when, for
-  example, an error is encountered on the server. Having the state of the current game
-  stored in the DB means that it can be recovered when the Room process is started
-  back up again so that players do not lose their turns or forfeit chips that they
-  already had in play.
+  Takes a string representing the title of a running game process that is also
+  the title of a `PrivateRoom` instance stored in the database. The second parameter
+  is an instance of the current game state. The function encodes the current game
+  state into JSON for storage. This is useful when terminating a `Game` process in
+  cases where the server encounters an error. Having the state of the current game
+  stored in the DB means taht it can be recovered when the Game process is restarted,
+  preventing players from losing their turns or forfeting chips that they had in play.
   """
-  @spec get_room_and_store_state(String.t(), atom(), Room.t()) :: {:ok, pid()}
-  def get_room_and_store_state(title, state, room) when is_binary(title) do
-    state = :erlang.term_to_binary(state)
-    room = :erlang.term_to_binary(room)
-
-    Task.start(fn ->
-      Repo.get_by(PrivateRoom, title: title)
-      |> store_state(%{"room_state" => state, "room_data" => room})
-    end)
-  end
-
   @spec get_game_and_store_state(String.t(), PokerEx.GameEngine.Impl.t()) :: {:ok, pid()}
   def get_game_and_store_state(title, game_data) when is_binary(title) do
     with {:ok, game_json} <- Jason.encode(game_data) do
