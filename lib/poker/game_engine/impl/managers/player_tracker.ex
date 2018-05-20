@@ -1,6 +1,6 @@
 defmodule PokerEx.GameEngine.PlayerTracker do
   alias PokerEx.Player
-  alias PokerEx.GameEngine.ChipManager
+  alias PokerEx.GameEngine.{ChipManager, GameState}
   @type tracker :: [String.t() | Player.t()] | []
   @settable_rounds [:idle, :between_rounds, :game_over]
   @type phase :: :idle | :pre_flop | :flop | :turn | :river | :game_over | :between_rounds
@@ -41,10 +41,11 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   def call(%{player_tracker: tracker}, name, chip_manager) do
     case get_call_state(chip_manager, name) do
       :called ->
-        {:ok, update_state(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
+        {:ok,
+         GameState.update(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
 
       :all_in ->
-        {:ok, update_state(tracker, [{:update_active, name, :drop}, {:update_all_in, name}])}
+        {:ok, GameState.update(tracker, [{:update_active, name, :drop}, {:update_all_in, name}])}
 
       :player_did_not_call ->
         {:error, :player_did_not_call}
@@ -56,7 +57,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     case get_raise_state(chip_manager, name) do
       {:all_in, should_clear_called?} ->
         {:ok,
-         update_state(tracker, [
+         GameState.update(tracker, [
            {:update_active, name, :drop},
            {:clear_called, should_clear_called?},
            {:update_all_in, name}
@@ -64,7 +65,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
 
       {:raised, should_clear_called?} ->
         {:ok,
-         update_state(tracker, [
+         GameState.update(tracker, [
            {:update_active, name, :to_back},
            {:clear_called, should_clear_called?},
            {:update_called_if_should_clear_is_false, should_clear_called?, name}
@@ -76,7 +77,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   def fold(%{player_tracker: tracker}, name) do
     case tracker.active do
       [player | _] when player == name ->
-        {:ok, update_state(tracker, [{:update_active, name, :drop}, {:update_folded, name}])}
+        {:ok, GameState.update(tracker, [{:update_active, name, :drop}, {:update_folded, name}])}
 
       _ ->
         {:error, :out_of_turn}
@@ -87,7 +88,8 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   def check(%{player_tracker: tracker}, name) do
     case tracker.active do
       [player | _] when player == name ->
-        {:ok, update_state(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
+        {:ok,
+         GameState.update(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
 
       _ ->
         {:error, :out_of_turn}
@@ -103,7 +105,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   """
   @spec leave(PokerEx.GameEngine.Impl.t(), Player.name()) :: success()
   def leave(%{player_tracker: tracker}, name) do
-    {:ok, update_state(tracker, [{:update_active, name, :drop}])}
+    {:ok, GameState.update(tracker, [{:update_active, name, :drop}])}
   end
 
   @spec is_player_active?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
@@ -130,42 +132,6 @@ defmodule PokerEx.GameEngine.PlayerTracker do
 
   @spec reset_round(t()) :: t()
   def reset_round(tracker), do: %__MODULE__{tracker | called: []}
-
-  defp update_state(tracker, updates) do
-    Enum.reduce(updates, tracker, &update(&1, &2))
-  end
-
-  defp update({:update_active, name, :to_back}, %{active: active} = tracker) do
-    Map.put(tracker, :active, Enum.drop(active, 1) |> Kernel.++([name]))
-  end
-
-  defp update({:update_active, _name, :drop}, %{active: active} = tracker) do
-    Map.put(tracker, :active, Enum.drop(active, 1))
-  end
-
-  defp update({:update_called, name}, %{called: called} = tracker) do
-    Map.put(tracker, :called, [name | called])
-  end
-
-  defp update({:update_called_if_should_clear_is_false, false, name}, %{called: called} = tracker) do
-    Map.put(tracker, :called, [name | called])
-  end
-
-  defp update({:update_called_if_should_clear_is_false, true, _name}, tracker), do: tracker
-
-  defp update({:update_all_in, name}, %{all_in: all_in} = tracker) do
-    Map.put(tracker, :all_in, [name | all_in])
-  end
-
-  defp update({:clear_called, true}, tracker) do
-    %__MODULE__{tracker | called: []}
-  end
-
-  defp update({:clear_called, false}, tracker), do: tracker
-
-  defp update({:update_folded, name}, tracker) do
-    %__MODULE__{tracker | folded: [name | tracker.folded]}
-  end
 
   defp set_active(arrangement) do
     %__MODULE__{active: Enum.map(arrangement, fn {name, _} -> name end)}
