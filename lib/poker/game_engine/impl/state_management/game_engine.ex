@@ -1,6 +1,6 @@
 defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.Impl do
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{CardManager, ChipManager, RoleManager, PlayerTracker}
+  alias PokerEx.GameEngine.{CardManager, ChipManager, RoleManager, PlayerTracker, PhaseManager}
 
   def update(%Engine{} = engine, updates) do
     Enum.reduce(updates, engine, &do_update(&1, &2))
