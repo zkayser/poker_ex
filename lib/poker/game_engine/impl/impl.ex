@@ -10,7 +10,8 @@ defmodule PokerEx.GameEngine.Impl do
     PhaseManager,
     RoleManager,
     AsyncManager,
-    GameResetCoordinator
+    GameResetCoordinator,
+    GameState
   }
 
   alias __MODULE__, as: Engine
@@ -60,7 +61,7 @@ defmodule PokerEx.GameEngine.Impl do
       Events.update_player_count(engine)
 
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_seating, new_seating},
          {:update_chips, chips},
          {:set_active_players, initial_phase},
@@ -80,7 +81,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:ok, player_tracker} <- PlayerTracker.call(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, initial_phase, phase},
@@ -100,7 +101,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:ok, player_tracker} <- PlayerTracker.raise(engine, player, chips),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, initial_phase, phase},
@@ -120,7 +121,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:ok, player_tracker} <- PlayerTracker.check(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:maybe_update_cards, initial_phase, phase},
@@ -140,7 +141,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:ok, card_manager} <- CardManager.fold(engine, player),
          phase <- PhaseManager.check_phase_change(engine, :bet, player_tracker) do
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_tracker, player_tracker},
          {:update_cards, card_manager},
          {:maybe_update_cards, initial_phase, phase},
@@ -160,7 +161,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:ok, player_tracker} <- PlayerTracker.leave(engine, player),
          seating <- Seating.leave(engine, player) do
       {:ok,
-       update_state(engine, [
+       GameState.update(engine, [
          {:update_chips, chips},
          {:update_tracker, player_tracker},
          {:update_seating, seating}
@@ -206,71 +207,6 @@ defmodule PokerEx.GameEngine.Impl do
     }
   end
 
-  defp update_state(engine, updates) do
-    Enum.reduce(updates, engine, &update(&1, &2))
-  end
-
-  defp update({:update_seating, seating}, engine) do
-    Map.put(engine, :seating, seating)
-    %__MODULE__{engine | seating: seating}
-  end
-
-  defp update({:update_tracker, tracker}, engine) do
-    Map.put(engine, :player_tracker, tracker)
-  end
-
-  defp update({:update_chips, chips}, engine) do
-    Map.put(engine, :chips, chips)
-  end
-
-  defp update({:update_phase, phase}, engine) do
-    Map.put(engine, :phase, phase)
-  end
-
-  defp update(:maybe_change_phase, engine) do
-    PhaseManager.maybe_change_phase(engine)
-  end
-
-  defp update({:update_cards, cards}, engine) do
-    Map.put(engine, :cards, cards)
-  end
-
-  defp update({:maybe_update_cards, old_phase, new_phase}, engine) do
-    case old_phase != new_phase do
-      true ->
-        {:ok, cards} = CardManager.deal(engine, new_phase)
-        %__MODULE__{engine | cards: cards}
-
-      false ->
-        engine
-    end
-  end
-
-  defp update({:maybe_post_blinds, old_phase, :pre_flop}, engine) do
-    case old_phase != :pre_flop do
-      true ->
-        {:ok, chips} = ChipManager.post_blinds(engine)
-
-        Map.put(engine, :chips, chips)
-        |> Map.put(:player_tracker, PlayerTracker.cycle(engine))
-
-      false ->
-        engine
-    end
-  end
-
-  defp update({:maybe_post_blinds, _, _}, engine), do: engine
-
-  defp update({:set_active_players, phase}, engine) do
-    PlayerTracker.set_active_players(engine, phase)
-  end
-
-  defp update(:set_roles, %{phase: :pre_flop} = engine) do
-    Map.put(engine, :roles, RoleManager.manage_roles(engine))
-  end
-
-  defp update(:set_roles, engine), do: engine
-
   # This function clause is triggered after successful poker betting actions
   # (call, raise, check, and fold). It removes any players that have been marked
   # to leave and updates the phase if appropriate. It is also triggered after leaves
@@ -287,7 +223,10 @@ defmodule PokerEx.GameEngine.Impl do
     with {:ok, engine} <- AsyncManager.run(engine, :cleanup),
          phase <- PhaseManager.check_phase_change(engine, :bet, engine.player_tracker) do
       {:ok,
-       update_state(engine, [{:maybe_update_cards, initial_phase, phase}, {:update_phase, phase}])}
+       GameState.update(engine, [
+         {:maybe_update_cards, initial_phase, phase},
+         {:update_phase, phase}
+       ])}
     else
       error -> error
     end
