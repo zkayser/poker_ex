@@ -1,5 +1,5 @@
 defmodule PokerEx.GameEngine.CardManager do
-  alias PokerEx.{Card, Deck}
+  alias PokerEx.Card
   alias PokerEx.GameEngine.GameState
 
   @type t :: %__MODULE__{
