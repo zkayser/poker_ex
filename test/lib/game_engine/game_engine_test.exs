@@ -220,6 +220,27 @@ defmodule PokerEx.GameEngine.ImplTest do
       refute context.p4.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
     end
 
+    test "credits auto-folding players with the chips they have remaining in the game", context do
+      engine = TestData.setup_multiplayer_game(context)
+
+      assert {:ok, _engine} = Game.leave(engine, context.p4.name)
+      # Players are credited 1,000 chips on creation and each player
+      # is given 200 extra chips in the setup_multiplayer_game/1 function above.
+      # Given these conditions, a leaving player should now have 1200 chips.
+      assert PokerEx.Player.by_name(context.p4.name).chips == 1200
+    end
+
+    test "credits leaving players with chips remaining in the :idle and :between_rounds phases",
+         context do
+      engine =
+        TestData.setup_multiplayer_game(context)
+        |> Map.put(:phase, :idle)
+
+      assert {:ok, engine} = Game.leave(engine, context.p4.name)
+      assert PokerEx.Player.by_name(context.p4.name).chips == 1200
+      refute context.p4.name in Enum.map(engine.seating.arrangement, fn {player, _} -> player end)
+    end
+
     test "auto-checks for the player if the leaving player has paid the to_call amount",
          context do
       engine =

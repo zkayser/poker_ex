@@ -159,6 +159,7 @@ defmodule PokerEx.GameEngine.Impl do
   def leave(%{phase: phase} = engine, player) when phase in [:idle, :between_rounds] do
     with {:ok, chips} <- ChipManager.leave(engine, player),
          {:ok, player_tracker} <- PlayerTracker.leave(engine, player),
+         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
          seating <- Seating.leave(engine, player) do
       {:ok,
        GameState.update(engine, [

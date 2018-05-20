@@ -32,14 +32,15 @@ defmodule PokerEx.GameEngine.Seating do
     end
   end
 
+  @spec leave(PokerEx.GameEngine.Impl.t(), Player.t()) :: t()
+  def leave(engine, %{name: name}), do: leave(engine, name)
+
   @spec leave(PokerEx.GameEngine.Impl.t(), Player.name()) :: t()
   def leave(%{seating: seating}, player) do
     Map.put(
       seating,
       :arrangement,
-      Enum.reject(seating.arrangement, fn {name, _} ->
-        name == player
-      end)
+      Enum.reject(seating.arrangement, fn {name, _} -> name == player end)
     )
   end
 

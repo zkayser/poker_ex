@@ -239,6 +239,8 @@ defmodule PokerEx.Player do
   # player leaves the room. This should be fleshed out with an
   # integration test in the `RoomsChannelTest`.
   @spec reward(String.t(), non_neg_integer, atom()) :: {:ok, Player.t()} | {:error, term()}
+  def reward(name, nil, _), do: {:ok, by_name(name)}
+
   def reward(name, amount, _room_id) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
       changeset = chip_changeset(player, %{"chips" => player.chips + amount})
