@@ -10,8 +10,8 @@ defmodule PokerEx.GameEngine.Impl do
     PhaseManager,
     RoleManager,
     AsyncManager,
-    GameResetCoordinator,
-    GameState
+    GameState,
+    AfterTurn
   }
 
   alias __MODULE__, as: Engine
@@ -87,9 +87,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round, initial_phase)
-      |> and_then(:maybe_reset_game)
+      |> AfterTurn.process(initial_phase)
     else
       error -> error
     end
@@ -107,9 +105,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round, initial_phase)
-      |> and_then(:maybe_reset_game)
+      |> AfterTurn.process(initial_phase)
     else
       error -> error
     end
@@ -127,9 +123,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round, initial_phase)
-      |> and_then(:maybe_reset_game)
+      |> AfterTurn.process(initial_phase)
     else
       error -> error
     end
@@ -147,9 +141,7 @@ defmodule PokerEx.GameEngine.Impl do
          {:maybe_update_cards, initial_phase, phase},
          {:update_phase, phase}
        ])}
-      |> and_then(:process_async_auto_actions)
-      |> and_then(:cleanup_round, initial_phase)
-      |> and_then(:maybe_reset_game)
+      |> AfterTurn.process(initial_phase)
     else
       error -> error
     end
@@ -175,9 +167,7 @@ defmodule PokerEx.GameEngine.Impl do
   def leave(%{phase: initial_phase} = engine, player) do
     {:ok,
      %__MODULE__{engine | async_manager: AsyncManager.mark_for_action(engine, player, :leave)}}
-    |> and_then(:process_async_auto_actions)
-    |> and_then(:cleanup_round, initial_phase)
-    |> and_then(:maybe_reset_game)
+    |> AfterTurn.process(initial_phase)
   end
 
   @spec player_count(t()) :: non_neg_integer
@@ -198,57 +188,4 @@ defmodule PokerEx.GameEngine.Impl do
        | async_manager: AsyncManager.mark_for_action(engine, player, {:add_chips, amount})
      }}
   end
-
-  @spec reset_round(t()) :: t()
-  def reset_round(engine) do
-    %__MODULE__{
-      engine
-      | chips: ChipManager.reset_round(engine.chips),
-        player_tracker: PlayerTracker.reset_round(engine.player_tracker)
-    }
-  end
-
-  # This function clause is triggered after successful poker betting actions
-  # (call, raise, check, and fold). It removes any players that have been marked
-  # to leave and updates the phase if appropriate. It is also triggered after leaves
-  # to handle the case in which the leaving player is active. This will auto fold or
-  # auto check for the player.
-  defp and_then(
-         {:ok, %{async_manager: %{cleanup_queue: []}} = engine},
-         :process_async_auto_actions
-       ) do
-    {:ok, engine}
-  end
-
-  defp and_then({:ok, %{phase: initial_phase} = engine}, :process_async_auto_actions) do
-    with {:ok, engine} <- AsyncManager.run(engine, :cleanup),
-         phase <- PhaseManager.check_phase_change(engine, :bet, engine.player_tracker) do
-      {:ok,
-       GameState.update(engine, [
-         {:maybe_update_cards, initial_phase, phase},
-         {:update_phase, phase}
-       ])}
-    else
-      error -> error
-    end
-  end
-
-  # This function clause will reset the game engine implementation struct to a
-  # clean state and prepare for a new game only if the phase is :game_over.
-  # Otherwise this clause is a no-op.
-  defp and_then({:ok, %{phase: :game_over} = engine}, :maybe_reset_game) do
-    {:ok, GameResetCoordinator.coordinate_reset(engine)}
-  end
-
-  defp and_then({:ok, engine}, _), do: {:ok, engine}
-
-  # This function clause will trigger any necessary cleanup after transitioning
-  # from one phase to the next. If there is no phase transition, then this
-  # clause is effectively a no-op.
-  defp and_then({:ok, %{phase: current_phase} = engine}, :cleanup_round, initial_phase)
-       when current_phase != initial_phase do
-    {:ok, reset_round(engine)}
-  end
-
-  defp and_then({:ok, engine}, :cleanup_round, _), do: {:ok, engine}
 end
