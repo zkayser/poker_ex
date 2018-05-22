@@ -122,7 +122,7 @@ defmodule PokerExWeb.GamesChannel do
 
     game =
       case Game.get_state(socket.assigns.game).type do
-        :private -> socket.assigns.game
+        :private -> Game.get_state(socket.assigns.game)
         :public -> Game.leave(socket.assigns.game, socket.assigns.player)
       end
 
