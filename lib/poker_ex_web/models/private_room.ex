@@ -201,7 +201,13 @@ defmodule PokerEx.PrivateRoom do
           GamesSupervisor.create_private_game(game_process)
           put_state_for_game(game_process, game_data)
         else
-          error -> error
+          nil ->
+            with {:ok, title} <- GameSupervisor.create_private_game(game_process) do
+              PokerEx.GameEngine.get_state(title)
+            end
+
+          error ->
+            error
         end
 
       _ ->
