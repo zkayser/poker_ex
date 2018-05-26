@@ -1,4 +1,4 @@
-defmodule PokerEx.Evaluator do
+defmodule PokerEx.GameEngine.Evaluator do
   alias PokerEx.Card, as: Card
   alias PokerEx.Hand
 
@@ -15,7 +15,7 @@ defmodule PokerEx.Evaluator do
   ## Examples
 
   		iex> alias PokerEx.Card
-  		iex> alias PokerEx.Evaluator
+  		iex> alias PokerEx.GameEngine.Evaluator
   		iex> player_hand = [:queen_of_diamonds, :queen_of_hearts] |> Enum.map(&Card.from_atom/1)
   		iex> table = [:two_of_clubs, :four_of_spades, :ten_of_diamonds, :ace_of_hearts, :three_of_spades] |> Enum.map(&Card.from_atom/1)
   		iex> Evaluator.evaluate_hand(player_hand, table)

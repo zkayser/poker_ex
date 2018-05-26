@@ -1,6 +1,6 @@
 defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.ScoreManager do
-  alias PokerEx.{Evaluator, RewardManager, Events}
-  alias PokerEx.GameEngine.ScoreManager
+  alias PokerEx.Events
+  alias PokerEx.GameEngine.{ScoreManager, Evaluator, RewardManager}
 
   def update(scoring, updates) when is_list(updates) do
     Enum.reduce(updates, scoring, &do_update(&1, &2))

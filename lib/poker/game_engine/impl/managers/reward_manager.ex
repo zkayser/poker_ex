@@ -1,4 +1,4 @@
-defmodule PokerEx.RewardManager do
+defmodule PokerEx.GameEngine.RewardManager do
   alias PokerEx.{Player, Events}
 
   @type hand_rankings :: [{String.t(), pos_integer}]
