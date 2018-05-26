@@ -137,27 +137,11 @@ defmodule PokerEx.GameEngine.ChipManager do
     end
   end
 
-  @spec calculate_bet_amount(non_neg_integer, map(), Player.name()) :: non_neg_integer
-  def calculate_bet_amount(amount, chip_roll, name) do
-    case chip_roll[name] - amount >= 0 do
-      true -> amount
-      false -> chip_roll[name]
-    end
-  end
-
   @spec calculate_call_amount(Player.name(), %{round: map()}) :: non_neg_integer
   def calculate_call_amount(name, %{round: round} = chips) do
     case round[name] do
       nil -> chips.to_call
       already_paid -> chips.to_call - already_paid
-    end
-  end
-
-  @spec calculate_raise_value(Player.name(), non_neg_integer, %{round: map()}) :: non_neg_integer
-  def calculate_raise_value(name, adjusted_amount, %{round: round}) do
-    case round[name] do
-      nil -> adjusted_amount
-      already_paid -> already_paid + adjusted_amount
     end
   end
 

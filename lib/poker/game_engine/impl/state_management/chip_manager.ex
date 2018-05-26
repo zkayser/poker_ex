@@ -16,8 +16,8 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.ChipManager do
   end
 
   defp do_update({:add_call_amount, name, amount}, %{round: _round} = chips) do
-    adjusted_amount = ChipManager.calculate_bet_amount(amount, chips.chip_roll, name)
-    raise_value = ChipManager.calculate_raise_value(name, adjusted_amount, chips)
+    adjusted_amount = calculate_bet_amount(amount, chips.chip_roll, name)
+    raise_value = calculate_raise_value(name, adjusted_amount, chips)
 
     case raise_value > chips.to_call do
       true -> %ChipManager{chips | to_call: raise_value}
@@ -29,7 +29,7 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.ChipManager do
          {:player_bet, name, amount},
          %{paid: paid, round: round, chip_roll: chip_roll, pot: pot} = chips
        ) do
-    adjusted_bet = ChipManager.calculate_bet_amount(amount, chip_roll, name)
+    adjusted_bet = calculate_bet_amount(amount, chip_roll, name)
 
     %ChipManager{
       chips
@@ -42,5 +42,19 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.ChipManager do
 
   defp update_map(map, name, bet, operator) do
     Map.update(map, name, bet, fn val -> apply(Kernel, operator, [val, bet]) end)
+  end
+
+  defp calculate_bet_amount(amount, chip_roll, name) do
+    case chip_roll[name] - amount >= 0 do
+      true -> amount
+      false -> chip_roll[name]
+    end
+  end
+
+  defp calculate_raise_value(name, adjusted_amount, %{round: round}) do
+    case round[name] do
+      nil -> adjusted_amount
+      already_paid -> already_paid + adjusted_amount
+    end
   end
 end
