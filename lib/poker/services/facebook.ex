@@ -6,16 +6,33 @@ defmodule PokerEx.Services.Facebook do
 
   @type response :: %HTTPotion.Response{}
 
-  @spec notify_user(%{user_id: String.t, template: String.t, return_url: String.t}) :: response
-  def notify_user(%{user_id: id, template: template, return_url: url}, app_id \\ @app_id, app_secret \\ @app_secret) do
+  @spec notify_user(%{user_id: String.t(), template: String.t(), return_url: String.t()}) ::
+          response
+  def notify_user(
+        %{user_id: id, template: template, return_url: url},
+        app_id \\ @app_id,
+        app_secret \\ @app_secret
+      ) do
     case {app_id, app_secret} do
-      {nil, nil} -> fb_credentials_exception()
-      {nil, _} -> fb_credentials_exception()
-      {_, nil} -> fb_credentials_exception()
+      {nil, nil} ->
+        fb_credentials_exception()
+
+      {nil, _} ->
+        fb_credentials_exception()
+
+      {_, nil} ->
+        fb_credentials_exception()
+
       _ ->
         template = template |> URI.encode()
-        HTTPotion.post("#{@endpoint}#{@api_vsn}/#{id}/notifications?access_token=#{app_id}|#{app_secret}&template=#{template}&href=#{url}",
-        [body: "", headers: ["Content-Type": "application/json"]])
+
+        HTTPotion.post(
+          "#{@endpoint}#{@api_vsn}/#{id}/notifications?access_token=#{app_id}|#{app_secret}&template=#{
+            template
+          }&href=#{url}",
+          body: "",
+          headers: ["Content-Type": "application/json"]
+        )
     end
   end
 

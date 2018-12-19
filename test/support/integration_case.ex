@@ -17,6 +17,6 @@ defmodule PokerEx.IntegrationCase do
   end
 
   setup _tags do
-   :ok
+    :ok
   end
 end

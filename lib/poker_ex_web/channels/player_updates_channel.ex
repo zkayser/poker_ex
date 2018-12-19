@@ -23,7 +23,8 @@ defmodule PokerExWeb.PlayerUpdatesChannel do
   end
 
   def handle_in("player_update", params, player, socket) do
-    unless Map.keys(params) |> Enum.all?(fn key -> key in ~w(first_name last_name email blurb chips) end) do
+    unless Map.keys(params)
+           |> Enum.all?(fn key -> key in ~w(first_name last_name email blurb chips) end) do
       {:reply, {:error, %{"error" => "Invalid attribute(s)"}}, socket}
     else
       do_handle_in("player_update", params, player, socket)
@@ -34,14 +35,19 @@ defmodule PokerExWeb.PlayerUpdatesChannel do
 
   defp do_handle_in("player_update", %{"chips" => 1000}, player, socket) do
     if player.chips >= 100 do
-      {:reply, {:error, %{message: "Cannot replenish chips unless you have less than 100 chips remaining"}}, socket}
+      {:reply,
+       {:error,
+        %{message: "Cannot replenish chips unless you have less than 100 chips remaining"}},
+       socket}
     else
-      Player.update_changeset(player, %{chips: 1000}) |> handle_player_update_response("chips", socket)
+      Player.update_changeset(player, %{chips: 1000})
+      |> handle_player_update_response("chips", socket)
     end
   end
 
   defp do_handle_in("player_update", params, player, socket) do
-    Player.update_changeset(player, params) |> handle_player_update_response(Map.keys(params) |> hd(), socket)
+    Player.update_changeset(player, params)
+    |> handle_player_update_response(Map.keys(params) |> hd(), socket)
   end
 
   defp handle_player_update_response(changeset, type, socket) do
@@ -49,7 +55,10 @@ defmodule PokerExWeb.PlayerUpdatesChannel do
       {:ok, player} ->
         resp = %{update_type: type}
         atom_type = String.to_atom(type)
-        {:reply, {:ok, Map.put(resp, atom_type, Map.get(player, atom_type))}, assign(socket, :player, player)}
+
+        {:reply, {:ok, Map.put(resp, atom_type, Map.get(player, atom_type))},
+         assign(socket, :player, player)}
+
       {:error, changeset} ->
         {:reply, {:error, changeset.errors}, socket}
     end

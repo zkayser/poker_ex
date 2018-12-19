@@ -1,10 +1,10 @@
 defmodule PokerExWeb.SessionController do
   use PokerExWeb, :controller
 
-  action_fallback PokerExWeb.FallbackController
+  action_fallback(PokerExWeb.FallbackController)
 
   def new(conn, _) do
-    render conn, "new.html"
+    render(conn, "new.html")
   end
 
   def create(conn, %{"session" => %{"name" => player, "password" => pass}}) do
@@ -13,6 +13,7 @@ defmodule PokerExWeb.SessionController do
         conn
         |> put_flash(:info, "Welcome back!")
         |> redirect(to: player_path(conn, :show, Repo.get_by(PokerEx.Player, name: player).id))
+
       {:error, _reason, conn} ->
         conn
         |> put_flash(:error, "Invalid username/password combination")

@@ -9,7 +9,9 @@ defmodule PokerEx.Emails do
     |> to("zkayser@i.softbank.com")
     |> from("zkayser@gmail.com")
     |> subject("Welcome to PokerEx")
-    |> html_body("<strong>Thank you for joining PokerEx! Your account has been registered.</strong>")
+    |> html_body(
+      "<strong>Thank you for joining PokerEx! Your account has been registered.</strong>"
+    )
     |> text_body("Welcome to PokerEx.")
   end
 
@@ -60,7 +62,9 @@ defmodule PokerEx.Emails do
 
   defp invitation_text(options) do
     "Greetings from #{options["user"].first_name} and PokerEx! \n#{options["message"]}\n
-     You can find #{options["user"].first_name} on PokerEx by searching for #{options["user"].name} from your account page.
+     You can find #{options["user"].first_name} on PokerEx by searching for #{
+      options["user"].name
+    } from your account page.
     "
   end
 end

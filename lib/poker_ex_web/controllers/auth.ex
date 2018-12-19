@@ -17,8 +17,10 @@ defmodule PokerExWeb.Auth do
     cond do
       player = conn.assigns[:current_player] ->
         put_current_player(conn, player)
+
       player = player_id && repo.get(PokerEx.Player, player_id) ->
         put_current_player(conn, player)
+
       true ->
         assign(conn, :current_player, nil)
     end
@@ -46,8 +48,10 @@ defmodule PokerExWeb.Auth do
     cond do
       player && checkpw(given_pass, player.password_hash) ->
         {:ok, login(conn, player)}
+
       player ->
         {:error, :unauthorized, conn}
+
       true ->
         dummy_checkpw()
         {:error, :not_found, conn}
@@ -64,7 +68,10 @@ defmodule PokerExWeb.Auth do
       cond do
         player && check_oauth(player.name, oauth_data[key]) ->
           {:ok, login(conn, player)}
-        player -> {:error, :unauthorized, conn}
+
+        player ->
+          {:error, :unauthorized, conn}
+
         true ->
           dummy_checkpw()
           {:error, :not_found, conn}

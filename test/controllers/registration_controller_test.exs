@@ -3,8 +3,8 @@ defmodule PokerExWeb.RegistrationControllerTest do
   use Bamboo.Test
 
   defp registration_params do
-    %{"registration" =>
-      %{
+    %{
+      "registration" => %{
         "first_name" => "User",
         "last_name" => "Person",
         "name" => "user#{Base.encode16(:crypto.strong_rand_bytes(8))}",
@@ -33,6 +33,6 @@ defmodule PokerExWeb.RegistrationControllerTest do
     post(context.conn, registration_path(context.conn, :create, params))
 
     player = %PokerEx.Player{name: player_params["name"], email: player_params["email"]}
-    assert_delivered_email PokerEx.Emails.welcome_email(player)
+    assert_delivered_email(PokerEx.Emails.welcome_email(player))
   end
 end

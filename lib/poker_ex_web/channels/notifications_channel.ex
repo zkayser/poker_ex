@@ -10,6 +10,7 @@ defmodule PokerExWeb.NotificationsChannel do
   end
 
   def join(_, _, _) do
-    raise ArgumentError, message: "You must pass notifications:name to join the NotificationsChannel"
+    raise ArgumentError,
+      message: "You must pass notifications:name to join the NotificationsChannel"
   end
 end

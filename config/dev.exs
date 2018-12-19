@@ -11,9 +11,14 @@ config :poker_ex, PokerExWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: true,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../assets", __DIR__)]]
-
+  watchers: [
+    node: [
+      "node_modules/brunch/bin/brunch",
+      "watch",
+      "--stdin",
+      cd: Path.expand("../assets", __DIR__)
+    ]
+  ]
 
 # Watch static and templates for browser reloading.
 config :poker_ex, PokerExWeb.Endpoint,
@@ -27,9 +32,9 @@ config :poker_ex, PokerExWeb.Endpoint,
   ]
 
 config :poker_ex, PokerEx.Mailer,
- adapter: Bamboo.MailgunAdapter,
- api_key: System.get_env("MAILGUN_API_KEY"),
- domain:  System.get_env("MAILGUN_SANDBOX_DOMAIN")
+  adapter: Bamboo.MailgunAdapter,
+  api_key: System.get_env("MAILGUN_API_KEY"),
+  domain: System.get_env("MAILGUN_SANDBOX_DOMAIN")
 
 config :poker_ex,
   client_password_reset_endpoint: "http://localhost:8081/#/reset-password"

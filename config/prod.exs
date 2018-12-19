@@ -32,9 +32,9 @@ config :poker_ex, PokerEx.Repo,
 # Also, you will have to verify your domain with
 # Mailgun before you can actuallY start sending emails in prod.
 config :poker_ex, PokerEx.Mailer,
-	adapter: Bamboo.MailgunAdapter,
-	api_key: System.get_env("MAILGUN_API_KEY"),
-	domain: System.get_env("MAILGUN_DOMAIN")
+  adapter: Bamboo.MailgunAdapter,
+  api_key: System.get_env("MAILGUN_API_KEY"),
+  domain: System.get_env("MAILGUN_DOMAIN")
 
 # The client's endpoint is unknown at this point
 # This MUST be changed before the client is deployed.
