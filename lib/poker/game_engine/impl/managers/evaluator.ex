@@ -77,7 +77,7 @@ defmodule PokerEx.GameEngine.Evaluator do
       |> Card.sort_by_rank()
       |> Stream.map(&Card.value/1)
       |> Stream.dedup()
-      |> Stream.chunk(5, 1)
+      |> Stream.chunk_every(5, 1)
       # Adjustment for the Ace to Five straight
       |> Enum.filter(
         &(&1 == List.first(&1)..List.last(&1) |> Enum.to_list() || &1 == [14, 5, 4, 3, 2])
