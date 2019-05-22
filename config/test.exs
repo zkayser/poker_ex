@@ -10,6 +10,7 @@ config :poker_ex, PokerExWeb.Endpoint,
 config :poker_ex, PokerEx.Mailer, adapter: Bamboo.TestAdapter
 
 config :poker_ex, client_password_reset_endpoint: "http://localhost:8081/#/reset-password"
+config :poker_ex, :google_certs_module, PokerEx.Auth.Google.FakeCerts
 
 # Easy # of password hashing rounds on :comeonin
 # to speed up tests

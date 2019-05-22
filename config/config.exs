@@ -7,6 +7,7 @@ use Mix.Config
 
 Application.put_env(PokerEx, :initial_room_count, 1000)
 Application.put_env(PokerEx, :initial_game_count, 1000)
+config :poker_ex, :google_certs_module, PokerEx.Auth.Google.Certs
 # General application configuration
 config :poker_ex, ecto_repos: [PokerEx.Repo]
 
@@ -39,7 +40,7 @@ config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
   redirect_uri: System.get_env("FACEBOOK_REDIRECT_URI")
 
 config :guardian, Guardian,
-  allowed_algos: ["HS512"],
+  allowed_algos: ["HS512", "RS256", "SHA256"],
   secret_key: System.get_env("SB_SECRET"),
   issuer: "PokerEx",
   ttl: {30, :days},

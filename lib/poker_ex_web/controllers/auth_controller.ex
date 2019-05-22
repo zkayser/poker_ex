@@ -53,6 +53,21 @@ defmodule PokerExWeb.AuthController do
     conn
   end
 
+  def oauth_handler(conn, %{"email" => _email, "google_token_id" => token} = provider_data) do
+    Logger.debug("[OAUTH_HANDLER] Called with provider_data: #{inspect(provider_data)}")
+    # HTTPotion.get(@google_certs_endpoint)
+    # Call and cache Google's certs endpoint: https://www.googleapis.com/oauth2/v3/certs
+    # Gives a list of keys. Use the one with the matching kid (key ID) from the header.
+    # json = GoogleApi.Certs.get()
+    ## ==>  Get header kid
+    # kid = Guardian.peek_header(token)["kid"]
+    # key_json = Enum.filter(json["payload"], fn payload -> payload.kid == kid end)
+    # key = JOSE.JWK.from(key_json)
+    # {true, _, _} = JOSE.JWS.verify(key, token)
+
+    conn
+  end
+
   defp login_and_redirect(%{conn: conn, message: message, player: player}) do
     conn
     |> PokerExWeb.Auth.login(player)

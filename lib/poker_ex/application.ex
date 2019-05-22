@@ -23,6 +23,8 @@ defmodule PokerEx.Application do
       # worker(PokerEx.Room, []),
     ]
 
+    # Start ETS cache tables
+    :ets.new(:cache, [:public, :named_table])
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: PokerEx.Supervisor]
