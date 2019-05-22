@@ -4,6 +4,7 @@ defmodule PokerEx.Auth.Google do
   @cache :cache
   @certs_key :google_certs
   @certs_module Application.get_env(:poker_ex, :google_certs_module)
+  @max_age_regex ~r/max-age=(\d+)/
 
   @type result :: :ok | {:error, :request_failed | :unauthorized}
   @type json_web_token :: String.t()
@@ -80,10 +81,18 @@ defmodule PokerEx.Auth.Google do
     case HTTPotion.Response.success?(response) do
       true ->
         {:ok, body} = Jason.decode(response.body)
-        ETS.insert(@cache, {@certs_key, body, DateTime.utc_now()})
+        ETS.insert(@cache, {@certs_key, body, set_cache_until(response.headers["cache-control"])})
         body
       false ->
         :error
+    end
+  end
+
+  defp set_cache_until(cache_control) when is_binary(cache_control) do
+    with [_, seconds] <- Regex.run(@max_age_regex, cache_control) do
+      DateTime.add(DateTime.utc_now(), String.to_integer(seconds), :second)
+    else
+      _ -> DateTime.utc_now()
     end
   end
 end
