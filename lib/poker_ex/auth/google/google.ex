@@ -1,6 +1,5 @@
 defmodule PokerEx.Auth.Google do
   alias :ets, as: ETS
-  @jwks_endpoint "https://www.googleapis.com/oauth2/v3/certs"
   @cache :cache
   @certs_key :google_certs
   @certs_module Application.get_env(:poker_ex, :google_certs_module)
