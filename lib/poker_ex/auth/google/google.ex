@@ -4,6 +4,8 @@ defmodule PokerEx.Auth.Google do
   @cache :cache
   @certs_key :google_certs
   @certs_module Application.get_env(:poker_ex, :google_certs_module)
+  @client_id System.get_env("GOOGLE_CLIENT_ID_POKER_EX")
+  @google_issuer "accounts.google.com"
   @max_age_regex ~r/max-age=(\d+)/
 
   @type result :: :ok | {:error, :request_failed | :unauthorized}
@@ -12,8 +14,10 @@ defmodule PokerEx.Auth.Google do
   @spec validate(json_web_token) :: result
   def validate(token) do
     case ETS.lookup(@cache, @certs_key) do
-      [] -> get_certs()
-            |> validate_(token)
+      [] ->
+        get_certs()
+        |> validate_(token)
+
       [{_, certs_response, datetime}] ->
         if should_validate?(datetime) do
           validate_(certs_response, token)
@@ -37,35 +41,65 @@ defmodule PokerEx.Auth.Google do
   end
 
   defp validate_(body, token) do
-    with {:ok, kid} <- peek_header(token),
-      [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
-      {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
-        :ok
-      else
-        {:error, _, _} ->
-          {:error, :unauthorized}
-        {false, _, _} ->
-          ETS.delete_all_objects(@cache)
-          case retry(token) do
-            :ok -> :ok
-            _ -> {:error, :unauthorized}
-          end
-        error -> error
+    with :ok <- validate_signature(body, token),
+         true <- is_token_valid?(token) do
+      :ok
+    else
+      false ->
+        {:error, :unauthorized}
+
+      error ->
+        error
     end
   end
+
   defp validate_(:error, _), do: {:error, :request_failed}
 
   defp retry_validate(body, token) do
-      with {:ok, kid} <- peek_header(token),
-        [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
-        {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
-          :ok
-        else
-          _ ->
-            {:error, :unauthorized}
-      end
+    with {:ok, kid} <- peek_header(token),
+         [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
+         {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
+      :ok
+    else
+      _ ->
+        {:error, :unauthorized}
+    end
   end
+
   defp retry_validate(:error, _), do: {:error, :request_failed}
+
+  defp validate_signature(body, token) do
+    with {:ok, kid} <- peek_header(token),
+         [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
+         {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
+      :ok
+    else
+      {:error, _, _} ->
+        {:error, :unauthorized}
+
+      {false, _, _} ->
+        ETS.delete_all_objects(@cache)
+
+        case retry(token) do
+          :ok -> :ok
+          _ -> {:error, :unauthorized}
+        end
+
+      error ->
+        error
+    end
+  end
+
+  defp is_token_valid?(
+         token,
+         expiration_validator \\ Application.get_env(:poker_ex, :expiration_validator)
+       ) do
+    claims = Guardian.peek_claims(token)
+    {:ok, unix_time} = DateTime.from_unix(claims["exp"])
+
+    claims["aud"] == @client_id && String.contains?(claims["iss"], @google_issuer) &&
+      :lt == expiration_validator.(DateTime.utc_now(), unix_time)
+  end
 
   defp peek_header(token) do
     try do
@@ -83,6 +117,7 @@ defmodule PokerEx.Auth.Google do
         {:ok, body} = Jason.decode(response.body)
         ETS.insert(@cache, {@certs_key, body, set_cache_until(response.headers["cache-control"])})
         body
+
       false ->
         :error
     end

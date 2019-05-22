@@ -3,6 +3,16 @@ defmodule PokerEx.Auth.GoogleTest do
   alias PokerEx.Auth.Google
   @token System.get_env("GOOGLE_TOKEN")
 
+  setup do
+    Application.put_env(:poker_ex, :expiration_validator, &expiration_validator/2)
+
+    on_exit(fn ->
+      Application.put_env(:poker_ex, :expiration_validator, &DateTime.compare/2)
+    end)
+
+    :ok
+  end
+
   describe "validate/1" do
     test "returns ok if the token signature can be verified" do
       assert :ok = Google.validate(@token)
@@ -17,10 +27,23 @@ defmodule PokerEx.Auth.GoogleTest do
       assert {:error, :unauthorized} = Google.validate("some_fake_token")
     end
 
-    test "retries if that cache value has expired" do
+    test "retries if the cache value has expired" do
       {:ok, body} = Jason.decode(Google.FakeCerts.get().body)
-      :ets.insert(:cache, {:google_certs, body, DateTime.add(DateTime.utc_now(), -(24 * 60 * 60), :second)})
+
+      :ets.insert(
+        :cache,
+        {:google_certs, body, DateTime.add(DateTime.utc_now(), -(24 * 60 * 60), :second)}
+      )
+
       assert :ok = Google.validate(@token)
     end
+
+    test "returns unauthorized error if the token is expired" do
+      Application.put_env(:poker_ex, :expiration_validator, &DateTime.compare/2)
+
+      assert {:error, :unauthorized} = Google.validate(@token)
+    end
   end
+
+  defp expiration_validator(_, _), do: :lt
 end

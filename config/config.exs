@@ -8,6 +8,7 @@ use Mix.Config
 Application.put_env(PokerEx, :initial_room_count, 1000)
 Application.put_env(PokerEx, :initial_game_count, 1000)
 config :poker_ex, :google_certs_module, PokerEx.Auth.Google.Certs
+config :poker_ex, :expiration_validator, &DateTime.compare/2
 # General application configuration
 config :poker_ex, ecto_repos: [PokerEx.Repo]
 
