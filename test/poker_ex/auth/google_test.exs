@@ -16,5 +16,11 @@ defmodule PokerEx.Auth.GoogleTest do
     test "returns unauthorized error if the an invalid token is given" do
       assert {:error, :unauthorized} = Google.validate("some_fake_token")
     end
+
+    test "retries if that cache value has expired" do
+      {:ok, body} = Jason.decode(Google.FakeCerts.get().body)
+      :ets.insert(:cache, {:google_certs, body, DateTime.add(DateTime.utc_now(), -(24 * 60 * 60), :second)})
+      assert :ok = Google.validate(@token)
+    end
   end
 end
