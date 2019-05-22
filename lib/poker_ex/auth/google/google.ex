@@ -30,7 +30,7 @@ defmodule PokerEx.Auth.Google do
   end
 
   defp should_validate?(datetime) do
-    case DateTime.compare(DateTime.add(datetime, 12 * 60 * 60, :second), DateTime.utc_now()) do
+    case DateTime.compare(datetime, DateTime.utc_now()) do
       :gt -> false
       _ -> true
     end
