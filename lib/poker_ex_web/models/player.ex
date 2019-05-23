@@ -12,6 +12,7 @@ defmodule PokerEx.Player do
     field(:password_hash, :string)
     field(:blurb, :string)
     field(:facebook_id, :string)
+    field(:google_id, :string)
     field(:jwt, :string, virtual: true)
     field(:reset_token, :string)
     has_many(:invitations, PokerEx.Invitation, foreign_key: :sender_id)
@@ -146,11 +147,53 @@ defmodule PokerEx.Player do
     end
   end
 
+  @spec google_login_or_create(%{email: String.t() | nil, google_id: String.t()}) ::
+          Player.t() | :error | :unauthorized
+  def google_login_or_create(%{email: email, google_id: google_id}) do
+    case PokerEx.Repo.get_by(Player, email: unless(is_nil(email), do: email, else: "")) do
+      %Player{} = player ->
+        case player.google_id do
+          nil ->
+            {:ok, player} =
+              Ecto.Changeset.change(player, %{google_id: google_id}) |> Repo.update()
+
+            player
+
+          _ ->
+            if player.google_id == google_id, do: player, else: :unauthorized
+        end
+
+      _ ->
+        case PokerEx.Repo.get_by(Player, google_id: google_id) do
+          %Player{} = player ->
+            player
+
+          _ ->
+            Player.create_oauth_user(%{
+              name: email,
+              provider_data: [google_id: google_id],
+              email: email
+            })
+        end
+    end
+  end
+
   @spec create_oauth_user(%{name: String.t(), provider_data: list()}) :: Player.t() | :error
-  def create_oauth_user(%{name: name, provider_data: provider_data}) do
+  def create_oauth_user(%{name: name, provider_data: provider_data} = player_data) do
     case provider_data do
       [facebook_id: id] ->
         change(%Player{}, %{name: name, blurb: "", chips: @default_chips, facebook_id: id})
+        |> unique_constraint(:name)
+        |> Repo.insert()
+
+      [google_id: google_id] ->
+        change(%Player{}, %{
+          name: name,
+          blurb: "",
+          chips: @default_chips,
+          google_id: google_id,
+          email: player_data[:email]
+        })
         |> unique_constraint(:name)
         |> Repo.insert()
     end
@@ -172,6 +215,11 @@ defmodule PokerEx.Player do
       %{digits: number} -> "#{name} #{String.to_integer(number) + 1}"
       _ -> "#{name} #{1}"
     end
+  end
+
+  def assign_unique_name(nil) do
+    Base.encode16(:crypto.strong_rand_bytes(8))
+    |> assign_unique_name()
   end
 
   @spec initiate_password_reset(String.t()) :: :ok | :error

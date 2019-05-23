@@ -43,27 +43,22 @@ defmodule PokerExWeb.AuthController do
         %PokerEx.Player{} = player ->
           api_sign_in(conn, player.name, %{facebook_id: id}, &Auth.oauth_login/4)
 
-        :error ->
-          unauthorized(conn)
-
-        :unauthorized ->
+        _ ->
           unauthorized(conn)
       end
 
     conn
   end
 
-  def oauth_handler(conn, %{"email" => _email, "google_token_id" => token} = provider_data) do
+  def oauth_handler(conn, %{"email" => email, "google_token_id" => token}) do
     with {:ok, google_id} <- PokerEx.Auth.Google.validate(token) do
-      IO.puts("Inside google oauth handler")
-      conn
-      # case PokerEx.Player.google_login_or_create(MapUtils.to_atom_keys(provider_data)) do
-      #   %PokerEx.Player{} = player ->
-      #     api_sign_in(conn, player.name, %{google_id: player.google_id}, &Auth.oauth_login/4)
+      case PokerEx.Player.google_login_or_create(%{email: email, google_id: google_id}) do
+        %PokerEx.Player{} = player ->
+          api_sign_in(conn, player.name, %{google_id: player.google_id}, &Auth.oauth_login/4)
 
-      #   _ ->
-      #     unauthorized(conn)
-      # end
+        _ ->
+          unauthorized(conn)
+      end
     else
       {:error, :request_failed} ->
         conn |> put_status(500) |> json(%{message: "Your request failed. Please try again."})

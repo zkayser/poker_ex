@@ -183,4 +183,36 @@ defmodule PokerEx.PlayerTest do
       assert is_binary(result.password_hash)
     end
   end
+
+  describe "google_login_or_create/1" do
+    test "returns an existing player with a google id and matching name", _ do
+      {id, email} = {Base.encode16(:crypto.strong_rand_bytes(8)), "person guy"}
+      {:ok, player} = Repo.insert(%Player{google_id: id, name: email, email: email})
+      result = Player.google_login_or_create(%{google_id: id, email: email})
+      assert player == result
+    end
+
+    test "returns unauthorized if the google id passed in as a parameter does not match the player's recorded google id" do
+      {id, email} =
+        {Base.encode16(:crypto.strong_rand_bytes(8)), Base.encode16(:crypto.strong_rand_bytes(8))}
+
+      {:ok, player} = Repo.insert(%Player{google_id: id, name: email, email: email})
+
+      assert :unauthorized =
+               Player.google_login_or_create(%{
+                 google_id: Base.encode16(:crypto.strong_rand_bytes(8)),
+                 email: email
+               })
+    end
+
+    test "google_login_or_create/1 creates a new player if no player with that FB id exists", _ do
+      {id, email} =
+        {Base.encode16(:crypto.strong_rand_bytes(8)), Base.encode16(:crypto.strong_rand_bytes(8))}
+
+      result = Player.google_login_or_create(%{google_id: id, name: email, email: email})
+      assert result.name == "#{email} #{1}" || result.name == email
+      assert result.google_id == id
+      assert result.chips == 1000
+    end
+  end
 end
