@@ -44,28 +44,39 @@ defmodule PokerExWeb.AuthController do
           api_sign_in(conn, player.name, %{facebook_id: id}, &Auth.oauth_login/4)
 
         :error ->
-          conn |> put_status(:unauthorized) |> json(%{message: @unauthorized_message})
+          unauthorized(conn)
 
         :unauthorized ->
-          conn |> put_status(:unauthorized) |> json(%{message: @unauthorized_message})
+          unauthorized(conn)
       end
 
     conn
   end
 
   def oauth_handler(conn, %{"email" => _email, "google_token_id" => token} = provider_data) do
-    Logger.debug("[OAUTH_HANDLER] Called with provider_data: #{inspect(provider_data)}")
-    # HTTPotion.get(@google_certs_endpoint)
-    # Call and cache Google's certs endpoint: https://www.googleapis.com/oauth2/v3/certs
-    # Gives a list of keys. Use the one with the matching kid (key ID) from the header.
-    # json = GoogleApi.Certs.get()
-    ## ==>  Get header kid
-    # kid = Guardian.peek_header(token)["kid"]
-    # key_json = Enum.filter(json["payload"], fn payload -> payload.kid == kid end)
-    # key = JOSE.JWK.from(key_json)
-    # {true, _, _} = JOSE.JWS.verify(key, token)
+    with {:ok, google_id} <- PokerEx.Auth.Google.validate(token) do
+      IO.puts("Inside google oauth handler")
+      conn
+      # case PokerEx.Player.google_login_or_create(MapUtils.to_atom_keys(provider_data)) do
+      #   %PokerEx.Player{} = player ->
+      #     api_sign_in(conn, player.name, %{google_id: player.google_id}, &Auth.oauth_login/4)
 
+      #   _ ->
+      #     unauthorized(conn)
+      # end
+    else
+      {:error, :request_failed} ->
+        conn |> put_status(500) |> json(%{message: "Your request failed. Please try again."})
+
+      _ ->
+        unauthorized(conn)
+    end
+  end
+
+  defp unauthorized(conn) do
     conn
+    |> put_status(:unauthorized)
+    |> json(%{message: @unauthorized_message})
   end
 
   defp login_and_redirect(%{conn: conn, message: message, player: player}) do

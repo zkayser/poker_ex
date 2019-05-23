@@ -15,7 +15,8 @@ defmodule PokerEx.Auth.GoogleTest do
 
   describe "validate/1" do
     test "returns ok if the token signature can be verified" do
-      assert :ok = Google.validate(@token)
+      assert {:ok, google_id} = Google.validate(@token)
+      assert is_binary(google_id)
     end
 
     test "returns unauthorized error if the token signature cannot be verified" do
@@ -35,7 +36,8 @@ defmodule PokerEx.Auth.GoogleTest do
         {:google_certs, body, DateTime.add(DateTime.utc_now(), -(24 * 60 * 60), :second)}
       )
 
-      assert :ok = Google.validate(@token)
+      assert {:ok, google_id} = Google.validate(@token)
+      assert is_binary(google_id)
     end
 
     test "returns unauthorized error if the token is expired" do

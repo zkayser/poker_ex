@@ -7,7 +7,8 @@ defmodule PokerEx.Auth.Google do
   @google_issuer "accounts.google.com"
   @max_age_regex ~r/max-age=(\d+)/
 
-  @type result :: :ok | {:error, :request_failed | :unauthorized}
+  @type google_id :: String.t()
+  @type result :: {:ok, google_id} | {:error, :request_failed | :unauthorized}
   @type json_web_token :: String.t()
 
   @spec validate(json_web_token) :: result
@@ -42,7 +43,7 @@ defmodule PokerEx.Auth.Google do
   defp validate_(body, token) do
     with :ok <- validate_signature(body, token),
          true <- is_token_valid?(token) do
-      :ok
+      {:ok, Guardian.peek_claims(token)["sub"]}
     else
       false ->
         {:error, :unauthorized}
@@ -58,7 +59,7 @@ defmodule PokerEx.Auth.Google do
     with {:ok, kid} <- peek_header(token),
          [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
          {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
-      :ok
+      {:ok, Guardian.peek_claims(token)["sub"]}
     else
       _ ->
         {:error, :unauthorized}
