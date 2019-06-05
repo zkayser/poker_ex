@@ -37,7 +37,7 @@ defmodule PokerExWeb.AuthController do
     end
   end
 
-  def oauth_handler(conn, %{"name" => name, "facebook_id" => id} = provider_data) do
+  def oauth_handler(conn, %{"name" => _name, "facebook_id" => id} = provider_data) do
     conn =
       case PokerEx.Player.fb_login_or_create(MapUtils.to_atom_keys(provider_data)) do
         %PokerEx.Player{} = player ->
@@ -78,7 +78,7 @@ defmodule PokerExWeb.AuthController do
     conn
     |> PokerExWeb.Auth.login(player)
     |> put_flash(:info, message)
-    |> redirect(to: player_path(conn, :show, player.id))
+    |> redirect(to: Routes.player_path(conn, :show, player.id))
   end
 
   defp player_params(user_info) do

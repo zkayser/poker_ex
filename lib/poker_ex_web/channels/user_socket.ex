@@ -15,21 +15,6 @@ defmodule PokerExWeb.UserSocket do
   channel("online:lobby", PokerExWeb.OnlineChannel)
   channel("online:search", PokerExWeb.OnlineChannel)
 
-  ## Transports
-  transport(
-    :websocket,
-    Phoenix.Transports.WebSocket,
-    timeout: 45_000,
-    check_origin: [
-      "http://localhost:8080",
-      "http://localhost:8081",
-      "https://ancient-forest-15148.herokuapp.com/",
-      "https://poker-ex.herokuapp.com/"
-    ]
-  )
-
-  # transport :longpoll, Phoenix.Transports.LongPoll
-
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
   # verification, you can put default assigns into
@@ -57,7 +42,7 @@ defmodule PokerExWeb.UserSocket do
   end
 
   def connect(%{"guardian_token" => token}, socket) do
-    case Guardian.decode_and_verify(token) do
+    case Guardian.decode_and_verify(PokerEx.Auth.Guardian, token) do
       {:ok, claims} ->
         Logger.debug("Succesfully authenticated")
 

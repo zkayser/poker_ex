@@ -196,7 +196,7 @@ defmodule PokerEx.PlayerTest do
       {id, email} =
         {Base.encode16(:crypto.strong_rand_bytes(8)), Base.encode16(:crypto.strong_rand_bytes(8))}
 
-      {:ok, player} = Repo.insert(%Player{google_id: id, name: email, email: email})
+      {:ok, _player} = Repo.insert(%Player{google_id: id, name: email, email: email})
 
       assert :unauthorized =
                Player.google_login_or_create(%{

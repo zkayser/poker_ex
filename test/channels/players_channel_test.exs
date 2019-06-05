@@ -111,7 +111,7 @@ defmodule PokerEx.PlayersChannelTest do
         :non_existent_player -> "non_existent_player"
       end
 
-    token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(PokerExWeb.UserSocket), "user socket", player.id)
 
     {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 

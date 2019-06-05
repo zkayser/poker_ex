@@ -48,8 +48,11 @@ defmodule PokerExWeb.PrivateRoomChannel do
     invitees = Enum.map(invitees, &Player.by_name(&1))
 
     case PrivateRoom.create(title, owner, invitees) do
-      {:ok, %PrivateRoom{}} -> {:reply, :ok, socket}
-      {:error, errors} -> {:stop, :shutdown, {:error, %{errors: format(errors)}}, socket}
+      {:ok, %PrivateRoom{}} ->
+        {:reply, :ok, socket}
+
+      {:error, errors} ->
+        {:reply, {:error, %{errors: format(errors)}}, socket}
     end
   end
 
@@ -106,7 +109,7 @@ defmodule PokerExWeb.PrivateRoomChannel do
         "invited_rooms" ->
           page_struct = get_paginated_rooms(player, page_num, :invited_rooms)
 
-          result = %{
+          %{
             invited_rooms: %{
               rooms: page_struct.entries,
               page: page_num,

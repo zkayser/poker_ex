@@ -36,7 +36,7 @@ defmodule PokerExWeb do
 
       import PokerExWeb.Support.ApiHelpers
 
-      import PokerExWeb.Router.Helpers
+      alias PokerExWeb.Router.Helpers, as: Routes
       import PokerExWeb.Gettext
       import PokerExWeb.Auth, only: [authenticate_player: 2]
     end

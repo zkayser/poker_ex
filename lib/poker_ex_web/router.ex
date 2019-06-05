@@ -23,6 +23,14 @@ defmodule PokerExWeb.Router do
     plug(Guardian.Plug.LoadResource)
   end
 
+  pipeline :auth do
+    plug PokerEx.Auth.Pipeline
+  end
+
+  pipeline :ensure_authenticated do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
   scope "/auth", PokerExWeb do
     pipe_through([:browser, :csrf])
 
@@ -63,7 +71,6 @@ defmodule PokerExWeb.Router do
     get("/redirect", FacebookController, :fb_redirect)
   end
 
-  # Other scopes may use custom stacks.
   scope "/api", PokerExWeb do
     pipe_through(:api)
 

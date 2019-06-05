@@ -1,8 +1,8 @@
 defmodule PokerEx.PhaseManagerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
-  alias PokerEx.GameEngine.{PhaseManager}
+  alias PokerEx.GameEngine.PhaseManager
 
   describe "check_phase_change/3" do
     test "sets phase to :pre_flop when a second player joins" do

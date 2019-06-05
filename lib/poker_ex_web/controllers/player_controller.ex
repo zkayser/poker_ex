@@ -49,12 +49,12 @@ defmodule PokerExWeb.PlayerController do
         conn
         |> PokerExWeb.Auth.login(player)
         |> put_flash(:info, "#{player.name} created!")
-        |> redirect(to: player_path(conn, :show, player.id))
+        |> redirect(to: Routes.player_path(conn, :show, player.id))
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Oops, something went wrong! Please check the errors below.")
-        |> redirect(to: player_path(conn, :new))
+        |> redirect(to: Routes.player_path(conn, :new))
     end
   end
 
@@ -66,7 +66,7 @@ defmodule PokerExWeb.PlayerController do
       {:ok, player} ->
         conn
         |> put_flash(:info, "Successfully updated")
-        |> redirect(to: player_path(conn, :show, player.id))
+        |> redirect(to: Routes.player_path(conn, :show, player.id))
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset, player: player)
@@ -94,11 +94,11 @@ defmodule PokerExWeb.PlayerController do
     if conn.assigns.current_player do
       conn
       |> put_flash(:error, "Access restricted")
-      |> redirect(to: player_path(conn, :show, conn.assigns.current_player.id))
+      |> redirect(to: Routes.player_path(conn, :show, conn.assigns.current_player.id))
     else
       conn
       |> put_flash(:error, "You must be logged in")
-      |> redirect(to: page_path(conn, :index))
+      |> redirect(to: Routes.page_path(conn, :index))
     end
   end
 

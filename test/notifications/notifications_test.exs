@@ -51,7 +51,7 @@ defmodule PokerEx.NotificationsTest do
   defp create_player_and_connect do
     player = insert_user()
 
-    token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(PokerExWeb.UserSocket), "user socket", player.id)
 
     {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 

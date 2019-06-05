@@ -84,7 +84,7 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
-  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() :: error()
+  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | error()
   def check(%{player_tracker: tracker}, name) do
     case tracker.active do
       [player | _] when player == name ->

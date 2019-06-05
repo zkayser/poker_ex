@@ -26,6 +26,9 @@ config :logger, :console,
   backends: [:console],
   compile_time_purge_level: :warn
 
+# Use Jason for the JSON parsing library in Phoenix
+config :phoenix, :json_library, Jason
+
 # Bamboo adapter configuration now lives in `test.exs`, `dev.exs`, and `prod.exs`
 # since the configuration is different for each environment.
 
@@ -46,6 +49,11 @@ config :guardian, Guardian,
   issuer: "PokerEx",
   ttl: {30, :days},
   serializer: PokerEx.GuardianSerializer
+
+# Guardian config post upgrade to Guardian 1.2:
+config :poker_ex, PokerEx.Auth.Guardian,
+  issuer: "poker_ex",
+  secret_key: System.get_env("SB_SECRET")
 
 # Configure Hound's webdriver
 config :hound, driver: "phantomjs"
