@@ -159,7 +159,7 @@ defmodule PokerEx.PrivateRoom do
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, ~w(title))
+    |> cast(params, [:title])
     |> validate_length(:title, min: 1, max: 16)
     |> unique_constraint(:title, name: :private_rooms_title_index)
     |> unique_constraint(:title, name: :private_games_title_index)

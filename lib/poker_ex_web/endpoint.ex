@@ -1,7 +1,17 @@
 defmodule PokerExWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :poker_ex
 
-  socket("/socket", PokerExWeb.UserSocket)
+  socket("/socket", PokerExWeb.UserSocket,
+    websocket: [
+      timeout: 45_000,
+      check_origin: [
+        "http://localhost:8080",
+        "http://localhost:8081",
+        "https://ancient-forest-15148.herokuapp.com/",
+        "https://poker-ex.herokuapp.com/"
+      ]
+    ]
+  )
 
   # Enable concurrent testing
   if Application.get_env(:poker_ex, :sql_sandbox) do

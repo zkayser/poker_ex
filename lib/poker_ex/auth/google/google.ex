@@ -40,10 +40,12 @@ defmodule PokerEx.Auth.Google do
     end
   end
 
+  defp validate_(:error, _), do: {:error, :request_failed}
+
   defp validate_(body, token) do
     with :ok <- validate_signature(body, token),
          true <- is_token_valid?(token) do
-      {:ok, Guardian.peek_claims(token)["sub"]}
+      {:ok, Guardian.peek(PokerEx.Auth.Guardian, token)[:claims]["sub"]}
     else
       false ->
         {:error, :unauthorized}
@@ -53,20 +55,17 @@ defmodule PokerEx.Auth.Google do
     end
   end
 
-  defp validate_(:error, _), do: {:error, :request_failed}
+  defp retry_validate(:error, _), do: {:error, :request_failed}
 
   defp retry_validate(body, token) do
     with {:ok, kid} <- peek_header(token),
          [key_map] <- Enum.filter(body["keys"], fn key -> key["kid"] == kid end),
          {true, _, _} <- JOSE.JWK.from(key_map) |> JOSE.JWS.verify(token) do
-      {:ok, Guardian.peek_claims(token)["sub"]}
+      {:ok, Guardian.peek(PokerEx.Auth.Guardian, token)[:claims]["sub"]}
     else
-      _ ->
-        {:error, :unauthorized}
+      _ -> {:error, :unauthorized}
     end
   end
-
-  defp retry_validate(:error, _), do: {:error, :request_failed}
 
   defp validate_signature(body, token) do
     with {:ok, kid} <- peek_header(token),
@@ -81,8 +80,11 @@ defmodule PokerEx.Auth.Google do
         ETS.delete_all_objects(@cache)
 
         case retry(token) do
-          :ok -> :ok
-          _ -> {:error, :unauthorized}
+          :ok ->
+            :ok
+
+          _ ->
+            {:error, :unauthorized}
         end
 
       error ->
@@ -94,7 +96,7 @@ defmodule PokerEx.Auth.Google do
          token,
          expiration_validator \\ Application.get_env(:poker_ex, :expiration_validator)
        ) do
-    claims = Guardian.peek_claims(token)
+    claims = Guardian.peek(PokerEx.Auth.Guardian, token)[:claims]
     {:ok, unix_time} = DateTime.from_unix(claims["exp"])
 
     claims["aud"] == @client_id && String.contains?(claims["iss"], @google_issuer) &&
@@ -103,7 +105,7 @@ defmodule PokerEx.Auth.Google do
 
   defp peek_header(token) do
     try do
-      {:ok, Guardian.peek_header(token)["kid"]}
+      {:ok, Guardian.peek(PokerEx.Auth.Guardian, token)[:headers]["kid"]}
     rescue
       _ -> {:error, :unauthorized}
     end

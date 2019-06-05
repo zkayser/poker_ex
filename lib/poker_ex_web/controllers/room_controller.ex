@@ -20,12 +20,12 @@ defmodule PokerExWeb.RoomController do
       true ->
         conn
         |> put_flash(:error, "A room with the name #{name} already exists")
-        |> redirect(to: player_path(conn, :show, conn.current_player.id))
+        |> redirect(to: Routes.player_path(conn, :show, conn.current_player.id))
 
       _ ->
         conn
         |> put_flash(:info, "Room #{name} created!")
-        |> redirect(to: room_path(conn, :show, name))
+        |> redirect(to: Routes.room_path(conn, :show, name))
     end
   end
 

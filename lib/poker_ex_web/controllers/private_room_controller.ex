@@ -29,14 +29,14 @@ defmodule PokerExWeb.PrivateRoomController do
     unless player in room.invitees || player == room.owner || player in room.participants do
       conn
       |> put_flash(:error, "Access restricted")
-      |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+      |> redirect(to: Routes.player_path(conn, :show, conn.assigns[:current_player]))
     end
   end
 
   defp do_show(conn, nil) do
     conn
     |> put_flash(:error, "An error occurred and that room no longer exists")
-    |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+    |> redirect(to: Routes.player_path(conn, :show, conn.assigns[:current_player]))
   end
 
   defp do_show(conn, room) do
@@ -55,7 +55,7 @@ defmodule PokerExWeb.PrivateRoomController do
 
         conn
         |> put_flash(:error, "An error occurred and that room no longer exists.")
-        |> redirect(to: player_path(conn, :show, conn.assigns[:current_player]))
+        |> redirect(to: Routes.player_path(conn, :show, conn.assigns[:current_player]))
     end
   end
 

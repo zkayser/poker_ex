@@ -2,7 +2,7 @@ defmodule PokerExWeb.Auth do
   import Plug.Conn
   import Phoenix.Controller
   import Comeonin.Bcrypt, only: [checkpw: 2, dummy_checkpw: 0]
-  alias PokerExWeb.Router.Helpers
+  alias PokerExWeb.Router.Helpers, as: Routes
   require Logger
 
   @valid_oauth_providers [:facebook_id, :google_id]
@@ -96,7 +96,7 @@ defmodule PokerExWeb.Auth do
     else
       conn
       |> put_flash(:error, "You must be logged in to access that page")
-      |> redirect(to: Helpers.page_path(conn, :index))
+      |> redirect(to: Routes.page_path(conn, :index))
       |> halt()
     end
   end

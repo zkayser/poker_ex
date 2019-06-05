@@ -120,6 +120,7 @@ defmodule PokerEx.GamesChannelTest do
   end
 
   test "a new update message is broadcast when a player's channel is disconnected", context do
+    Process.unlink(context.socket.channel_pid)
     {_, _, _, _} = create_player_and_connect(context.title)
 
     # Since a :skip_update_message is returned if there are only two players
@@ -143,10 +144,8 @@ defmodule PokerEx.GamesChannelTest do
     {socket, _, _, _} = create_player_and_connect(context.title)
 
     assert length(get_game_state(context).seating.arrangement) == 2
-
     leave(socket)
 
-    Process.sleep(100)
     assert_broadcast("clear_ui", %{})
   end
 
@@ -185,7 +184,7 @@ defmodule PokerEx.GamesChannelTest do
   defp create_player_and_connect(title) do
     player = insert_user()
 
-    token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(PokerExWeb.UserSocket), "user socket", player.id)
 
     {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 

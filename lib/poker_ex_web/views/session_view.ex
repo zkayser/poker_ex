@@ -2,7 +2,7 @@ defmodule PokerExWeb.SessionView do
   use PokerExWeb, :view
 
   def render("login.json", %{jwt: jwt}) do
-    {:ok, %{"aud" => user}} = Guardian.decode_and_verify(jwt)
+    {:ok, %{"sub" => user}} = Guardian.decode_and_verify(PokerEx.Auth.Guardian, jwt)
     player = PokerEx.Repo.get(PokerEx.Player, getId(user))
 
     %{

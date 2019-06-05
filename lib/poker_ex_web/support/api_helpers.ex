@@ -20,15 +20,16 @@ defmodule PokerExWeb.Support.ApiHelpers do
   @spec api_sign_in(%Plug.Conn{}, String.t(), credentials, login_function) :: %Plug.Conn{}
   def api_sign_in(conn, username, pass_or_oauth, login \\ @default_login_method) do
     with {:ok, conn} <- login.(conn, username, pass_or_oauth, repo: Repo) do
-      new_conn = Guardian.Plug.api_sign_in(conn, conn.assigns[:current_player])
+      new_conn = Guardian.Plug.sign_in(conn, PokerEx.Auth.Guardian, conn.assigns[:current_player])
       jwt = Guardian.Plug.current_token(new_conn)
-      {:ok, claims} = Guardian.Plug.claims(new_conn)
+      claims = Guardian.Plug.current_claims(new_conn)
       expiration = Map.get(claims, "exp")
 
       new_conn
       |> put_resp_header("authorization", "Bearer #{jwt}")
       |> put_resp_header("x-expires", "#{expiration}")
-      |> render(PokerExWeb.SessionView, "login.json", jwt: jwt)
+      |> put_view(PokerExWeb.SessionView)
+      |> render("login.json", jwt: jwt)
     else
       _ -> conn |> put_status(:unauthorized) |> json(%{message: @unauthorized_message})
     end

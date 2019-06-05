@@ -15,6 +15,6 @@ defmodule PokerExWeb.InvitationController do
 
     conn
     |> put_flash(:info, "Message sent")
-    |> redirect(to: player_path(conn, :show, conn.assigns.current_player.id))
+    |> redirect(to: Routes.player_path(conn, :show, conn.assigns.current_player.id))
   end
 end

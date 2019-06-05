@@ -1,5 +1,5 @@
 defmodule PokerExWeb.PrivateRoomChannelTest do
-  use PokerExWeb.ChannelCase
+  use PokerExWeb.ChannelCase, async: false
   import PokerEx.TestHelpers
   alias PokerExWeb.PrivateRoomChannel
   alias PokerEx.PrivateRoom
@@ -110,7 +110,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
         "invitees" => invitees
       })
 
-    assert_reply(ref, :error)
+    assert_reply(ref, :error, %{errors: ["Title has already been taken"]})
   end
 
   test "`get_page` incoming messages triggers accurate responses with updated list data",
@@ -167,7 +167,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
       )
 
     name = player.name
-    token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(PokerExWeb.UserSocket), "user socket", player.id)
 
     {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 
@@ -181,7 +181,7 @@ defmodule PokerExWeb.PrivateRoomChannelTest do
 
   defp connect_other_player(%Player{} = player) do
     name = player.name
-    token = Phoenix.Token.sign(socket(), "user socket", player.id)
+    token = Phoenix.Token.sign(socket(PokerExWeb.UserSocket), "user socket", player.id)
 
     {:ok, socket} = connect(PokerExWeb.UserSocket, %{"token" => token})
 

@@ -1,5 +1,5 @@
 defmodule PokerEx.GameResetCoordinatorTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use PokerEx.EngineCase
   alias PokerEx.GameEngine.Impl, as: Engine
   alias PokerEx.GameEngine.{GameResetCoordinator, CardManager}

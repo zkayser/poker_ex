@@ -332,7 +332,7 @@ defmodule PokerEx.Player do
 
   def changeset(model, params \\ %{}) do
     model
-    |> cast(params, ~w(name first_name last_name email blurb), [])
+    |> cast(params, [:name, :first_name, :last_name, :email, :blurb], [])
     |> put_change(:chips, 1000)
     |> validate_length(:name, min: 1, max: 20)
     |> unique_constraint(:name)
@@ -348,7 +348,7 @@ defmodule PokerEx.Player do
   def registration_changeset(model, params \\ :empty) do
     model
     |> changeset(params)
-    |> cast(params, ~w(password), [])
+    |> cast(params, [:password], [])
     |> validate_length(:password, min: 6, max: 100)
     |> validate_required([:name, :email, :password])
     |> put_pass_hash()
@@ -357,12 +357,12 @@ defmodule PokerEx.Player do
   def facebook_reg_changeset(model, params) do
     model
     |> changeset(params)
-    |> cast(params, ~w(facebook_id), [])
+    |> cast(params, [:facebook_id], [])
   end
 
   def update_changeset(model, params \\ %{}) do
     model
-    |> cast(params, ~w(name first_name last_name email chips blurb))
+    |> cast(params, [:name, :first_name, :last_name, :email, :chips, :blurb])
     |> validate_chips_update(model.chips)
     |> validate_length(:name, min: 1, max: 20)
     |> validate_format(:email, @valid_email)
@@ -372,7 +372,7 @@ defmodule PokerEx.Player do
 
   def chip_changeset(model, %{"chips" => _chips} = params) do
     model
-    |> cast(params, ~w(chips), [])
+    |> cast(params, [:chips], [])
   end
 
   defp put_pass_hash(changeset) do

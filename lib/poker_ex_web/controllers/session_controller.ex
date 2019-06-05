@@ -12,7 +12,9 @@ defmodule PokerExWeb.SessionController do
       {:ok, conn} ->
         conn
         |> put_flash(:info, "Welcome back!")
-        |> redirect(to: player_path(conn, :show, Repo.get_by(PokerEx.Player, name: player).id))
+        |> redirect(
+          to: Routes.player_path(conn, :show, Repo.get_by(PokerEx.Player, name: player).id)
+        )
 
       {:error, _reason, conn} ->
         conn
@@ -29,6 +31,6 @@ defmodule PokerExWeb.SessionController do
   def delete(conn, _) do
     conn
     |> PokerExWeb.Auth.logout()
-    |> redirect(to: page_path(conn, :index))
+    |> redirect(to: Routes.page_path(conn, :index))
   end
 end
