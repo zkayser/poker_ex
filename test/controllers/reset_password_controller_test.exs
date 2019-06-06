@@ -1,5 +1,5 @@
 defmodule PokerExWeb.ResetPasswordControllerTest do
-  use PokerExWeb.ConnCase, async: true
+  use PokerExWeb.ConnCase, async: false
   import PokerEx.TestHelpers
   alias PokerEx.Player
 

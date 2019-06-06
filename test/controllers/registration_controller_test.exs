@@ -1,5 +1,5 @@
 defmodule PokerExWeb.RegistrationControllerTest do
-  use PokerExWeb.ConnCase, async: true
+  use PokerExWeb.ConnCase, async: false
   use Bamboo.Test
 
   defp registration_params do

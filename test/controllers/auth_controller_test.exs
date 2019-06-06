@@ -1,5 +1,5 @@
 defmodule PokerExWeb.AuthControllerTest do
-  use PokerExWeb.ConnCase, async: true
+  use PokerExWeb.ConnCase, async: false
 
   @unauthorized_message "Authorization failed"
 
