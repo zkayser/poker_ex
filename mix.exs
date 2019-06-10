@@ -25,6 +25,7 @@ defmodule PokerEx.Mixfile do
         :phoenix,
         :phoenix_pubsub,
         :phoenix_html,
+        :ecto_sql,
         :cowboy,
         :logger,
         :gettext,

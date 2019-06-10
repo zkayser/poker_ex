@@ -47,7 +47,7 @@ defmodule PokerExWeb.UserSocket do
         Logger.debug("Succesfully authenticated")
 
         id =
-          Regex.named_captures(~r/:(?<id>\d+)/, claims["aud"])
+          Regex.named_captures(~r/:(?<id>\d+)/, claims["sub"])
           |> Map.get("id")
           |> String.to_integer()
 

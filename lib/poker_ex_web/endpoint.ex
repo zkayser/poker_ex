@@ -7,6 +7,7 @@ defmodule PokerExWeb.Endpoint do
       check_origin: [
         "http://localhost:8080",
         "http://localhost:8081",
+        "http://0.0.0.0:8081",
         "https://ancient-forest-15148.herokuapp.com/",
         "https://poker-ex.herokuapp.com/"
       ]
@@ -43,6 +44,7 @@ defmodule PokerExWeb.Endpoint do
   plug(CORSPlug,
     origin: [
       "http://localhost:8081",
+      "http://0.0.0.0:8081",
       "http://phoenix-experiment-zkayser.c9users.io:8081",
       "https://poker-ex.herokuapp.com"
     ]

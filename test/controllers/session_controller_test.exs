@@ -1,5 +1,5 @@
 defmodule PokerExWeb.SessionControllerTest do
-  use PokerExWeb.ConnCase, async: true
+  use PokerExWeb.ConnCase, async: false
 
   setup do
     player = insert_user(username: "Testuser")

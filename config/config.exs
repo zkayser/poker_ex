@@ -3,7 +3,7 @@
 #
 # This configuration file is loaded before any dependency and
 # is restricted to this project.
-use Mix.Config
+import Config
 
 Application.put_env(PokerEx, :initial_room_count, 1000)
 Application.put_env(PokerEx, :initial_game_count, 1000)
