@@ -1,24 +1,14 @@
 # PokerEx
 
-![Travis build](https://travis-ci.org/zkayser/poker_ex.svg?branch=master
-"Build Status")
+[![CircleCI](https://circleci.com/gh/zkayser/poker_ex.svg?style=svg)](https://circleci.com/gh/zkayser/poker_ex)
 
-PokerEx is a basic Texas Hold 'Em system implemented in Elixir that takes
-advantage of the Phoenix Framework and Phoenix Channel module to deliver
-real-time features. 
+PokerEx is a Texas Hold 'Em game engine with a Phoenix API layer over top of it.
 
-The system has a dependency on the Elixir Registry module which requires 
-Elixir 1.4.0 or later, as well as a dependency on Erlang's :gen_statem 
-module which will require Erlang 19.1 or later to work properly.
+To run the project, fetch your dependencies and run the server:
 
-If you are cloning this repo, note that the app relies on the Bamboo
-library for sending emails through Sendgrid. If you want to use the same
-setup, you will need to get an API key from Sendgrid and setup
-a SENDGRID_API_KEY environment variable or the system will not start. The
-configuration can be found in the /config/config.exs file. Feel free to
-remove the dependency or use another service as well. 
+```bash
+mix deps.get
+mix phx.server
+```
 
-**UPDATE:** The app now uses Ueberauth with the Ueberauth Facebook strategy
-to provide an extra option for registration and login. The config for ueberauth
-specifies three environment variables: FACEBOOK_APP_ID, FACEBOOK_APP_SECRET, and
-FACEBOOK_REDIRECT_URI
+The dev server is set to run on port 8080, but you can configure this in the `config/dev.exs`.
