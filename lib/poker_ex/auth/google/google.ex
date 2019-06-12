@@ -94,7 +94,8 @@ defmodule PokerEx.Auth.Google do
 
   defp is_token_valid?(
          token,
-         expiration_validator \\ Application.get_env(:poker_ex, :expiration_validator)
+         expiration_validator \\ Application.get_env(:poker_ex, :expiration_validator) ||
+           (&DateTime.compare/2)
        ) do
     claims = Guardian.peek(PokerEx.Auth.Guardian, token)[:claims]
     {:ok, unix_time} = DateTime.from_unix(claims["exp"])

@@ -1,16 +1,11 @@
-# This file is responsible for configuring your application
-# and its dependencies with the aid of the Mix.Config module.
-#
-# This configuration file is loaded before any dependency and
-# is restricted to this project.
 import Config
 
-Application.put_env(PokerEx, :initial_room_count, 1000)
-Application.put_env(PokerEx, :initial_game_count, 1000)
-config :poker_ex, :google_certs_module, PokerEx.Auth.Google.Certs
-config :poker_ex, :expiration_validator, &DateTime.compare/2
-# General application configuration
-config :poker_ex, ecto_repos: [PokerEx.Repo]
+config :poker_ex,
+  initial_room_count: 1000,
+  initial_game_count: 1000,
+  google_certs_module: PokerEx.Auth.Google.Certs,
+  deliver_email: true,
+  ecto_repos: [PokerEx.Repo]
 
 # Configures the endpoint
 config :poker_ex, PokerExWeb.Endpoint,

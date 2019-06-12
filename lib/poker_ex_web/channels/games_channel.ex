@@ -158,7 +158,7 @@ defmodule PokerExWeb.GamesChannel do
     case socket.assigns.type do
       "private" ->
         # Should only hit the database in prod
-        if Application.get_env(PokerEx, :should_update_after_poker_action) do
+        if Application.get_env(:poker_ex, :should_update_after_poker_action) do
           PrivateRoom.get_game_and_store_state(
             game.game_id,
             game

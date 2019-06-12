@@ -2,7 +2,7 @@ defmodule PokerEx.GameEngine.GamesServerTest do
   use ExUnit.Case
   alias PokerEx.GameEngine.GamesServer
 
-  @initial_game_count Application.get_env(PokerEx, :initial_game_count)
+  @initial_game_count Application.get_env(:poker_ex, :initial_game_count)
 
   test "it exists" do
     assert Process.whereis(GamesServer) |> Process.alive?()
