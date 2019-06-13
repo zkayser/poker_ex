@@ -18,7 +18,7 @@ defmodule PokerExWeb.RegistrationController do
 
     with {:ok, player} <- PokerEx.Repo.insert(changeset) do
       # Emails are broken on the live site right now because credentials...
-      unless Mix.env() == :prod do
+      if Application.get_env(:poker_ex, :deliver_email) do
         PokerEx.Emails.welcome_email(player) |> PokerEx.Mailer.deliver_later()
       end
 

@@ -1,7 +1,7 @@
 defmodule PokerEx.Application do
   use Application
 
-  @initial_game_count Application.get_env(PokerEx, :initial_game_count)
+  @initial_game_count Application.get_env(:poker_ex, :initial_game_count)
   # See http://elixir-lang.org/docs/stable/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do

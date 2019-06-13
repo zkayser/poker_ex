@@ -26,6 +26,10 @@ defmodule PokerEx.Mixfile do
         :phoenix_pubsub,
         :phoenix_html,
         :ecto_sql,
+        :jason,
+        :plug_cowboy,
+        :cors_plug,
+        :guardian,
         :cowboy,
         :logger,
         :gettext,
@@ -35,6 +39,7 @@ defmodule PokerEx.Mixfile do
         :bamboo,
         :scrivener,
         :scrivener_ecto,
+        :scrivener_list,
         :oauth,
         :ueberauth_facebook,
         :httpotion
