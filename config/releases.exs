@@ -6,7 +6,8 @@ config :poker_ex,
 config :poker_ex, PokerExWeb.Endpoint,
   load_from_system_env: true,
   http: [port: {:system, "PORT"}],
-  url: [host: System.get_env("APP_NAME") <> ".gigalixirapp.com", port: 443],
+  url: [host: System.fetch_env!("POKER_EX_DOMAIN"), port: 443],
+  code_reloader: false,
   force_ssl: [rewrite_on: [:x_forwarded_proto]],
   secret_key_base: System.fetch_env!("SECRET_KEY_BASE"),
   server: true,
@@ -15,8 +16,12 @@ config :poker_ex, PokerExWeb.Endpoint,
 # Ecto Config
 config :poker_ex, PokerEx.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: System.get_env("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  username: System.get_env("POKER_EX_PROD_USER"),
+  password: System.get_env("POKER_EX_PROD_PASSWORD"),
+  database: "poker_ex_prod",
+  hostname: System.get_env("POKER_EX_HOSTNAME"),
+  template: "template0",
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
   ssl: true
 
 # Note: The domain key here is a placeholder
@@ -26,7 +31,7 @@ config :poker_ex, PokerEx.Repo,
 config :poker_ex, PokerEx.Mailer,
   adapter: Bamboo.MailgunAdapter,
   api_key: System.fetch_env!("MAILGUN_API_KEY"),
-  domain: "krex.gigalixirapp.com"
+  domain: System.fetch_env!("POKER_EX_DOMAIN")
 
 # Uberauth config for Facebook
 config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
