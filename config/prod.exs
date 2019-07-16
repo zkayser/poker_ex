@@ -16,7 +16,7 @@ import Config
 config :logger, level: :info
 
 config :poker_ex,
-  client_password_reset_endpoint: "https://krex.herokuapp.com/#/password-reset",
+  client_password_reset_endpoint: "https://#{System.get_env("POKER_EX_DOMAIN")}/#/password-reset",
   should_update_after_poker_action: true,
   deliver_email: false
 

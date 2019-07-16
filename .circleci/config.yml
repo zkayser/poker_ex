@@ -3,7 +3,7 @@ jobs:
   build:
     parallelism: 1
     docker:
-      - image: zkayser/elixir:1.9.0-rc.0
+      - image: elixir:1.9
         environment:
           MIX_ENV: test
       - image: circleci/postgres:10.1-alpine
@@ -45,6 +45,12 @@ jobs:
       - save_cache:
           key: v1-build-cache
           paths: "_build"
+
+      - run:
+          name: install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.3.0
 
       - run:
           name: Wait for DB
