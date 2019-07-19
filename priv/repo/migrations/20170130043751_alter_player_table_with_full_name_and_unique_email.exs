@@ -7,7 +7,7 @@ defmodule PokerEx.Repo.Migrations.AlterPlayerTableWithFullNameAndUniqueEmail do
       add :first_name, :string
       add :last_name, :string
     end
-    
+
     unique_index(:players, :email)
   end
 end
