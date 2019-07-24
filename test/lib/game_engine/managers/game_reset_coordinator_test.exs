@@ -89,7 +89,7 @@ defmodule PokerEx.GameResetCoordinatorTest do
       # should also be refreshed.
       assert new_engine = GameResetCoordinator.coordinate_reset(engine)
       refute new_engine.cards == engine.cards
-      assert length(new_engine.cards.table) == 0
+      assert Enum.empty?(new_engine.cards.table)
       refute new_engine.cards.player_hands == engine.cards.player_hands
     end
   end

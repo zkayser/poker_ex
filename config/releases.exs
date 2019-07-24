@@ -22,7 +22,7 @@ config :poker_ex, PokerEx.Repo,
   hostname: System.get_env("POKER_EX_HOSTNAME"),
   template: "template0",
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
-  ssl: true
+  ssl: false
 
 # Note: The domain key here is a placeholder
 # since we do not have a domain set up at this
