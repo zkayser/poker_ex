@@ -46,6 +46,7 @@ defmodule PokerExWeb.Endpoint do
     origin: [
       "http://localhost:8081",
       "http://0.0.0.0:8081",
+      "http://10.20.30.194",
       "http://phoenix-experiment-zkayser.c9users.io:8081",
       "https://poker-ex.herokuapp.com"
     ]

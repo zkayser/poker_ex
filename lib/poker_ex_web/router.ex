@@ -6,6 +6,11 @@ defmodule PokerExWeb.Router do
     plug(:fetch_session)
     plug(:fetch_flash)
     plug(:put_secure_browser_headers)
+
+    if Mix.env() == :prod do
+      plug Plug.SSL, rewrite_on: [:x_forwarded_proto]
+    end
+
     plug(PokerExWeb.Auth, repo: PokerEx.Repo)
   end
 
@@ -41,7 +46,6 @@ defmodule PokerExWeb.Router do
   # if Mix.env == :dev do
   #  forward "/sent_emails", Bamboo.EmailPreviewPlug
   # end
-
   scope "/", PokerExWeb do
     # Use the default browser stack
     pipe_through([:browser, :csrf])
