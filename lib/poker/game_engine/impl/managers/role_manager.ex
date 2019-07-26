@@ -8,6 +8,7 @@ defmodule PokerEx.GameEngine.RoleManager do
         }
 
   @derive Jason.Encoder
+
   defstruct dealer: :unset,
             big_blind: :unset,
             small_blind: :unset
