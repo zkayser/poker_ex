@@ -35,14 +35,14 @@ defmodule PokerEx.GameEngine.ScoreManager do
     case length(cards.table) < 5 do
       true ->
         cond do
-          length(engine.player_tracker.all_in) == 1 && length(engine.player_tracker.active) == 0 ->
+          length(engine.player_tracker.all_in) == 1 && Enum.empty?(engine.player_tracker.active) ->
             GameState.update(%{scoring | game_id: engine.game_id}, [
               {:auto_win, engine.player_tracker.all_in, :raise},
               {:set_rewards, engine.chips},
               :set_winners
             ])
 
-          length(engine.player_tracker.all_in) == 0 ->
+          Enum.empty?(engine.player_tracker.all_in) ->
             GameState.update(%{scoring | game_id: engine.game_id}, [
               {:auto_win, engine.player_tracker.active, :fold},
               {:set_rewards, engine.chips},

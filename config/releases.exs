@@ -22,7 +22,7 @@ config :poker_ex, PokerEx.Repo,
   hostname: System.get_env("POKER_EX_HOSTNAME"),
   template: "template0",
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
-  ssl: true
+  ssl: false
 
 # Note: The domain key here is a placeholder
 # since we do not have a domain set up at this
@@ -39,4 +39,13 @@ config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
   client_secret: System.fetch_env!("FACEBOOK_APP_SECRET"),
   redirect_uri: System.fetch_env!("FACEBOOK_REDIRECT_URI")
 
-config :guardian, Guardian, secret_key: System.fetch_env!("SB_SECRET")
+config :guardian, Guardian,
+  allowed_algos: ["HS512", "RS256", "SHA256"],
+  secret_key: System.get_env("SB_SECRET"),
+  issuer: "PokerEx",
+  ttl: {30, :days},
+  serializer: PokerEx.GuardianSerializer
+
+config :poker_ex, PokerEx.Auth.Guardian,
+  issuer: "poker_ex",
+  secret_key: System.get_env("SB_SECRET")
