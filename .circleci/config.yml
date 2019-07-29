@@ -17,14 +17,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          - v1-mix-cache-{{ .Branch }}
-          - v1-mix-cache
+          keys:
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
       - restore_cache:
-        keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
       - run: mix local.hex --force
       - run: mix local.rebar --force
       - run: mix do deps.get, compile
@@ -52,14 +52,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          - v1-mix-cache-{{ .Branch }}
-          - v1-mix-cache
+          keys:
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
       - restore_cache:
-        keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
       - run:
           name: install dockerize
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -81,14 +81,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          - v1-mix-cache-{{ .Branch }}
-          - v1-mix-cache
+          keys:
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
       - restore_cache:
-        keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
       - run: mix format
 
   lint:
@@ -100,14 +100,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          - v1-mix-cache-{{ .Branch }}
-          - v1-mix-cache
+          keys:
+            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+            - v1-mix-cache-{{ .Branch }}
+            - v1-mix-cache
       - restore_cache:
-        keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
+          keys:
+            - v1-build-cache-{{ .Branch }}
+            - v1-build-cache
       - run: mix credo --only warning
 
   push_docker_image:
