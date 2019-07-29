@@ -19,7 +19,7 @@ config :poker_ex, PokerEx.Repo,
   username: System.get_env("POKER_EX_PROD_USER"),
   password: System.get_env("POKER_EX_PROD_PASSWORD"),
   database: "poker_ex_prod",
-  hostname: System.get_env("POKER_EX_HOSTNAME"),
+  hostname: System.get_env("POKER_EX_DB_HOST"),
   template: "template0",
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "15"),
   ssl: false
