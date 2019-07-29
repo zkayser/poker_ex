@@ -29,10 +29,10 @@ jobs:
       - run: mix local.rebar --force
       - run: mix do deps.get, compile
       - save_cache:
-          key: v1-build-cache-{{ .Branch }}
-          paths: "_build"
+          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths: "deps"
       - save_cache:
-          key: v1-build-cache
+          key: v1-build-cache-{{ .Branch }}
           paths: "_build"
 
   test:
@@ -102,12 +102,9 @@ jobs:
       - restore_cache:
           keys:
             - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
       - restore_cache:
           keys:
             - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
       - run: mix credo --only warning
 
   push_docker_image:
