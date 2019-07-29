@@ -2,6 +2,10 @@ version: 2.1
 
 commands:
   restore_dependency_cache:
+    description: "Restores mix dependency cache"
+    parameters:
+      none:
+        type: string
     steps:
       - restore_cache:
         keys:
@@ -9,30 +13,44 @@ commands:
           - v1-mix-cache-{{ .Branch }}
           - v1-mix-cache
   restore_build_cache:
+    description: "Restores build cache"
+    parameters:
+      none:
+        type: string
     steps:
       - restore_cache:
         keys:
           - v1-build-cache-{{ .Branch }}
           - v1-build-cache
   save_dependency_cache:
+    description: "Saves dependency cache"
+    parameters:
+      path:
+        default: "deps"
+        type: string
     steps:
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths: "deps"
+          paths: << parameters.path >>
       - save_cache:
           key: v1-mix-cache-{{ .Branch }}
-          paths: "deps"
+          paths: << parameters.path >>
       - save_cache:
           key: v1-mix-cache
-          paths: "deps"
+          paths: << parameters.path >>
   save_build_cache:
+    description: "Saves build cache"
+    parameters:
+      path:
+        default: "_build"
+        type: string
     steps:
       - save_cache:
           key: v1-build-cache-{{ .Branch }}
-          paths: "_build"
+          paths: << parameters.path >>
       - save_cache:
           key: v1-build-cache
-          paths: "_build"
+          paths: << parameters.path >>
 
 
 jobs:
