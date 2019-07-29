@@ -133,26 +133,8 @@ jobs:
             mv /tmp/docker/* /usr/bin
 
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
-      - run: docker build -t zkayser/poker_ex .
-      - run: docker push zkayser/poker_ex:latest
-
-  pre_deploy:
-    parallelism: 1
-    docker:
-      - image: elixir:1.9
-    working_directory: ~/app
-
-    steps:
-      - add_ssh_keys:
-          fingerprints:
-            - $SSH_DEPLOY_FINGERPRINT
-      - run:
-          name: Setup deploy
-          command: |
-            ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
-            ssh $DEPLOY_USER@$DEPLOY_HOST
-            echo "Hello from deploy host!"
-            whoami
+      - run: docker build -t zkayser/poker_ex:$(./bin/get_version.sh) .
+      - run: docker push zkayser/poker_ex:$(./bin/get_version.sh)
 
 workflows:
   version: 2
@@ -169,10 +151,10 @@ workflows:
           requires:
             - build
       - push_docker_image:
+          filters:
+            branches:
+              only: master
           requires:
             - test
             - format
             - lint
-      - pre_deploy:
-            requires:
-              - push_docker_image
