@@ -60,6 +60,8 @@ jobs:
           keys:
             - v1-build-cache-{{ .Branch }}
             - v1-build-cache
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
       - run:
           name: install dockerize
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -89,6 +91,8 @@ jobs:
           keys:
             - v1-build-cache-{{ .Branch }}
             - v1-build-cache
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
       - run: mix format
 
   lint:
@@ -105,6 +109,8 @@ jobs:
       - restore_cache:
           keys:
             - v1-build-cache-{{ .Branch }}
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
       - run: mix credo --only warning
 
   push_docker_image:
