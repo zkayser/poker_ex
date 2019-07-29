@@ -9,6 +9,7 @@ defmodule PokerExWeb.Endpoint do
         "http://localhost:8081",
         "http://0.0.0.0:8081",
         "http://10.20.30.194:8081",
+        "http://192.168.1.7:8081",
         "https://ancient-forest-15148.herokuapp.com/",
         "https://poker-ex.herokuapp.com/"
       ]
@@ -47,6 +48,7 @@ defmodule PokerExWeb.Endpoint do
       "http://localhost:8081",
       "http://0.0.0.0:8081",
       "http://10.20.30.194:8081",
+      "http://192.168.1.7:8081",
       "http://phoenix-experiment-zkayser.c9users.io:8081",
       "https://poker-ex.herokuapp.com"
     ]
