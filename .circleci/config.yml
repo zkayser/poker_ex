@@ -149,7 +149,7 @@ jobs:
       - run:
           name: Setup deploy
           command: |
-            ssh $DEPLOY_USER@DEPLOY_HOST
+            ssh $DEPLOY_USER@$DEPLOY_HOST
             echo "Hello from deploy host!"
             whoami
 
