@@ -151,9 +151,9 @@ workflows:
           requires:
             - build
       - push_docker_image:
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
           requires:
             - test
             - format
