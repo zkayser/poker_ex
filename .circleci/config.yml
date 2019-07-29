@@ -168,16 +168,10 @@ workflows:
           requires:
             - build
       - push_docker_image:
-          filters:
-            branches:
-              only: master
           requires:
             - test
             - format
             - lint
       - pre_deploy:
-          filters:
-            branches:
-              only: master
             requires:
               - push_docker_image
