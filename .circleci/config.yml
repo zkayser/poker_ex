@@ -1,4 +1,40 @@
 version: 2
+
+commands:
+  restore_dependency_cache:
+    steps:
+      - restore_cache:
+        keys:
+          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          - v1-mix-cache-{{ .Branch }}
+          - v1-mix-cache
+  restore_build_cache:
+    steps:
+      - restore_cache:
+        keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
+  save_dependency_cache:
+    steps:
+      - save_cache:
+          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          paths: "deps"
+      - save_cache:
+          key: v1-mix-cache-{{ .Branch }}
+          paths: "deps"
+      - save_cache:
+          key: v1-mix-cache
+          paths: "deps"
+  save_build_cache:
+    steps:
+      - save_cache:
+          key: v1-build-cache-{{ .Branch }}
+          paths: "_build"
+      - save_cache:
+          key: v1-build-cache
+          paths: "_build"
+
+
 jobs:
   build:
     parallelism: 1
@@ -16,35 +52,13 @@ jobs:
 
     steps:
       - checkout
-
       - run: mix local.hex --force
       - run: mix local.rebar --force
-
-      - restore_cache:
-          keys:
-            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
-      - restore_cache:
-          keys:
-            - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
+      - restore_dependency_cache
+      - restore_build_cache
       - run: mix do deps.get, compile
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths: "deps"
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
-          paths: "deps"
-      - save_cache:
-          key: v1-mix-cache
-          paths: "deps"
-      - save_cache:
-          key: v1-build-cache-{{ .Branch }}
-          paths: "_build"
-      - save_cache:
-          key: v1-build-cache
-          paths: "_build"
+      - save_dependency_cache
+      - save_build_cache
 
   test:
     parallelism: 1
@@ -62,47 +76,20 @@ jobs:
 
     steps:
       - checkout
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
-
-      - restore_cache:
-          keys:
-            - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-            - v1-mix-cache-{{ .Branch }}
-            - v1-mix-cache
-      - restore_cache:
-          keys:
-            - v1-build-cache-{{ .Branch }}
-            - v1-build-cache
-      - run: mix do deps.get, compile
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths: "deps"
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
-          paths: "deps"
-      - save_cache:
-          key: v1-mix-cache
-          paths: "deps"
-      - save_cache:
-          key: v1-build-cache-{{ .Branch }}
-          paths: "_build"
-      - save_cache:
-          key: v1-build-cache
-          paths: "_build"
-
+      - restore_dependency_cache
+      - restore_build_cache
       - run:
           name: install dockerize
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
           environment:
             DOCKERIZE_VERSION: v0.3.0
-
       - run:
           name: Wait for DB
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run: mix test --trace
       - store_test_results:
           path: _build/test/lib/results
+
   format:
     parallelism: 1
     docker:
@@ -111,9 +98,8 @@ jobs:
 
     steps:
       - checkout
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
-      - run: mix deps.get
+      - restore_dependency_cache
+      - restore_build_cache
       - run: mix format
 
   lint:
@@ -124,9 +110,8 @@ jobs:
 
     steps:
       - checkout
-      - run: mix local.hex --force
-      - run: mix local.rebar --force
-      - run: mix deps.get
+      - restore_dependency_cache
+      - restore_build_cache
       - run: mix credo --only warning
 
   push_docker_image:
