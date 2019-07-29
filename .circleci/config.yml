@@ -1,58 +1,4 @@
 version: 2.1
-
-commands:
-  restore_dependency_cache:
-    description: "Restores mix dependency cache"
-    parameters:
-      none:
-        type: string
-    steps:
-      - restore_cache:
-        keys:
-          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          - v1-mix-cache-{{ .Branch }}
-          - v1-mix-cache
-  restore_build_cache:
-    description: "Restores build cache"
-    parameters:
-      none:
-        type: string
-    steps:
-      - restore_cache:
-        keys:
-          - v1-build-cache-{{ .Branch }}
-          - v1-build-cache
-  save_dependency_cache:
-    description: "Saves dependency cache"
-    parameters:
-      path:
-        default: "deps"
-        type: string
-    steps:
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
-          paths: << parameters.path >>
-      - save_cache:
-          key: v1-mix-cache-{{ .Branch }}
-          paths: << parameters.path >>
-      - save_cache:
-          key: v1-mix-cache
-          paths: << parameters.path >>
-  save_build_cache:
-    description: "Saves build cache"
-    parameters:
-      path:
-        default: "_build"
-        type: string
-    steps:
-      - save_cache:
-          key: v1-build-cache-{{ .Branch }}
-          paths: << parameters.path >>
-      - save_cache:
-          key: v1-build-cache
-          paths: << parameters.path >>
-
-
 jobs:
   build:
     parallelism: 1
@@ -70,13 +16,24 @@ jobs:
 
     steps:
       - checkout
+      - restore_cache:
+        keys:
+          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          - v1-mix-cache-{{ .Branch }}
+          - v1-mix-cache
+      - restore_cache:
+        keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
       - run: mix local.hex --force
       - run: mix local.rebar --force
-      - restore_dependency_cache
-      - restore_build_cache
       - run: mix do deps.get, compile
-      - save_dependency_cache
-      - save_build_cache
+      - save_cache:
+          key: v1-build-cache-{{ .Branch }}
+          paths: "_build"
+      - save_cache:
+          key: v1-build-cache
+          paths: "_build"
 
   test:
     parallelism: 1
@@ -94,8 +51,15 @@ jobs:
 
     steps:
       - checkout
-      - restore_dependency_cache
-      - restore_build_cache
+      - restore_cache:
+        keys:
+          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          - v1-mix-cache-{{ .Branch }}
+          - v1-mix-cache
+      - restore_cache:
+        keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
       - run:
           name: install dockerize
           command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
@@ -116,8 +80,15 @@ jobs:
 
     steps:
       - checkout
-      - restore_dependency_cache
-      - restore_build_cache
+      - restore_cache:
+        keys:
+          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          - v1-mix-cache-{{ .Branch }}
+          - v1-mix-cache
+      - restore_cache:
+        keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
       - run: mix format
 
   lint:
@@ -128,8 +99,15 @@ jobs:
 
     steps:
       - checkout
-      - restore_dependency_cache
-      - restore_build_cache
+      - restore_cache:
+        keys:
+          - v1-mix-cache-{{ .Branch }}-{{ checksum "mix.lock" }}
+          - v1-mix-cache-{{ .Branch }}
+          - v1-mix-cache
+      - restore_cache:
+        keys:
+          - v1-build-cache-{{ .Branch }}
+          - v1-build-cache
       - run: mix credo --only warning
 
   push_docker_image:
