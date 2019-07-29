@@ -149,6 +149,7 @@ jobs:
       - run:
           name: Setup deploy
           command: |
+            ssh-keyscan $DEPLOY_HOST >> ~/.ssh/known_hosts
             ssh $DEPLOY_USER@$DEPLOY_HOST
             echo "Hello from deploy host!"
             whoami
