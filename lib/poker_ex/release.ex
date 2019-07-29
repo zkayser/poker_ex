@@ -27,7 +27,7 @@ defmodule PokerEx.Release do
     end
   end
 
-  def rollback(repo, version) do
+  def rollback(repo \\ PokerEx.Repo, version) do
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
