@@ -38,7 +38,6 @@ defmodule PokerExWeb do
 
       alias PokerExWeb.Router.Helpers, as: Routes
       import PokerExWeb.Gettext
-      import PokerExWeb.Auth, only: [authenticate_player: 2]
     end
   end
 
@@ -61,8 +60,6 @@ defmodule PokerExWeb do
   def router do
     quote do
       use Phoenix.Router
-
-      import PokerExWeb.Auth, only: [authenticate_player: 2]
     end
   end
 
