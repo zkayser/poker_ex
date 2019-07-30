@@ -4,7 +4,7 @@ defmodule PokerEx.Mixfile do
   def project do
     [
       app: :poker_ex,
-      version: "1.2.1",
+      version: "1.3.0",
       elixir: "~> 1.9.0",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:phoenix, :gettext] ++ Mix.compilers(),
