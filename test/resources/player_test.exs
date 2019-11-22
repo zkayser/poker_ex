@@ -215,4 +215,37 @@ defmodule PokerEx.PlayerTest do
       assert result.chips == 1000
     end
   end
+
+  describe "create/1" do
+    test "takes valid parameters and creates a new player" do
+      valid_params = %{
+        "first_name" => "User",
+        "last_name" => "Person",
+        "name" => "#{random_string()}",
+        "email" => "blah#{random_string()}@example.com",
+        "blurb" => "blah blah #{random_string()}",
+        "password" => "this person\'s password is super secret"
+      }
+
+      assert {:ok, %Player{}} = Player.create(valid_params)
+    end
+
+    test "requires a password to be present" do
+      assert {:error, changeset} = Player.create(%{"name" => "#{random_string()}", "email" => "blah#{random_string()}@example.com"})
+
+      assert :password in Keyword.keys(changeset.errors)
+    end
+
+    test "requires name to be present" do
+      assert {:error, changeset} = Player.create(%{"email" => "blah#{random_string()}@example.com", "password" => "secretpassword"})
+
+      assert :name in Keyword.keys(changeset.errors)
+    end
+
+    test "requires email to be present" do
+      assert {:error, changeset} = Player.create(%{"name" => "#{random_string()}", "password" => "secretpassword"})
+
+      assert :email in Keyword.keys(changeset.errors)
+    end
+  end
 end
