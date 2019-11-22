@@ -51,7 +51,7 @@ defmodule PokerExWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
-      import PokerExWeb.Router.Helpers
+      alias PokerExWeb.Router.Helpers, as: Routes
       import PokerExWeb.ErrorHelpers
       import PokerExWeb.Gettext
     end

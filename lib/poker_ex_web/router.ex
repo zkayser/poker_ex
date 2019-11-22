@@ -1,6 +1,15 @@
 defmodule PokerExWeb.Router do
   use PokerExWeb, :router
 
+  pipeline :browser do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug Phoenix.LiveView.Flash
+    plug :fetch_flash
+    plug :protect_from_forgery
+    plug :put_secure_browser_headers
+  end
+
   pipeline :api do
     plug(:fetch_session)
     plug(:accepts, ["json"])
@@ -17,6 +26,12 @@ defmodule PokerExWeb.Router do
 
   pipeline :ensure_authenticated do
     plug Guardian.Plug.EnsureAuthenticated
+  end
+
+  scope "/", PokerExWeb do
+    pipe_through :browser
+
+    get "/", HomeController, :index
   end
 
   # if Mix.env == :dev do

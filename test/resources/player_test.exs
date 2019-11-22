@@ -231,19 +231,28 @@ defmodule PokerEx.PlayerTest do
     end
 
     test "requires a password to be present" do
-      assert {:error, changeset} = Player.create(%{"name" => "#{random_string()}", "email" => "blah#{random_string()}@example.com"})
+      assert {:error, changeset} =
+               Player.create(%{
+                 "name" => "#{random_string()}",
+                 "email" => "blah#{random_string()}@example.com"
+               })
 
       assert :password in Keyword.keys(changeset.errors)
     end
 
     test "requires name to be present" do
-      assert {:error, changeset} = Player.create(%{"email" => "blah#{random_string()}@example.com", "password" => "secretpassword"})
+      assert {:error, changeset} =
+               Player.create(%{
+                 "email" => "blah#{random_string()}@example.com",
+                 "password" => "secretpassword"
+               })
 
       assert :name in Keyword.keys(changeset.errors)
     end
 
     test "requires email to be present" do
-      assert {:error, changeset} = Player.create(%{"name" => "#{random_string()}", "password" => "secretpassword"})
+      assert {:error, changeset} =
+               Player.create(%{"name" => "#{random_string()}", "password" => "secretpassword"})
 
       assert :email in Keyword.keys(changeset.errors)
     end

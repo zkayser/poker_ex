@@ -13,9 +13,10 @@ config :poker_ex, PokerExWeb.Endpoint,
   check_origin: true,
   watchers: [
     node: [
-      "node_modules/brunch/bin/brunch",
-      "watch",
-      "--stdin",
+      "node_modules/webpack/bin/webpack.js",
+      "--mode",
+      "development",
+      "--watch-stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]
