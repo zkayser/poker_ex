@@ -25,8 +25,8 @@ config :logger, level: :warn
 # Configure your database
 config :poker_ex, PokerEx.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("POSTGRES_USER"),
-  password: System.get_env("POSTGRES_PASS"),
+  username: System.get_env("POSTGRES_USER") || "postgres",
+  password: System.get_env("POSTGRES_PASS") || "postgres",
   database: "poker_ex_test",
   hostname: "localhost",
   template: "template0",

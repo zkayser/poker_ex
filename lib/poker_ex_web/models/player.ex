@@ -57,6 +57,13 @@ defmodule PokerEx.Player do
   @spec all() :: list(Player.t())
   def all, do: Repo.all(Player)
 
+  @spec create(map()) :: {:ok, Player.t()} | {:error, Ecto.Changeset.t()}
+  def create(attrs \\ %{}) do
+    %Player{}
+    |> registration_changeset(attrs)
+    |> Repo.insert()
+  end
+
   @spec get(pos_integer()) :: Player.t() | {:error, :player_not_found}
   def get(id) when is_number(id) do
     case Repo.get(Player, id) do
