@@ -3,37 +3,31 @@ defmodule PokerEx.Player do
 
   @derive {Poison.Encoder, only: [:chips, :name]}
   schema "players" do
-    field(:name, :string)
-    field(:first_name, :string)
-    field(:last_name, :string)
-    field(:email, :string)
-    field(:chips, :integer)
-    field(:password, :string, virtual: true)
-    field(:password_hash, :string)
-    field(:blurb, :string)
-    field(:facebook_id, :string)
-    field(:google_id, :string)
-    field(:jwt, :string, virtual: true)
-    field(:reset_token, :string)
-    has_many(:invitations, PokerEx.Invitation, foreign_key: :sender_id)
-    has_many(:owned_rooms, PokerEx.PrivateRoom, foreign_key: :owner_id)
-    has_many(:received_invitations, PokerEx.Invitation, foreign_key: :recipient_id)
+    field :name, :string
+    field :first_name, :string
+    field :last_name, :string
+    field :email, :string
+    field :chips, :integer
+    field :password, :string, virtual: true
+    field :password_hash, :string
+    field :blurb, :string
+    field :facebook_id, :string
+    field :google_id, :string
+    field :jwt, :string, virtual: true
+    field :reset_token, :string
+    has_many :invitations, PokerEx.Invitation, foreign_key: :sender_id
+    has_many :owned_rooms, PokerEx.PrivateRoom, foreign_key: :owner_id
+    has_many :received_invitations, PokerEx.Invitation, foreign_key: :recipient_id
 
-    many_to_many(
-      :participating_rooms,
-      PokerEx.PrivateRoom,
+    many_to_many :participating_rooms, PokerEx.PrivateRoom,
       join_through: "participants_private_rooms",
       join_keys: [participant_id: :id, private_room_id: :id],
       on_replace: :delete
-    )
 
-    many_to_many(
-      :invited_rooms,
-      PokerEx.PrivateRoom,
+    many_to_many :invited_rooms, PokerEx.PrivateRoom,
       join_through: "invitees_private_rooms",
       join_keys: [invitee_id: :id, private_room_id: :id],
       on_replace: :delete
-    )
 
     timestamps()
   end
