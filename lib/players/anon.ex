@@ -35,5 +35,9 @@ defmodule PokerEx.Players.Anon do
   end
 
   @impl true
-  def credit(_player, _chips), do: :ok
+  @spec credit(t(), pos_integer()) :: {:ok, t()} | :error
+  def credit(_player, credited) when credited < 0, do: :error
+  def credit(%__MODULE__{chips: chips} = player, credited) do
+    {:ok, %__MODULE__{player | chips: chips + credited }}
+  end
 end

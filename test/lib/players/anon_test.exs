@@ -42,4 +42,18 @@ defmodule PokerEx.Players.AnonTest do
       assert :error = Anon.bet(player, -2000)
     end
   end
+
+  describe "credit/2" do
+    test "adds to the player\'s chip account" do
+      {:ok, player} = Anon.new(%{"name" => "A"})
+
+      assert {:ok, %Anon{chips: 1200}} = Anon.credit(player, 200)
+    end
+
+    test "returns :error if given a negative value" do
+      {:ok, player} = Anon.new(%{"name" => "A"})
+
+      assert :error = Anon.credit(player, -1000)
+    end
+  end
 end
