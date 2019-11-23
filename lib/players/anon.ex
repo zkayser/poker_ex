@@ -6,6 +6,7 @@ defmodule PokerEx.Players.Anon do
   email associations, or oauth data tied to
   them.
   """
+  @behaviour PokerEx.Players.Player
 
   defstruct name: nil,
             chips: 1000,
@@ -22,4 +23,17 @@ defmodule PokerEx.Players.Anon do
   end
 
   def new(_), do: {:error, :missing_name}
+
+  @impl true
+  @spec bet(t(), pos_integer) :: {:ok, t()} | :error
+  def bet(_player, bet) when bet < 0, do: :error
+  def bet(%__MODULE__{chips: chips} = player, bet) do
+    case bet >= chips do
+      true -> {:ok, %__MODULE__{player | chips: 0}}
+      false -> {:ok, %__MODULE__{player | chips: chips - bet}}
+    end
+  end
+
+  @impl true
+  def credit(_player, _chips), do: :ok
 end

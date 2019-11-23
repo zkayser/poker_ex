@@ -22,4 +22,24 @@ defmodule PokerEx.Players.AnonTest do
       assert {:error, :missing_name} = Anon.new(%{"nombe" => "nope"})
     end
   end
+
+  describe "bet/2" do
+    test "takes a number of chips and subtracts that number from the player\'s chip count" do
+      {:ok, player} = Anon.new(%{"name" => "A"})
+
+      assert {:ok, %Anon{chips: 800}} = Anon.bet(player, 200)
+    end
+
+    test "only allows a player to bet up to the number of chips that they have" do
+      {:ok, player} = Anon.new(%{"name" => "A"})
+
+      assert {:ok, %Anon{chips: 0}} = Anon.bet(player, 100_000)
+    end
+
+    test "does not allow players to bet negative amounts" do
+      {:ok, player} = Anon.new(%{"name" => "A"})
+
+      assert :error = Anon.bet(player, -2000)
+    end
+  end
 end
