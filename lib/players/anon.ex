@@ -16,10 +16,11 @@ defmodule PokerEx.Players.Anon do
 
   @spec new(map()) :: {:ok, t()} | {:error, :missing_name}
   def new(%{"name" => name}) do
-    {:ok, %__MODULE__{
-      name: name,
-      guest_id: "#{name}_GUEST_#{Base.encode16(:crypto.strong_rand_bytes(8))}"
-    }}
+    {:ok,
+     %__MODULE__{
+       name: name,
+       guest_id: "#{name}_GUEST_#{Base.encode16(:crypto.strong_rand_bytes(8))}"
+     }}
   end
 
   def new(_), do: {:error, :missing_name}
@@ -27,6 +28,7 @@ defmodule PokerEx.Players.Anon do
   @impl true
   @spec bet(t(), pos_integer) :: {:ok, t()} | :error
   def bet(_player, bet) when bet < 0, do: :error
+
   def bet(%__MODULE__{chips: chips} = player, bet) do
     case bet >= chips do
       true -> {:ok, %__MODULE__{player | chips: 0}}
@@ -37,7 +39,8 @@ defmodule PokerEx.Players.Anon do
   @impl true
   @spec credit(t(), pos_integer()) :: {:ok, t()} | :error
   def credit(_player, credited) when credited < 0, do: :error
+
   def credit(%__MODULE__{chips: chips} = player, credited) do
-    {:ok, %__MODULE__{player | chips: chips + credited }}
+    {:ok, %__MODULE__{player | chips: chips + credited}}
   end
 end
