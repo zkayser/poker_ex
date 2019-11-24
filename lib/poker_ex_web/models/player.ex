@@ -288,7 +288,28 @@ defmodule PokerEx.Player do
   # player leaves the room. This should be fleshed out with an
   # integration test in the `RoomsChannelTest`.
   @spec reward(String.t(), non_neg_integer, atom()) :: {:ok, Player.t()} | {:error, term()}
+  def reward(%Player{} = player, nil, _), do: {:ok, player}
   def reward(name, nil, _), do: {:ok, by_name(name)}
+
+  def reward(%Player{} = player, amount, _room_id) do
+    changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+
+    case Repo.update(changeset) do
+      {:ok, player_struct} ->
+        {:ok, player_struct}
+
+      {:error, _} ->
+        {:error, "problem updating chips"}
+    end
+  end
+
+  def reward(name, amount, room_id) do
+    with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
+      reward(player, amount, room_id)
+    else
+      _ -> {:error, :player_not_found}
+    end
+  end
 
   def reward(name, amount, _room_id) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do

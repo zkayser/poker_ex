@@ -19,8 +19,11 @@ defmodule PokerExWeb.GameView do
           []
 
         active ->
-          Enum.map(active, fn name ->
-            PokerEx.Repo.one(from(p in PokerEx.Player, where: p.name == ^name))
+          Enum.map(active, fn player ->
+            case player do
+              %PokerEx.Player{} = p -> p
+              _ -> PokerEx.Repo.one(from(p in PokerEx.Player, where: p.name == ^player))
+            end
           end)
       end
 

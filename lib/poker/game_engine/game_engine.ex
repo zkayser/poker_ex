@@ -23,7 +23,7 @@ defmodule PokerEx.GameEngine do
   end
 
   def call(game_id, player) do
-    call_gen_server(game_id, {:call, player.name})
+    call_gen_server(game_id, {:call, player})
   end
 
   def check(game_id, player) do
@@ -31,7 +31,7 @@ defmodule PokerEx.GameEngine do
   end
 
   def raise(game_id, player, amount) do
-    call_gen_server(game_id, {:raise, player.name, amount})
+    call_gen_server(game_id, {:raise, player, amount})
   end
 
   def fold(game_id, player) do

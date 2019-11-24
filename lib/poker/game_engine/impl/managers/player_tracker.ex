@@ -37,15 +37,16 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
-  @spec call(PokerEx.GameEngine.Impl.t(), Player.name(), ChipManager.t()) :: success() | error()
-  def call(%{player_tracker: tracker}, name, chip_manager) do
-    case get_call_state(chip_manager, name) do
+  @spec call(PokerEx.GameEngine.Impl.t(), Player.t(), ChipManager.t()) :: success() | error()
+  def call(%{player_tracker: tracker}, player, chip_manager) do
+    case get_call_state(chip_manager, player) do
       :called ->
         {:ok,
-         GameState.update(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
+         GameState.update(tracker, [{:update_active, player, :to_back}, {:update_called, player}])}
 
       :all_in ->
-        {:ok, GameState.update(tracker, [{:update_active, name, :drop}, {:update_all_in, name}])}
+        {:ok,
+         GameState.update(tracker, [{:update_active, player, :drop}, {:update_all_in, player}])}
 
       :player_did_not_call ->
         {:error, :player_did_not_call}
@@ -134,13 +135,13 @@ defmodule PokerEx.GameEngine.PlayerTracker do
   def reset_round(tracker), do: %__MODULE__{tracker | called: []}
 
   defp set_active(arrangement) do
-    %__MODULE__{active: Enum.map(arrangement, fn {name, _} -> name end)}
+    %__MODULE__{active: Enum.map(arrangement, fn {player, _pos} -> player end)}
   end
 
-  defp get_call_state(chip_manager, name) do
+  defp get_call_state(chip_manager, player) do
     cond do
-      chip_manager.round[name] == chip_manager.to_call -> :called
-      chip_manager.chip_roll[name] == 0 -> :all_in
+      chip_manager.round[player.name] == chip_manager.to_call -> :called
+      chip_manager.chip_roll[player.name] == 0 -> :all_in
       true -> :player_did_not_call
     end
   end

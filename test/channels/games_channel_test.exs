@@ -66,19 +66,22 @@ defmodule PokerEx.GamesChannelTest do
 
   test "channel broadcasts actions taken by players", context do
     {_, player, _, _} = create_player_and_connect(context.title)
-    player_name = player.name
-    player_one = context.player.name
+    player_one = context.player
 
     active_player = get_game_state(context).player_tracker.active |> hd()
-    assert active_player == player_name
+
+    assert active_player.name == player.name
+
+    player_name = player.name
+    player_one_name = player_one.name
 
     push(context.socket, "action_raise", %{"player" => player_name, "amount" => 25})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 40})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 40})
 
-    push(context.socket, "action_call", %{"player" => player_one})
+    push(context.socket, "action_call", %{"player" => player_one_name})
 
-    assert_broadcast("update", %{active: ^player_name, pot: 60})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_name}, pot: 60})
 
     push(context.socket, "action_check", %{"player" => player_name})
 

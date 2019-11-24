@@ -9,10 +9,10 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.Seating do
              num in Enum.map(arrangement, fn {_, seat_num} -> seat_num end)
            end) do
         [] ->
-          insert_player_at(arrangement, player.name, length(arrangement))
+          insert_player_at(arrangement, player, length(arrangement))
 
         [head | _] ->
-          insert_player_at(arrangement, player.name, head)
+          insert_player_at(arrangement, player, head)
       end
 
     Map.put(seating, :arrangement, new_arrangement)
