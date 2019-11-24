@@ -21,7 +21,7 @@ defmodule PokerEx.TestData do
   defp join(player, engine), do: Engine.join(engine, player, @join_amount)
 
   def insert_active_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
-    names = for player <- [p1, p2, p3, p4, p5, p6], do: player.name
+    names = for player <- [p1, p2, p3, p4, p5, p6], do: player
     %PlayerTracker{active: names}
   end
 

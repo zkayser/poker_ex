@@ -105,7 +105,10 @@ defmodule PokerEx.GameEngine.AsyncManager do
            async_manager: %{
              engine.async_manager
              | cleanup_queue:
-                 Enum.reject(engine.async_manager.cleanup_queue, &(&1 == player.name))
+                 Enum.reject(
+                   engine.async_manager.cleanup_queue,
+                   &(Map.get(&1, :name) == player.name)
+                 )
            }
        }}
     else
@@ -140,7 +143,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp do_add_chips(engine, player, amount) do
-    with {:ok, player} <- Player.subtract_chips(player, amount) do
+    with {:ok, player} <- Player.subtract_chips(player.name, amount) do
       %{chips: chips} =
         Map.update(engine, :chips, %{}, fn chips ->
           Map.update(chips, :chip_roll, %{}, fn chip_roll ->

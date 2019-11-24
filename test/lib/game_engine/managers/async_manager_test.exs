@@ -59,15 +59,15 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       # remains in the chip_roll for them -- the amount will be added back to their account,
       # which is why we expect the new player record to have 1200 chips instead of 1000.
 
-      async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
+      async_data = AsyncManager.mark_for_action(engine, context.p1, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
-      refute context.p1.name in engine.player_tracker.active
-      assert context.p1.name in engine.player_tracker.folded
-      refute context.p1.name in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
-      refute context.p1.name in engine.async_manager.cleanup_queue
+      refute context.p1 in engine.player_tracker.active
+      assert context.p1 in engine.player_tracker.folded
+      refute context.p1 in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
+      refute context.p1 in engine.async_manager.cleanup_queue
 
-      refute context.p1.name in Enum.map(engine.cards.player_hands, fn hand_data ->
+      refute context.p1 in Enum.map(engine.cards.player_hands, fn hand_data ->
                hand_data.player
              end)
 
@@ -77,7 +77,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
     test "does not do anything if the player marked as leaving is not active", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
-      async_data = AsyncManager.mark_for_action(engine, context.p2.name, :leave)
+      async_data = AsyncManager.mark_for_action(engine, context.p2, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, updated_engine} = AsyncManager.run(engine, :cleanup)
       assert updated_engine == engine
@@ -94,10 +94,10 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
         end)
         |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
 
-      async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
+      async_data = AsyncManager.mark_for_action(engine, context.p1, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
-      assert context.p1.name in engine.player_tracker.called
+      assert context.p1 in engine.player_tracker.called
     end
 
     test "auto checks for the active player if to_call is 0", context do
@@ -105,10 +105,10 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
         Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
         |> Map.update(:chips, %{}, fn _ -> TestData.add_200_chips_for_all(context) end)
 
-      async_data = AsyncManager.mark_for_action(engine, context.p1.name, :leave)
+      async_data = AsyncManager.mark_for_action(engine, context.p1, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
-      assert context.p1.name in engine.player_tracker.called
+      assert context.p1 in engine.player_tracker.called
     end
 
     test "adds extra chips to a player's chip roll", context do
@@ -116,7 +116,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
         Map.put(Engine.new(), :seating, TestData.seat_players(context))
         |> Map.update(:chips, %{}, fn _ -> TestData.add_200_chips_for_all(context) end)
 
-      async_data = AsyncManager.mark_for_action(engine, context.p1.name, {:add_chips, 200})
+      async_data = AsyncManager.mark_for_action(engine, context.p1, {:add_chips, 200})
       engine = %Engine{engine | async_manager: async_data}
       assert engine = AsyncManager.run(engine, :add_chips)
       assert engine.chips.chip_roll[context.p1.name] == 400
