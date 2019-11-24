@@ -19,8 +19,6 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
     new_seating = update_seating(%{engine | chips: new_chips})
     engine = %{engine | chips: new_chips}
     {:ok, new_cards} = CardManager.deal(%{cards: %CardManager{}, seating: new_seating}, :pre_flop)
-    # IO.inspect new_seating, label: "new seating"
-    # IO.inspect new_cards, label: "new cards"
 
     %{
       engine

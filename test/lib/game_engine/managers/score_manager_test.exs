@@ -124,7 +124,7 @@ defmodule PokerEx.ScoreManagerTest do
       scoring = ScoreManager.manage_score(engine)
       assert length(scoring.stats) == 1
       assert length(scoring.rewards) == 1
-      assert context.p1.name == hd(scoring.winners)
+      assert context.p1 == hd(scoring.winners)
       assert :none = scoring.winning_hand
     end
   end
