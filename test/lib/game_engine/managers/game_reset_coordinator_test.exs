@@ -39,7 +39,7 @@ defmodule PokerEx.GameResetCoordinatorTest do
 
       assert new_engine = GameResetCoordinator.coordinate_reset(engine)
       assert hd(engine.seating.arrangement) != hd(new_engine.seating.arrangement)
-      assert hd(new_engine.player_tracker.active) == context.p5.name
+      assert hd(new_engine.player_tracker.active) == context.p5
       # Assert p5 is head of active list because p1 should be shifted to from the front
       # to the back of the seating on game reset. p2 will be the dealer and shifted,
       # then p3 will be the small blind and p4 the big blind, so their turns are taken
