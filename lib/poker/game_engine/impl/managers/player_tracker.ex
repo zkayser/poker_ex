@@ -74,24 +74,24 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
-  @spec fold(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | error()
-  def fold(%{player_tracker: tracker}, name) do
-    case tracker.active do
-      [player | _] when player == name ->
-        {:ok, GameState.update(tracker, [{:update_active, name, :drop}, {:update_folded, name}])}
-
-      _ ->
-        {:error, :out_of_turn}
+  @spec fold(PokerEx.GameEngine.Impl.t(), Player.t()) :: success() | error()
+  def fold(%{player_tracker: tracker}, player) do
+    with [%{name: active_name} | _] <- tracker.active,
+         true <- player.name == active_name do
+      {:ok,
+       GameState.update(tracker, [{:update_active, player, :drop}, {:update_folded, player}])}
+    else
+      _ -> {:error, :out_of_turn}
     end
   end
 
-  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | error()
-  def check(%{player_tracker: tracker}, name) do
-    case tracker.active do
-      [player | _] when player == name ->
-        {:ok,
-         GameState.update(tracker, [{:update_active, name, :to_back}, {:update_called, name}])}
-
+  @spec check(PokerEx.GameEngine.Impl.t(), Player.t()) :: success() | error()
+  def check(%{player_tracker: tracker}, player) do
+    with [%{name: active_name} | _] <- tracker.active,
+         true <- player.name == active_name do
+      {:ok,
+       GameState.update(tracker, [{:update_active, player, :to_back}, {:update_called, player}])}
+    else
       _ ->
         {:error, :out_of_turn}
     end

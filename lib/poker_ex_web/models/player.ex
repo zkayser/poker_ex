@@ -414,3 +414,7 @@ defmodule PokerEx.Player do
 
   defp validate_chips_update(changeset, _chips), do: changeset
 end
+
+defimpl String.Chars, for: PokerEx.Player do
+  def to_string(%PokerEx.Player{name: name}), do: name
+end

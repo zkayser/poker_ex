@@ -85,15 +85,15 @@ defmodule PokerEx.GamesChannelTest do
 
     push(context.socket, "action_check", %{"player" => player_name})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 60})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 60})
 
-    push(context.socket, "action_check", %{"player" => player_one})
+    push(context.socket, "action_check", %{"player" => player_one_name})
 
     push(context.socket, "action_raise", %{"player" => player_name, "amount" => 50})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 110})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 110})
 
-    push(context.socket, "action_fold", %{"player" => player_one})
+    push(context.socket, "action_fold", %{"player" => player_one_name})
 
     assert_broadcast("update", %{state: "pre_flop"})
 

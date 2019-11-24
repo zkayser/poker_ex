@@ -42,7 +42,7 @@ defmodule PokerEx.GameEngine.RewardManager do
     paid_in = Enum.into(paid_in, %{})
     highest_ranked = Map.get(ranking_map, Map.keys(ranking_map) |> Enum.max())
     new_highest_ranked = Map.drop(ranking_map, [Map.keys(ranking_map) |> Enum.max()])
-    paid_by_highest = Enum.map(highest_ranked, fn player -> {player, paid_in[player]} end)
+    paid_by_highest = Enum.map(highest_ranked, fn player -> {player, paid_in[player.name]} end)
     {results, new_paid_in} = divy_paid_in(paid_by_highest, paid_in)
 
     new_eligible_winners =
