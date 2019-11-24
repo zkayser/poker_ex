@@ -142,7 +142,8 @@ defmodule PokerEx.GamesChannelTest do
     leave(context.socket)
 
     Process.sleep(100)
-    assert context.player.name in get_game_state(context).async_manager.cleanup_queue
+    cleanup_queue = get_game_state(context).async_manager.cleanup_queue
+    assert context.player.name in Enum.map(cleanup_queue, &Map.get(&1, :name))
   end
 
   test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message",
