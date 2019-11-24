@@ -42,7 +42,8 @@ defmodule PokerEx.GamesChannelTest do
     game_state = get_game_state(context)
     seated_players = for {player, _} <- game_state.seating.arrangement, do: player
 
-    for player <- [context.player.name, player.name], do: assert(player in seated_players)
+    for player <- [context.player.name, player.name],
+        do: assert(player in Enum.map(seated_players, &Map.get(&1, :name)))
 
     assert_broadcast("update", %{
       active: _,
