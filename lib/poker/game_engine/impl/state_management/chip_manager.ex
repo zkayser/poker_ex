@@ -47,7 +47,7 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.ChipManager do
   defp calculate_bet_amount(amount, chip_roll, player) do
     case chip_roll[player.name] - amount >= 0 do
       true -> amount
-      false -> chip_roll[player]
+      false -> chip_roll[player.name]
     end
   end
 
