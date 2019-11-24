@@ -30,8 +30,8 @@ defmodule PokerEx.GamesChannelTest do
     end
 
     seated_players = for {player, _pos} <- get_game_state(context).seating.arrangement, do: player
-
-    assert context.player.name in seated_players
+    name = context.player.name
+    assert [%PokerEx.Player{name: ^name}] = seated_players
     # Need to get a pid to pass to this
     # assert :sys.get_state().phase == :idle
   end
