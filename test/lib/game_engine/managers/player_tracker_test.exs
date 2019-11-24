@@ -27,7 +27,7 @@ defmodule PokerEx.PlayerTrackerTest do
         end)
 
       assert {:ok, player_tracker} = PlayerTracker.call(engine, active_player, engine.chips)
-      assert active_player in player_tracker.called
+      assert active_player.name in player_tracker.called
       refute hd(player_tracker.active) == active_player
     end
 
@@ -60,7 +60,7 @@ defmodule PokerEx.PlayerTrackerTest do
         end)
 
       assert {:ok, player_tracker} = PlayerTracker.call(engine, active_player, engine.chips)
-      assert active_player in player_tracker.all_in
+      assert active_player.name in player_tracker.all_in
     end
   end
 
@@ -106,15 +106,15 @@ defmodule PokerEx.PlayerTrackerTest do
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
           Map.update(chips, :chip_roll, %{}, fn chip_roll ->
-            Map.put(chip_roll, active_player, 0)
+            Map.put(chip_roll, active_player.name, 0)
           end)
           |> Map.update(:round, %{}, fn round ->
-            Map.put(round, active_player, 10)
+            Map.put(round, active_player.name, 10)
           end)
         end)
 
       assert {:ok, player_tracker} = PlayerTracker.raise(engine, active_player, engine.chips)
-      assert active_player in player_tracker.all_in
+      assert active_player.name in player_tracker.all_in
       refute active_player in player_tracker.active
     end
   end
@@ -126,7 +126,7 @@ defmodule PokerEx.PlayerTrackerTest do
       [active_player | _] = engine.player_tracker.active
 
       {:ok, player_tracker} = PlayerTracker.fold(engine, active_player)
-      assert active_player in player_tracker.folded
+      assert active_player.name in player_tracker.folded
       refute active_player in player_tracker.active
     end
 
@@ -146,13 +146,13 @@ defmodule PokerEx.PlayerTrackerTest do
 
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
-          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player.name, 10) end)
         end)
         |> Map.update(:chips, %{}, fn chips -> Map.put(chips, :to_call, 10) end)
 
       assert {:ok, player_tracker} = PlayerTracker.check(engine, active_player)
 
-      assert active_player in player_tracker.called
+      assert active_player.name in player_tracker.called
     end
   end
 
