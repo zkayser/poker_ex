@@ -92,7 +92,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   defp auto_fold(engine, player) do
     with {:ok, player_tracker} = PlayerTracker.fold(engine, player),
          seating <- Seating.leave(engine, player),
-         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
+         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player.name]),
          {:ok, cards} <- CardManager.fold(engine, player.name),
          {:ok, chips} <- ChipManager.leave(engine, player) do
       {:ok,

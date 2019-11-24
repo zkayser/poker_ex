@@ -39,7 +39,7 @@ defmodule PokerEx.GameEngine do
   end
 
   def leave(game_id, player) do
-    call_gen_server(game_id, {:leave, player.name})
+    call_gen_server(game_id, {:leave, player})
   end
 
   def player_count(game_id) do

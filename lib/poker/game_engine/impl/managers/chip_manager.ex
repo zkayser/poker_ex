@@ -127,11 +127,14 @@ defmodule PokerEx.GameEngine.ChipManager do
     }
   end
 
-  @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
-  def can_player_check?(%{player_tracker: %{active: active}, chips: chips}, player) do
+  @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.t()) :: boolean()
+  def can_player_check?(
+        %{player_tracker: %{active: active}, chips: chips},
+        %{name: name} = _player
+      ) do
     case active do
-      [active_player | _] when active_player == player ->
-        chips.round[player] == chips.to_call || chips.to_call == 0
+      [%{name: active_name} | _] when active_name == name ->
+        chips.round[name] == chips.to_call || chips.to_call == 0
 
       _ ->
         false

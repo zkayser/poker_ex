@@ -116,7 +116,9 @@ defmodule PokerEx.GamesChannelTest do
 
     push(context.socket, "action_leave", %{"player" => player.name})
 
-    assert_broadcast("update", %{seating: [%{name: ^expected_player_remaining, position: 0}]})
+    assert_broadcast("update", %{
+      seating: [%{name: %PokerEx.Player{name: ^expected_player_remaining}, position: 0}]
+    })
 
     Process.sleep(100)
     seating_after_leave = get_game_state(context).seating.arrangement

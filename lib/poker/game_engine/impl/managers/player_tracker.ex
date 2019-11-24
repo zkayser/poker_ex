@@ -111,9 +111,13 @@ defmodule PokerEx.GameEngine.PlayerTracker do
 
   @spec is_player_active?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
   def is_player_active?(%{player_tracker: %{active: active}}, player) do
-    case active do
-      [active_player | _] when active_player == player -> true
-      _ -> false
+    case Enum.empty?(active) do
+      true ->
+        false
+
+      false ->
+        [%{name: active_name} | _] = active
+        active_name == player.name
     end
   end
 
