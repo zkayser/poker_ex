@@ -16,7 +16,7 @@ defmodule PokerEx.SeatingTest do
     test "returns an error if the player has already joined", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
-          Map.put(seating, :arrangement, [{context.p1.name, 0}])
+          Map.put(seating, :arrangement, [{context.p1, 0}])
         end)
 
       assert {:error, :already_joined} = Seating.join(engine, context.p1)
@@ -25,66 +25,66 @@ defmodule PokerEx.SeatingTest do
     test "positions second player in seat index 1", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
-          Map.put(seating, :arrangement, [{context.p1.name, 0}])
+          Map.put(seating, :arrangement, [{context.p1, 0}])
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p2)
-      assert [{context.p1.name, 0}, {context.p2.name, 1}] == seating.arrangement
+      assert [{context.p1, 0}, {context.p2, 1}] == seating.arrangement
     end
 
     test "handles reindexing when some players leave", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
-          Map.put(seating, :arrangement, [{context.p1.name, 1}, {context.p2.name, 2}])
+          Map.put(seating, :arrangement, [{context.p1, 1}, {context.p2, 2}])
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p3)
-      assert {context.p3.name, 0} == hd(seating.arrangement)
+      assert {context.p3, 0} == hd(seating.arrangement)
     end
 
     test "handles reindexing with gaps", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
           Map.put(seating, :arrangement, [
-            {context.p1.name, 3},
-            {context.p2.name, 4},
-            {context.p3.name, 0},
-            {context.p4.name, 1},
-            {context.p5.name, 2}
+            {context.p1, 3},
+            {context.p2, 4},
+            {context.p3, 0},
+            {context.p4, 1},
+            {context.p5, 2}
           ])
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p6)
-      assert {context.p6.name, 5} == Enum.at(seating.arrangement, 2)
+      assert {context.p6, 5} == Enum.at(seating.arrangement, 2)
     end
 
     test "handles reindexing with gap at index 0", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
           Map.put(seating, :arrangement, [
-            {context.p1.name, 3},
-            {context.p2.name, 4},
-            {context.p3.name, 1},
-            {context.p4.name, 2}
+            {context.p1, 3},
+            {context.p2, 4},
+            {context.p3, 1},
+            {context.p4, 2}
           ])
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p5)
-      assert {context.p5.name, 0} == Enum.at(seating.arrangement, 2)
+      assert {context.p5, 0} == Enum.at(seating.arrangement, 2)
     end
 
     test "handles reindexing with multiple gaps", context do
       engine =
         Map.update(Engine.new(), :seating, %{}, fn seating ->
           Map.put(seating, :arrangement, [
-            {context.p1.name, 2},
-            {context.p2.name, 4},
-            {context.p3.name, 5}
+            {context.p1, 2},
+            {context.p2, 4},
+            {context.p3, 5}
           ])
         end)
 
       assert {:ok, seating} = Seating.join(engine, context.p4)
-      assert {context.p4.name, 0} == hd(seating.arrangement)
+      assert {context.p4, 0} == hd(seating.arrangement)
     end
   end
 
@@ -92,10 +92,10 @@ defmodule PokerEx.SeatingTest do
     test "removes the player from the seating arrangement", context do
       engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
 
-      new_seating = Seating.leave(engine, context.p2.name)
+      new_seating = Seating.leave(engine, context.p2)
 
-      refute context.p2.name in Enum.map(new_seating.arrangement, fn {name, _} ->
-               name
+      refute context.p2 in Enum.map(new_seating.arrangement, fn {player, _} ->
+               player
              end)
     end
   end
@@ -117,11 +117,11 @@ defmodule PokerEx.SeatingTest do
     test "returns true if the player is in the seating arrangement", context do
       engine = Map.put(Engine.new(), :seating, TestData.seat_players(context))
 
-      assert Seating.is_player_seated?(engine, context.p1.name)
+      assert Seating.is_player_seated?(engine, context.p1)
     end
 
     test "returns false if the player is not in the seating arrangment", context do
-      refute Seating.is_player_seated?(Engine.new(), context.p1.name)
+      refute Seating.is_player_seated?(Engine.new(), context.p1)
     end
   end
 
