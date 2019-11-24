@@ -63,7 +63,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
       refute context.p1 in engine.player_tracker.active
-      assert context.p1 in engine.player_tracker.folded
+      assert context.p1.name in engine.player_tracker.folded
       refute context.p1 in Enum.map(engine.seating.arrangement, fn {name, _} -> name end)
       refute context.p1 in engine.async_manager.cleanup_queue
 
@@ -97,7 +97,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       async_data = AsyncManager.mark_for_action(engine, context.p1, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
-      assert context.p1 in engine.player_tracker.called
+      assert context.p1.name in engine.player_tracker.called
     end
 
     test "auto checks for the active player if to_call is 0", context do
@@ -108,7 +108,7 @@ defmodule PokerEx.GameEngine.AsyncManagerTest do
       async_data = AsyncManager.mark_for_action(engine, context.p1, :leave)
       engine = %Engine{engine | async_manager: async_data}
       assert {:ok, engine} = AsyncManager.run(engine, :cleanup)
-      assert context.p1 in engine.player_tracker.called
+      assert context.p1.name in engine.player_tracker.called
     end
 
     test "adds extra chips to a player's chip roll", context do
