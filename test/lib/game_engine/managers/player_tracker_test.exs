@@ -23,7 +23,7 @@ defmodule PokerEx.PlayerTrackerTest do
 
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
-          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player.name, 10) end)
         end)
 
       assert {:ok, player_tracker} = PlayerTracker.call(engine, active_player, engine.chips)
@@ -53,8 +53,10 @@ defmodule PokerEx.PlayerTrackerTest do
 
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
-          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 200) end)
-          |> Map.update(:chip_roll, %{}, fn chip_roll -> Map.put(chip_roll, active_player, 0) end)
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player.name, 200) end)
+          |> Map.update(:chip_roll, %{}, fn chip_roll ->
+            Map.put(chip_roll, active_player.name, 0)
+          end)
         end)
 
       assert {:ok, player_tracker} = PlayerTracker.call(engine, active_player, engine.chips)
@@ -171,13 +173,13 @@ defmodule PokerEx.PlayerTrackerTest do
     test "returns true if the player is at the front of the active list", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
-      assert PlayerTracker.is_player_active?(engine, context.p1.name)
+      assert PlayerTracker.is_player_active?(engine, context.p1)
     end
 
     test "returns false if the player is not at the front of the active list", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
-      refute PlayerTracker.is_player_active?(engine, context.p2.name)
+      refute PlayerTracker.is_player_active?(engine, context.p2)
     end
   end
 
