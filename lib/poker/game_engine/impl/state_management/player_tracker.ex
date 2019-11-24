@@ -5,29 +5,29 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.PlayerTracker do
     Enum.reduce(updates, tracker, &do_update(&1, &2))
   end
 
-  defp do_update({:update_active, name, :to_back}, %{active: active} = tracker) do
-    Map.put(tracker, :active, Enum.drop(active, 1) |> Kernel.++([name]))
+  defp do_update({:update_active, player, :to_back}, %{active: active} = tracker) do
+    Map.put(tracker, :active, Enum.drop(active, 1) |> Kernel.++([player]))
   end
 
   defp do_update({:update_active, _name, :drop}, %{active: active} = tracker) do
     Map.put(tracker, :active, Enum.drop(active, 1))
   end
 
-  defp do_update({:update_called, name}, %{called: called} = tracker) do
-    Map.put(tracker, :called, [name | called])
+  defp do_update({:update_called, player}, %{called: called} = tracker) do
+    Map.put(tracker, :called, [player.name | called])
   end
 
   defp do_update(
-         {:update_called_if_should_clear_is_false, false, name},
+         {:update_called_if_should_clear_is_false, false, player},
          %{called: called} = tracker
        ) do
-    Map.put(tracker, :called, [name | called])
+    Map.put(tracker, :called, [player.name | called])
   end
 
-  defp do_update({:update_called_if_should_clear_is_false, true, _name}, tracker), do: tracker
+  defp do_update({:update_called_if_should_clear_is_false, true, _player}, tracker), do: tracker
 
-  defp do_update({:update_all_in, name}, %{all_in: all_in} = tracker) do
-    Map.put(tracker, :all_in, [name | all_in])
+  defp do_update({:update_all_in, player}, %{all_in: all_in} = tracker) do
+    Map.put(tracker, :all_in, [player.name | all_in])
   end
 
   defp do_update({:clear_called, true}, tracker) do
@@ -36,7 +36,7 @@ defimpl PokerEx.GameEngine.GameState, for: PokerEx.GameEngine.PlayerTracker do
 
   defp do_update({:clear_called, false}, tracker), do: tracker
 
-  defp do_update({:update_folded, name}, tracker) do
-    %PlayerTracker{tracker | folded: [name | tracker.folded]}
+  defp do_update({:update_folded, player}, tracker) do
+    %PlayerTracker{tracker | folded: [player.name | tracker.folded]}
   end
 end

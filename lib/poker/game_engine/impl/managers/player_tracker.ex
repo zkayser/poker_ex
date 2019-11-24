@@ -53,23 +53,23 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
-  @spec raise(PokerEx.GameEngine.Impl.t(), Player.name(), ChipManager.t()) :: success()
-  def raise(%{player_tracker: tracker}, name, chip_manager) do
-    case get_raise_state(chip_manager, name) do
+  @spec raise(PokerEx.GameEngine.Impl.t(), Player.t(), ChipManager.t()) :: success()
+  def raise(%{player_tracker: tracker}, player, chip_manager) do
+    case get_raise_state(chip_manager, player) do
       {:all_in, should_clear_called?} ->
         {:ok,
          GameState.update(tracker, [
-           {:update_active, name, :drop},
+           {:update_active, player, :drop},
            {:clear_called, should_clear_called?},
-           {:update_all_in, name}
+           {:update_all_in, player}
          ])}
 
       {:raised, should_clear_called?} ->
         {:ok,
          GameState.update(tracker, [
-           {:update_active, name, :to_back},
+           {:update_active, player, :to_back},
            {:clear_called, should_clear_called?},
-           {:update_called_if_should_clear_is_false, should_clear_called?, name}
+           {:update_called_if_should_clear_is_false, should_clear_called?, player}
          ])}
     end
   end
@@ -150,18 +150,21 @@ defmodule PokerEx.GameEngine.PlayerTracker do
     end
   end
 
-  defp get_raise_state(chip_manager, name) do
+  defp get_raise_state(chip_manager, player) do
     cond do
-      chip_manager.chip_roll[name] == 0 -> {:all_in, should_clear_called?(chip_manager, name)}
-      true -> {:raised, should_clear_called?(chip_manager, name)}
+      chip_manager.chip_roll[player.name] == 0 ->
+        {:all_in, should_clear_called?(chip_manager, player)}
+
+      true ->
+        {:raised, should_clear_called?(chip_manager, player)}
     end
   end
 
-  defp should_clear_called?(chip_manager, name) do
+  defp should_clear_called?(chip_manager, player) do
     max_paid = Enum.max(Map.values(chip_manager.round))
 
     case Enum.filter(Map.values(chip_manager.round), fn chip_value -> chip_value == max_paid end) do
-      [max] -> chip_manager.round[name] == max
+      [max] -> chip_manager.round[player.name] == max
       _ -> false
     end
   end
