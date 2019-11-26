@@ -1,0 +1,20 @@
+<div class="container">
+  <div class="h-center">
+    <h1 class="poker-green">Poker Ex</h1>
+  </div>
+  <div class="h-center">
+    <h2 class="poker-green">Join Game</h2>
+  </div>
+  <div class="card--wrapper">
+    <div class="card--container">
+      <%= for game <- @games do %>
+        <div style="border: 1px solid black;">
+          <p>Game: <%= game.game_id %></p>
+          <p>Players: <%= length(game.seating.arrangement) %></p>
+          <p>Phase: <%= game.phase %>
+          <p>Current Pot Value: <%= game.chips.pot %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

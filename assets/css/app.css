@@ -3,19 +3,32 @@ body {
   height: 100%;
 }
 
-body {
-  background-color: #36393f;
-  color: white;
+h1 {
+  font-family: 'Vast Shadow', cursive;
+  font-size: 4rem;
 }
 
-.centered {
-  height: 100vh;
-  width: 100vw;
+h2 {
+  font-size: 2rem;
+}
+
+.h-center {
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
-.overflow {
-  overflow: visible;
+.poker-green {
+  color: #518972;
+}
+
+.card--wrapper {
+  margin: 0 30px 0 30px;
+}
+
+.card--container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
+  width: 100%;
 }

@@ -1,6 +1,0 @@
-<div class="centered">
-  <svg viewBox="0 0 10 10" x="0" y="0" xmlns="http://www.w3.org/2000/svg" width="75%" height="75%" class="overflow">
-    <circle cx="5" cy="5" r="5" stroke="black" stroke-width="0.1" fill="#35654d">
-    </circle>
-  </svg>
-</div>
