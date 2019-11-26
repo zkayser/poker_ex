@@ -303,33 +303,30 @@ defmodule PokerEx.Player do
     end
   end
 
-  def reward(name, amount, room_id) do
+  def reward(name, amount, _room_id) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
-      reward(player, amount, room_id)
+      reward(player, amount)
     else
       _ -> {:error, :player_not_found}
     end
   end
 
-  def reward(name, amount, _room_id) do
-    with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
-      changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+  def reward(%Player{} = player, amount) do
+    changeset = chip_changeset(player, %{"chips" => player.chips + amount})
 
-      case Repo.update(changeset) do
-        {:ok, player_struct} ->
-          {:ok, player_struct}
+    case Repo.update(changeset) do
+      {:ok, player_struct} ->
+        {:ok, player_struct}
 
-        {:error, _} ->
-          {:error, "problem updating chips"}
-      end
-    else
-      _ -> {:error, :player_not_found}
+      {:error, _} ->
+        {:error, "problem updating chips"}
     end
   end
 
   def update_chips(username, amount) when amount >= 0, do: reward(username, amount, nil)
   def update_chips(_, _), do: {:error, :negative_chip_amount}
 
+  def subtract_chips(_, amount) when amount < 0, do: {:error, "cannot debit a negative chip amount"}
   def subtract_chips(username, amount) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^username)) do
       if amount <= player.chips do
@@ -340,7 +337,7 @@ defmodule PokerEx.Player do
           {:error, _} -> {:error, "problem updating chips"}
         end
       else
-        {:ok, player}
+        {:error, :insufficient_chips}
       end
     else
       _ -> {:error, :player_not_found}
