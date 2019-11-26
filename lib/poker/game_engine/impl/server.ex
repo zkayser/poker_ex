@@ -2,7 +2,7 @@ defmodule PokerEx.GameEngine.Server do
   use GenServer
   require Logger
   alias PokerEx.GameEngine.Impl, as: Game
-  alias PokerEx.Player
+  alias PokerEx.Players.Bank
 
   @valid_funcs [
     :join,
@@ -30,13 +30,13 @@ defmodule PokerEx.GameEngine.Server do
 
   def terminate(:normal, %Game{type: :public}), do: :void
 
-  def terminate(_reason, %Game{type: :public, chips: chips}) when is_map(chips) do
+  def terminate(_reason, %Game{type: :public, chips: chips, seating: seating}) when is_map(chips) do
     Logger.warn("Terminating public game and restoring chips to players")
-    restore_chips_to_players(chips)
+    restore_chips_to_players(chips, seating)
   end
 
-  def terminate(:manual, %Game{chips: chips}) when is_map(chips) do
-    restore_chips_to_players(chips)
+  def terminate(:manual, %Game{chips: chips, seating: seating}) when is_map(chips) do
+    restore_chips_to_players(chips, seating)
   end
 
   def terminate(reason, %Game{type: :private, game_id: id} = game) do
@@ -83,16 +83,21 @@ defmodule PokerEx.GameEngine.Server do
   # HELPERS #
   ###########
 
-  defp restore_chips_to_players(chips) do
-    chips.chip_roll
-    |> Map.keys()
-    |> Enum.each(fn p -> Player.update_chips(p, restore_chips(chips, p)) end)
+  defp restore_chips_to_players(chips, seating) do
+    seating.arrangement
+    |> Enum.map(fn {player, _seat_position} -> player end)
+    |> Enum.each(fn player ->
+      case chips.chip_roll[player.name] do
+        nil -> :ok
+        _ -> Bank.credit(player, restore_chips(chips, player.name))
+      end
+    end)
   end
 
-  defp restore_chips(%{chip_roll: chip_roll, paid: paid}, player) do
-    case paid[player] do
-      nil -> chip_roll[player]
-      amount -> chip_roll[player] + amount
+  defp restore_chips(%{chip_roll: chip_roll, paid: paid}, name) do
+    case paid[name] do
+      nil -> chip_roll[name]
+      amount -> chip_roll[name] + amount
     end
   end
 end

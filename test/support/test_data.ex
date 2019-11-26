@@ -21,7 +21,7 @@ defmodule PokerEx.TestData do
   defp join(player, engine), do: Engine.join(engine, player, @join_amount)
 
   def insert_active_players(%{p1: p1, p2: p2, p3: p3, p4: p4, p5: p5, p6: p6}) do
-    names = for player <- [p1, p2, p3, p4, p5, p6], do: player.name
+    names = for player <- [p1, p2, p3, p4, p5, p6], do: player
     %PlayerTracker{active: names}
   end
 
@@ -35,7 +35,7 @@ defmodule PokerEx.TestData do
             {p5, 4},
             {p6, 5}
           ] do
-        {player.name, seat}
+        {player, seat}
       end
 
     %Seating{arrangement: seating}
@@ -130,12 +130,12 @@ defmodule PokerEx.TestData do
   def cycle_to_first_move(engine, context) do
     Map.update(engine, :player_tracker, %{}, fn tracker ->
       Map.put(tracker, :active, [
-        context.p4.name,
-        context.p5.name,
-        context.p6.name,
-        context.p1.name,
-        context.p2.name,
-        context.p3.name
+        context.p4,
+        context.p5,
+        context.p6,
+        context.p1,
+        context.p2,
+        context.p3
       ])
     end)
   end

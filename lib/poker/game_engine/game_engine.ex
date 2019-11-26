@@ -23,23 +23,23 @@ defmodule PokerEx.GameEngine do
   end
 
   def call(game_id, player) do
-    call_gen_server(game_id, {:call, player.name})
+    call_gen_server(game_id, {:call, player})
   end
 
   def check(game_id, player) do
-    call_gen_server(game_id, {:check, player.name})
+    call_gen_server(game_id, {:check, player})
   end
 
   def raise(game_id, player, amount) do
-    call_gen_server(game_id, {:raise, player.name, amount})
+    call_gen_server(game_id, {:raise, player, amount})
   end
 
   def fold(game_id, player) do
-    call_gen_server(game_id, {:fold, player.name})
+    call_gen_server(game_id, {:fold, player})
   end
 
   def leave(game_id, player) do
-    call_gen_server(game_id, {:leave, player.name})
+    call_gen_server(game_id, {:leave, player})
   end
 
   def player_count(game_id) do

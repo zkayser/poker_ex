@@ -30,8 +30,8 @@ defmodule PokerEx.GamesChannelTest do
     end
 
     seated_players = for {player, _pos} <- get_game_state(context).seating.arrangement, do: player
-
-    assert context.player.name in seated_players
+    name = context.player.name
+    assert [%PokerEx.Player{name: ^name}] = seated_players
     # Need to get a pid to pass to this
     # assert :sys.get_state().phase == :idle
   end
@@ -42,7 +42,8 @@ defmodule PokerEx.GamesChannelTest do
     game_state = get_game_state(context)
     seated_players = for {player, _} <- game_state.seating.arrangement, do: player
 
-    for player <- [context.player.name, player.name], do: assert(player in seated_players)
+    for player <- [context.player.name, player.name],
+        do: assert(player in Enum.map(seated_players, &Map.get(&1, :name)))
 
     assert_broadcast("update", %{
       active: _,
@@ -66,31 +67,34 @@ defmodule PokerEx.GamesChannelTest do
 
   test "channel broadcasts actions taken by players", context do
     {_, player, _, _} = create_player_and_connect(context.title)
-    player_name = player.name
-    player_one = context.player.name
+    player_one = context.player
 
     active_player = get_game_state(context).player_tracker.active |> hd()
-    assert active_player == player_name
+
+    assert active_player.name == player.name
+
+    player_name = player.name
+    player_one_name = player_one.name
 
     push(context.socket, "action_raise", %{"player" => player_name, "amount" => 25})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 40})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 40})
 
-    push(context.socket, "action_call", %{"player" => player_one})
+    push(context.socket, "action_call", %{"player" => player_one_name})
 
-    assert_broadcast("update", %{active: ^player_name, pot: 60})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_name}, pot: 60})
 
     push(context.socket, "action_check", %{"player" => player_name})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 60})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 60})
 
-    push(context.socket, "action_check", %{"player" => player_one})
+    push(context.socket, "action_check", %{"player" => player_one_name})
 
     push(context.socket, "action_raise", %{"player" => player_name, "amount" => 50})
 
-    assert_broadcast("update", %{active: ^player_one, pot: 110})
+    assert_broadcast("update", %{active: %PokerEx.Player{name: ^player_one_name}, pot: 110})
 
-    push(context.socket, "action_fold", %{"player" => player_one})
+    push(context.socket, "action_fold", %{"player" => player_one_name})
 
     assert_broadcast("update", %{state: "pre_flop"})
 
@@ -112,7 +116,9 @@ defmodule PokerEx.GamesChannelTest do
 
     push(context.socket, "action_leave", %{"player" => player.name})
 
-    assert_broadcast("update", %{seating: [%{name: ^expected_player_remaining, position: 0}]})
+    assert_broadcast("update", %{
+      seating: [%{name: %PokerEx.Player{name: ^expected_player_remaining}, position: 0}]
+    })
 
     Process.sleep(100)
     seating_after_leave = get_game_state(context).seating.arrangement
@@ -136,7 +142,8 @@ defmodule PokerEx.GamesChannelTest do
     leave(context.socket)
 
     Process.sleep(100)
-    assert context.player.name in get_game_state(context).async_manager.cleanup_queue
+    cleanup_queue = get_game_state(context).async_manager.cleanup_queue
+    assert context.player.name in Enum.map(cleanup_queue, &Map.get(&1, :name))
   end
 
   test "when there are only two players and one leaves, the channel broadcasts a 'clear_ui' message",

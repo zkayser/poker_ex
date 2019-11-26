@@ -21,7 +21,8 @@ defmodule PokerEx.GameEngine.Seating do
   @spec join(PokerEx.GameEngine.Impl.t(), Player.t()) :: t()
   def join(%{seating: seating}, player) do
     with true <- length(seating.arrangement) < @capacity,
-         false <- player.name in Enum.map(seating.arrangement, fn {name, _pos} -> name end) do
+         false <-
+           player.name in Enum.map(seating.arrangement, fn {%{name: name}, _pos} -> name end) do
       {:ok, GameState.update(seating, [{:insert_player, player}])}
     else
       false ->
@@ -40,7 +41,7 @@ defmodule PokerEx.GameEngine.Seating do
     Map.put(
       seating,
       :arrangement,
-      Enum.reject(seating.arrangement, fn {name, _} -> name == player end)
+      Enum.reject(seating.arrangement, fn {%{name: name}, _} -> name == player end)
     )
   end
 
@@ -50,8 +51,8 @@ defmodule PokerEx.GameEngine.Seating do
     %__MODULE__{seating | arrangement: tail ++ [hd]}
   end
 
-  @spec is_player_seated?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean
+  @spec is_player_seated?(PokerEx.GameEngine.Impl.t(), Player.t()) :: boolean
   def is_player_seated?(%{seating: %{arrangement: arrangement}}, player) do
-    player in Enum.map(arrangement, fn {name, _} -> name end)
+    player.name in Enum.map(arrangement, fn {%{name: name}, _} -> name end)
   end
 end

@@ -1,5 +1,6 @@
 defmodule PokerEx.GameEngine.ChipManager do
   alias PokerEx.Player
+  alias PokerEx.Players.Bank
   alias PokerEx.GameEngine.GameState
   @minimum_join_amount 100
   @big_blind 10
@@ -42,7 +43,7 @@ defmodule PokerEx.GameEngine.ChipManager do
   def join(%{chips: chips}, player, join_amount)
       when join_amount >= @minimum_join_amount do
     with true <- player.chips >= join_amount,
-         {:ok, player} <- Player.subtract_chips(player.name, join_amount) do
+         {:ok, player} <- Bank.debit(player, join_amount) do
       {:ok, GameState.update(chips, [{:chip_roll, player.name, join_amount}])}
     else
       false ->
@@ -67,34 +68,36 @@ defmodule PokerEx.GameEngine.ChipManager do
      ])}
   end
 
-  @spec call(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
-  def call(%{player_tracker: tracker, chips: chips}, name) do
-    with ^name <- hd(tracker.active) do
-      {:ok, GameState.update(chips, [{:player_bet, name, calculate_call_amount(name, chips)}])}
+  @spec call(PokerEx.GameEngine.Impl.t(), Player.t()) :: success() | bet_error()
+  def call(%{player_tracker: tracker, chips: chips}, player) do
+    with true <- player.name == hd(tracker.active).name do
+      {:ok,
+       GameState.update(chips, [{:player_bet, player, calculate_call_amount(player, chips)}])}
     else
       _ ->
         {:error, :out_of_turn}
     end
   end
 
-  @spec raise(PokerEx.GameEngine.Impl.t(), Player.name(), pos_integer) :: success() | bet_error()
-  def raise(%{player_tracker: tracker, chips: chips} = engine, name, amount) do
-    with true <- amount > calculate_call_amount(name, chips),
-         ^name <- hd(tracker.active) do
+  @spec raise(PokerEx.GameEngine.Impl.t(), Player.t(), pos_integer) :: success() | bet_error()
+  def raise(%{player_tracker: tracker, chips: chips} = engine, player, amount) do
+    with true <- amount > calculate_call_amount(player, chips),
+         true <- player.name == hd(tracker.active).name do
       {:ok,
-       GameState.update(chips, [{:add_call_amount, name, amount}, {:player_bet, name, amount}])}
+       GameState.update(chips, [{:add_call_amount, player, amount}, {:player_bet, player, amount}])}
     else
       false ->
-        call(engine, name)
+        call(engine, player)
 
       _ ->
         {:error, :out_of_turn}
     end
   end
 
-  @spec check(PokerEx.GameEngine.Impl.t(), Player.name()) :: success() | bet_error()
-  def check(%{player_tracker: tracker, chips: chips}, name) do
-    case {name == hd(tracker.active), chips.round[name] == chips.to_call || chips.to_call == 0} do
+  @spec check(PokerEx.GameEngine.Impl.t(), Player.t()) :: success() | bet_error()
+  def check(%{player_tracker: %{active: [%{name: active_name} | _]}, chips: chips}, player) do
+    case {player.name == active_name,
+          chips.round[player.name] == chips.to_call || chips.to_call == 0} do
       {true, true} -> {:ok, chips}
       {false, _} -> {:error, :out_of_turn}
       {_, false} -> {:error, :not_paid}
@@ -126,20 +129,23 @@ defmodule PokerEx.GameEngine.ChipManager do
     }
   end
 
-  @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.name()) :: boolean()
-  def can_player_check?(%{player_tracker: %{active: active}, chips: chips}, player) do
+  @spec can_player_check?(PokerEx.GameEngine.Impl.t(), Player.t()) :: boolean()
+  def can_player_check?(
+        %{player_tracker: %{active: active}, chips: chips},
+        %{name: name} = _player
+      ) do
     case active do
-      [active_player | _] when active_player == player ->
-        chips.round[player] == chips.to_call || chips.to_call == 0
+      [%{name: active_name} | _] when active_name == name ->
+        chips.round[name] == chips.to_call || chips.to_call == 0
 
       _ ->
         false
     end
   end
 
-  @spec calculate_call_amount(Player.name(), %{round: map()}) :: non_neg_integer
-  def calculate_call_amount(name, %{round: round} = chips) do
-    case round[name] do
+  @spec calculate_call_amount(Player.t(), %{round: map()}) :: non_neg_integer
+  def calculate_call_amount(player, %{round: round} = chips) do
+    case round[player.name] do
       nil -> chips.to_call
       already_paid -> chips.to_call - already_paid
     end

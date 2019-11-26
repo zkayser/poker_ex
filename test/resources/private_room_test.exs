@@ -68,7 +68,7 @@ defmodule PokerEx.PrivateRoomTest do
     Game.join(room_process, leaving_player, 200)
 
     # Ensure that the player successfully joined the room.
-    assert leaving_player.name in Enum.map(
+    assert leaving_player in Enum.map(
              Game.get_state(room_process).seating.arrangement,
              fn {pl, _} -> pl end
            )

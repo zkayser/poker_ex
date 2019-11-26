@@ -43,7 +43,7 @@ defmodule PokerEx.GameEngine.GameResetCoordinator do
       seating: %{
         engine.seating
         | arrangement:
-            Enum.reject(engine.seating.arrangement, fn {player, _} ->
+            Enum.reject(engine.seating.arrangement, fn {%{name: player}, _} ->
               player in get_players_to_remove(engine)
             end)
       }

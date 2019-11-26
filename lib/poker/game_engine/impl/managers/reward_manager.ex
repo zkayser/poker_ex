@@ -42,7 +42,7 @@ defmodule PokerEx.GameEngine.RewardManager do
     paid_in = Enum.into(paid_in, %{})
     highest_ranked = Map.get(ranking_map, Map.keys(ranking_map) |> Enum.max())
     new_highest_ranked = Map.drop(ranking_map, [Map.keys(ranking_map) |> Enum.max()])
-    paid_by_highest = Enum.map(highest_ranked, fn player -> {player, paid_in[player]} end)
+    paid_by_highest = Enum.map(highest_ranked, fn player -> {player, paid_in[player.name]} end)
     {results, new_paid_in} = divy_paid_in(paid_by_highest, paid_in)
 
     new_eligible_winners =
@@ -60,7 +60,7 @@ defmodule PokerEx.GameEngine.RewardManager do
             possible_winners,
             fn list ->
               Enum.reject(list, fn potential_winner ->
-                potential_winner not in Map.keys(new_paid_in)
+                potential_winner.name not in Map.keys(new_paid_in)
               end)
             end
           )
@@ -77,7 +77,7 @@ defmodule PokerEx.GameEngine.RewardManager do
   defp divy_paid_in([], _), do: {%{}, %{}}
 
   defp divy_paid_in(winners_paid, paid_in) do
-    winners = Enum.map(winners_paid, fn {player, _amount} -> player end)
+    winners = Enum.map(winners_paid, fn {player, _amount} -> player.name end)
     redeem_from = Enum.filter(paid_in, fn {player, _amount} -> player not in winners end)
     {_, minimum_paid_by_winners} = Enum.min_by(winners_paid, fn {_player, amount} -> amount end)
     create_partial_reward_list(%{}, winners_paid, redeem_from, minimum_paid_by_winners)
@@ -99,7 +99,9 @@ defmodule PokerEx.GameEngine.RewardManager do
       end)
 
     new_redeem_from =
-      Enum.map(redeem_from, fn {player, amount} -> {player, amount - losers_will_pay[player]} end)
+      Enum.map(redeem_from, fn {player, amount} ->
+        {player, amount - losers_will_pay[player]}
+      end)
       |> Enum.into(%{})
 
     new_redeem_from =

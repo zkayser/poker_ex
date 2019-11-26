@@ -1,4 +1,5 @@
 defmodule PokerEx.GameEngine.Impl do
+  alias PokerEx.Players.Bank
   alias PokerEx.{Player, Events}
 
   alias PokerEx.GameEngine.{
@@ -147,11 +148,11 @@ defmodule PokerEx.GameEngine.Impl do
     end
   end
 
-  @spec leave(t(), Player.name()) :: result()
+  @spec leave(t(), Player.t()) :: result()
   def leave(%{phase: phase} = engine, player) when phase in [:idle, :between_rounds] do
     with {:ok, chips} <- ChipManager.leave(engine, player),
          {:ok, player_tracker} <- PlayerTracker.leave(engine, player),
-         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player]),
+         {:ok, player} <- Bank.credit(player, engine.chips.chip_roll[player.name]),
          seating <- Seating.leave(engine, player) do
       {:ok,
        GameState.update(engine, [

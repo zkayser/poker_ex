@@ -40,11 +40,13 @@ defmodule PokerEx.ChipManagerTest do
 
   describe "post_blinds/1" do
     test "automatically places bets for the small and big blinds", _ do
-      {%{name: big_blind}, %{name: small_blind}} = {insert_user(), insert_user()}
+      {big_blind, small_blind} = {insert_user(), insert_user()}
+      big_blind_name = big_blind.name
+      small_blind_name = small_blind.name
 
       engine = Engine.new()
       seating = %Seating{arrangement: [{big_blind, 0}, {small_blind, 1}]}
-      chips = %{engine.chips | chip_roll: %{big_blind => 200, small_blind => 200}}
+      chips = %{engine.chips | chip_roll: %{big_blind.name => 200, small_blind.name => 200}}
 
       engine = %Engine{
         engine
@@ -58,9 +60,9 @@ defmodule PokerEx.ChipManagerTest do
                ChipManager.post_blinds(engine)
 
       # 190 for big_blind because big blind = 10; small blind = 5 -> (200 - 10 & 200 - 5)
-      assert %{^big_blind => 190, ^small_blind => 195} = chip_roll
-      assert %{^big_blind => 10, ^small_blind => 5} = paid
-      assert %{^big_blind => 10, ^small_blind => 5} = round
+      assert %{^big_blind_name => 190, ^small_blind_name => 195} = chip_roll
+      assert %{^big_blind_name => 10, ^small_blind_name => 5} = paid
+      assert %{^big_blind_name => 10, ^small_blind_name => 5} = round
     end
   end
 
@@ -73,14 +75,14 @@ defmodule PokerEx.ChipManagerTest do
 
       [active_player | _] = engine.player_tracker.active
       assert {:ok, chips} = ChipManager.call(engine, active_player)
-      assert chips.chip_roll[active_player] == 190
-      assert chips.paid[active_player] == 10
-      assert chips.round[active_player] == 10
+      assert chips.chip_roll[active_player.name] == 190
+      assert chips.paid[active_player.name] == 10
+      assert chips.round[active_player.name] == 10
     end
 
     test "does not allow non-active players to call", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
-      non_active_player = engine.player_tracker.active |> Enum.drop(1) |> Enum.take(1)
+      [non_active_player | _] = engine.player_tracker.active |> Enum.drop(1) |> Enum.take(1)
       assert {:error, :out_of_turn} = ChipManager.call(engine, non_active_player)
     end
 
@@ -93,9 +95,9 @@ defmodule PokerEx.ChipManagerTest do
       engine = %Engine{engine | chips: chips}
       [active_player | _] = engine.player_tracker.active
       assert {:ok, chips} = ChipManager.call(engine, active_player)
-      assert chips.chip_roll[active_player] == 0
-      assert chips.paid[active_player] == 200
-      assert chips.round[active_player] == 200
+      assert chips.chip_roll[active_player.name] == 0
+      assert chips.paid[active_player.name] == 200
+      assert chips.round[active_player.name] == 200
     end
   end
 
@@ -111,9 +113,9 @@ defmodule PokerEx.ChipManagerTest do
       assert {:ok, chips} = ChipManager.raise(engine, active_player, 30)
       assert chips.to_call == 30
       assert chips.pot == 40
-      assert chips.chip_roll[active_player] == 170
-      assert chips.round[active_player] == 30
-      assert chips.paid[active_player] == 30
+      assert chips.chip_roll[active_player.name] == 170
+      assert chips.round[active_player.name] == 30
+      assert chips.paid[active_player.name] == 30
     end
 
     test "limits raises to the number of chips the player has in their chip roll", context do
@@ -124,8 +126,8 @@ defmodule PokerEx.ChipManagerTest do
       [active_player | _] = engine.player_tracker.active
       assert {:ok, chips} = ChipManager.raise(engine, active_player, 201)
       assert chips.to_call == 200
-      assert chips.round[active_player] == 200
-      assert chips.chip_roll[active_player] == 0
+      assert chips.round[active_player.name] == 200
+      assert chips.chip_roll[active_player.name] == 0
     end
 
     test "does not allow raises if a player does not have enough chips to raise", context do
@@ -138,9 +140,9 @@ defmodule PokerEx.ChipManagerTest do
       [active_player | _] = engine.player_tracker.active
       assert {:ok, chips} = ChipManager.raise(engine, active_player, 200)
       assert chips.to_call == 400
-      assert chips.round[active_player] == 200
-      assert chips.paid[active_player] == 200
-      assert chips.chip_roll[active_player] == 0
+      assert chips.round[active_player.name] == 200
+      assert chips.paid[active_player.name] == 200
+      assert chips.chip_roll[active_player.name] == 0
       assert chips.pot == 600
     end
 
@@ -154,9 +156,9 @@ defmodule PokerEx.ChipManagerTest do
       [active_player | _] = engine.player_tracker.active
       assert {:ok, chips} = ChipManager.raise(engine, active_player, 300)
       assert chips.to_call == 200
-      assert chips.round[active_player] == 200
-      assert chips.paid[active_player] == 200
-      assert chips.chip_roll[active_player] == 0
+      assert chips.round[active_player.name] == 200
+      assert chips.paid[active_player.name] == 200
+      assert chips.chip_roll[active_player.name] == 0
       assert chips.pot == 210
     end
 
@@ -171,12 +173,12 @@ defmodule PokerEx.ChipManagerTest do
 
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
-          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player.name, 10) end)
         end)
 
       assert {:ok, chips} = ChipManager.raise(engine, active_player, 5)
       assert chips.to_call == 15
-      assert chips.round[active_player] == 15
+      assert chips.round[active_player.name] == 15
       assert chips.pot == 15
     end
 
@@ -201,7 +203,7 @@ defmodule PokerEx.ChipManagerTest do
 
       engine =
         Map.update(engine, :chips, %{}, fn chips ->
-          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player, 10) end)
+          Map.update(chips, :round, %{}, fn round -> Map.put(round, active_player.name, 10) end)
         end)
 
       assert {:ok, chips} = ChipManager.check(engine, active_player)
@@ -303,19 +305,19 @@ defmodule PokerEx.ChipManagerTest do
           %{chips | to_call: 10, round: Map.put(%{}, context.p1.name, 10)}
         end)
 
-      assert ChipManager.can_player_check?(engine, context.p1.name)
+      assert ChipManager.can_player_check?(engine, context.p1)
     end
 
     test "returns true if the to_call amount is 0", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
-      assert ChipManager.can_player_check?(engine, context.p1.name)
+      assert ChipManager.can_player_check?(engine, context.p1)
     end
 
     test "returns false if the player is not active", context do
       engine = Map.put(Engine.new(), :player_tracker, TestData.insert_active_players(context))
 
-      refute ChipManager.can_player_check?(engine, context.p2.name)
+      refute ChipManager.can_player_check?(engine, context.p2)
     end
   end
 

@@ -288,27 +288,45 @@ defmodule PokerEx.Player do
   # player leaves the room. This should be fleshed out with an
   # integration test in the `RoomsChannelTest`.
   @spec reward(String.t(), non_neg_integer, atom()) :: {:ok, Player.t()} | {:error, term()}
+  def reward(%Player{} = player, nil, _), do: {:ok, player}
   def reward(name, nil, _), do: {:ok, by_name(name)}
+
+  def reward(%Player{} = player, amount, _room_id) do
+    changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+
+    case Repo.update(changeset) do
+      {:ok, player_struct} ->
+        {:ok, player_struct}
+
+      {:error, _} ->
+        {:error, "problem updating chips"}
+    end
+  end
 
   def reward(name, amount, _room_id) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^name)) do
-      changeset = chip_changeset(player, %{"chips" => player.chips + amount})
-
-      case Repo.update(changeset) do
-        {:ok, player_struct} ->
-          {:ok, player_struct}
-
-        {:error, _} ->
-          {:error, "problem updating chips"}
-      end
+      reward(player, amount)
     else
       _ -> {:error, :player_not_found}
+    end
+  end
+
+  def reward(%Player{} = player, amount) do
+    changeset = chip_changeset(player, %{"chips" => player.chips + amount})
+
+    case Repo.update(changeset) do
+      {:ok, player_struct} ->
+        {:ok, player_struct}
+
+      {:error, _} ->
+        {:error, "problem updating chips"}
     end
   end
 
   def update_chips(username, amount) when amount >= 0, do: reward(username, amount, nil)
   def update_chips(_, _), do: {:error, :negative_chip_amount}
 
+  def subtract_chips(_, amount) when amount < 0, do: {:error, "cannot debit a negative chip amount"}
   def subtract_chips(username, amount) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^username)) do
       if amount <= player.chips do
@@ -319,7 +337,7 @@ defmodule PokerEx.Player do
           {:error, _} -> {:error, "problem updating chips"}
         end
       else
-        {:ok, player}
+        {:error, :insufficient_chips}
       end
     else
       _ -> {:error, :player_not_found}
@@ -392,4 +410,8 @@ defmodule PokerEx.Player do
   end
 
   defp validate_chips_update(changeset, _chips), do: changeset
+end
+
+defimpl String.Chars, for: PokerEx.Player do
+  def to_string(%PokerEx.Player{name: name}), do: name
 end
