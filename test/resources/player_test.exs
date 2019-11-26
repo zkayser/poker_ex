@@ -96,8 +96,7 @@ defmodule PokerEx.PlayerTest do
 
     test "subtract_chips/2 does not modify the player if the subtraction amount is > player.chips",
          context do
-      {:ok, non_updated_player} = Player.subtract_chips(context.player.name, 1_000_000)
-      assert non_updated_player == context.player
+      assert {:error, :insufficient_chips} = Player.subtract_chips(context.player.name, 1_000_000)
     end
 
     test "subtract_chips/2 returns an error tuple when given a non-existent user", _context do
