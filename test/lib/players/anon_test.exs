@@ -56,4 +56,10 @@ defmodule PokerEx.Players.AnonTest do
       assert :error = Anon.credit(player, -1000)
     end
   end
+
+  describe "String.Chars protocol" do
+    test "returns the player's name" do
+      assert "name" == "#{%Anon{name: "name"}}"
+    end
+  end
 end

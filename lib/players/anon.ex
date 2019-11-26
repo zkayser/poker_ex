@@ -43,4 +43,8 @@ defmodule PokerEx.Players.Anon do
   def credit(%__MODULE__{chips: chips} = player, credited) do
     {:ok, %__MODULE__{player | chips: chips + credited}}
   end
+
+  defimpl String.Chars, for: __MODULE__ do
+    def to_string(%PokerEx.Players.Anon{name: name}), do: "#{name}"
+  end
 end
