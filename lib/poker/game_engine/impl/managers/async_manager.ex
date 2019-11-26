@@ -1,5 +1,6 @@
 defmodule PokerEx.GameEngine.AsyncManager do
   alias PokerEx.Player
+  alias PokerEx.Players.Bank
   alias PokerEx.GameEngine.{Seating, PlayerTracker, ChipManager, CardManager}
 
   @moduledoc """
@@ -92,8 +93,8 @@ defmodule PokerEx.GameEngine.AsyncManager do
   defp auto_fold(engine, player) do
     with {:ok, player_tracker} = PlayerTracker.fold(engine, player),
          seating <- Seating.leave(engine, player),
-         {:ok, player} <- Player.update_chips(player, engine.chips.chip_roll[player.name]),
-         {:ok, cards} <- CardManager.fold(engine, player.name),
+         {:ok, player} <- Bank.credit(player, engine.chips.chip_roll[player.name]),
+         {:ok, cards} <- CardManager.fold(engine, player),
          {:ok, chips} <- ChipManager.leave(engine, player) do
       {:ok,
        %{
@@ -143,7 +144,7 @@ defmodule PokerEx.GameEngine.AsyncManager do
   end
 
   defp do_add_chips(engine, player, amount) do
-    with {:ok, player} <- Player.subtract_chips(player.name, amount) do
+    with {:ok, player} <- Bank.debit(player, amount) do
       %{chips: chips} =
         Map.update(engine, :chips, %{}, fn chips ->
           Map.update(chips, :chip_roll, %{}, fn chip_roll ->

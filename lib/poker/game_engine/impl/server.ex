@@ -2,7 +2,7 @@ defmodule PokerEx.GameEngine.Server do
   use GenServer
   require Logger
   alias PokerEx.GameEngine.Impl, as: Game
-  alias PokerEx.Player
+  alias PokerEx.Players.Bank
 
   @valid_funcs [
     :join,
@@ -86,7 +86,7 @@ defmodule PokerEx.GameEngine.Server do
   defp restore_chips_to_players(chips) do
     chips.chip_roll
     |> Map.keys()
-    |> Enum.each(fn p -> Player.update_chips(p, restore_chips(chips, p)) end)
+    |> Enum.each(fn p -> Bank.credit(p, restore_chips(chips, p)) end)
   end
 
   defp restore_chips(%{chip_roll: chip_roll, paid: paid}, player) do

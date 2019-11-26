@@ -1,5 +1,6 @@
 defmodule PokerEx.GameEngine.ChipManager do
   alias PokerEx.Player
+  alias PokerEx.Players.Bank
   alias PokerEx.GameEngine.GameState
   @minimum_join_amount 100
   @big_blind 10
@@ -42,7 +43,7 @@ defmodule PokerEx.GameEngine.ChipManager do
   def join(%{chips: chips}, player, join_amount)
       when join_amount >= @minimum_join_amount do
     with true <- player.chips >= join_amount,
-         {:ok, player} <- Player.subtract_chips(player.name, join_amount) do
+         {:ok, player} <- Bank.debit(player, join_amount) do
       {:ok, GameState.update(chips, [{:chip_roll, player.name, join_amount}])}
     else
       false ->
