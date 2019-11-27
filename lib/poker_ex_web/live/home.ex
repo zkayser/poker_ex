@@ -6,9 +6,16 @@ defmodule PokerExWeb.Live.Home do
   end
 
   def mount(%{games: games} = _session, socket) do
+    send(self(), :setup)
+
     {:ok,
      assign(socket,
       games: (for game <- games, do: :sys.get_state(PokerEx.GameEngine.GamesSupervisor.name_for(game)))
      )}
+  end
+
+  def handle_info(:setup, socket) do
+    # PokerEx.GameEngine.subscribe(to: socket.assigns.games)
+    {:ok, socket}
   end
 end
