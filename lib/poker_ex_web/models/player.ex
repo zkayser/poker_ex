@@ -326,7 +326,9 @@ defmodule PokerEx.Player do
   def update_chips(username, amount) when amount >= 0, do: reward(username, amount, nil)
   def update_chips(_, _), do: {:error, :negative_chip_amount}
 
-  def subtract_chips(_, amount) when amount < 0, do: {:error, "cannot debit a negative chip amount"}
+  def subtract_chips(_, amount) when amount < 0,
+    do: {:error, "cannot debit a negative chip amount"}
+
   def subtract_chips(username, amount) do
     with %Player{} = player <- Repo.one(from(p in Player, where: p.name == ^username)) do
       if amount <= player.chips do

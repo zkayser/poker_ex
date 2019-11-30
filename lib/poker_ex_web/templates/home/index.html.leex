@@ -23,7 +23,7 @@
               <p class="u-push-bottom--none"><%= game.chips.pot %></p>
             </div>
           </div>
-          <a class="btn" href="#">Join Game</a>
+          <a class="btn" href="<%= Routes.game_path(PokerExWeb.Endpoint, :show, game.game_id) %>">Join Game</a>
         </div>
       <% end %>
     </div>

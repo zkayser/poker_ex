@@ -4,8 +4,10 @@ defmodule PokerExWeb.HomeController do
   alias PokerExWeb.Live.Home
 
   def index(conn, _params) do
-    LiveView.Controller.live_render(conn, Home, session: %{
-      games: PokerEx.GameEngine.GamesServer.get_games |> Enum.take(12)
-    })
+    LiveView.Controller.live_render(conn, Home,
+      session: %{
+        games: PokerEx.GameEngine.GamesServer.get_games() |> Enum.take(12)
+      }
+    )
   end
 end

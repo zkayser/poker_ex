@@ -30,7 +30,8 @@ defmodule PokerEx.GameEngine.Server do
 
   def terminate(:normal, %Game{type: :public}), do: :void
 
-  def terminate(_reason, %Game{type: :public, chips: chips, seating: seating}) when is_map(chips) do
+  def terminate(_reason, %Game{type: :public, chips: chips, seating: seating})
+      when is_map(chips) do
     Logger.warn("Terminating public game and restoring chips to players")
     restore_chips_to_players(chips, seating)
   end

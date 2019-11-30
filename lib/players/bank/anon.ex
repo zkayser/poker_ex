@@ -1,6 +1,6 @@
 defimpl PokerEx.Players.Bank, for: PokerEx.Players.Anon do
-
-  def debit(%PokerEx.Players.Anon{chips: chips} = player, amount) when amount <= chips and amount >= 0 do
+  def debit(%PokerEx.Players.Anon{chips: chips} = player, amount)
+      when amount <= chips and amount >= 0 do
     {:ok, %PokerEx.Players.Anon{player | chips: chips - amount}}
   end
 

@@ -52,9 +52,9 @@ defmodule PokerEx.Players.BankTest do
     end
   end
 
-
   def player do
     insert_user()
   end
+
   def anon_player, do: Anon.new(%{"name" => "Anon_player:#{random_string()}"}) |> elem(1)
 end

@@ -10,7 +10,8 @@ defmodule PokerExWeb.Live.Home do
 
     {:ok,
      assign(socket,
-      games: (for game <- games, do: :sys.get_state(PokerEx.GameEngine.GamesSupervisor.name_for(game)))
+       games:
+         for(game <- games, do: :sys.get_state(PokerEx.GameEngine.GamesSupervisor.name_for(game)))
      )}
   end
 
