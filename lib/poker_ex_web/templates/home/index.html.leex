@@ -6,6 +6,7 @@
     <div class="card--container">
       <%= for game <- @games do %>
         <div class="card u-push-bottom" data-testid="game_card">
+          <img class="spade-icon" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/spade_icon.svg") %>" >
           <h2><%= title(game) %></h2>
           <div class="grid grid--2 u-push-bottom--sm">
             <div class="number--background u-center">
