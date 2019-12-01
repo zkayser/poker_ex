@@ -10,6 +10,7 @@ defmodule PokerExWeb.HomeView do
   def status(%{phase: phase}) do
     phase
     |> Atom.to_string()
+    |> String.replace("_", "-")
     |> String.capitalize()
   end
 end
