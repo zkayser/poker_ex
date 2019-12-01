@@ -1,6 +1,7 @@
 defmodule PokerEx.GameEngine.Server do
   use GenServer
   require Logger
+  alias PokerEx.GameEngine.GameEvents
   alias PokerEx.GameEngine.Impl, as: Game
   alias PokerEx.Players.Bank
 
@@ -30,7 +31,8 @@ defmodule PokerEx.GameEngine.Server do
 
   def terminate(:normal, %Game{type: :public}), do: :void
 
-  def terminate(_reason, %Game{type: :public, chips: chips, seating: seating}) when is_map(chips) do
+  def terminate(_reason, %Game{type: :public, chips: chips, seating: seating})
+      when is_map(chips) do
     Logger.warn("Terminating public game and restoring chips to players")
     restore_chips_to_players(chips, seating)
   end
@@ -64,6 +66,7 @@ defmodule PokerEx.GameEngine.Server do
     case function in @valid_funcs do
       true ->
         with {:ok, game_update} <- apply(Game, function, [game | arguments]) do
+          GameEvents.notify_subscribers(game_update)
           {:reply, game_update, game_update}
         else
           {:error, :already_joined} ->

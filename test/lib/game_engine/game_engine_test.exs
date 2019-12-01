@@ -12,6 +12,12 @@ defmodule PokerEx.GameEngine.ImplTest do
   expected behavior.
   """
 
+  describe "get_state/1" do
+    test "returns the current state for the game_id passed in" do
+      assert %Game{game_id: "game_1"} = PokerEx.GameEngine.get_state("game_1")
+    end
+  end
+
   describe "call/2" do
     test "does not allow players to call out of turn", context do
       engine = TestData.setup_multiplayer_game(context)

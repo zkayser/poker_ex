@@ -1,0 +1,32 @@
+<div class="container">
+  <div class="h-center">
+    <h1 class="poker-green">Poker Ex</h1>
+  </div>
+  <div class="card--wrapper">
+    <div class="card--container">
+      <%= for game <- @games do %>
+        <div class="card u-push-bottom" data-testid="game_card">
+          <img class="spade-icon" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/spade_icon.svg") %>" >
+          <h2><%= title(game) %></h2>
+          <div class="grid grid--2 u-push-bottom--sm">
+            <div class="number--background u-center">
+              <p class="caption">Players</p>
+              <p class="u-push-bottom--none"><%= length(game.seating.arrangement) %></p>
+            </div>
+            <div class="number--background u-center">
+              <p class="caption">Status</p>
+              <p class="u-push-bottom--none"><%= status(game) %></p>
+            </div>
+          </div>
+          <div class="grid u-push-bottom--sm">
+            <div class="number--background u-center">
+              <p class="caption">Current Pot</p>
+              <p class="u-push-bottom--none"><%= game.chips.pot %></p>
+            </div>
+          </div>
+          <a class="btn" href="<%= Routes.game_path(PokerExWeb.Endpoint, :show, game.game_id) %>">Join Game</a>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

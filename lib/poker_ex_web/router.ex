@@ -32,6 +32,7 @@ defmodule PokerExWeb.Router do
     pipe_through :browser
 
     get "/", HomeController, :index
+    resources "/games", GameController, only: [:show]
   end
 
   # if Mix.env == :dev do

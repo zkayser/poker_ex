@@ -1,21 +1,113 @@
 html,
 body {
   height: 100%;
+  color: #1e3328;
 }
 
-body {
-  background-color: #36393f;
-  color: white;
+h1 {
+  font-family: 'Vast Shadow', cursive;
+  font-size: 4rem;
 }
 
-.centered {
-  height: 100vh;
-  width: 100vw;
+h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: calc(2rem/2);
+  text-transform: capitalize;
+}
+
+.spade-icon {
+  height: 4em;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: calc(2rem/2);
+}
+
+.grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.number--background {
+  padding: calc(2rem/2) calc(2rem/2.5);
+  border-radius: 25px;
+  background-color: #f4f4f4;
+  color: #518972;
+}
+
+.number--background .caption {
+  margin: 0;
+  color: #1e3328;
+}
+
+.u-push-bottom--sm {
+  margin-bottom: calc(2rem/2);
+}
+
+.u-push-bottom--none {
+  margin-bottom: 0;
+}
+
+.h-center {
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
-.overflow {
-  overflow: visible;
+.poker-green {
+  color: #518972;
+}
+
+.card--wrapper {
+  margin: 0 30px 0 30px;
+}
+
+.card--container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-column-gap: 15px;
+  grid-row-gap: 15px;
+  width: 100%;
+}
+
+.card {
+  background-color: #fcfcfc;
+  border-radius: 25px;
+  box-shadow: 0px 0px 30px rgba(146, 146, 146, 0.18);
+  overflow: hidden;
+  text-align: center;
+  padding: 0 2rem 2rem 2rem;
+}
+
+.u-padded {
+  padding: 2rem;
+}
+
+.u-push-bottom {
+  margin-bottom: 2rem;
+}
+
+.underline {
+  text-decoration: underline;
+}
+
+.btn {
+  display: block;
+  margin: 0 auto calc(2rem/2);
+  padding: calc(2rem/1.5) calc(2rem/2);
+  border-radius: 75px;
+  background: linear-gradient(113deg, #518972 0%, rgba(6, 71, 99, 0.9) 45%, #518972 85%);
+  background-size: 400% 400%;
+  color: #fcfcfc;
+  font-family: "PT Sans", sans-serif;
+  font-weight: 200;
+  font-size: 1.2em;
+  line-height: 1.5;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.4s ease;
+  animation: btnGradient 25s ease infinite;
 }
