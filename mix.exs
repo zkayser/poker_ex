@@ -25,6 +25,7 @@ defmodule PokerEx.Mixfile do
         :phoenix,
         :phoenix_pubsub,
         :phoenix_html,
+        :phoenix_live_view,
         :ecto_sql,
         :jason,
         :plug_cowboy,
@@ -56,14 +57,14 @@ defmodule PokerEx.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.4.0"},
+      {:phoenix, "~> 1.4.9"},
       {:phoenix_pubsub, "~> 1.0"},
       {:ecto_sql, "~> 3.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.6"},
       {:phoenix_live_reload, "~> 1.2.0", only: :dev},
-      {:phoenix_live_view, "~> 0.3.0"},
+      {:phoenix_live_view, "~> 0.3.1"},
       {:floki, ">= 0.0.0", only: :test},
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 2.0"},

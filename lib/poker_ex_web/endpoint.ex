@@ -16,6 +16,22 @@ defmodule PokerExWeb.Endpoint do
     ]
   )
 
+  socket "/live", Phoenix.LiveView.Socket,
+  websocket: [
+    timeout: 45_000,
+    check_origin: [
+      "http://localhost:8080",
+      "http://localhost:8081",
+      "//localhost",
+      "http://0.0.0.0:8081",
+      "http://10.20.30.194:8081",
+      "http://192.168.1.7:8081",
+      "https://ancient-forest-15148.herokuapp.com/",
+      "https://poker-ex.herokuapp.com/"
+    ]
+  ]
+
+
   # Enable concurrent testing
   if Application.get_env(:poker_ex, :sql_sandbox) do
     plug(Phoenix.Ecto.SQL.Sandbox)

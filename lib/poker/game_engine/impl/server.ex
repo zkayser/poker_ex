@@ -1,6 +1,7 @@
 defmodule PokerEx.GameEngine.Server do
   use GenServer
   require Logger
+  alias PokerEx.GameEngine.GameEvents
   alias PokerEx.GameEngine.Impl, as: Game
   alias PokerEx.Players.Bank
 
@@ -65,6 +66,7 @@ defmodule PokerEx.GameEngine.Server do
     case function in @valid_funcs do
       true ->
         with {:ok, game_update} <- apply(Game, function, [game | arguments]) do
+          GameEvents.notify_subscribers(game_update)
           {:reply, game_update, game_update}
         else
           {:error, :already_joined} ->

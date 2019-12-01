@@ -1,4 +1,6 @@
 defmodule PokerExWeb.Live.Home do
+  alias PokerEx.GameEngine.GameEvents
+  alias PokerEx.GameEngine
   use Phoenix.LiveView
 
   def render(assigns) do
@@ -6,17 +8,34 @@ defmodule PokerExWeb.Live.Home do
   end
 
   def mount(%{games: games} = _session, socket) do
-    send(self(), :setup)
-
-    {:ok,
-     assign(socket,
-       games:
-         for(game <- games, do: :sys.get_state(PokerEx.GameEngine.GamesSupervisor.name_for(game)))
-     )}
+    send(self(), {:setup, games})
+    {:ok, assign(socket, games: [])}
   end
 
-  def handle_info(:setup, socket) do
-    # PokerEx.GameEngine.subscribe(to: socket.assigns.games)
-    {:ok, socket}
+  def handle_info({:setup, games}, socket) do
+    socket =
+      socket
+      |> assign(games: (for game <- games, do: GameEngine.get_state(game)))
+
+    Enum.each(socket.assigns.games, &GameEvents.subscribe/1)
+    {:noreply, socket}
+  end
+
+  def handle_info(%Phoenix.Socket.Broadcast{event: "update", payload: %GameEngine.Impl{} = game_update}, socket) do
+    socket =
+      socket
+      |> assign(games: update_game(socket.assigns.games, game_update))
+
+    {:noreply, socket}
+  end
+
+  defp update_game(games, update) do
+    games
+    |> Enum.map(fn game ->
+      case game.game_id == update.game_id do
+        true -> update
+        false -> game
+      end
+    end)
   end
 end

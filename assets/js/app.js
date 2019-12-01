@@ -19,6 +19,6 @@ import "phoenix_html"
 import { Socket } from "phoenix";
 import LiveSocket from "phoenix_live_view";
 
-console.log('App loaded...');
-console.log('Socket: ', Socket);
-console.log('LiveSocket: ', LiveSocket);
+
+let liveSocket = new LiveSocket("/live", Socket, {});
+liveSocket.connect()
