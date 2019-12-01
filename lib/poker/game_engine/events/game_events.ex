@@ -16,13 +16,14 @@ defmodule PokerEx.GameEngine.GameEvents do
   def subscribe(%GameEngine{game_id: game_id}) do
     Endpoint.subscribe("poker_ex:#{game_id}")
   end
+
   def subscribe(_), do: {:error, :invalid_game}
 
   @doc """
   Notifies subscribers of game updates. Sends the
   game struct to the topic for the given game.
   """
-  @spec notify_subscribers(GameEngine.t()) :: :ok, {:error, term()}
+  @spec(notify_subscribers(GameEngine.t()) :: :ok, {:error, term()})
   def notify_subscribers(%GameEngine{game_id: game_id} = game_engine) do
     Endpoint.broadcast("poker_ex:#{game_id}", "update", game_engine)
   end

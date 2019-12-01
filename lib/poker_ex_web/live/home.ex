@@ -15,13 +15,16 @@ defmodule PokerExWeb.Live.Home do
   def handle_info({:setup, games}, socket) do
     socket =
       socket
-      |> assign(games: (for game <- games, do: GameEngine.get_state(game)))
+      |> assign(games: for(game <- games, do: GameEngine.get_state(game)))
 
     Enum.each(socket.assigns.games, &GameEvents.subscribe/1)
     {:noreply, socket}
   end
 
-  def handle_info(%Phoenix.Socket.Broadcast{event: "update", payload: %GameEngine.Impl{} = game_update}, socket) do
+  def handle_info(
+        %Phoenix.Socket.Broadcast{event: "update", payload: %GameEngine.Impl{} = game_update},
+        socket
+      ) do
     socket =
       socket
       |> assign(games: update_game(socket.assigns.games, game_update))
