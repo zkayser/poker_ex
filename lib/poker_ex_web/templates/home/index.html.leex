@@ -4,9 +4,9 @@
   </div>
   <div class="card--wrapper">
     <div class="card--container">
-      <%= for game <- @games do %>
+      <%= for {game, index} <- Enum.with_index(@games) do %>
         <div class="card u-push-bottom" data-testid="game_card">
-          <img class="spade-icon" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/spade_icon.svg") %>" >
+          <%= render(PokerExWeb.IconView, "index.html", suit: Enum.at(~w(heart spade diamond club), rem(index, 4))) %>
           <h2><%= title(game) %></h2>
           <div class="grid grid--2 u-push-bottom--sm">
             <div class="number--background u-center">

@@ -16,10 +16,8 @@ h2 {
   text-transform: capitalize;
 }
 
-.spade-icon {
-  height: 4em;
-  margin-top: 5px;
-  padding-top: 5px;
+.card__icon {
+  margin-top: 1rem;
 }
 
 .grid {
