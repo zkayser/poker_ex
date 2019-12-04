@@ -147,6 +147,10 @@ p {
   width: 250px;
 }
 
+.disabled {
+  opacity: 0.5;
+}
+
 input, select, textarea {
   display: block;
   width: 100%;
