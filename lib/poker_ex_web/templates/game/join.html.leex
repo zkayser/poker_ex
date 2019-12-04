@@ -1,1 +1,7 @@
-<div>Join the game</div>
+<div class="join-component-container">
+  <div class="join-component">
+    <h2 class="poker-green">Join Game</h2>
+    <input data-testid="name-input" value="<%= @name %>" placeholder="Enter username" phx-change="change_name">
+    <a <%= unless @name, do: "disabled"  %> class="btn" href="#" phx-click="attempt_join">Join</a>
+  </div>
+</div>

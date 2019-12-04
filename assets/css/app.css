@@ -2,6 +2,7 @@ html,
 body {
   height: 100%;
   color: #1e3328;
+  margin: 0;
 }
 
 h1 {
@@ -14,6 +15,11 @@ h2 {
   font-weight: 600;
   margin-bottom: calc(2rem/2);
   text-transform: capitalize;
+}
+
+p {
+  margin-block-start: 0;
+  margin-block-end: 0;
 }
 
 .card__icon {
@@ -108,4 +114,51 @@ h2 {
   text-decoration: none;
   transition: all 0.4s ease;
   animation: btnGradient 25s ease infinite;
+}
+
+.join-component-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.join-component {
+  border: 1px solid #518972;
+  margin: 1rem;
+  border-radius: 2em;
+  padding: 1rem;
+  width: 400px;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+}
+
+.join-component input {
+  margin: 1rem;
+  width: 300px;
+}
+
+.join-component .btn {
+  width: 250px;
+}
+
+input, select, textarea {
+  display: block;
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: calc(2rem/2.5);
+  border: solid 3px #2C043F;
+  border-radius: 10px;
+  color: #518972;
+  font-family: "PT Sans", sans-serif;
+}
+
+[data-phx-view="Live.Game"] {
+  width: 100%;
+  height: 100%;
 }

@@ -16,10 +16,10 @@ defmodule PokerExWeb.GameControllerTest do
              |> html_response(200)
     end
 
-    test "renders the Join component by default", %{conn: conn} do
+    test "renders the JoinComponent", %{conn: conn} do
       {:ok, view, _live} = live(conn, "games/game_1")
 
-      assert render(view) =~ render_component(JoinComponent, id: :join, name: nil, amount: nil)
+      assert render(view) =~ "Join Game"
     end
   end
 end
