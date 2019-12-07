@@ -14,7 +14,7 @@ defmodule PokerExWeb.PlayerView do
     player_json(player)
   end
 
-  def render("player.json", %{player: player}) do
+  def render("player.json", %{player: %PokerEx.Player{} = player}) do
     %{
       id: player.id,
       name: player.name,
@@ -23,6 +23,14 @@ defmodule PokerExWeb.PlayerView do
       firstName: player.first_name,
       lastName: player.last_name,
       email: player.email
+    }
+  end
+
+  def render("player.json", %{player: %PokerEx.Players.Anon{} = player}) do
+    %{
+      id: player.guest_id,
+      chips: player.chips,
+      name: player.name
     }
   end
 
