@@ -16,7 +16,9 @@ defmodule PokerEx.Players.Anon do
   @spec new(map()) :: {:ok, t()} | {:error, :missing_name}
   def new(%{"name" => name}) when is_binary(name) do
     case String.trim_leading(name) do
-      "" -> {:error, :missing_name}
+      "" ->
+        {:error, :missing_name}
+
       _ ->
         {:ok,
          %__MODULE__{
