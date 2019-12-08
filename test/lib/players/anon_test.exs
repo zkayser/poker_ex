@@ -21,6 +21,18 @@ defmodule PokerEx.Players.AnonTest do
     test "returns an error tuple if no name is given" do
       assert {:error, :missing_name} = Anon.new(%{"nombe" => "nope"})
     end
+
+    test "returns an error if an empty string is given" do
+      assert {:error, :missing_name} = Anon.new(%{"name" => ""})
+    end
+
+    test "returns an error if nil is passed for name" do
+      assert {:error, :missing_name} = Anon.new(%{"name" => nil})
+    end
+
+    test "returns error if multiple white spaces are given as player name" do
+      assert {:error, :missing_name} = Anon.new(%{"name" => "      \t\n"})
+    end
   end
 
   describe "String.Chars protocol" do

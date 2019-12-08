@@ -14,12 +14,16 @@ defmodule PokerEx.Players.Anon do
   @type t() :: %__MODULE__{name: String.t(), chips: non_neg_integer(), guest_id: String.t()}
 
   @spec new(map()) :: {:ok, t()} | {:error, :missing_name}
-  def new(%{"name" => name}) do
-    {:ok,
-     %__MODULE__{
-       name: name,
-       guest_id: "#{name}_GUEST_#{Base.encode16(:crypto.strong_rand_bytes(8))}"
-     }}
+  def new(%{"name" => name}) when is_binary(name) do
+    case String.trim_leading(name) do
+      "" -> {:error, :missing_name}
+      _ ->
+        {:ok,
+         %__MODULE__{
+           name: name,
+           guest_id: "#{name}_GUEST_#{Base.encode16(:crypto.strong_rand_bytes(8))}"
+         }}
+    end
   end
 
   def new(_), do: {:error, :missing_name}
