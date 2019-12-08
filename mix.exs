@@ -64,7 +64,7 @@ defmodule PokerEx.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.6"},
       {:phoenix_live_reload, "~> 1.2.0", only: :dev},
-      {:phoenix_live_view, "~> 0.3.1"},
+      {:phoenix_live_view, "~> 0.4.0"},
       {:floki, ">= 0.0.0", only: :test},
       {:gettext, "~> 0.11"},
       {:plug_cowboy, "~> 2.0"},

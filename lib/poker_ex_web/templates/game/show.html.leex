@@ -1,1 +1,6 @@
-<div>Placeholder</div>
+<%= unless @current_player do %>
+  <%= render "_join.html", name: @name, errors: @errors %>
+<% end %>
+<%= if @current_player && @game do %>
+  <div>Game</div>
+<% end %>

@@ -54,6 +54,10 @@ defmodule PokerEx.GameEngine do
     call_gen_server(game_id, :state)
   end
 
+  def is_player_seated?(game_id, player) do
+    call_gen_server(game_id, {:is_player_seated?, player})
+  end
+
   def add_chips(game_id, player, amount) when amount > 0 do
     call_gen_server(game_id, {:add_chips, player.name, amount})
   end

@@ -10,9 +10,6 @@
     <link href="https://fonts.googleapis.com/css?family=Vast+Shadow&display=swap" rel="stylesheet">
   </head>
   <body>
-
-    <p class="alert alert--info alert--hide" role="alert"><%= get_flash(@conn, :info) %></p>
-    <p class="alert alert--danger alert--hide" role="alert"><%= get_flash(@conn, :error) %></p>
       <%= render @view_module, @view_template, assigns %>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
