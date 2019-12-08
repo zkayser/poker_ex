@@ -1,19 +1,5 @@
 <%= unless @current_player do %>
-  <div class="join-component-container" data-testid="join-component">
-    <div class="join-component">
-      <h2 class="poker-green">Join Game</h2>
-      <form phx-change="change_name" phx-submit="attempt_join">
-        <input 
-          name="name" 
-          id="join-name-input"
-          data-testid="name-input" 
-          value="<%= @name %>" 
-          placeholder="Enter username" 
-        />
-      </form>
-      <a class="btn <%= unless @name, do: "disabled"  %>" href="#" phx-click="attempt_join">Join</a>
-    </div>
-  </div>
+  <%= render "_join.html", name: @name, errors: @errors %>
 <% end %>
 <%= if @current_player do %>
   <span></span>

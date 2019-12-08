@@ -151,6 +151,10 @@ p {
   opacity: 0.5;
 }
 
+.error {
+  color: lightcoral;
+}
+
 input, select, textarea {
   display: block;
   width: 100%;

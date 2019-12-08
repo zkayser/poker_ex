@@ -60,6 +60,13 @@ defmodule PokerEx.GameEngine.Server do
     {:reply, new_game, new_game}
   end
 
+  def handle_call({:is_player_seated?, player}, _from, game) do
+    case PokerEx.GameEngine.Seating.is_player_seated?(game, player) do
+      true -> {:reply, :already_joined, game}
+      false -> {:reply, :ok, game}
+    end
+  end
+
   def handle_call(args, _from, game) do
     [function | arguments] = Tuple.to_list(args)
 
