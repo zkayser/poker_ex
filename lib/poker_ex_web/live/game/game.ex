@@ -36,16 +36,25 @@ defmodule PokerExWeb.Live.Game do
 
   defp join_game(%{assigns: %{name: name}} = socket) when is_binary(name) do
     with {:ok, %Anon{} = player} <- Anon.new(%{"name" => name}),
-      %GameEngine.Impl{game_id: id} = _engine <- socket.assigns.game,
-      :ok <- GameEngine.is_player_seated?(socket.assigns.game.game_id, player),
-      %GameEngine.Impl{} <- GameEngine.join(id, player, 1000) do
-        {:noreply, assign(socket, current_player: player)}
+         %GameEngine.Impl{game_id: id} = _engine <- socket.assigns.game,
+         :ok <- GameEngine.is_player_seated?(socket.assigns.game.game_id, player),
+         %GameEngine.Impl{} <- GameEngine.join(id, player, 1000) do
+      {:noreply, assign(socket, current_player: player)}
     else
-    :already_joined ->
-      {:noreply, assign(socket, errors: Map.put(socket.assigns.errors, :name, "That name has already been taken"))}
-    error ->
-      Logger.warn "Received unhandled error on PokerExWeb.Live.Game.join_game: \n#{inspect(error, pretty: true)}"
-      {:noreply, socket}
+      :already_joined ->
+        {:noreply,
+         assign(socket,
+           errors: Map.put(socket.assigns.errors, :name, "That name has already been taken")
+         )}
+
+      error ->
+        Logger.warn(
+          "Received unhandled error on PokerExWeb.Live.Game.join_game: \n#{
+            inspect(error, pretty: true)
+          }"
+        )
+
+        {:noreply, socket}
     end
   end
 end

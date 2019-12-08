@@ -32,7 +32,9 @@ defmodule PokerExWeb.Live.GameTest do
       refute render_click(view, :attempt_join) =~ "data-testid=\"join-component\""
     end
 
-    test "does not allow player to join if there is already a player with the same name", %{conn: conn} do
+    test "does not allow player to join if there is already a player with the same name", %{
+      conn: conn
+    } do
       {:ok, view, _html} = live(conn, "games/game_1")
       dup_name = "player name"
       join_game("game_1", dup_name)
