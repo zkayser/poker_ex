@@ -39,7 +39,8 @@ defmodule PokerExWeb.Live.Game do
          %GameEngine.Impl{game_id: id} = _engine <- socket.assigns.game,
          :ok <- GameEngine.is_player_seated?(socket.assigns.game.game_id, player),
          %GameEngine.Impl{} <- GameEngine.join(id, player, 1000) do
-      {:noreply, assign(socket, current_player: player)}
+      {:noreply,
+       assign(socket, current_player: player, errors: Map.delete(socket.assigns.errors, :name))}
     else
       :already_joined ->
         {:noreply,
