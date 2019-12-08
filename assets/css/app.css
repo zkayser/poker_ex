@@ -170,3 +170,88 @@ input, select, textarea {
   width: 100%;
   height: 100%;
 }
+
+.game-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.poker-table {
+  height: 600px;
+  width: 600px;
+  background-color: #4aad4a;
+  border: 15px solid #a95555;
+  border-radius: 50%;
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.seat {
+  background-color: black;
+  color: #518972;
+  text-shadow: 1px 1px 2px #518972;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+}
+
+.player-seat-1 {
+  transform: translate(250px, 250px);
+}
+
+.player-seat-2 {
+  transform: translate(-50px, 150px);
+}
+
+.player-seat-3 {
+  transform: translate(-150px, -150px);
+}
+
+.player-seat-4 {
+  transform: translate(-50px, -250px);
+}
+
+.player-seat-5 {
+  transform: translate(50px, -150px);
+}
+
+.player-seat-6 {
+  transform: translate(-50px, 150px);
+}
+
+
+.deck {
+  width: 600px;
+  height: 300px;
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-back {
+  width: 55px;
+  height: 75px;
+  transform: translate(0px, -100px);
+  position: absolute;
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+}
+
+.poker-card {
+  width: 55px;
+  height: 75px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 1em 0px 1em;
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+}
