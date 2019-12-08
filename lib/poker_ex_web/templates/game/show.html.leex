@@ -2,5 +2,16 @@
   <%= render "_join.html", name: @name, errors: @errors %>
 <% end %>
 <%= if @current_player && @game do %>
-  <div>Game</div>
+  <div class="game-container">
+    <div class="poker-table">
+      <%= for x <- 1..6 do %>
+        <div class="seat player-seat-<%= x %>">Player</div>
+      <% end %>
+      <div class="deck">
+        <img class="card-back" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"/>
+        <%= for c <- 1..5 do %>
+          <img class="poker-card" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{c + 1}_of_diamonds.svg") %>" />
+        <% end %>
+      </div>
+  </div>
 <% end %>
