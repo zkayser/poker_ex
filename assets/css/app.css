@@ -255,3 +255,32 @@ input, select, textarea {
   margin: 0px 1em 0px 1em;
   box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
 }
+
+.hand {
+  position: absolute;
+  display: flex;
+}
+
+.player-hand-1 {
+  transform: translate(0px, 300px);
+}
+
+.player-hand-2 {
+  transform: translate(-200px, 200px);
+}
+
+.player-hand-3 {
+  transform: translate(-200px, -100px);
+}
+
+.player-hand-4 {
+  transform: translate(0px, -200px);
+}
+
+.player-hand-5 {
+  transform: translate(200px, -100px);
+}
+
+.player-hand-6 {
+  transform: translate(200px, 200px);
+}
