@@ -197,7 +197,9 @@ input, select, textarea {
   color: #518972;
   text-shadow: 1px 1px 2px #518972;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 10px;
   align-items: center;
   width: 100px;
   height: 100px;
@@ -308,4 +310,11 @@ input, select, textarea {
   text-align: center;
   display: flex;
   align-items: center;
+  cursor: pointer;
+}
+
+.top-bottom-lines {
+  border-top: 1px solid #518972;
+  border-bottom: 1px solid #518972;
+  margin-bottom: 3px;
 }

@@ -1,12 +1,15 @@
-<%# <%= unless @current_player do %> 
-  <%# <%= render "_join.html", name: @name, errors: @errors %> 
-<%# <% end %> 
-<%# <%= if @current_player && @game do %> 
+<%= unless @current_player do %> 
+  <%= render "_join.html", name: @name, errors: @errors %>
+<% end %>
+<%= if @current_player && @game do %>
   <div class="game-container">
     <div class="poker-table">
     <%# Seating and player cards %>
       <%= for x <- 1..6 do %>
-        <div class="seat player-seat-<%= x %>">Player</div>
+        <div class="seat player-seat-<%= x %>">
+          <span class="caption top-bottom-lines">500</span>
+          <span>Player</span>
+        </div>
         <div class="hand player-hand-<%= x %>">
           <img 
             class="poker-card player-card-1" 
@@ -32,4 +35,4 @@
     <a class="action-btn btn">Check</a>
     <a class="action-btn btn">Fold</a>
   </div>
-<%# <% end %>
+<% end %>
