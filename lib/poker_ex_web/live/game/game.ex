@@ -10,7 +10,7 @@ defmodule PokerExWeb.Live.Game do
 
   def mount(%{game: game_id}, socket) do
     send(self(), {:setup, game_id})
-    {:ok, assign(socket, game: nil, current_player: nil, name: nil, errors: %{})}
+    {:ok, assign(socket, game: nil, current_player: nil, name: nil, errors: %{}, show_raise_form: false)}
   end
 
   def handle_info({:setup, game_id}, socket) do

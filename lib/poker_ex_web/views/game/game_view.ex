@@ -80,4 +80,15 @@ defmodule PokerExWeb.GameView do
 
   def view_blind(:unset), do: 0
   def view_blind(blind), do: blind
+
+  def actions([for: player, game: game]) do
+    Enum.reduce(~w(Call Raise Fold Check), [], fn action, list ->
+      case action do
+        "Call" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
+        "Raise" -> if game.chips.chip_roll[player.name] > game.chips.to_call, do: [action|list], else: list
+        "Fold" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
+        "Check" -> if game.chips.round[player.name] == game.chips.to_call, do: [action|list], else: list
+      end
+    end )
+  end
 end

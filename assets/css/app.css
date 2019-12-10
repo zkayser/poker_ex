@@ -357,3 +357,7 @@ input, select, textarea {
   margin-right: 1em;
   cursor: pointer;
 }
+
+.hidden {
+  visibility: hidden;
+}
