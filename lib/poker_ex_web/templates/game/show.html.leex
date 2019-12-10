@@ -27,12 +27,26 @@
         <%= for c <- 1..5 do %>
           <img class="poker-card" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{c + 1}_of_diamonds.svg") %>" />
         <% end %>
+        <%# Active pot total %>
         <span class="game-pot poker-purple">POT: $500</span>
       </div>
   </div>
+  <%# Action buttons %>
   <div class="action-bar">
     <a class="action-btn btn">Call</a>
     <a class="action-btn btn">Raise</a>
+    <%# Raise form %>
+      <div class="raise-container">
+        <div class="raise-header">
+          <h3>Raise</h3>
+          <a class="close-form" phx-click="close_raise_form">&#10005;</a>
+        </div>
+        <div class="raise-form">
+          <form phx-change="change_raise_amount" phx-submit="submit_raise">
+            <input value="" name="raise-amount" placeholder="Enter raise amount" />
+          </form>
+        </div>
+      </div>
     <a class="action-btn btn">Check</a>
     <a class="action-btn btn">Fold</a>
   </div>

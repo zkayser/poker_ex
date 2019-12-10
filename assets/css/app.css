@@ -328,3 +328,32 @@ input, select, textarea {
   transform: translateY(75px);
   text-shadow: 1px 1px 2px #2C043F;
 }
+
+.raise-container {
+  width: 50%;
+  position: absolute;
+  border: 2em solid;
+  border-radius: 2em;
+  background-color: lightgrey;
+  transform: translateY(-75%);
+  box-shadow: 10px 10px 60px 0px rgba(0,0,0,0.75);
+}
+
+.raise-header {
+  display: flex;
+  justify-content: center;
+}
+
+.raise-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.close-form {
+  position: absolute;
+  right: 0;
+  margin-top: 1em;
+  margin-right: 1em;
+  cursor: pointer;
+}
