@@ -7,7 +7,7 @@
     <%# Seating and player cards %>
       <%= for x <- 1..6 do %>
         <div class="seat player-seat-<%= x %>">
-          <span class="caption top-bottom-lines">500</span>
+          <span class="caption top-bottom-lines">$500</span>
           <span>Player</span>
         </div>
         <div class="hand player-hand-<%= x %>">
@@ -27,6 +27,7 @@
         <%= for c <- 1..5 do %>
           <img class="poker-card" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{c + 1}_of_diamonds.svg") %>" />
         <% end %>
+        <span class="game-pot poker-purple">POT: $500</span>
       </div>
   </div>
   <div class="action-bar">

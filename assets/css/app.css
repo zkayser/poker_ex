@@ -65,6 +65,10 @@ p {
   color: #518972;
 }
 
+.poker-purple {
+  color: #2C043F;
+}
+
 .card--wrapper {
   margin: 0 30px 0 30px;
 }
@@ -317,4 +321,10 @@ input, select, textarea {
   border-top: 1px solid #518972;
   border-bottom: 1px solid #518972;
   margin-bottom: 3px;
+}
+
+.game-pot {
+  position: absolute;
+  transform: translateY(75px);
+  text-shadow: 1px 1px 2px #2C043F;
 }
