@@ -5,49 +5,76 @@
   <div class="game-container">
     <div class="poker-table">
     <%# Seating and player cards %>
-      <%= for x <- 1..6 do %>
-        <div class="seat player-seat-<%= x %>">
-          <span class="caption top-bottom-lines">$500</span>
-          <span>Player</span>
+      <%= for {player, index} <- @game.seating.arrangement do %>
+        <div class="seat player-seat-<%= index + 1 %>">
+          <span class="caption top-bottom-lines"><%= @game.chips.chip_roll[player.name] %></span>
+          <span><%= player.name %></span>
         </div>
-        <div class="hand player-hand-<%= x %>">
-          <img 
-            class="poker-card player-card-1" 
-            src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"
-          />
-          <img 
-            class="poker-card player-card-2" 
-            src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"
-          />
-        </div>
+      <% end %>
+      <%= for {cards, index} <- Enum.with_index(@game.cards.player_hands) do %>
+      <div class="hand player-hand-<%= index + 1 %>">
+        <%= if cards.player.name == @current_player.name do %>
+          <% [card_1, card_2] = cards.hand %>
+        <img 
+          class="poker-card player-card-1" 
+          src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{card_1.rank}_of_#{card_1.suit}.svg") %>"
+        />
+        <img 
+          class="poker-card player-card-2" 
+          src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{card_2.rank}_of_#{card_2.suit}.svg") %>"
+        />
+        <% else %>
+        <img 
+          class="poker-card player-card-1" 
+          src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"
+        />
+        <img 
+          class="poker-card player-card-2" 
+          src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"
+        />          
+        <% end %>
+      </div>
+      <% end %>
+      <%= if length(@game.seating.arrangement) < 6 do %>
+        <%= for x <- (length(@game.seating.arrangement) + 1)..6 do %>
+          <div class="seat hidden player-seat-<%= x %>"></div>
+        <% end %>
       <% end %>
       <div class="deck">
       <%# Community cards (%GameEngine{}.table) %>
         <img class="card-back" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/card-deck.svg") %>"/>
-        <%= for c <- 1..5 do %>
-          <img class="poker-card" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{c + 1}_of_diamonds.svg") %>" />
+        <%= for card <- @game.cards.table do %>
+          <img class="poker-card" src="<%= Routes.static_path(PokerExWeb.Endpoint, "/images/cards/#{card.rank}_of_#{card.suit}.svg") %>" />
         <% end %>
         <%# Active pot total %>
-        <span class="game-pot poker-purple">POT: $500</span>
+        <span class="game-pot poker-purple">POT: <%= @game.chips.pot %></span>
       </div>
   </div>
   <%# Action buttons %>
-  <div class="action-bar">
-    <a class="action-btn btn">Call</a>
-    <a class="action-btn btn">Raise</a>
-    <%# Raise form %>
-      <div class="raise-container">
-        <div class="raise-header">
-          <h3>Raise</h3>
-          <a class="close-form" phx-click="close_raise_form">&#10005;</a>
+  <%= if length(@game.player_tracker.active) > 0 && @current_player.name == List.first(@game.player_tracker.active).name do %>
+  <div class="action-bar">  
+      <%= for action <- actions(for: @current_player, game: @game) do %>
+        <%= if action == "Raise" do %>
+          <a class="action-btn btn" phx-click="show_raise_form">Raise</a>
+        <% else %>
+          <a class="action-btn btn" phx-click="<%= "action_#{String.downcase(action)}" %>"><%= action %></a>
+        <% end %>
+      <% end %>
+      <%# Raise form %>
+      <%= if @show_raise_form do %>
+        <div class="raise-container">
+          <div class="raise-header">
+            <h3>Raise</h3>
+            <a class="close-form" phx-click="close_raise_form">&#10005;</a>
+          </div>
+          <div class="raise-form">
+            <form phx-change="change_raise_amount" phx-submit="submit_raise">
+              <input value="<%= @raise_amount %>" name="raise_amount" placeholder="Enter raise amount" />
+              <a class="btn" phx-click="submit_raise">Place Bet</a>
+            </form>
+          </div>
         </div>
-        <div class="raise-form">
-          <form phx-change="change_raise_amount" phx-submit="submit_raise">
-            <input value="" name="raise-amount" placeholder="Enter raise amount" />
-          </form>
-        </div>
-      </div>
-    <a class="action-btn btn">Check</a>
-    <a class="action-btn btn">Fold</a>
+      <% end %>
   </div>
+  <% end %>
 <% end %>

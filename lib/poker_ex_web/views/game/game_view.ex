@@ -87,7 +87,7 @@ defmodule PokerExWeb.GameView do
         "Call" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
         "Raise" -> if game.chips.chip_roll[player.name] > game.chips.to_call, do: [action|list], else: list
         "Fold" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
-        "Check" -> if game.chips.round[player.name] == game.chips.to_call, do: [action|list], else: list
+        "Check" -> if game.chips.round[player.name] == game.chips.to_call || (!game.chips.round[player.name] && game.chips.to_call == 0), do: [action|list], else: list
       end
     end )
   end
