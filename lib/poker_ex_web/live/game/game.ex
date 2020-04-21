@@ -13,7 +13,16 @@ defmodule PokerExWeb.Live.Game do
 
   def mount(%{game: game_id}, socket) do
     send(self(), {:setup, game_id})
-    {:ok, assign(socket, game: nil, current_player: nil, name: nil, errors: %{}, show_raise_form: false, raise_amount: 0)}
+
+    {:ok,
+     assign(socket,
+       game: nil,
+       current_player: nil,
+       name: nil,
+       errors: %{},
+       show_raise_form: false,
+       raise_amount: 0
+     )}
   end
 
   def handle_info({:setup, game_id}, socket) do
@@ -30,8 +39,16 @@ defmodule PokerExWeb.Live.Game do
     apply(Join, String.to_existing_atom(event), [assign_function(), params, socket])
   end
 
+  def handle_event(event, params, socket) when event in @join_events do
+    apply(Join, String.to_existing_atom(event), [assign_function(), params, socket])
+  end
+
   def handle_event("action_" <> move, _params, socket) when move in @poker_actions do
-    apply(GameEngine, String.to_existing_atom(move), [socket.assigns.game.game_id, socket.assigns.current_player])
+    apply(GameEngine, String.to_existing_atom(move), [
+      socket.assigns.game.game_id,
+      socket.assigns.current_player
+    ])
+
     {:noreply, socket}
   end
 
@@ -51,12 +68,17 @@ defmodule PokerExWeb.Live.Game do
   end
 
   def handle_event("submit_raise", _, socket) do
-    GameEngine.raise(socket.assigns.game.game_id, socket.assigns.current_player, socket.assigns.raise_amount)
+    GameEngine.raise(
+      socket.assigns.game.game_id,
+      socket.assigns.current_player,
+      socket.assigns.raise_amount
+    )
+
     {:noreply, assign(socket, show_raise_form: false, raise_amount: 0)}
   end
 
   defp assign_function do
-    fn (socket, keyword) ->
+    fn socket, keyword ->
       assign(socket, keyword)
     end
   end
