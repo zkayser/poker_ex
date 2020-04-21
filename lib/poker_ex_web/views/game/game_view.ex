@@ -81,14 +81,44 @@ defmodule PokerExWeb.GameView do
   def view_blind(:unset), do: 0
   def view_blind(blind), do: blind
 
-  def actions([for: player, game: game]) do
+  def active_player_class(%{active: []}, _player), do: ""
+
+  def active_player_class(%{active: [active | _]}, player_name) do
+    case active.name == player_name do
+      true -> "player--active"
+      false -> ""
+    end
+  end
+
+  def actions(for: player, game: game) do
     Enum.reduce(~w(Call Raise Fold Check), [], fn action, list ->
       case action do
-        "Call" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
-        "Raise" -> if game.chips.chip_roll[player.name] > game.chips.to_call, do: [action|list], else: list
-        "Fold" -> if game.chips.round[player.name] < game.chips.to_call, do: [action|list], else: list
-        "Check" -> if game.chips.round[player.name] == game.chips.to_call || (!game.chips.round[player.name] && game.chips.to_call == 0), do: [action|list], else: list
+        "Call" ->
+          if can_call?(game, player), do: [action | list], else: list
+
+        "Raise" ->
+          if game.chips.chip_roll[player.name] > game.chips.to_call,
+            do: [action | list],
+            else: list
+
+        "Fold" ->
+          if show_fold?(game, player), do: [action | list], else: list
+
+        "Check" ->
+          if game.chips.round[player.name] == game.chips.to_call ||
+               (!game.chips.round[player.name] && game.chips.to_call == 0),
+             do: [action | list],
+             else: list
       end
-    end )
+    end)
+  end
+
+  defp can_call?(game, player) do
+    (game.chips.round[player.name] && game.chips.round[player.name] < game.chips.to_call) ||
+      (game.chips.to_call > 0 && !game.chips.round[player.name])
+  end
+
+  def show_fold?(game, player) do
+    !game.chips.round[player.name] || game.chips.round[player.name] < game.chips.to_call
   end
 end

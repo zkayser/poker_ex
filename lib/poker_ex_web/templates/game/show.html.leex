@@ -5,8 +5,8 @@
   <div class="game-container">
     <div class="poker-table">
     <%# Seating and player cards %>
-      <%= for {player, index} <- @game.seating.arrangement do %>
-        <div class="seat player-seat-<%= index + 1 %>">
+      <%= for {player, index} <- Enum.sort_by(@game.seating.arrangement, fn {_, ix} -> ix end) do %>
+        <div class="seat player-seat-<%= index + 1 %> <%= active_player_class(@game.player_tracker, player.name) %>">
           <span class="caption top-bottom-lines"><%= @game.chips.chip_roll[player.name] %></span>
           <span><%= player.name %></span>
         </div>

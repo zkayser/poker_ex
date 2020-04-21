@@ -361,3 +361,22 @@ input, select, textarea {
 .hidden {
   visibility: hidden;
 }
+
+.player--active {
+  animation: pulse 3s infinite;
+  animation-direction: alternate;
+}
+
+@keyframes pulse {
+  0% {
+    border: 2px solid grey;
+  }
+
+  50% {
+    border: 2px solid ghostwhite;
+  }
+
+  100% {
+    border: 2px solid grey;
+  }
+}
