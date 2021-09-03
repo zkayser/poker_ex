@@ -15,6 +15,7 @@ defmodule PokerEx.Auth.GoogleTest do
 
   describe "validate/1" do
     test "returns ok if the token signature can be verified" do
+      IO.inspect(@token, label: "TOKEN")
       assert {:ok, google_id} = Google.validate(@token)
       assert is_binary(google_id)
     end
